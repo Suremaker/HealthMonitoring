@@ -109,7 +109,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\Startup.cs" />
-    <Compile Include="Configuration\SwaggerConfig.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
