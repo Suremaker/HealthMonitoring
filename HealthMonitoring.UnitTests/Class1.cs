@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HealthMonitoring.UnitTests
+﻿namespace HealthMonitoring.UnitTests
 {
     public class Class1
     {
