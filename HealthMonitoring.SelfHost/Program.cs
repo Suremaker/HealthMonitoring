@@ -1,23 +1,22 @@
 ﻿using System;
+using System.Configuration;
+using System.Threading;
 using HealthMonitoring.SelfHost.Configuration;
 using Microsoft.Owin.Hosting;
 
 namespace HealthMonitoring.SelfHost
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(params string[] args)
         {
-            string baseAddress = "http://localhost:9000/";
+            string baseAddress = ConfigurationManager.AppSettings["BaseUrl"];
 
-            // Start OWIN host 
-            using (WebApp.Start<Startup>(url: baseAddress))
+            using (WebApp.Start<Startup>(baseAddress))
             {
                 Console.WriteLine("Started...");
-                Console.ReadLine(); 
+                Thread.Sleep(Timeout.InfiniteTimeSpan);
             }
-
-
         }
     }
 }

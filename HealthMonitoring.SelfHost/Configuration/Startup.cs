@@ -1,4 +1,8 @@
-﻿using System.Web.Http;
+﻿using System.Reflection;
+using System.Web.Http;
+using Autofac;
+using Autofac.Integration.WebApi;
+using Microsoft.Owin.Host.HttpListener;
 using Owin;
 using Swashbuckle.Application;
 
@@ -11,12 +15,13 @@ namespace HealthMonitoring.SelfHost.Configuration
             var config = new HttpConfiguration();
             ConfigureRoutes(config);
             ConfigureSwagger(config);
+            ConfigureDependencies(config);
             appBuilder.UseWebApi(config);
         }
 
         private static void ConfigureRoutes(HttpConfiguration config)
         {
-            config.Routes.MapHttpRoute("Api", "api/{controller}/{id}", new { id = RouteParameter.Optional });
+            config.MapHttpAttributeRoutes();
             config.Routes.MapHttpRoute("Swagger", "", null, null, new RedirectHandler(SwaggerDocsConfig.DefaultRootUrlResolver, "swagger/ui/index"));
         }
 
@@ -31,6 +36,25 @@ namespace HealthMonitoring.SelfHost.Configuration
                     c.DescribeAllEnumsAsStrings();
                 })
                 .EnableSwaggerUi(c => { c.DisableValidator(); });
+        }
+
+        private void ConfigureDependencies(HttpConfiguration config)
+        {
+            var builder = new ContainerBuilder();
+
+            builder.RegisterAssemblyTypes(typeof(Program).Assembly).Where(t => typeof (ApiController).IsAssignableFrom(t)).AsSelf();
+            builder.RegisterAssemblyTypes(typeof(ProtocolRegistry).Assembly).AsImplementedInterfaces();
+
+            builder.RegisterInstance<IProtocolRegistry>(new ProtocolRegistry(ProtocolDiscovery.DiscoverAllInCurrentFolder()));
+            config.DependencyResolver = new AutofacWebApiDependencyResolver(builder.Build());
+        }
+
+        private Assembly[] GetIndirectDependencies()
+        {
+            return new[]
+            {
+                typeof (OwinHttpListener).Assembly
+            };
         }
     }
 }
