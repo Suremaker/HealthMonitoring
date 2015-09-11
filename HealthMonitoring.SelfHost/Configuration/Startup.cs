@@ -43,7 +43,7 @@ namespace HealthMonitoring.SelfHost.Configuration
             var builder = new ContainerBuilder();
 
             builder.RegisterAssemblyTypes(typeof(Program).Assembly).Where(t => typeof (ApiController).IsAssignableFrom(t)).AsSelf();
-            builder.RegisterAssemblyTypes(typeof(ProtocolRegistry).Assembly).AsImplementedInterfaces();
+            builder.RegisterAssemblyTypes(typeof(ProtocolRegistry).Assembly).AsImplementedInterfaces().SingleInstance();
 
             builder.RegisterInstance<IProtocolRegistry>(new ProtocolRegistry(ProtocolDiscovery.DiscoverAllInCurrentFolder()));
             config.DependencyResolver = new AutofacWebApiDependencyResolver(builder.Build());
