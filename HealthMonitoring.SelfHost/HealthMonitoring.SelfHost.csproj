@@ -94,6 +94,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
@@ -129,7 +130,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\Startup.cs" />
+    <Compile Include="Controllers\EndpointsController.cs" />
     <Compile Include="Controllers\ProtocolsController.cs" />
+    <Compile Include="Entities\EndpointRegistration.cs" />
+    <Compile Include="Entities\EntityValidator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

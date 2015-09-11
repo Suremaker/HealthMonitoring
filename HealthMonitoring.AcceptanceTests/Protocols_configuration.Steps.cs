@@ -22,12 +22,12 @@ namespace HealthMonitoring.AcceptanceTests
             _client = ClientHelper.Build();
         }
 
-        private void When_client_requests_a_list_of_supported_protocols_via_URL(string url)
+        private void When_client_requests_a_list_of_supported_protocols_via_url(string url)
         {
             _response = _client.ExpectAnSuccessfulGet(url);
         }
 
-        private void Then_a_list_of_supported_protocols_is_returned__LIST([FormatCollection] params string[] list)
+        private void Then_a_list_of_supported_protocols_should_be_returned__LIST([FormatCollection] params string[] list)
         {
             var types = JsonConvert.DeserializeObject<string[]>(_response.Content);
             Assert.Equal(list, types);

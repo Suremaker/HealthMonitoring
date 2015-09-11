@@ -22,7 +22,7 @@ namespace HealthMonitoring.SelfHost.Configuration
         private static void ConfigureRoutes(HttpConfiguration config)
         {
             config.MapHttpAttributeRoutes();
-            config.Routes.MapHttpRoute("Swagger", "", null, null, new RedirectHandler(SwaggerDocsConfig.DefaultRootUrlResolver, "swagger/ui/index"));
+            config.Routes.MapHttpRoute("Swagger", "api", null, null, new RedirectHandler(SwaggerDocsConfig.DefaultRootUrlResolver, "swagger/ui/index"));
         }
 
         private static void ConfigureSwagger(HttpConfiguration config)

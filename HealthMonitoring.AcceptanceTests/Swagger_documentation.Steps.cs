@@ -1,4 +1,7 @@
-﻿using HealthMonitoring.AcceptanceTests.Helpers;
+﻿using System;
+using System.Linq;
+using System.Net;
+using HealthMonitoring.AcceptanceTests.Helpers;
 using LightBDD;
 using RestSharp;
 using Xunit;
@@ -21,14 +24,26 @@ namespace HealthMonitoring.AcceptanceTests
             _client = ClientHelper.Build();
         }
 
-        private void When_client_requests_a_swagger_documentation_via_URL(string url)
+        private void When_client_requests_a_swagger_documentation_via_url(string url)
         {
             _response = _client.ExpectAnSuccessfulGet(url);
         }
 
-        private void Then_the_swagger_API_documentation_is_returned()
+        private void Then_the_swagger_API_documentation_should_be_returned()
         {
             Assert.Contains("<title>Swagger UI</title>", _response.Content);
+        }
+
+        private void When_client_requests_an_api_description_via_url(string url)
+        {
+            _client.FollowRedirects = false;
+            _response = _client.Get(new RestRequest(url));
+        }
+
+        private void Then_the_client_should_be_redirected_to_url(string url)
+        {
+            Assert.Equal(HttpStatusCode.MovedPermanently, _response.StatusCode);
+            _response.VerifyLocationHeader(url);
         }
     }
 }
