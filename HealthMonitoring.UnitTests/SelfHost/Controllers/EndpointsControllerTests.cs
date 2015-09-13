@@ -27,19 +27,19 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         [InlineData("name", "group", "", "protocol")]
         [InlineData("name", "", "address", "protocol")]
         [InlineData("", "group", "address", "protocol")]
-        public void Registration_should_fail_if_not_all_data_is_provided(string name, string group, string address, string protocol)
+        public void RegisterOrUpdate_should_fail_if_not_all_data_is_provided(string name, string group, string address, string protocol)
         {
             Assert.Throws<ValidationException>(() => _controller.PostRegisterEndpoint(new EndpointRegistration { Address = address, Group = group, Name = name, Protocol = protocol }));
         }
 
         [Fact]
-        public void Registration_should_fail_model_is_not_provided()
+        public void RegisterOrUpdate_should_fail_if_model_is_not_provided()
         {
             Assert.Throws<ArgumentNullException>(() => _controller.PostRegisterEndpoint(null));
         }
 
         [Fact]
-        public void Registration_should_return_CREATED_status_and_endpoint_identifier()
+        public void RegisterOrUpdate_should_return_CREATED_status_and_endpoint_identifier()
         {
             Guid id = Guid.NewGuid();
             var protocol = "proto";
@@ -66,6 +66,26 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         public void GetEndpoint_should_return_NOTFOUND_if_there_is_no_matching_endpoint()
         {
             Assert.IsType<NotFoundResult>(_controller.GetEndpoint(Guid.NewGuid()));
+        }
+
+        [Fact]
+        public void RegisterOrUpdate_should_fail_if_protocol_is_not_recognized()
+        {
+            var protocol = "proto";
+            _endpointRegistry
+                .Setup(r => r.RegisterOrUpdate(protocol, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Throws(new UnsupportedProtocolException(protocol));
+
+            var response = _controller.PostRegisterEndpoint(new EndpointRegistration
+            {
+                Address = "address",
+                Group = "group",
+                Name = "name",
+                Protocol = protocol
+            }) as BadRequestErrorMessageResult;
+
+            Assert.NotNull(response);
+            Assert.Equal("Unsupported protocol: proto", response.Message);
         }
 
         [Fact]

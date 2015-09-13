@@ -104,6 +104,7 @@
     </Compile>
     <Compile Include="Helpers\ClientHelper.cs" />
     <Compile Include="Helpers\Entities\EndpointEntity.cs" />
+    <Compile Include="Helpers\Entities\ErrorEntity.cs" />
     <Compile Include="Helpers\FormatCollectionAttribute.cs" />
     <Compile Include="Helpers\Protocols.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

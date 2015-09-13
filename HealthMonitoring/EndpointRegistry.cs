@@ -8,11 +8,23 @@ namespace HealthMonitoring
 {
     public class EndpointRegistry : IEndpointRegistry
     {
+        private readonly IProtocolRegistry _protocolRegistry;
         private readonly ConcurrentDictionary<string, Endpoint> _endpoints = new ConcurrentDictionary<string, Endpoint>();
         private readonly ConcurrentDictionary<Guid, Endpoint> _endpointsByGuid = new ConcurrentDictionary<Guid, Endpoint>();
+
+        public IEnumerable<Endpoint> Endpoints { get { return _endpoints.Select(p => p.Value); } }
+
+        public EndpointRegistry(IProtocolRegistry protocolRegistry)
+        {
+            _protocolRegistry = protocolRegistry;
+        }
+
         public Guid RegisterOrUpdate(string protocol, string address, string group, string name)
         {
-            string key = string.Format("{0}|{1}", protocol, address);
+            var proto = _protocolRegistry.FindByName(protocol);
+            if (proto == null)
+                throw new UnsupportedProtocolException(protocol);
+            var key = GetKey(protocol, address);
             var endpoint = _endpoints.AddOrUpdate(key, new Endpoint(Guid.NewGuid(), protocol, address, name, group), (k, e) => e.Update(group, name));
             _endpointsByGuid[endpoint.Id] = endpoint;
             return endpoint.Id;
@@ -24,6 +36,9 @@ namespace HealthMonitoring
             return _endpointsByGuid.TryGetValue(id, out endpoint) ? endpoint : null;
         }
 
-        public IEnumerable<Endpoint> Endpoints { get { return _endpoints.Select(p => p.Value); } }
+        private static string GetKey(string protocol, string address)
+        {
+            return string.Format("{0}|{1}", protocol, address.ToLowerInvariant());
+        }
     }
 }

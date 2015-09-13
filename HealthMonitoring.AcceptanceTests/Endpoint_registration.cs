@@ -22,6 +22,16 @@ I want to be able to register browse and unregister endpoints")]
         }
 
         [Scenario]
+        public void Registering_new_endpoint_with_unsupported_protocol()
+        {
+            Runner.RunScenario(
+                _ => Given_a_monitor_api_client(),
+                _ => When_client_requests_endpoint_registration_via_url_with_name_address_group_and_protocol("/api/endpoints/register", "my_name", "http://localhost:2524/status", "my_group", Protocols.Unsupported),
+                _ => Then_client_should_receive_STATUS_code(HttpStatusCode.BadRequest),
+                _ => Then_response_should_contain_message("Unsupported protocol: " + Protocols.Unsupported));
+        }
+
+        [Scenario]
         public void Retrieving_inexistent_endpoint_definition()
         {
             Runner.RunScenario(

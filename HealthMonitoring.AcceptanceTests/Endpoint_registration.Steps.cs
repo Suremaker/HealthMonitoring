@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using HealthMonitoring.AcceptanceTests.Helpers;
@@ -86,6 +87,17 @@ namespace HealthMonitoring.AcceptanceTests
             var entities = JsonConvert.DeserializeObject<EndpointEntity[]>(_response.Content);
             var entity = entities.SingleOrDefault(e => e.Protocol == protocol && e.Address == address);
             AssertEntity(entity, name, address, group, protocol);
+        }
+
+        private void Then_client_should_receive_STATUS_code(HttpStatusCode status)
+        {
+            _response.VerifyValidStatus(status);
+        }
+
+        private void Then_response_should_contain_message(string message)
+        {
+            var error = JsonConvert.DeserializeObject<ErrorEntity>(_response.Content).Message;
+            Assert.Equal(message, error);
         }
     }
 }

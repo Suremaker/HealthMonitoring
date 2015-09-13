@@ -26,9 +26,16 @@ namespace HealthMonitoring.SelfHost.Controllers
         public IHttpActionResult PostRegisterEndpoint([FromBody]EndpointRegistration endpoint)
         {
             endpoint.ValidateModel();
-            var id = _endpointRegistry.RegisterOrUpdate(endpoint.Protocol, endpoint.Address, endpoint.Group, endpoint.Name);
+            try
+            {
+                var id = _endpointRegistry.RegisterOrUpdate(endpoint.Protocol, endpoint.Address, endpoint.Group, endpoint.Name);
 
-            return Created(new Uri(Request.RequestUri, string.Format("/api/endpoints/{0}", id)), id);
+                return Created(new Uri(Request.RequestUri, string.Format("/api/endpoints/{0}", id)), id);
+            }
+            catch (UnsupportedProtocolException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [Route("api/endpoints/{id}")]
