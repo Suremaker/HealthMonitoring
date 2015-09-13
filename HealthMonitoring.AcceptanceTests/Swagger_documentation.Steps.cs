@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using LightBDD;
 using RestSharp;

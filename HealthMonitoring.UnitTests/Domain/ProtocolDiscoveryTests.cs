@@ -1,7 +1,10 @@
 ﻿using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using HealthMonitoring.Protocols;
 using HealthMonitoring.Protocols.Broken;
 using HealthMonitoring.Protocols.Rest;
+using HealthMonitoring.UnitTests.Helpers;
 using Xunit;
 
 namespace HealthMonitoring.UnitTests.Domain
@@ -15,7 +18,8 @@ namespace HealthMonitoring.UnitTests.Domain
             {
                 typeof(RestProtocol), 
                 typeof(TestProtocol), 
-                typeof(TestProtocol2)
+                typeof(TestProtocol2),
+                typeof(TestableProtocol),
             };
 
 
@@ -70,15 +74,19 @@ namespace HealthMonitoring.UnitTests.Domain
     internal class TestProtocol : IHealthCheckProtocol
     {
         public string Name { get { return "test"; } }
-        
+        public Task<HealthInfo> CheckHealthAsync(string address, CancellationToken cancellationToken)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 
     internal class TestProtocol2 : IHealthCheckProtocol
     {
-        public string Name
-        {
-            get { return "test"; }
-        }
+        public string Name { get { return "test"; } }
 
+        public Task<HealthInfo> CheckHealthAsync(string address, CancellationToken cancellationToken)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

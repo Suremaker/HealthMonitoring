@@ -1,5 +1,7 @@
 ﻿using System;
+using HealthMonitoring.Model;
 using HealthMonitoring.Protocols;
+using HealthMonitoring.UnitTests.Helpers;
 using Moq;
 using Xunit;
 
@@ -17,17 +19,21 @@ namespace HealthMonitoring.UnitTests.Domain
         }
 
         [Fact]
-        public void RegisterOrUpdate_should_register_new_endpoint_and_allow_to_retrieve_it()
+        public void RegisterOrUpdate_should_register_new_endpoint_and_emit_NewEndpointAdded_event()
         {
             MockProtocol("proto");
+
+            Endpoint endpoint = null;
+            _registry.NewEndpointAdded += e => { endpoint = e; };
+
             var id = _registry.RegisterOrUpdate("proto", "address", "group", "name");
-            var endpoint = _registry.GetById(id);
 
             Assert.NotNull(endpoint);
             Assert.Equal("proto", endpoint.Protocol);
             Assert.Equal("address", endpoint.Address);
             Assert.Equal("name", endpoint.Name);
             Assert.Equal("group", endpoint.Group);
+            Assert.Equal(id, endpoint.Id);
         }
 
         [Fact]
@@ -46,13 +52,18 @@ namespace HealthMonitoring.UnitTests.Domain
         }
 
         [Fact]
-        public void RegisterOrUpdate_should_update_existing_endpoint_and_return_same_id()
+        public void RegisterOrUpdate_should_update_existing_endpoint_and_return_same_id_but_not_emit_NewEndpointAdded_event()
         {
             MockProtocol("proto");
             var id = _registry.RegisterOrUpdate("proto", "address", "group", "name");
+
+            Endpoint newEndpointCapture = null;
+            _registry.NewEndpointAdded += e => { newEndpointCapture = e; };
+
             var id2 = _registry.RegisterOrUpdate("proto", "ADDRESS", "group2", "name2");
 
             Assert.Equal(id, id2);
+            Assert.Null(newEndpointCapture);
 
             var endpoint = _registry.GetById(id);
             Assert.NotNull(endpoint);
@@ -63,7 +74,38 @@ namespace HealthMonitoring.UnitTests.Domain
         }
 
         [Fact]
-        public void GetById_shoulr_return_null_for_unknown_id()
+        public void GetById_should_return_registered_endpoint()
+        {
+            MockProtocol("proto");
+            var id = _registry.RegisterOrUpdate("proto", "address", "group", "name");
+            var endpoint = _registry.GetById(id);
+
+            Assert.NotNull(endpoint);
+            Assert.Equal("proto", endpoint.Protocol);
+            Assert.Equal("address", endpoint.Address);
+            Assert.Equal("name", endpoint.Name);
+            Assert.Equal("group", endpoint.Group);
+        }
+
+        [Fact]
+        public void TryUnregister_should_remove_endpoint_and_dispose_it()
+        {
+            MockProtocol("proto");
+            var id = _registry.RegisterOrUpdate("proto", "address", "group", "name");
+            var endpoint = _registry.GetById(id);
+            Assert.True(_registry.TryUnregisterById(id), "Endpoint should be unregistered");
+            Assert.True(endpoint.IsDisposed, "Endpoint should be disposed");
+            Assert.Null(_registry.GetById(id));
+        }
+
+        [Fact]
+        public void TryUnregister_should_return_false_if_endpoint_is_not_registered()
+        {
+            Assert.False(_registry.TryUnregisterById(Guid.NewGuid()));
+        }
+
+        [Fact]
+        public void GetById_should_return_null_for_unknown_id()
         {
             Assert.Null(_registry.GetById(Guid.NewGuid()));
         }
@@ -80,7 +122,7 @@ namespace HealthMonitoring.UnitTests.Domain
         {
             _protocolRegistry
                 .Setup(r => r.FindByName(protocolName))
-                .Returns(new Mock<IHealthCheckProtocol>().Object);
+                .Returns(ProtocolMock.Mock(protocolName));
         }
     }
 }

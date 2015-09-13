@@ -6,6 +6,7 @@ using System.Web.Http.Results;
 using HealthMonitoring.Model;
 using HealthMonitoring.SelfHost.Controllers;
 using HealthMonitoring.SelfHost.Entities;
+using HealthMonitoring.UnitTests.Helpers;
 using Moq;
 using Xunit;
 
@@ -69,6 +70,20 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         }
 
         [Fact]
+        public void DeleteEndpoint_should_return_NOTFOUND_if_there_is_no_matching_endpoint()
+        {
+            Assert.IsType<NotFoundResult>(_controller.DeleteEndpoint(Guid.NewGuid()));
+        }
+
+        [Fact]
+        public void DeleteEndpoint_should_return_OK_if_there_is_matching_endpoint()
+        {
+            var id = Guid.NewGuid();
+            _endpointRegistry.Setup(r => r.TryUnregisterById(id)).Returns(true);
+            Assert.IsType<OkResult>(_controller.DeleteEndpoint(id));
+        }
+
+        [Fact]
         public void RegisterOrUpdate_should_fail_if_protocol_is_not_recognized()
         {
             var protocol = "proto";
@@ -92,7 +107,7 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         public void GetEndpoint_should_return_endpoint_information()
         {
             Guid id = Guid.NewGuid();
-            var endpoint = new Endpoint(id, "proto", "address", "name", "group");
+            var endpoint = new Endpoint(id, ProtocolMock.Mock("proto"), "address", "name", "group");
             _endpointRegistry.Setup(r => r.GetById(id)).Returns(endpoint);
 
             var result = _controller.GetEndpoint(id) as OkNegotiatedContentResult<EndpointDetails>;
@@ -114,8 +129,8 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         {
             var endpoints = new[]
             {
-                new Endpoint(Guid.NewGuid(), "a", "b", "c", "d"),
-                new Endpoint(Guid.NewGuid(), "e", "f", "g", "h")
+                new Endpoint(Guid.NewGuid(), ProtocolMock.Mock("a"), "b", "c", "d"),
+                new Endpoint(Guid.NewGuid(), ProtocolMock.Mock("e"), "f", "g", "h")
             };
             _endpointRegistry.Setup(r => r.Endpoints).Returns(endpoints);
             var results = _controller.GetEndpoints().ToArray();

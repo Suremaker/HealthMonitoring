@@ -78,7 +78,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\EndpointRegistryTests.cs" />
+    <Compile Include="Domain\EndpointTests.cs" />
+    <Compile Include="Domain\HealthMonitorTests.cs" />
     <Compile Include="Domain\ProtocolDiscoveryTests.cs" />
+    <Compile Include="Helpers\ProtocolMock.cs" />
+    <Compile Include="Helpers\TestableProtocol.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Domain\ProtocolRegistryTests.cs" />
     <Compile Include="SelfHost\Controllers\EndpointsControllerTests.cs" />

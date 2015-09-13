@@ -2,13 +2,17 @@ using System;
 using System.Configuration;
 using System.Linq;
 using System.Net;
+using HealthMonitoring.AcceptanceTests.Helpers.Entities;
+using Newtonsoft.Json;
 using RestSharp;
 using Xunit;
 
 namespace HealthMonitoring.AcceptanceTests.Helpers
 {
-    public static class ClientHelper
+    static class ClientHelper
     {
+        public const string EndpointRegistrationUrl = "/api/endpoints/register";
+
         public static RestClient Build()
         {
             return new RestClient(GetBaseUrl());
@@ -34,14 +38,32 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
 
         public static void VerifyHeader(this IRestResponse response, string header, string value)
         {
-            var headerObject = response.Headers.SingleOrDefault(h => string.Equals(h.Name, header, StringComparison.OrdinalIgnoreCase));
-            Assert.True(headerObject != null, string.Format("Header {0} is missing", header));
+            var headerObject = response.Headers.SingleOrDefault(h => String.Equals(h.Name, header, StringComparison.OrdinalIgnoreCase));
+            Assert.True(headerObject != null, String.Format("Header {0} is missing", header));
             Assert.Equal(value, headerObject.Value);
         }
 
         public static void VerifyLocationHeader(this IRestResponse response, string url)
         {
             response.VerifyHeader("location", new Uri(GetBaseUrl(), url).ToString());
+        }
+
+        public static Guid RegisterEndpoint(this RestClient client, string protocol, string address, string @group, string name)
+        {
+            var response = client.Post(new RestRequest(EndpointRegistrationUrl).AddJsonBody(new { @group, protocol, name, address }));
+            response.VerifyValidStatus(HttpStatusCode.Created);
+            return JsonConvert.DeserializeObject<Guid>(response.Content);
+        }
+
+        public static EndpointEntity GetEndpointDetails(this RestClient client, Guid identifier)
+        {
+            return client.Get(new RestRequest("/api/endpoints/" + identifier)).DeserializeEndpointDetails();
+        }
+
+        public static EndpointEntity DeserializeEndpointDetails(this IRestResponse response)
+        {
+            response.VerifyValidStatus(HttpStatusCode.OK);
+            return JsonConvert.DeserializeObject<EndpointEntity>(response.Content);
         }
     }
 }

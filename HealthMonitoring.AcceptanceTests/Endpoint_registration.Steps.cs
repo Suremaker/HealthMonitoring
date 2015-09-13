@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using HealthMonitoring.AcceptanceTests.Helpers;
@@ -48,8 +47,7 @@ namespace HealthMonitoring.AcceptanceTests
 
         private void Then_endpoint_information_should_be_returned_including_name_address_group_and_protocol(string name, string address, string group, string protocol)
         {
-            _response.VerifyValidStatus(HttpStatusCode.OK);
-            var entity = JsonConvert.DeserializeObject<EndpointEntity>(_response.Content);
+            var entity = _response.DeserializeEndpointDetails();
             AssertEntity(entity, name, address, group, protocol);
         }
 
@@ -74,6 +72,7 @@ namespace HealthMonitoring.AcceptanceTests
         private void Given_endpoint_with_name_address_group_and_protocol_is_registered(string name, string address, string group, string protocol)
         {
             When_client_requests_endpoint_registration_via_url_with_name_address_group_and_protocol("/api/endpoints/register", name, address, group, protocol);
+            Then_a_new_endpoint_identifier_should_be_returned();
         }
 
         private void When_client_requests_all_endpoints_details_via_url(string url)
@@ -98,6 +97,16 @@ namespace HealthMonitoring.AcceptanceTests
         {
             var error = JsonConvert.DeserializeObject<ErrorEntity>(_response.Content).Message;
             Assert.Equal(message, error);
+        }
+
+        private void When_client_requests_endpoint_deletion_via_url(string url)
+        {
+            _response = _client.Delete(new RestRequest(url));
+        }
+
+        private void When_client_requests_endpoint_deletion_for_inexistent_endpoint_identifier()
+        {
+            When_client_requests_endpoint_deletion_via_url(string.Format("api/endpoints/{0}", Guid.NewGuid()));
         }
     }
 }

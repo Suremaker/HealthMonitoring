@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointRegistry.cs" />
+    <Compile Include="HealthMonitor.cs" />
     <Compile Include="IEndpointRegistry.cs" />
     <Compile Include="IProtocolRegistry.cs" />
     <Compile Include="Model\Endpoint.cs" />

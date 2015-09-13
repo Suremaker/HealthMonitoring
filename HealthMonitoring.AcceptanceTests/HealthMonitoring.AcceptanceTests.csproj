@@ -72,6 +72,7 @@
     </Reference>
     <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Runtime" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
       <Private>True</Private>
@@ -103,14 +104,22 @@
       <DependentUpon>Endpoint_registration.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ClientHelper.cs" />
+    <Compile Include="Helpers\EndpointStatus.cs" />
     <Compile Include="Helpers\Entities\EndpointEntity.cs" />
     <Compile Include="Helpers\Entities\ErrorEntity.cs" />
     <Compile Include="Helpers\FormatCollectionAttribute.cs" />
+    <Compile Include="Helpers\MockWebEndpoint.cs" />
     <Compile Include="Helpers\Protocols.cs" />
+    <Compile Include="Helpers\MockWebEndpointFactory.cs" />
+    <Compile Include="Helpers\Wait.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocols_configuration.cs" />
     <Compile Include="Protocols_configuration.Steps.cs">
       <DependentUpon>Protocols_configuration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Rest_endpoint_monitoring.cs" />
+    <Compile Include="Rest_endpoint_monitoring.Steps.cs">
+      <DependentUpon>Rest_endpoint_monitoring.cs</DependentUpon>
     </Compile>
     <Compile Include="Swagger_documentation.cs" />
     <Compile Include="Swagger_documentation.Steps.cs">

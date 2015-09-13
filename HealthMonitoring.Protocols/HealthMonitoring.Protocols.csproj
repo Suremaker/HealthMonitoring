@@ -34,6 +34,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HealthInfo.cs" />
+    <Compile Include="HealthStatus.cs" />
     <Compile Include="IHealthCheckProtocol.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
-using HealthMonitoring.Model;
 using HealthMonitoring.SelfHost.Entities;
 using Swashbuckle.Swagger.Annotations;
 
@@ -49,6 +48,17 @@ namespace HealthMonitoring.SelfHost.Controllers
             if (endpoint == null)
                 return NotFound();
             return Ok(new EndpointDetails(endpoint));
+        }
+
+        [Route("api/endpoints/{id}")]
+        [SwaggerResponse(HttpStatusCode.OK)]
+        [SwaggerResponse(HttpStatusCode.BadRequest)]
+        [SwaggerResponse(HttpStatusCode.NotFound)]
+        public IHttpActionResult DeleteEndpoint(Guid id)
+        {
+            if (_endpointRegistry.TryUnregisterById(id)) 
+                return Ok();
+            return NotFound();
         }
 
         [Route("api/endpoints")]
