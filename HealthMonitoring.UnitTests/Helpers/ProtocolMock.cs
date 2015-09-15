@@ -1,4 +1,3 @@
-using System;
 using HealthMonitoring.Protocols;
 using Moq;
 

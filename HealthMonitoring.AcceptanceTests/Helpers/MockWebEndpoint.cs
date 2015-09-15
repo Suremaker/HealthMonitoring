@@ -77,5 +77,12 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
             builder.WhenGet("/status").RespondContent(code, r => new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json"));
             builder.Reconfigure(_server, true);
         }
+
+        public void SetupStatusPlainResponse(HttpStatusCode code, string text)
+        {
+            var builder = new MockedHttpServerBuilder();
+            builder.WhenGet("/status").RespondContent(code, r => new StringContent(text, Encoding.UTF8, "text/plain"));
+            builder.Reconfigure(_server, true);
+        }
     }
 }

@@ -125,6 +125,10 @@
     <Compile Include="Swagger_documentation.Steps.cs">
       <DependentUpon>Swagger_documentation.cs</DependentUpon>
     </Compile>
+    <Compile Include="Web_endpoint_monitoring.cs" />
+    <Compile Include="Web_endpoint_monitoring.Steps.cs">
+      <DependentUpon>Web_endpoint_monitoring.cs</DependentUpon>
+    </Compile>
     <Compile Include="Xunit\TestInitialization.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -153,7 +157,8 @@
   </Target>
   <PropertyGroup>
     <PreBuildEvent>RD /S /Q $(TargetDir)protocols
-xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Protocols.Rest\$(OutDir). $(TargetDir)protocols\HealthMonitoring.Protocols.Rest</PreBuildEvent>
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Protocols.Rest\$(OutDir). $(TargetDir)protocols\HealthMonitoring.Protocols.Rest
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Protocols.Web\$(OutDir). $(TargetDir)protocols\HealthMonitoring.Protocols.Web</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Entities;
@@ -96,8 +97,8 @@ namespace HealthMonitoring.AcceptanceTests
         private void Then_the_endpoint_additional_details_should_contain_error_information()
         {
             Assert.NotEmpty(_details.Details);
-            Assert.True(_details.Details.ContainsKey("code"),"Code missing");
-            Assert.True(_details.Details.ContainsKey("content"),"Content missing");
+            Assert.True(_details.Details.ContainsKey("code"), "Code missing");
+            Assert.True(_details.Details.ContainsKey("content"), "Content missing");
         }
 
         private void Given_a_healthy_rest_endpoint()
@@ -114,7 +115,7 @@ namespace HealthMonitoring.AcceptanceTests
 
         private void Then_the_endpoint_additional_details_should_be_provided()
         {
-            Assert.NotEmpty(_details.Details);
+            Assert.Equal(new Dictionary<string, string> { { "Machine", "localhost" }, { "Version", "1.0.0.0" } }, _details.Details);
         }
 
         private void Then_the_endpoint_status_should_be_provided(EndpointStatus status)

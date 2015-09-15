@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{212FDE21-E4C5-41F5-B898-0435636D1EE7}"
 	ProjectSection(SolutionItems) = preProject
@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Protocols.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Helpers", "Helpers", "{F0A0E7E8-5BFB-483F-84DA-957D5930539B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Protocols.Web", "HealthMonitoring.Protocols.Web\HealthMonitoring.Protocols.Web.csproj", "{814F46C8-0FBE-401F-9982-38E006983AB6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{B38787FD-3B64-47B3-82B9-381E34BBDC5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B38787FD-3B64-47B3-82B9-381E34BBDC5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B38787FD-3B64-47B3-82B9-381E34BBDC5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{814F46C8-0FBE-401F-9982-38E006983AB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{814F46C8-0FBE-401F-9982-38E006983AB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{814F46C8-0FBE-401F-9982-38E006983AB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{814F46C8-0FBE-401F-9982-38E006983AB6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
