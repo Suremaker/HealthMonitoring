@@ -51,6 +51,8 @@
     <Compile Include="IEndpointRegistry.cs" />
     <Compile Include="IProtocolRegistry.cs" />
     <Compile Include="Model\Endpoint.cs" />
+    <Compile Include="Model\EndpointHealth.cs" />
+    <Compile Include="Model\EndpointStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProtocolDiscovery.cs" />
     <Compile Include="ProtocolRegistry.cs" />

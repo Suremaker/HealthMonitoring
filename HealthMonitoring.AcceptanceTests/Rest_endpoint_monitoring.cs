@@ -71,7 +71,7 @@ I want to monitor registered endpoints")]
                 _ => Then_the_endpoint_status_should_be_provided(EndpointStatus.Faulty),
                 _ => Then_the_last_check_time_should_be_provided(),
                 _ => Then_the_response_time_should_be_provided(),
-                _ => Then_the_endpoint_additional_details_should_be_not_available()
+                _ => Then_the_endpoint_additional_details_should_contain_error_information()
                 );
         }
     }

@@ -46,7 +46,6 @@ namespace HealthMonitoring.AcceptanceTests
 
         private void Then_monitor_should_start_monitoring_the_endpoint()
         {
-            ScenarioAssert.Ignore("Not implemented yet");
             Wait.Until(
                 TimeSpan.FromSeconds(10),
                 () => _client.GetEndpointDetails(_identifier),
@@ -92,6 +91,13 @@ namespace HealthMonitoring.AcceptanceTests
         private void Then_the_endpoint_additional_details_should_be_not_available()
         {
             Assert.Empty(_details.Details);
+        }
+
+        private void Then_the_endpoint_additional_details_should_contain_error_information()
+        {
+            Assert.NotEmpty(_details.Details);
+            Assert.True(_details.Details.ContainsKey("code"),"Code missing");
+            Assert.True(_details.Details.ContainsKey("content"),"Content missing");
         }
 
         private void Given_a_healthy_rest_endpoint()

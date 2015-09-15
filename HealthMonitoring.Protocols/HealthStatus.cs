@@ -2,8 +2,9 @@ namespace HealthMonitoring.Protocols
 {
     public enum HealthStatus
     {
-        Inactive,
-        Healthy,
-        Faulty
+        NotRun = 0,
+        Inactive = 1,
+        Healthy = 2,
+        Faulty = 3
     }
 }

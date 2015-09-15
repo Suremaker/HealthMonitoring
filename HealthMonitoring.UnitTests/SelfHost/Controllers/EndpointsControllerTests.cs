@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Http.Results;
 using HealthMonitoring.Model;
+using HealthMonitoring.Protocols;
 using HealthMonitoring.SelfHost.Controllers;
 using HealthMonitoring.SelfHost.Entities;
 using HealthMonitoring.UnitTests.Helpers;
@@ -113,6 +117,35 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
             var result = _controller.GetEndpoint(id) as OkNegotiatedContentResult<EndpointDetails>;
             Assert.NotNull(result);
             AssertEndpoint(endpoint, result.Content);
+            Assert.Equal(EndpointStatus.NotRun, result.Content.Status);
+            Assert.Equal(null, result.Content.LastCheckUtc);
+            Assert.Equal(null, result.Content.LastResponseTime);
+            Assert.Equal(new Dictionary<string, string>(), result.Content.Details);
+        }
+
+        [Theory]
+        [InlineData(HealthStatus.Healthy)]
+        [InlineData(HealthStatus.Faulty)]
+        [InlineData(HealthStatus.Inactive)]
+        public void GetEndpoint_should_return_endpoint_information_with_details(HealthStatus status)
+        {
+            Guid id = Guid.NewGuid();
+            var protocol = ProtocolMock.GetMock("proto");
+            var healthInfo = new HealthInfo(status, TimeSpan.FromSeconds(2), new Dictionary<string, string> { { "a", "b" }, { "c", "d" } });
+            protocol.Setup(p => p.CheckHealthAsync("address", It.IsAny<CancellationToken>())).Returns(Task.FromResult(healthInfo));
+
+            var endpoint = new Endpoint(id, protocol.Object, "address", "name", "group");
+            endpoint.CheckHealth(new CancellationToken()).Wait();
+            _endpointRegistry.Setup(r => r.GetById(id)).Returns(endpoint);
+
+            var result = _controller.GetEndpoint(id) as OkNegotiatedContentResult<EndpointDetails>;
+            Assert.NotNull(result);
+            AssertEndpoint(endpoint, result.Content);
+
+            Assert.Equal(status.ToString(), result.Content.Status.ToString());
+            Assert.NotNull(result.Content.LastCheckUtc);
+            Assert.Equal(healthInfo.ResponseTime, result.Content.LastResponseTime);
+            Assert.Equal(healthInfo.Details, result.Content.Details);
         }
 
         private static void AssertEndpoint(Endpoint expected, EndpointDetails actual)

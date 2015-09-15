@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
@@ -42,11 +43,14 @@ namespace HealthMonitoring.SelfHost.Configuration
         {
             var builder = new ContainerBuilder();
 
-            builder.RegisterAssemblyTypes(typeof(Program).Assembly).Where(t => typeof (ApiController).IsAssignableFrom(t)).AsSelf();
+            builder.RegisterAssemblyTypes(typeof(Program).Assembly).Where(t => typeof(ApiController).IsAssignableFrom(t)).AsSelf();
             builder.RegisterAssemblyTypes(typeof(ProtocolRegistry).Assembly).AsImplementedInterfaces().SingleInstance();
 
             builder.RegisterInstance<IProtocolRegistry>(new ProtocolRegistry(ProtocolDiscovery.DiscoverAllInCurrentFolder()));
-            config.DependencyResolver = new AutofacWebApiDependencyResolver(builder.Build());
+            builder.Register(c => new HealthMonitor(c.Resolve<IEndpointRegistry>(), TimeSpan.FromSeconds(5))).SingleInstance();
+            var container = builder.Build();
+            container.Resolve<HealthMonitor>();
+            config.DependencyResolver = new AutofacWebApiDependencyResolver(container);
         }
 
         private Assembly[] GetIndirectDependencies()

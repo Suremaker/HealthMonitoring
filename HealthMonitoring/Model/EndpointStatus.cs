@@ -1,4 +1,4 @@
-namespace HealthMonitoring.AcceptanceTests.Helpers
+namespace HealthMonitoring.Model
 {
     public enum EndpointStatus
     {
