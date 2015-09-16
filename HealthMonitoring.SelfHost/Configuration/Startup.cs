@@ -4,6 +4,7 @@ using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
 using Microsoft.Owin.Host.HttpListener;
+using Newtonsoft.Json.Converters;
 using Owin;
 using Swashbuckle.Application;
 
@@ -14,10 +15,16 @@ namespace HealthMonitoring.SelfHost.Configuration
         public void Configuration(IAppBuilder appBuilder)
         {
             var config = new HttpConfiguration();
+            ConfigureSerializers(config);
             ConfigureRoutes(config);
             ConfigureSwagger(config);
             ConfigureDependencies(config);
             appBuilder.UseWebApi(config);
+        }
+
+        private static void ConfigureSerializers(HttpConfiguration config)
+        {
+            config.Formatters.JsonFormatter.SerializerSettings.Converters.Add(new StringEnumConverter {CamelCaseText = true});
         }
 
         private static void ConfigureRoutes(HttpConfiguration config)

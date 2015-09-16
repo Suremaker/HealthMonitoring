@@ -132,6 +132,7 @@
     <Compile Include="Configuration\Startup.cs" />
     <Compile Include="Controllers\EndpointsController.cs" />
     <Compile Include="Controllers\ProtocolsController.cs" />
+    <Compile Include="Controllers\StaticController.cs" />
     <Compile Include="Entities\EndpointDetails.cs" />
     <Compile Include="Entities\EndpointRegistration.cs" />
     <Compile Include="Entities\EntityValidator.cs" />
@@ -140,6 +141,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Content Include="Content\angular.min.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\index.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
