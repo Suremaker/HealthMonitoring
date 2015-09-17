@@ -44,7 +44,12 @@ namespace HealthMonitoring.SelfHost.Configuration
                     c.IgnoreObsoleteProperties();
                     c.DescribeAllEnumsAsStrings();
                 })
-                .EnableSwaggerUi(c => { c.DisableValidator(); });
+                .EnableSwaggerUi(c =>
+                {
+                    c.DisableValidator();
+                    c.CustomAsset("index", typeof(Startup).Assembly, "HealthMonitoring.SelfHost.Embedded.index.html");
+
+                });
         }
 
         private void ConfigureDependencies(HttpConfiguration config)
