@@ -1,4 +1,5 @@
 ﻿using System;
+using HealthMonitoring.Configuration;
 using HealthMonitoring.Model;
 using HealthMonitoring.Monitors;
 using HealthMonitoring.UnitTests.Helpers;
@@ -11,11 +12,24 @@ namespace HealthMonitoring.UnitTests.Domain
     {
         private readonly EndpointRegistry _registry;
         private readonly Mock<IHealthMonitorRegistry> _monitorRegistry;
+        private readonly Mock<IConfigurationStore> _configurationStore;
 
         public EndpointRegistryTests()
         {
             _monitorRegistry = new Mock<IHealthMonitorRegistry>();
-            _registry = new EndpointRegistry(_monitorRegistry.Object);
+            _configurationStore = new Mock<IConfigurationStore>();
+            _registry = new EndpointRegistry(_monitorRegistry.Object, _configurationStore.Object);
+        }
+
+        [Fact]
+        public void EndpointRegistry_should_load_endpoints_from_store()
+        {
+            var endpoint = new Endpoint(Guid.NewGuid(), MonitorMock.Mock("monitor"), "address", "name", "group");
+            _configurationStore.Setup(s => s.LoadEndpoints(_monitorRegistry.Object)).Returns(new[] { endpoint });
+
+            var registry = new EndpointRegistry(_monitorRegistry.Object, _configurationStore.Object);
+
+            Assert.Same(endpoint, registry.GetById(endpoint.Id));
         }
 
         [Fact]
@@ -34,6 +48,20 @@ namespace HealthMonitoring.UnitTests.Domain
             Assert.Equal("name", endpoint.Name);
             Assert.Equal("group", endpoint.Group);
             Assert.Equal(id, endpoint.Id);
+        }
+
+        [Fact]
+        public void RegisterOrUpdate_should_save_new_endpoint_to_store_when_it_is_created_or_updated()
+        {
+            MockMonitor("monitor");
+
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name");
+
+            _configurationStore.Verify(s => s.SaveEndpoint(It.Is<Endpoint>(e => e.Id == id)));
+
+            var newName = "name1";
+            _registry.RegisterOrUpdate("monitor", "address", "group", newName);
+            _configurationStore.Verify(s => s.SaveEndpoint(It.Is<Endpoint>(e => e.Id == id && e.Name == newName)));
         }
 
         [Fact]
@@ -96,6 +124,8 @@ namespace HealthMonitoring.UnitTests.Domain
             Assert.True(_registry.TryUnregisterById(id), "Endpoint should be unregistered");
             Assert.True(endpoint.IsDisposed, "Endpoint should be disposed");
             Assert.Null(_registry.GetById(id));
+
+            _configurationStore.Verify(s => s.DeleteEndpoint(id));
         }
 
         [Fact]

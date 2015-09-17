@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
 using System.Threading;
+using HealthMonitoring.Configuration;
 using HealthMonitoring.UnitTests.Helpers;
+using Moq;
 using Xunit;
 
 namespace HealthMonitoring.UnitTests.Domain
@@ -14,13 +16,13 @@ namespace HealthMonitoring.UnitTests.Domain
         public HealthMonitorTests()
         {
             _testableHealthMonitor = new TestableHealthMonitor();
-            _endpointRegistry = new EndpointRegistry(new HealthMonitorRegistry(new[] { _testableHealthMonitor }));
+            _endpointRegistry = new EndpointRegistry(new HealthMonitorRegistry(new[] { _testableHealthMonitor }), new Mock<IConfigurationStore>().Object);
         }
 
         [Fact]
         public void Monitor_should_start_checking_the_health_of_endpoints_until_disposed()
         {
-            var endpoint1 =_endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address1", "group", "name");
+            var endpoint1 = _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address1", "group", "name");
             _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address2", "group", "name");
             _testableHealthMonitor.StartWatch();
 

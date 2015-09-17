@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
+using HealthMonitoring.Persistence;
 using Microsoft.Owin.Host.HttpListener;
 using Newtonsoft.Json.Converters;
 using Owin;
@@ -24,7 +25,7 @@ namespace HealthMonitoring.SelfHost.Configuration
 
         private static void ConfigureSerializers(HttpConfiguration config)
         {
-            config.Formatters.JsonFormatter.SerializerSettings.Converters.Add(new StringEnumConverter {CamelCaseText = true});
+            config.Formatters.JsonFormatter.SerializerSettings.Converters.Add(new StringEnumConverter { CamelCaseText = true });
         }
 
         private static void ConfigureRoutes(HttpConfiguration config)
@@ -52,6 +53,7 @@ namespace HealthMonitoring.SelfHost.Configuration
 
             builder.RegisterAssemblyTypes(typeof(Program).Assembly).Where(t => typeof(ApiController).IsAssignableFrom(t)).AsSelf();
             builder.RegisterAssemblyTypes(typeof(HealthMonitorRegistry).Assembly).AsImplementedInterfaces().SingleInstance();
+            builder.RegisterAssemblyTypes(typeof(SqlConfigurationStore).Assembly).AsSelf().AsImplementedInterfaces().SingleInstance();
 
             builder.RegisterInstance<IHealthMonitorRegistry>(new HealthMonitorRegistry(MonitorDiscovery.DiscoverAllInCurrentFolder()));
             builder.Register(c => new HealthMonitor(c.Resolve<IEndpointRegistry>(), TimeSpan.FromSeconds(5))).SingleInstance();

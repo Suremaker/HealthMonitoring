@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using HealthMonitoring.Configuration;
 using HealthMonitoring.Model;
 
 namespace HealthMonitoring
@@ -9,15 +10,23 @@ namespace HealthMonitoring
     public class EndpointRegistry : IEndpointRegistry
     {
         private readonly IHealthMonitorRegistry _healthMonitorRegistry;
+        private readonly IConfigurationStore _configurationStore;
         private readonly ConcurrentDictionary<string, Endpoint> _endpoints = new ConcurrentDictionary<string, Endpoint>();
         private readonly ConcurrentDictionary<Guid, Endpoint> _endpointsByGuid = new ConcurrentDictionary<Guid, Endpoint>();
 
         public IEnumerable<Endpoint> Endpoints { get { return _endpoints.Select(p => p.Value); } }
         public event Action<Endpoint> NewEndpointAdded;
 
-        public EndpointRegistry(IHealthMonitorRegistry healthMonitorRegistry)
+        public EndpointRegistry(IHealthMonitorRegistry healthMonitorRegistry, IConfigurationStore configurationStore)
         {
             _healthMonitorRegistry = healthMonitorRegistry;
+            _configurationStore = configurationStore;
+
+            foreach (var endpoint in _configurationStore.LoadEndpoints(healthMonitorRegistry))
+            {
+                if (_endpoints.TryAdd(GetKey(endpoint.MonitorType, endpoint.Address), endpoint))
+                    _endpointsByGuid.TryAdd(endpoint.Id, endpoint);
+            }
         }
 
         public Guid RegisterOrUpdate(string monitorType, string address, string group, string name)
@@ -33,6 +42,8 @@ namespace HealthMonitoring
 
             if (endpoint.Id == newId && NewEndpointAdded != null)
                 NewEndpointAdded(endpoint);
+
+            _configurationStore.SaveEndpoint(endpoint);
 
             return endpoint.Id;
         }
@@ -52,6 +63,7 @@ namespace HealthMonitoring
                 return false;
 
             endpoint.Dispose();
+            _configurationStore.DeleteEndpoint(endpoint.Id);
             return true;
         }
 

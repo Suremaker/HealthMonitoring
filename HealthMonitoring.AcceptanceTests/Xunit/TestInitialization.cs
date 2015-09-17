@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 using HealthMonitoring.SelfHost;
@@ -15,6 +16,9 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
         public static void Initialize()
         {
+            if (File.Exists("monitoring.db"))
+                File.Delete("monitoring.db");
+
             _thread = new Thread(() => Program.Main());
             _thread.Start();
         }
