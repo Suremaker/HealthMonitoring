@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Model;
-using HealthMonitoring.Protocols;
+using HealthMonitoring.Monitors;
 using HealthMonitoring.UnitTests.Helpers;
 using Xunit;
 
@@ -14,7 +14,7 @@ namespace HealthMonitoring.UnitTests.Domain
         [Fact]
         public void Dispose_should_mark_endpoint_disposed()
         {
-            var endpoint = new Endpoint(Guid.Empty, ProtocolMock.Mock("proto"), "address", "name", "group");
+            var endpoint = new Endpoint(Guid.Empty, MonitorMock.Mock("monitor"), "address", "name", "group");
             Assert.False(endpoint.IsDisposed);
             endpoint.Dispose();
             Assert.True(endpoint.IsDisposed);
@@ -28,10 +28,10 @@ namespace HealthMonitoring.UnitTests.Domain
         {
             var tokenSource = new CancellationTokenSource();
             var healthInfo = new HealthInfo(healthStatus, TimeSpan.FromSeconds(1), new Dictionary<string, string> { { "property1", "value1" }, { "property2", "value2" } });
-            var protocol = ProtocolMock.GetMock("proto");
-            protocol.Setup(x => x.CheckHealthAsync("address", tokenSource.Token)).Returns(Task.FromResult(healthInfo));
+            var monitor = MonitorMock.GetMock("monitor");
+            monitor.Setup(x => x.CheckHealthAsync("address", tokenSource.Token)).Returns(Task.FromResult(healthInfo));
 
-            var endpoint = new Endpoint(Guid.NewGuid(), protocol.Object, "address", "name", "group");
+            var endpoint = new Endpoint(Guid.NewGuid(), monitor.Object, "address", "name", "group");
 
             endpoint.CheckHealth(tokenSource.Token).Wait();
 
@@ -44,14 +44,14 @@ namespace HealthMonitoring.UnitTests.Domain
         }
 
         [Fact]
-        public void CheckHealth_should_update_the_endpoint_with_Faulty_status_if_protocol_fails()
+        public void CheckHealth_should_update_the_endpoint_with_Faulty_status_if_monitor_fails()
         {
             var tokenSource = new CancellationTokenSource();
-            var protocol = ProtocolMock.GetMock("proto");
+            var monitor = MonitorMock.GetMock("monitor");
             var exception = new Exception("some error");
-            protocol.Setup(x => x.CheckHealthAsync("address", tokenSource.Token)).Throws(exception);
+            monitor.Setup(x => x.CheckHealthAsync("address", tokenSource.Token)).Throws(exception);
 
-            var endpoint = new Endpoint(Guid.NewGuid(), protocol.Object, "address", "name", "group");
+            var endpoint = new Endpoint(Guid.NewGuid(), monitor.Object, "address", "name", "group");
             endpoint.CheckHealth(tokenSource.Token).Wait();
 
             var expectedDetails = new Dictionary<string, string>

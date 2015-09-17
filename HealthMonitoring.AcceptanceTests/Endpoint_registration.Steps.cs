@@ -27,9 +27,9 @@ namespace HealthMonitoring.AcceptanceTests
             _client = ClientHelper.Build();
         }
 
-        private void When_client_requests_endpoint_registration_via_url_with_name_address_group_and_protocol(string url, string name, string address, string @group, string protocol)
+        private void When_client_requests_endpoint_registration_via_url_with_name_address_group_and_monitor(string url, string name, string address, string @group, string monitor)
         {
-            _response = _client.Post(new RestRequest(url).AddJsonBody(new { group, protocol, name, address }));
+            _response = _client.Post(new RestRequest(url).AddJsonBody(new { group, monitorType = monitor, name, address }));
         }
 
         private void Then_a_new_endpoint_identifier_should_be_returned()
@@ -45,18 +45,18 @@ namespace HealthMonitoring.AcceptanceTests
             _response = _client.Get(new RestRequest(url));
         }
 
-        private void Then_endpoint_information_should_be_returned_including_name_address_group_and_protocol(string name, string address, string group, string protocol)
+        private void Then_endpoint_information_should_be_returned_including_name_address_group_and_monitor(string name, string address, string group, string monitor)
         {
             var entity = _response.DeserializeEndpointDetails();
-            AssertEntity(entity, name, address, group, protocol);
+            AssertEntity(entity, name, address, group, monitor);
         }
 
-        private static void AssertEntity(EndpointEntity entity, string name, string address, string group, string protocol)
+        private static void AssertEntity(EndpointEntity entity, string name, string address, string group, string monitor)
         {
             Assert.Equal(name, entity.Name);
             Assert.Equal(address, entity.Address);
             Assert.Equal(group, entity.Group);
-            Assert.Equal(protocol, entity.Protocol);
+            Assert.Equal(monitor, entity.MonitorType);
         }
 
         private void When_client_requests_endpoint_details_for_inexistent_endpoint_identifier()
@@ -69,9 +69,9 @@ namespace HealthMonitoring.AcceptanceTests
             _response.VerifyValidStatus(status);
         }
 
-        private void Given_endpoint_with_name_address_group_and_protocol_is_registered(string name, string address, string group, string protocol)
+        private void Given_endpoint_with_name_address_group_and_monitor_is_registered(string name, string address, string group, string monitor)
         {
-            When_client_requests_endpoint_registration_via_url_with_name_address_group_and_protocol("/api/endpoints/register", name, address, group, protocol);
+            When_client_requests_endpoint_registration_via_url_with_name_address_group_and_monitor("/api/endpoints/register", name, address, group, monitor);
             Then_a_new_endpoint_identifier_should_be_returned();
         }
 
@@ -80,12 +80,12 @@ namespace HealthMonitoring.AcceptanceTests
             _response = _client.Get(new RestRequest(url));
         }
 
-        private void Then_returned_endpoint_list_should_include_endpoint_with_name_address_group_and_protocol(string name, string address, string group, string protocol)
+        private void Then_returned_endpoint_list_should_include_endpoint_with_name_address_group_and_monitor(string name, string address, string group, string monitor)
         {
             _response.VerifyValidStatus(HttpStatusCode.OK);
             var entities = JsonConvert.DeserializeObject<EndpointEntity[]>(_response.Content);
-            var entity = entities.SingleOrDefault(e => e.Protocol == protocol && e.Address == address);
-            AssertEntity(entity, name, address, group, protocol);
+            var entity = entities.SingleOrDefault(e => e.MonitorType == monitor && e.Address == address);
+            AssertEntity(entity, name, address, group, monitor);
         }
 
         private void Then_client_should_receive_STATUS_code(HttpStatusCode status)

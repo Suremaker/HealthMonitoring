@@ -41,7 +41,7 @@ namespace HealthMonitoring.AcceptanceTests
 
         private void When_client_registers_the_endpoint()
         {
-            _identifier = _client.RegisterEndpoint(Protocols.Web, _restEndpoint.StatusAddress, "group", "name");
+            _identifier = _client.RegisterEndpoint(MonitorTypes.Http, _restEndpoint.StatusAddress, "group", "name");
         }
 
         private void Then_monitor_should_start_monitoring_the_endpoint()

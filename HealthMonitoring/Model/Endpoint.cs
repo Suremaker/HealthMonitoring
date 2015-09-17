@@ -1,18 +1,18 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using HealthMonitoring.Protocols;
+using HealthMonitoring.Monitors;
 
 namespace HealthMonitoring.Model
 {
     public class Endpoint : IDisposable
     {
-        private readonly IHealthCheckProtocol _protocol;
+        private readonly IHealthMonitor _monitor;
 
-        public Endpoint(Guid id, IHealthCheckProtocol protocol, string address, string name, string group)
+        public Endpoint(Guid id, IHealthMonitor monitor, string address, string name, string group)
         {
             Id = id;
-            _protocol = protocol;
+            _monitor = monitor;
             Address = address;
             Name = name;
             Group = group;
@@ -21,7 +21,7 @@ namespace HealthMonitoring.Model
         public Guid Id { get; private set; }
         public string Name { get; private set; }
         public string Address { get; private set; }
-        public string Protocol { get { return _protocol.Name; } }
+        public string MonitorType { get { return _monitor.Name; } }
         public string Group { get; private set; }
         public bool IsDisposed { get; private set; }
         public EndpointHealth Health { get; private set; }
@@ -38,7 +38,7 @@ namespace HealthMonitoring.Model
             var healthCheckTime = DateTime.UtcNow;
             try
             {
-                var health = await _protocol.CheckHealthAsync(Address, cancellationToken);
+                var health = await _monitor.CheckHealthAsync(Address, cancellationToken);
                 Health = EndpointHealth.FromResult(healthCheckTime, health);
             }
             catch (Exception e)

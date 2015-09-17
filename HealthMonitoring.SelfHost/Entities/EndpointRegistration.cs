@@ -9,7 +9,7 @@ namespace HealthMonitoring.SelfHost.Entities
         [Required]
         public string Address { get; set; }
         [Required]
-        public string Protocol { get; set; }
+        public string MonitorType { get; set; }
         [Required]
         public string Group { get; set; }
     }

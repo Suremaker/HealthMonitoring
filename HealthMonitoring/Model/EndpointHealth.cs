@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using HealthMonitoring.Protocols;
+using HealthMonitoring.Monitors;
 
 namespace HealthMonitoring.Model
 {

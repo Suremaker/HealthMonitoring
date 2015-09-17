@@ -7,7 +7,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Entities
     {
         public string Name { get; set; }
         public string Address { get; set; }
-        public string Protocol { get; set; }
+        public string MonitorType { get; set; }
         public string Group { get; set; }
         public EndpointStatus? Status { get; set; }
         public DateTime? LastCheckUtc { get; set; }
@@ -17,8 +17,8 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Entities
         public override string ToString()
         {
             return string.Format(
-                    "Name: {0}, Address: {1}, Protocol: {2}, Group: {3}, Status: {4}, LastCheckUtc: {5}, LastResponseTime: {6}, Details: {7}",
-                    Name, Address, Protocol, Group, Status, LastCheckUtc, LastResponseTime, Details);
+                    "Name: {0}, Address: {1}, MonitorType: {2}, Group: {3}, Status: {4}, LastCheckUtc: {5}, LastResponseTime: {6}, Details: {7}",
+                    Name, Address, MonitorType, Group, Status, LastCheckUtc, LastResponseTime, Details);
         }
     }
 }

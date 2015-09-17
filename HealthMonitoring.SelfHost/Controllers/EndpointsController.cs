@@ -27,11 +27,11 @@ namespace HealthMonitoring.SelfHost.Controllers
             endpoint.ValidateModel();
             try
             {
-                var id = _endpointRegistry.RegisterOrUpdate(endpoint.Protocol, endpoint.Address, endpoint.Group, endpoint.Name);
+                var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name);
 
                 return Created(new Uri(Request.RequestUri, string.Format("/api/endpoints/{0}", id)), id);
             }
-            catch (UnsupportedProtocolException e)
+            catch (UnsupportedMonitorException e)
             {
                 return BadRequest(e.Message);
             }

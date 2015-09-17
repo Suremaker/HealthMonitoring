@@ -51,9 +51,9 @@ namespace HealthMonitoring.SelfHost.Configuration
             var builder = new ContainerBuilder();
 
             builder.RegisterAssemblyTypes(typeof(Program).Assembly).Where(t => typeof(ApiController).IsAssignableFrom(t)).AsSelf();
-            builder.RegisterAssemblyTypes(typeof(ProtocolRegistry).Assembly).AsImplementedInterfaces().SingleInstance();
+            builder.RegisterAssemblyTypes(typeof(HealthMonitorRegistry).Assembly).AsImplementedInterfaces().SingleInstance();
 
-            builder.RegisterInstance<IProtocolRegistry>(new ProtocolRegistry(ProtocolDiscovery.DiscoverAllInCurrentFolder()));
+            builder.RegisterInstance<IHealthMonitorRegistry>(new HealthMonitorRegistry(MonitorDiscovery.DiscoverAllInCurrentFolder()));
             builder.Register(c => new HealthMonitor(c.Resolve<IEndpointRegistry>(), TimeSpan.FromSeconds(5))).SingleInstance();
             var container = builder.Build();
             container.Resolve<HealthMonitor>();

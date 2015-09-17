@@ -109,13 +109,13 @@
     <Compile Include="Helpers\Entities\ErrorEntity.cs" />
     <Compile Include="Helpers\FormatCollectionAttribute.cs" />
     <Compile Include="Helpers\MockWebEndpoint.cs" />
-    <Compile Include="Helpers\Protocols.cs" />
+    <Compile Include="Helpers\MonitorTypes.cs" />
     <Compile Include="Helpers\MockWebEndpointFactory.cs" />
     <Compile Include="Helpers\Wait.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Protocols_configuration.cs" />
-    <Compile Include="Protocols_configuration.Steps.cs">
-      <DependentUpon>Protocols_configuration.cs</DependentUpon>
+    <Compile Include="Monitors_configuration.cs" />
+    <Compile Include="Monitors_configuration.Steps.cs">
+      <DependentUpon>Monitors_configuration.cs</DependentUpon>
     </Compile>
     <Compile Include="Rest_endpoint_monitoring.cs" />
     <Compile Include="Rest_endpoint_monitoring.Steps.cs">
@@ -156,9 +156,8 @@
     <Error Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
   </Target>
   <PropertyGroup>
-    <PreBuildEvent>RD /S /Q $(TargetDir)protocols
-xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Protocols.Rest\$(OutDir). $(TargetDir)protocols\HealthMonitoring.Protocols.Rest
-xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Protocols.Web\$(OutDir). $(TargetDir)protocols\HealthMonitoring.Protocols.Web</PreBuildEvent>
+    <PreBuildEvent>RD /S /Q $(TargetDir)monitors
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.Http\$(OutDir). $(TargetDir)monitors\HealthMonitoring.Monitors.Http</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

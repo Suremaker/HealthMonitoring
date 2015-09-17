@@ -131,7 +131,7 @@
   <ItemGroup>
     <Compile Include="Configuration\Startup.cs" />
     <Compile Include="Controllers\EndpointsController.cs" />
-    <Compile Include="Controllers\ProtocolsController.cs" />
+    <Compile Include="Controllers\MonitorsController.cs" />
     <Compile Include="Controllers\StaticController.cs" />
     <Compile Include="Entities\EndpointDetails.cs" />
     <Compile Include="Entities\EndpointRegistration.cs" />
@@ -153,9 +153,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HealthMonitoring.Protocols\HealthMonitoring.Protocols.csproj">
+    <ProjectReference Include="..\HealthMonitoring.Monitors\HealthMonitoring.Monitors.csproj">
       <Project>{D26577BB-BEA8-4911-8C25-37E268609E3F}</Project>
-      <Name>HealthMonitoring.Protocols</Name>
+      <Name>HealthMonitoring.Monitors</Name>
     </ProjectReference>
     <ProjectReference Include="..\HealthMonitoring\HealthMonitoring.csproj">
       <Project>{B04E2F95-8F59-4B5C-AC93-4688EA6848D8}</Project>

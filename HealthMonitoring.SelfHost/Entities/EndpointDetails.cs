@@ -14,7 +14,7 @@ namespace HealthMonitoring.SelfHost.Entities
             Id = endpoint.Id;
             Name = endpoint.Name;
             Address = endpoint.Address;
-            Protocol = endpoint.Protocol;
+            MonitorType = endpoint.MonitorType;
             Group = endpoint.Group;
             if (endpoint.Health != null)
             {
@@ -36,7 +36,7 @@ namespace HealthMonitoring.SelfHost.Entities
         [Required]
         public string Address { get; set; }
         [Required]
-        public string Protocol { get; set; }
+        public string MonitorType { get; set; }
         [Required]
         public string Group { get; set; }
         [Required]

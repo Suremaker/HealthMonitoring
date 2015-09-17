@@ -48,9 +48,9 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
             response.VerifyHeader("location", new Uri(GetBaseUrl(), url).ToString());
         }
 
-        public static Guid RegisterEndpoint(this RestClient client, string protocol, string address, string @group, string name)
+        public static Guid RegisterEndpoint(this RestClient client, string monitor, string address, string @group, string name)
         {
-            var response = client.Post(new RestRequest(EndpointRegistrationUrl).AddJsonBody(new { @group, protocol, name, address }));
+            var response = client.Post(new RestRequest(EndpointRegistrationUrl).AddJsonBody(new { @group, monitorType = monitor, name, address }));
             response.VerifyValidStatus(HttpStatusCode.Created);
             return JsonConvert.DeserializeObject<Guid>(response.Content);
         }

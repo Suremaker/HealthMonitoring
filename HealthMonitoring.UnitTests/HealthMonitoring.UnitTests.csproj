@@ -80,30 +80,30 @@
     <Compile Include="Domain\EndpointRegistryTests.cs" />
     <Compile Include="Domain\EndpointTests.cs" />
     <Compile Include="Domain\HealthMonitorTests.cs" />
-    <Compile Include="Domain\ProtocolDiscoveryTests.cs" />
-    <Compile Include="Helpers\ProtocolMock.cs" />
-    <Compile Include="Helpers\TestableProtocol.cs" />
+    <Compile Include="Domain\MonitorDiscoveryTests.cs" />
+    <Compile Include="Helpers\MonitorMock.cs" />
+    <Compile Include="Helpers\TestableHealthMonitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Domain\ProtocolRegistryTests.cs" />
+    <Compile Include="Domain\MonitorRegistryTests.cs" />
     <Compile Include="SelfHost\Controllers\EndpointsControllerTests.cs" />
-    <Compile Include="SelfHost\Controllers\ProtocolsControllerTests.cs" />
+    <Compile Include="SelfHost\Controllers\MonitorsControllerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HealthMonitoring.Protocols.Broken\HealthMonitoring.Protocols.Broken.csproj">
+    <ProjectReference Include="..\HealthMonitoring.Monitors.Http\HealthMonitoring.Monitors.Http.csproj">
+      <Project>{CD713C15-4FCD-4AC2-B0B0-8173F580A0AF}</Project>
+      <Name>HealthMonitoring.Monitors.Http</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HealthMonitoring.Monitors.Broken\HealthMonitoring.Monitors.Broken.csproj">
       <Project>{B38787FD-3B64-47B3-82B9-381E34BBDC5F}</Project>
       <Name>HealthMonitoring.Protocols.Broken</Name>
     </ProjectReference>
-    <ProjectReference Include="..\HealthMonitoring.Protocols.Rest\HealthMonitoring.Protocols.Rest.csproj">
-      <Project>{7BCA8773-5110-4F13-9810-B5C0124D34EF}</Project>
-      <Name>HealthMonitoring.Protocols.Rest</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\HealthMonitoring.Protocols\HealthMonitoring.Protocols.csproj">
+    <ProjectReference Include="..\HealthMonitoring.Monitors\HealthMonitoring.Monitors.csproj">
       <Project>{D26577BB-BEA8-4911-8C25-37E268609E3F}</Project>
-      <Name>HealthMonitoring.Protocols</Name>
+      <Name>HealthMonitoring.Monitors</Name>
     </ProjectReference>
     <ProjectReference Include="..\HealthMonitoring.SelfHost\HealthMonitoring.SelfHost.csproj">
       <Project>{C7EB3E43-9DC4-4D10-9799-3371133BAEF9}</Project>

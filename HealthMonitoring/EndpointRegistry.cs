@@ -8,27 +8,27 @@ namespace HealthMonitoring
 {
     public class EndpointRegistry : IEndpointRegistry
     {
-        private readonly IProtocolRegistry _protocolRegistry;
+        private readonly IHealthMonitorRegistry _healthMonitorRegistry;
         private readonly ConcurrentDictionary<string, Endpoint> _endpoints = new ConcurrentDictionary<string, Endpoint>();
         private readonly ConcurrentDictionary<Guid, Endpoint> _endpointsByGuid = new ConcurrentDictionary<Guid, Endpoint>();
 
         public IEnumerable<Endpoint> Endpoints { get { return _endpoints.Select(p => p.Value); } }
         public event Action<Endpoint> NewEndpointAdded;
 
-        public EndpointRegistry(IProtocolRegistry protocolRegistry)
+        public EndpointRegistry(IHealthMonitorRegistry healthMonitorRegistry)
         {
-            _protocolRegistry = protocolRegistry;
+            _healthMonitorRegistry = healthMonitorRegistry;
         }
 
-        public Guid RegisterOrUpdate(string protocol, string address, string group, string name)
+        public Guid RegisterOrUpdate(string monitorType, string address, string group, string name)
         {
-            var proto = _protocolRegistry.FindByName(protocol);
-            if (proto == null)
-                throw new UnsupportedProtocolException(protocol);
+            var monitor = _healthMonitorRegistry.FindByName(monitorType);
+            if (monitor == null)
+                throw new UnsupportedMonitorException(monitorType);
 
-            var key = GetKey(protocol, address);
+            var key = GetKey(monitorType, address);
             var newId = Guid.NewGuid();
-            var endpoint = _endpoints.AddOrUpdate(key, new Endpoint(newId, proto, address, name, group), (k, e) => e.Update(group, name));
+            var endpoint = _endpoints.AddOrUpdate(key, new Endpoint(newId, monitor, address, name, group), (k, e) => e.Update(group, name));
             _endpointsByGuid[endpoint.Id] = endpoint;
 
             if (endpoint.Id == newId && NewEndpointAdded != null)
@@ -48,16 +48,16 @@ namespace HealthMonitoring
             Endpoint endpoint;
 
             if (!_endpointsByGuid.TryRemove(id, out endpoint) ||
-                !_endpoints.TryRemove(GetKey(endpoint.Protocol, endpoint.Address), out endpoint))
+                !_endpoints.TryRemove(GetKey(endpoint.MonitorType, endpoint.Address), out endpoint))
                 return false;
 
             endpoint.Dispose();
             return true;
         }
 
-        private static string GetKey(string protocol, string address)
+        private static string GetKey(string monitor, string address)
         {
-            return string.Format("{0}|{1}", protocol, address.ToLowerInvariant());
+            return string.Format("{0}|{1}", monitor, address.ToLowerInvariant());
         }
     }
 }

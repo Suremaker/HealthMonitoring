@@ -1,6 +1,6 @@
 ﻿using System;
 using HealthMonitoring.Model;
-using HealthMonitoring.Protocols;
+using HealthMonitoring.Monitors;
 using HealthMonitoring.UnitTests.Helpers;
 using Moq;
 using Xunit;
@@ -10,26 +10,26 @@ namespace HealthMonitoring.UnitTests.Domain
     public class EndpointRegistryTests
     {
         private readonly EndpointRegistry _registry;
-        private readonly Mock<IProtocolRegistry> _protocolRegistry;
+        private readonly Mock<IHealthMonitorRegistry> _monitorRegistry;
 
         public EndpointRegistryTests()
         {
-            _protocolRegistry = new Mock<IProtocolRegistry>();
-            _registry = new EndpointRegistry(_protocolRegistry.Object);
+            _monitorRegistry = new Mock<IHealthMonitorRegistry>();
+            _registry = new EndpointRegistry(_monitorRegistry.Object);
         }
 
         [Fact]
         public void RegisterOrUpdate_should_register_new_endpoint_and_emit_NewEndpointAdded_event()
         {
-            MockProtocol("proto");
+            MockMonitor("monitor");
 
             Endpoint endpoint = null;
             _registry.NewEndpointAdded += e => { endpoint = e; };
 
-            var id = _registry.RegisterOrUpdate("proto", "address", "group", "name");
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name");
 
             Assert.NotNull(endpoint);
-            Assert.Equal("proto", endpoint.Protocol);
+            Assert.Equal("monitor", endpoint.MonitorType);
             Assert.Equal("address", endpoint.Address);
             Assert.Equal("name", endpoint.Name);
             Assert.Equal("group", endpoint.Group);
@@ -37,14 +37,14 @@ namespace HealthMonitoring.UnitTests.Domain
         }
 
         [Fact]
-        public void RegisterOrUpdate_should_register_new_endpoint_if_protocol_and_address_pair_is_different()
+        public void RegisterOrUpdate_should_register_new_endpoint_if_monitor_and_address_pair_is_different()
         {
-            MockProtocol("proto");
-            MockProtocol("proto1");
+            MockMonitor("monitor");
+            MockMonitor("monitor1");
 
-            var id1 = _registry.RegisterOrUpdate("proto", "address", "group", "name");
-            var id2 = _registry.RegisterOrUpdate("proto1", "address", "group", "name");
-            var id3 = _registry.RegisterOrUpdate("proto", "address1", "group", "name");
+            var id1 = _registry.RegisterOrUpdate("monitor", "address", "group", "name");
+            var id2 = _registry.RegisterOrUpdate("monitor1", "address", "group", "name");
+            var id3 = _registry.RegisterOrUpdate("monitor", "address1", "group", "name");
 
             Assert.NotEqual(id1, id2);
             Assert.NotEqual(id1, id3);
@@ -54,20 +54,20 @@ namespace HealthMonitoring.UnitTests.Domain
         [Fact]
         public void RegisterOrUpdate_should_update_existing_endpoint_and_return_same_id_but_not_emit_NewEndpointAdded_event()
         {
-            MockProtocol("proto");
-            var id = _registry.RegisterOrUpdate("proto", "address", "group", "name");
+            MockMonitor("monitor");
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name");
 
             Endpoint newEndpointCapture = null;
             _registry.NewEndpointAdded += e => { newEndpointCapture = e; };
 
-            var id2 = _registry.RegisterOrUpdate("proto", "ADDRESS", "group2", "name2");
+            var id2 = _registry.RegisterOrUpdate("monitor", "ADDRESS", "group2", "name2");
 
             Assert.Equal(id, id2);
             Assert.Null(newEndpointCapture);
 
             var endpoint = _registry.GetById(id);
             Assert.NotNull(endpoint);
-            Assert.Equal("proto", endpoint.Protocol);
+            Assert.Equal("monitor", endpoint.MonitorType);
             Assert.Equal("address", endpoint.Address);
             Assert.Equal("name2", endpoint.Name);
             Assert.Equal("group2", endpoint.Group);
@@ -76,12 +76,12 @@ namespace HealthMonitoring.UnitTests.Domain
         [Fact]
         public void GetById_should_return_registered_endpoint()
         {
-            MockProtocol("proto");
-            var id = _registry.RegisterOrUpdate("proto", "address", "group", "name");
+            MockMonitor("monitor");
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name");
             var endpoint = _registry.GetById(id);
 
             Assert.NotNull(endpoint);
-            Assert.Equal("proto", endpoint.Protocol);
+            Assert.Equal("monitor", endpoint.MonitorType);
             Assert.Equal("address", endpoint.Address);
             Assert.Equal("name", endpoint.Name);
             Assert.Equal("group", endpoint.Group);
@@ -90,8 +90,8 @@ namespace HealthMonitoring.UnitTests.Domain
         [Fact]
         public void TryUnregister_should_remove_endpoint_and_dispose_it()
         {
-            MockProtocol("proto");
-            var id = _registry.RegisterOrUpdate("proto", "address", "group", "name");
+            MockMonitor("monitor");
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name");
             var endpoint = _registry.GetById(id);
             Assert.True(_registry.TryUnregisterById(id), "Endpoint should be unregistered");
             Assert.True(endpoint.IsDisposed, "Endpoint should be disposed");
@@ -111,18 +111,18 @@ namespace HealthMonitoring.UnitTests.Domain
         }
 
         [Fact]
-        public void RegisterOrUpdate_should_throw_UnsupportedProtocolException_if_protocol_is_not_recognized()
+        public void RegisterOrUpdate_should_throw_UnsupportedMonitorException_if_monitor_is_not_recognized()
         {
-            _protocolRegistry.Setup(r => r.FindByName("proto")).Returns((IHealthCheckProtocol)null);
-            var exception = Assert.Throws<UnsupportedProtocolException>(() => _registry.RegisterOrUpdate("proto", "a", "b", "c"));
-            Assert.Equal("Unsupported protocol: proto", exception.Message);
+            _monitorRegistry.Setup(r => r.FindByName("monitor")).Returns((IHealthMonitor)null);
+            var exception = Assert.Throws<UnsupportedMonitorException>(() => _registry.RegisterOrUpdate("monitor", "a", "b", "c"));
+            Assert.Equal("Unsupported monitor: monitor", exception.Message);
         }
 
-        private void MockProtocol(string protocolName)
+        private void MockMonitor(string monitorType)
         {
-            _protocolRegistry
-                .Setup(r => r.FindByName(protocolName))
-                .Returns(ProtocolMock.Mock(protocolName));
+            _monitorRegistry
+                .Setup(r => r.FindByName(monitorType))
+                .Returns(MonitorMock.Mock(monitorType));
         }
     }
 }
