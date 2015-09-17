@@ -9,6 +9,18 @@ namespace HealthMonitoring.SelfHost.Controllers
 {
     public class StaticController : ApiController
     {
+        [Route("dashboard")]
+        public HttpResponseMessage GetDashboard()
+        {
+            return ReturnFileContent("dashboard.html");
+        }
+
+        [Route("")]
+        public HttpResponseMessage GetHome()
+        {
+            return ReturnFileContent("home.html");
+        }
+
         [Route("dashboard/{file}")]
         public HttpResponseMessage GetStatic(string file)
         {
