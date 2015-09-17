@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Web.Http;
 using Autofac;
@@ -26,6 +27,7 @@ namespace HealthMonitoring.SelfHost.Configuration
         private static void ConfigureSerializers(HttpConfiguration config)
         {
             config.Formatters.JsonFormatter.SerializerSettings.Converters.Add(new StringEnumConverter { CamelCaseText = true });
+            config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
         }
 
         private static void ConfigureRoutes(HttpConfiguration config)
