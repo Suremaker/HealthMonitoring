@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Reflection;
 using System.Threading;
@@ -16,11 +17,17 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
         public static void Initialize()
         {
-            if (File.Exists("monitoring.db"))
-                File.Delete("monitoring.db");
+            DeleteDatabase();
 
             _thread = new Thread(() => Program.Main());
             _thread.Start();
+        }
+
+        private static void DeleteDatabase()
+        {
+            var dbFile = ConfigurationManager.AppSettings["DatabaseFile"];
+            if (File.Exists(dbFile))
+                File.Delete(dbFile);
         }
 
         public static void Terminate()

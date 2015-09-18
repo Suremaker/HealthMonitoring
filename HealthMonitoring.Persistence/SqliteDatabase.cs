@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Configuration;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
@@ -8,7 +8,7 @@ namespace HealthMonitoring.Persistence
 {
     public class SqliteDatabase
     {
-        private static readonly string _path = Environment.CurrentDirectory + "\\monitoring.db";
+        private static readonly string _path = ConfigurationManager.AppSettings["DatabaseFile"];
 
         public SqliteDatabase()
         {
