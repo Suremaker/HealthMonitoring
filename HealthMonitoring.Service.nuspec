@@ -10,7 +10,7 @@
         <description>Host for HealthMonitoring Service</description>
     </metadata>
 	<files>
-	<file src="tools\nssm.exe" target="."/>
+	<file src="tools\*" target="."/>
 	<file src="HealthMonitoring.SelfHost\bin\Release\**\*" target="." exclude="**\*.pdb;**\*.xml"/>
   </files>
 </package>
