@@ -3,7 +3,7 @@ Define-Step -Name 'Building' -Target 'build' -Body {
 	call "msbuild.exe" HealthMonitoring.sln /t:"Clean,Build" /p:Configuration=Release /m /verbosity:m /nologo /p:TreatWarningsAsErrors=true
 }
 
-Define-Step -Name 'Testing' -Target 'build,deploy' -Body {
+Define-Step -Name 'Testing' -Target 'build' -Body {
 	. (require 'psmake.mod.testing')
 	
 	$tests = @()
@@ -11,4 +11,13 @@ Define-Step -Name 'Testing' -Target 'build,deploy' -Body {
 	$tests += Define-XUnitTests -GroupName 'Acceptance tests' -TestAssembly "*\bin\Release\*.AcceptanceTests.dll"
 	
 	$tests | Run-Tests -EraseReportDirectory -Cover -CodeFilter '+[HealthMonitoring*]* -[*Tests*]*' -TestFilter '*Tests.dll' | Generate-CoverageSummary | Check-AcceptableCoverage -AcceptableCoverage 90
+}
+
+Define-Step -Name 'Packaging' -Target 'build' -Body {
+
+	Get-ChildItem . -filter "*.nuspec" -recurse -exclude "*.PublicMessages.nuspec","Wonga.Application.Client*nuspec" | Foreach {
+		Write-Host "Packing $($_.fullname)"
+		call "$($Context.NuGetExe)" pack $($_.fullname) -NoPackageAnalysis -version $($Context.Version)
+	}
+
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>HealthMonitoring</id>
+        <version>$version$</version>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <summary>Host for HealthMonitoring Service</summary>
+        <language>en-GB</language>
+        <authors>Wonga</authors>
+        <description>Host for HealthMonitoring Service</description>
+    </metadata>
+	<files>
+	<file src="tools\nssm.exe" target="."/>
+	<file src="HealthMonitoring.SelfHost\bin\Release\**\*" target="." exclude="**\*.pdb;**\*.xml"/>
+  </files>
+</package>
+

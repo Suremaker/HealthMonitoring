@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>HealthMonitoring.Monitors.Http</id>
+        <version>$version$</version>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <summary>Http Monitor for HealthMonitoring</summary>
+        <language>en-GB</language>
+        <authors>Wonga</authors>
+        <description>Http Monitor for HealthMonitoring</description>
+    </metadata>
+	<files>
+	<file src="HealthMonitoring.Monitors.Http\bin\Release\**\*" target="." exclude="**\*.pdb;**\*.xml"/>
+  </files>
+</package>
+
