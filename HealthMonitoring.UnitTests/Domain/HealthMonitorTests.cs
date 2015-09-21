@@ -28,7 +28,8 @@ namespace HealthMonitoring.UnitTests.Domain
 
             using (new HealthMonitor(_endpointRegistry, TimeSpan.FromMilliseconds(50)))
             {
-                Thread.Sleep(TimeSpan.FromSeconds(1));
+                WaitForAnyCall();
+
                 _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address3", "group", "name");
                 Thread.Sleep(TimeSpan.FromMilliseconds(200));
                 _endpointRegistry.TryUnregisterById(endpoint1);
@@ -47,6 +48,17 @@ namespace HealthMonitoring.UnitTests.Domain
             Assert.True(a1.Length > 1, string.Format("Expected more than 1 check of address1, got: {0}", a1.Length));
             Assert.True(a1.Length < a2.Length, string.Format("Expected less checks of address1 than address 2, got: address1={0}, address2={1}", a1.Length, a2.Length));
             Assert.True(a3.Length > 1, string.Format("Expected more than 1 check of address3, got: {0}", a3.Length));
+        }
+
+        private void WaitForAnyCall()
+        {
+            for (int i = 0; i < 10; ++i)
+            {
+                if (!_testableHealthMonitor.Calls.Any())
+                    Thread.Sleep(500);
+                else
+                    return;
+            }
         }
     }
 }

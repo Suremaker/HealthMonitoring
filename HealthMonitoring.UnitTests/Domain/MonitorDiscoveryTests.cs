@@ -28,7 +28,7 @@ namespace HealthMonitoring.UnitTests.Domain
                 typeof(HttpMonitor).Assembly.Location,
                 typeof(TestHealthMonitor).Assembly.Location);
 
-            Assert.Equal(expected, monitors.Select(p => p.GetType()));
+            Assert.Equal(expected, monitors.Select(p => p.GetType()).ToArray());
         }
 
         [Fact]
@@ -41,7 +41,7 @@ namespace HealthMonitoring.UnitTests.Domain
                 "some_inexistent_assembly.dll",
                 typeof(HttpMonitor).Assembly.Location);
 
-            Assert.Equal(expected, monitors.Select(p => p.GetType()));
+            Assert.Equal(expected, monitors.Select(p => p.GetType()).ToArray());
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace HealthMonitoring.UnitTests.Domain
                 typeof(BrokenMonitor).Assembly.Location,
                 typeof(HttpMonitor).Assembly.Location);
 
-            Assert.Equal(expected, monitors.Select(p => p.GetType()));
+            Assert.Equal(expected, monitors.Select(p => p.GetType()).ToArray());
         }
 
         [Fact]
@@ -66,7 +66,7 @@ namespace HealthMonitoring.UnitTests.Domain
                 typeof(HttpMonitor).Assembly.Location
                 );
 
-            Assert.Equal(expected, monitors.Select(p => p.GetType()));
+            Assert.Equal(expected, monitors.Select(p => p.GetType()).ToArray());
         }
     }
 
