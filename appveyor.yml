@@ -9,7 +9,7 @@ cache:
   - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
 
 build_script:
-    - ps: make\make.ps1 -t build -ap Version:{version}
+    - ps: make\make.ps1 -t build -ap Version:$(appveyor_build_version)
 
 test: off
 
