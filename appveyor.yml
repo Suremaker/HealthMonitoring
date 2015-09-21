@@ -1,3 +1,5 @@
+version: 1.0.{build}
+
 skip_tags: false
 os: Windows Server 2012
 platform: Any CPU
@@ -6,21 +8,14 @@ configuration: Release
 cache:
   - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
 
-install:
-  - ps: >-
-      $env:VERSION_FROM_TAG=$env:APPVEYOR_REPO_TAG_NAME;
-      if ( -Not [System.Convert]::ToBoolean($env:APPVEYOR_REPO_TAG) ) {
-        $env:VERSION_FROM_TAG=(git describe --abbrev=0);
-        $env:VERSION_FROM_TAG="$($env:VERSION_FROM_TAG).$($env:APPVEYOR_BUILD_NUMBER)";
-        Write-Host -ForeGroundColor Magenta "Adding build number to version as not a release - $($env:VERSION_FROM_TAG)";
-      }
-
-      Write-Host -ForeGroundColor Magenta "Version being built: $($env:VERSION_FROM_TAG)";
-
 build_script:
-    - ps: make\make.ps1 -t build -ap Version:$($VERSION_FROM_TAG)
+    - ps: make\make.ps1 -t build -ap Version:{version}
 
 test: off
 
 after_build:
     - ps: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path reports/Unit_tests.xml))
+
+artifacts:
+- path: reports
+  name: Reports

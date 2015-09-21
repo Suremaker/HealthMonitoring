@@ -9,8 +9,13 @@ Define-Step -Name 'Testing' -Target 'build' -Body {
 	$tests = @()
 	$tests += Define-XUnitTests -GroupName 'Unit tests' -TestAssembly "*\bin\Release\*.UnitTests.dll"
 	$tests += Define-XUnitTests -GroupName 'Acceptance tests' -TestAssembly "*\bin\Release\*.AcceptanceTests.dll"
-	
-	$tests | Run-Tests -EraseReportDirectory -Cover -CodeFilter '+[HealthMonitoring*]* -[*Tests*]*' -TestFilter '*Tests.dll' | Generate-CoverageSummary | Check-AcceptableCoverage -AcceptableCoverage 90
+
+	try {
+		$tests | Run-Tests -EraseReportDirectory -Cover -CodeFilter '+[HealthMonitoring*]* -[*Tests*]*' -TestFilter '*Tests.dll' | Generate-CoverageSummary | Check-AcceptableCoverage -AcceptableCoverage 90
+	}
+	finally{
+		cp HealthMonitoring.AcceptanceTests\bin\Release\Reports\FeaturesSummary.* reports
+	}
 }
 
 Define-Step -Name 'Packaging' -Target 'build' -Body {

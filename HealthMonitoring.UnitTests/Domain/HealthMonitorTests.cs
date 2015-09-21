@@ -26,22 +26,27 @@ namespace HealthMonitoring.UnitTests.Domain
             _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address2", "group", "name");
             _testableHealthMonitor.StartWatch();
 
-            using (new HealthMonitor(_endpointRegistry, TimeSpan.FromMilliseconds(250)))
+            using (new HealthMonitor(_endpointRegistry, TimeSpan.FromMilliseconds(50)))
             {
-                Thread.Sleep(TimeSpan.FromMilliseconds(350));
+                Thread.Sleep(TimeSpan.FromMilliseconds(200));
                 _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address3", "group", "name");
-                Thread.Sleep(TimeSpan.FromMilliseconds(250));
+                Thread.Sleep(TimeSpan.FromMilliseconds(200));
                 _endpointRegistry.TryUnregisterById(endpoint1);
                 Thread.Sleep(TimeSpan.FromMilliseconds(200));
             }
+            var afterStop = _testableHealthMonitor.Calls.Count();
             Thread.Sleep(TimeSpan.FromMilliseconds(200));
+            var afterDelay = _testableHealthMonitor.Calls.Count();
+
+            Assert.Equal(afterStop, afterDelay);
+
             var a1 = _testableHealthMonitor.Calls.Where(c => c.Item1 == "address1").ToArray();
             var a2 = _testableHealthMonitor.Calls.Where(c => c.Item1 == "address2").ToArray();
             var a3 = _testableHealthMonitor.Calls.Where(c => c.Item1 == "address3").ToArray();
 
-            Assert.Equal(3, a1.Length);
-            Assert.Equal(4, a2.Length);
-            Assert.Equal(2, a3.Length);
+            Assert.True(a1.Length > 1, string.Format("Expected more than 1 check of address1, got: {0}", a1.Length));
+            Assert.True(a1.Length < a2.Length, string.Format("Expected less checks of address1 than address 2, got: address1={0}, address2={1}", a1.Length, a2.Length));
+            Assert.True(a3.Length > 1, string.Format("Expected more than 1 check of address3, got: {0}", a3.Length));
         }
     }
 }
