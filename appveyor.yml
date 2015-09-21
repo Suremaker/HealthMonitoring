@@ -2,7 +2,7 @@ version: 1.0.{build}
 
 skip_tags: false
 os: Windows Server 2012
-platform: Any CPU
+platform: x64
 configuration: Release
 
 cache:
