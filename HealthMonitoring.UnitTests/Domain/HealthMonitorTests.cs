@@ -28,7 +28,7 @@ namespace HealthMonitoring.UnitTests.Domain
 
             using (new HealthMonitor(_endpointRegistry, TimeSpan.FromMilliseconds(50)))
             {
-                Thread.Sleep(TimeSpan.FromMilliseconds(200));
+                Thread.Sleep(TimeSpan.FromSeconds(1));
                 _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address3", "group", "name");
                 Thread.Sleep(TimeSpan.FromMilliseconds(200));
                 _endpointRegistry.TryUnregisterById(endpoint1);

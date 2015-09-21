@@ -14,7 +14,10 @@ Define-Step -Name 'Testing' -Target 'build' -Body {
 		$tests | Run-Tests -EraseReportDirectory -Cover -CodeFilter '+[HealthMonitoring*]* -[*Tests*]*' -TestFilter '*Tests.dll' | Generate-CoverageSummary | Check-AcceptableCoverage -AcceptableCoverage 90
 	}
 	finally{
-		cp HealthMonitoring.AcceptanceTests\bin\Release\Reports\FeaturesSummary.* reports
+		if(Test-Path HealthMonitoring.AcceptanceTests\bin\Release\Reports)
+		{
+			cp HealthMonitoring.AcceptanceTests\bin\Release\Reports\FeaturesSummary.* reports 
+		}
 	}
 }
 
