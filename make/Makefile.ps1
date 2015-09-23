@@ -6,6 +6,7 @@ Define-Step -Name 'Building' -Target 'build' -Body {
 Define-Step -Name 'Testing' -Target 'build' -Body {
 	. (require 'psmake.mod.testing')
 	
+	$ErrorActionPreference = "SilentlyContinue"
 	$tests = @()
 	$tests += Define-XUnitTests -GroupName 'Unit tests' -TestAssembly "*\bin\Release\*.UnitTests.dll"
 	$tests += Define-XUnitTests -GroupName 'Acceptance tests' -TestAssembly "*\bin\Release\*.AcceptanceTests.dll"
