@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Reflection;
@@ -17,6 +18,7 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
         public static void Initialize()
         {
+            Console.SetError(Console.Out);
             DeleteDatabase();
 
             _thread = new Thread(() => Program.Main());
