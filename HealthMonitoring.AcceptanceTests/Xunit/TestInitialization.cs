@@ -18,11 +18,16 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
         public static void Initialize()
         {
-            Console.SetError(Console.Out);
+            DisableSqlLiteErrorPrinting();
             DeleteDatabase();
 
             _thread = new Thread(() => Program.Main());
             _thread.Start();
+        }
+
+        private static void DisableSqlLiteErrorPrinting()
+        {
+            Console.SetError(Console.Out);
         }
 
         private static void DeleteDatabase()
