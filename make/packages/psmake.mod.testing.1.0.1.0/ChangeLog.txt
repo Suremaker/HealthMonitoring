@@ -1,0 +1,12 @@
+PsMake Testing Module
+========================================
+
+Version 1.0.0.0
+----------------------------------------
+Functions:
+(New) Define-NUnitTests: allows to define NUnit tests
+(New) Define-MbUnitTests: allows to define MbUnit tests
+(New) Define-MsTests: allows to define MsTest tests
+(New) Run-Tests: executes specified test groups, allowing also to calculate test coverage.
+(New) Generate-CoverageSummary: generates coverage summary report (HTML/XML)
+(New) Check-AcceptableCoverage: ensures that test coverage is at specified level
