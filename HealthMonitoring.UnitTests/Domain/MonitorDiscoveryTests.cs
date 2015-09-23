@@ -27,8 +27,7 @@ namespace HealthMonitoring.UnitTests.Domain
             var monitors = MonitorDiscovery.DiscoverAll(
                 typeof(HttpMonitor).Assembly.Location,
                 typeof(TestHealthMonitor).Assembly.Location);
-
-            Assert.Equal(expected, monitors.Select(p => p.GetType()).ToArray());
+            CollectionAssert.AreEquivalent(expected, monitors.Select(p => p.GetType()));
         }
 
         [Fact]
@@ -41,7 +40,7 @@ namespace HealthMonitoring.UnitTests.Domain
                 "some_inexistent_assembly.dll",
                 typeof(HttpMonitor).Assembly.Location);
 
-            Assert.Equal(expected, monitors.Select(p => p.GetType()).ToArray());
+            CollectionAssert.AreEquivalent(expected, monitors.Select(p => p.GetType()));
         }
 
         [Fact]
@@ -53,7 +52,7 @@ namespace HealthMonitoring.UnitTests.Domain
                 typeof(BrokenMonitor).Assembly.Location,
                 typeof(HttpMonitor).Assembly.Location);
 
-            Assert.Equal(expected, monitors.Select(p => p.GetType()).ToArray());
+            CollectionAssert.AreEquivalent(expected, monitors.Select(p => p.GetType()));
         }
 
         [Fact]
@@ -66,7 +65,7 @@ namespace HealthMonitoring.UnitTests.Domain
                 typeof(HttpMonitor).Assembly.Location
                 );
 
-            Assert.Equal(expected, monitors.Select(p => p.GetType()).ToArray());
+            CollectionAssert.AreEquivalent(expected, monitors.Select(p => p.GetType()));
         }
     }
 
