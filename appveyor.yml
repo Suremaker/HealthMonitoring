@@ -13,9 +13,6 @@ build_script:
 
 test: off
 
-after_build:
-  - ps: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path reports/Unit_tests.xml))
-
 artifacts:
   - path: reports
     name: Reports
