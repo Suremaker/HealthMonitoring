@@ -9,13 +9,13 @@ cache:
   - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
 
 build_script:
-    - ps: make\make.ps1 -t build -ap Version:$($env:appveyor_build_version)
+  - ps: make\make.ps1 -t build -ap Version:$($env:appveyor_build_version)
 
 test: off
 
 after_build:
-    - ps: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path reports/Acceptance_tests.xml))
+  - ps: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path reports/Unit_tests.xml))
 
 artifacts:
-- path: reports
-  name: Reports
+  - path: reports
+    name: Reports
