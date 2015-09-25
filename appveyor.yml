@@ -16,3 +16,5 @@ test: off
 artifacts:
   - path: reports
     name: Reports
+  - path: '*.nupkg'
+    name: Packages
