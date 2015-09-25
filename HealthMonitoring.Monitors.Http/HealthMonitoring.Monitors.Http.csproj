@@ -40,9 +40,9 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HttpJsonProtocol.cs" />
+    <Compile Include="HttpJsonMonitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RestProtocol.cs" />
+    <Compile Include="HttpMonitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HealthMonitoring.Monitors\HealthMonitoring.Monitors.csproj">

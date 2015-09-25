@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{212FDE21-E4C5-41F5-B898-0435636D1EE7}"
 	ProjectSection(SolutionItems) = preProject
@@ -36,6 +36,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.Http", "HealthMonitoring.Monitors.Http\HealthMonitoring.Monitors.Http.csproj", "{CD713C15-4FCD-4AC2-B0B0-8173F580A0AF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Persistence", "HealthMonitoring.Persistence\HealthMonitoring.Persistence.csproj", "{FF304FBD-1BDF-49CD-8E2A-4E20D2083BA0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.Nsb3.Messages", "HealthMonitoring.Monitors.Nsb3.Messages\HealthMonitoring.Monitors.Nsb3.Messages.csproj", "{951ADE4C-E0B1-4CA7-81DA-2038F6B18198}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.Nsb3", "HealthMonitoring.Monitors.Nsb3\HealthMonitoring.Monitors.Nsb3.csproj", "{D2B2C794-D3FB-4CC1-8FC0-DA4B627156C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleNsbHost", "SampleNsbHost\SampleNsbHost.csproj", "{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +81,18 @@ Global
 		{FF304FBD-1BDF-49CD-8E2A-4E20D2083BA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF304FBD-1BDF-49CD-8E2A-4E20D2083BA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF304FBD-1BDF-49CD-8E2A-4E20D2083BA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{951ADE4C-E0B1-4CA7-81DA-2038F6B18198}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{951ADE4C-E0B1-4CA7-81DA-2038F6B18198}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{951ADE4C-E0B1-4CA7-81DA-2038F6B18198}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{951ADE4C-E0B1-4CA7-81DA-2038F6B18198}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2B2C794-D3FB-4CC1-8FC0-DA4B627156C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2B2C794-D3FB-4CC1-8FC0-DA4B627156C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2B2C794-D3FB-4CC1-8FC0-DA4B627156C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2B2C794-D3FB-4CC1-8FC0-DA4B627156C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
