@@ -1,3 +1,8 @@
+Define-Step -Name 'Update version info' -Target 'build' -Body {
+	. (require 'psmake.mod.update-version-info')
+	Update-VersionInAssemblyInfo $($Context.Version) 
+}
+
 Define-Step -Name 'Building' -Target 'build' -Body {
 	call "$($Context.NuGetExe)" restore HealthMonitoring.sln
 	call "msbuild.exe" HealthMonitoring.sln /t:"Clean,Build" /p:Configuration=Release /m /verbosity:m /nologo /p:TreatWarningsAsErrors=true
