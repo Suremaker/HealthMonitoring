@@ -28,9 +28,15 @@ Define-Step -Name 'Testing' -Target 'build' -Body {
 
 Define-Step -Name 'Packaging' -Target 'build' -Body {
 
-	Get-ChildItem . -filter "*.nuspec" -recurse -exclude "*.PublicMessages.nuspec","Wonga.Application.Client*nuspec" | Foreach {
+	Get-ChildItem . -filter "*-deploy.nuspec" -recurse | Foreach {
 		Write-Host "Packing $($_.fullname)"
 		call "$($Context.NuGetExe)" pack $($_.fullname) -NoPackageAnalysis -version $($Context.Version)
 	}
+	
+	Get-ChildItem . -filter "*.nuspec" -recurse -exclude "*-deploy.nuspec" | Foreach {
+		$csprj = $_.fullname -replace '.nuspec','.csproj'
+		Write-Host "Packing $csprj"
+		call "$($Context.NuGetExe)" pack $csprj -Prop Configuration=Release
 
+	}
 }
