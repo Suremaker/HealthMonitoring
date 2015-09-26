@@ -23,8 +23,6 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
             _thread = new Thread(() => Program.Main());
             _thread.Start();
-            //TODO: this should be done better
-            Thread.Sleep(4000);
         }
 
         private static void DisableSqlLiteErrorPrinting()

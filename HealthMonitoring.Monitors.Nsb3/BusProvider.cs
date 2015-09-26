@@ -10,7 +10,6 @@ namespace HealthMonitoring.Monitors.Nsb3
         public static IBus Create()
         {
             return Configure.With(typeof(BusProvider).Assembly,typeof(GetStatusRequest).Assembly)
-                .Log4Net()
                 .DefineEndpointName("HealthMonitoring.Monitors.Nsb3")
                 .DefaultBuilder()
                 .MsmqTransport()

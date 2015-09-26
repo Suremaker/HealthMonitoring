@@ -15,7 +15,15 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
 
         public static RestClient Build()
         {
-            return new RestClient(GetBaseUrl());
+            var client = new RestClient(GetBaseUrl());
+            
+            Wait.Until(
+                TimeSpan.FromSeconds(10),
+                () => client.Get(new RestRequest("/api/monitors")).StatusCode,
+                status => status == HttpStatusCode.OK,
+                "Service is not functioning");
+
+            return client;
         }
 
         private static Uri GetBaseUrl()

@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="GetStatusResponse.cs" />
     <Compile Include="GetStatusRequest.cs" />
+    <Compile Include="Properties\ManualVersion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
