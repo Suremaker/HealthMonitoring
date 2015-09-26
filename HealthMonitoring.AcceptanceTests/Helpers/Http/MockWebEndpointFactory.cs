@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace HealthMonitoring.AcceptanceTests.Helpers
+namespace HealthMonitoring.AcceptanceTests.Helpers.Http
 {
     internal static class MockWebEndpointFactory
     {

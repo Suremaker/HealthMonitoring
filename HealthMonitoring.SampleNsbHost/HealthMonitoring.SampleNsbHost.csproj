@@ -7,8 +7,8 @@
     <ProjectGuid>{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SampleNsbHost</RootNamespace>
-    <AssemblyName>SampleNsbHost</AssemblyName>
+    <RootNamespace>HealthMonitoring.SampleNsbHost</RootNamespace>
+    <AssemblyName>HealthMonitoring.SampleNsbHost</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

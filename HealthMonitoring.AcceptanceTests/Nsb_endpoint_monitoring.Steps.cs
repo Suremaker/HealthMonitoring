@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Net;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Messaging;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Entities;
-using HealthMonitoring.AcceptanceTests.Helpers.Http;
 using LightBDD;
 using RestSharp;
 using Xunit;
@@ -10,24 +11,31 @@ using Xunit.Abstractions;
 
 namespace HealthMonitoring.AcceptanceTests
 {
-    public partial class Web_endpoint_monitoring : FeatureFixture, IDisposable
+    public partial class Nsb_endpoint_monitoring : FeatureFixture, IDisposable
     {
         private Guid _identifier;
         private RestClient _client;
-        private MockWebEndpoint _restEndpoint;
         private EndpointEntity _details;
+        private string _endpointName;
+        private Process _process;
 
-        public Web_endpoint_monitoring(ITestOutputHelper output)
+        public Nsb_endpoint_monitoring(ITestOutputHelper output)
             : base(output)
         {
         }
 
-        public void Dispose()
+        private void Given_a_healthy_nsb_endpoint()
         {
-            if (_restEndpoint == null)
-                return;
-            _restEndpoint.Dispose();
-            _restEndpoint = null;
+            _process = Process.Start(new ProcessStartInfo("sample\\HealthMonitoring.SampleNsbHost.exe") { WindowStyle = ProcessWindowStyle.Hidden });
+            _endpointName = "HealthMonitoring.SampleNsbHost@localhost";
+        }
+
+        private void Given_an_endpoint_that_has_not_been_deployed_yet()
+        {
+            _endpointName = "some_inexistent@localhost";
+            var queue = ".\\private$\\some_inexistent";
+            if (!MessageQueue.Exists(queue))
+                MessageQueue.Create(queue);
         }
 
         private void Given_a_monitor_api_client()
@@ -35,14 +43,9 @@ namespace HealthMonitoring.AcceptanceTests
             _client = ClientHelper.Build();
         }
 
-        private void Given_a_rest_endpoint()
-        {
-            _restEndpoint = MockWebEndpointFactory.CreateNew();
-        }
-
         private void When_client_registers_the_endpoint()
         {
-            _identifier = _client.RegisterEndpoint(MonitorTypes.Http, _restEndpoint.StatusAddress, "group", "name");
+            _identifier = _client.RegisterEndpoint(MonitorTypes.Nsb3, _endpointName, "group", "name");
         }
 
         private void Then_monitor_should_start_monitoring_the_endpoint()
@@ -69,12 +72,6 @@ namespace HealthMonitoring.AcceptanceTests
             Assert.True(_details.LastResponseTime != null, "Last response time is not provided");
         }
 
-        private void Given_an_endpoint_that_has_not_been_deployed_yet()
-        {
-            Given_a_rest_endpoint();
-            _restEndpoint.SetupStatusResponse(HttpStatusCode.NotFound);
-        }
-
         private void Then_monitor_should_observe_endpoint_status_being_STATUS(EndpointStatus status)
         {
             Wait.Until(
@@ -84,32 +81,25 @@ namespace HealthMonitoring.AcceptanceTests
                 "Endpoint status did not changed");
         }
 
-        private void Then_the_endpoint_additional_details_should_be_not_available()
+        private void Then_the_endpoint_additional_details_should_contain_timeout_information()
         {
-            Assert.Empty(_details.Details);
+            Assert.Equal(new Dictionary<string, string> { { "message", "health check timeout" } }, _details.Details);
         }
 
-        private void Then_the_endpoint_additional_details_should_contain_error_information()
+        private void Then_the_endpoint_additional_details_should_be_provided()
         {
-            Assert.NotEmpty(_details.Details);
-            Assert.True(_details.Details.ContainsKey("code"), "Code missing");
-        }
-
-        private void Given_a_healthy_rest_endpoint()
-        {
-            Given_a_rest_endpoint();
-            _restEndpoint.SetupStatusPlainResponse(HttpStatusCode.OK, "hello world!");
-        }
-
-        private void Given_an_unhealthy_rest_endpoint()
-        {
-            Given_a_rest_endpoint();
-            _restEndpoint.SetupStatusResponse(HttpStatusCode.InternalServerError);
+            Assert.Equal(new Dictionary<string, string> { { "Machine", "localhost" }, { "Version", "1.0.0.0" } }, _details.Details);
         }
 
         private void Then_the_endpoint_status_should_be_provided(EndpointStatus status)
         {
             Assert.Equal(status, _details.Status);
+        }
+
+        public void Dispose()
+        {
+            if (_process != null)
+                _process.Kill();
         }
     }
 }

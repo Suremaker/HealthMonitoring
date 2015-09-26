@@ -25,6 +25,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.AcceptanceTests", "HealthMonitoring.AcceptanceTests\HealthMonitoring.AcceptanceTests.csproj", "{798E64F8-B8E4-4638-8CA8-08B4AF984B06}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C7EB3E43-9DC4-4D10-9799-3371133BAEF9} = {C7EB3E43-9DC4-4D10-9799-3371133BAEF9}
+		{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05} = {DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}
+		{D2B2C794-D3FB-4CC1-8FC0-DA4B627156C9} = {D2B2C794-D3FB-4CC1-8FC0-DA4B627156C9}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors", "HealthMonitoring.Monitors\HealthMonitoring.Monitors.csproj", "{D26577BB-BEA8-4911-8C25-37E268609E3F}"
@@ -41,7 +43,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.N
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.Nsb3", "HealthMonitoring.Monitors.Nsb3\HealthMonitoring.Monitors.Nsb3.csproj", "{D2B2C794-D3FB-4CC1-8FC0-DA4B627156C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleNsbHost", "SampleNsbHost\SampleNsbHost.csproj", "{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Helpers", "Helpers", "{E92D0044-EBF8-4893-B402-1754AA5B173D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.SampleNsbHost", "HealthMonitoring.SampleNsbHost\HealthMonitoring.SampleNsbHost.csproj", "{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -102,5 +106,6 @@ Global
 		{798E64F8-B8E4-4638-8CA8-08B4AF984B06} = {11868196-C99E-4959-BE4D-7BEB75B76986}
 		{B38787FD-3B64-47B3-82B9-381E34BBDC5F} = {F0A0E7E8-5BFB-483F-84DA-957D5930539B}
 		{F0A0E7E8-5BFB-483F-84DA-957D5930539B} = {11868196-C99E-4959-BE4D-7BEB75B76986}
+		{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05} = {E92D0044-EBF8-4893-B402-1754AA5B173D}
 	EndGlobalSection
 EndGlobal

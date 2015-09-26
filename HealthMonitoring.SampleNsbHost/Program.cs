@@ -6,15 +6,15 @@ using NServiceBus.Config;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.Installation.Environments;
 
-namespace SampleNsbHost
+namespace HealthMonitoring.SampleNsbHost
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Configure configure = Configure.With(typeof(GetStatusRequest).Assembly,typeof(Handler).Assembly);
+            Configure configure = Configure.With(typeof(GetStatusRequest).Assembly, typeof(Handler).Assembly);
             configure.Log4Net();
-            configure.DefineEndpointName("Samples.StepByStep.Server");
+            configure.DefineEndpointName("HealthMonitoring.SampleNsbHost");
             configure.DefaultBuilder();
             configure.MsmqTransport();
             configure.InMemorySagaPersister();
@@ -43,7 +43,8 @@ namespace SampleNsbHost
         public void Handle(GetStatusRequest message)
         {
             Console.WriteLine("Received: {0}", message.RequestId);
-            _bus.Reply(new GetStatusResponse { RequestId = message.RequestId, Details = new Dictionary<string, string> { { "host", "localhost" }, { "a", "b" } } });
+            var details = new Dictionary<string, string> { { "Machine", "localhost" }, { "Version", "1.0.0.0" } };
+            _bus.Reply(new GetStatusResponse { RequestId = message.RequestId, Details = details });
         }
     }
 

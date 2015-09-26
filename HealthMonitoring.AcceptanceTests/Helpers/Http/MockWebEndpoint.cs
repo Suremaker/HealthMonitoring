@@ -9,7 +9,7 @@ using System.Text;
 using Newtonsoft.Json;
 using SimpleHttpMock;
 
-namespace HealthMonitoring.AcceptanceTests.Helpers
+namespace HealthMonitoring.AcceptanceTests.Helpers.Http
 {
     class MockWebEndpoint : IDisposable
     {

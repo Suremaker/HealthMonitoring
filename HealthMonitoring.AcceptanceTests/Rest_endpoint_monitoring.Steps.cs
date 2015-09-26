@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Entities;
+using HealthMonitoring.AcceptanceTests.Helpers.Http;
 using LightBDD;
 using RestSharp;
 using Xunit;

@@ -99,7 +99,7 @@
     </ProjectReference>
     <ProjectReference Include="..\HealthMonitoring.Monitors.Broken\HealthMonitoring.Monitors.Broken.csproj">
       <Project>{B38787FD-3B64-47B3-82B9-381E34BBDC5F}</Project>
-      <Name>HealthMonitoring.Protocols.Broken</Name>
+      <Name>HealthMonitoring.Monitors.Broken</Name>
     </ProjectReference>
     <ProjectReference Include="..\HealthMonitoring.Monitors\HealthMonitoring.Monitors.csproj">
       <Project>{D26577BB-BEA8-4911-8C25-37E268609E3F}</Project>
