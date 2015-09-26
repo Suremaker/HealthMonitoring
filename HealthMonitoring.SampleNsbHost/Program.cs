@@ -12,14 +12,15 @@ namespace HealthMonitoring.SampleNsbHost
     {
         static void Main(string[] args)
         {
-            Configure configure = Configure.With(typeof(GetStatusRequest).Assembly, typeof(Handler).Assembly);
-            configure.Log4Net();
-            configure.DefineEndpointName("HealthMonitoring.SampleNsbHost");
-            configure.DefaultBuilder();
-            configure.MsmqTransport();
-            configure.InMemorySagaPersister();
-            configure.RunTimeoutManagerWithInMemoryPersistence();
-            configure.InMemorySubscriptionStorage();
+            Configure configure = Configure.With(typeof(GetStatusRequest).Assembly, typeof(Handler).Assembly)
+            .Log4Net()
+            .DefineEndpointName("HealthMonitoring.SampleNsbHost")
+            .DefaultBuilder()
+            .MsmqTransport()
+            .InMemorySagaPersister()
+            .DisableTimeoutManager()
+            .DisableSecondLevelRetries()
+            .InMemorySubscriptionStorage();
             using (IStartableBus startableBus = configure.UnicastBus().CreateBus())
             {
                 IBus bus = startableBus
@@ -54,7 +55,7 @@ namespace HealthMonitoring.SampleNsbHost
         {
             return new MessageForwardingInCaseOfFaultConfig
             {
-                ErrorQueue = "error"
+                ErrorQueue = "HealthMonitoring.SampleNsbHost.error"
             };
         }
     }
