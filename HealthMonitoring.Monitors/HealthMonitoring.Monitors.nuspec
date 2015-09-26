@@ -1,13 +1,14 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>HealthMonitoring.Monitors</id>
+        <id>$id$</id>
         <version>$version$</version>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <summary>HealthMonitoring.Monitors interfaces</summary>
         <language>en-GB</language>
-        <authors>Wonga</authors>
-        <description>HealthMonitoring.Monitors interfaces</description>
+        <title>$title$</title>
+        <authors>$author$</authors>
+        <owners>$author$</owners>
+        <description>$description$</description>
     </metadata>
 </package>
 

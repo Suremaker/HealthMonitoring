@@ -1,13 +1,14 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>HealthMonitoring.Monitors.Nsb3.Messages</id>
+        <id>$id$</id>
         <version>$version$</version>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <summary>Messages contracts for Nsb3 Monitor for HealthMonitoring Service</summary>
         <language>en-GB</language>
-        <authors>Wonga</authors>
-        <description>Messages contracts for Nsb3 Monitor for HealthMonitoring Service</description>
+        <title>$title$</title>
+        <authors>$author$</authors>
+        <owners>$author$</owners>
+        <description>$description$</description>
     </metadata>
 </package>
 
