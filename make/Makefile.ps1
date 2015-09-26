@@ -36,7 +36,7 @@ Define-Step -Name 'Packaging' -Target 'build' -Body {
 	Get-ChildItem . -filter "*.nuspec" -recurse -exclude "*-deploy.nuspec" | Foreach {
 		$csprj = $_.fullname -replace '.nuspec','.csproj'
 		Write-Host "Packing $csprj"
-		call "$($Context.NuGetExe)" pack $csprj -Prop Configuration=Release
+		call "$($Context.NuGetExe)" pack $csprj -Prop Configuration=Release -version $($Context.Version)
 
 	}
 }
