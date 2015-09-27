@@ -107,6 +107,12 @@ namespace HealthMonitoring.AcceptanceTests
             _restEndpoint.SetupStatusResponse(HttpStatusCode.InternalServerError);
         }
 
+        private void Given_an_endpoint_is_offline()
+        {
+            Given_a_rest_endpoint();
+            _restEndpoint.SetupStatusResponse(HttpStatusCode.ServiceUnavailable);
+        }
+
         private void Then_the_endpoint_status_should_be_provided(EndpointStatus status)
         {
             Assert.Equal(status, _details.Status);

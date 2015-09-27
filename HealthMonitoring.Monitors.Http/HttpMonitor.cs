@@ -28,7 +28,9 @@ namespace HealthMonitoring.Monitors.Http
             {
                 sw.Stop();
                 if (response.StatusCode == HttpStatusCode.NotFound)
-                    return new HealthInfo(HealthStatus.Inactive, sw.Elapsed);
+                    return new HealthInfo(HealthStatus.NotExists, sw.Elapsed);
+                if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
+                    return new HealthInfo(HealthStatus.Offline, sw.Elapsed);
                 if (response.StatusCode == HttpStatusCode.OK)
                     return new HealthInfo(HealthStatus.Healthy, sw.Elapsed, await ReadSuccessfulContent(response.Content));
                 return new HealthInfo(HealthStatus.Faulty, sw.Elapsed, await GetFaultyResponseDetails(response));

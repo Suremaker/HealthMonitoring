@@ -126,7 +126,7 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         [Theory]
         [InlineData(HealthStatus.Healthy)]
         [InlineData(HealthStatus.Faulty)]
-        [InlineData(HealthStatus.Inactive)]
+        [InlineData(HealthStatus.Offline)]
         public void GetEndpoint_should_return_endpoint_information_with_details(HealthStatus status)
         {
             Guid id = Guid.NewGuid();

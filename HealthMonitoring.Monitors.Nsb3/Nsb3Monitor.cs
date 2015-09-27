@@ -28,7 +28,7 @@ namespace HealthMonitoring.Monitors.Nsb3
                 var response = await wait.GetResponseAsync(cancellationToken);
                 watch.Stop();
 
-                return response != null ? Healthy(watch, response) : Faulty(watch);
+                return response != null ? Healthy(watch, response) : TimedOut(watch);
             }
         }
 
@@ -37,9 +37,9 @@ namespace HealthMonitoring.Monitors.Nsb3
             return new HealthInfo(HealthStatus.Healthy, watch.Elapsed, response.Details);
         }
 
-        private static HealthInfo Faulty(Stopwatch watch)
+        private static HealthInfo TimedOut(Stopwatch watch)
         {
-            return new HealthInfo(HealthStatus.Faulty, watch.Elapsed, new Dictionary<string, string> { { "message", "health check timeout" } });
+            return new HealthInfo(HealthStatus.TimedOut, watch.Elapsed, new Dictionary<string, string> { { "message", "health check timeout" } });
         }
     }
 

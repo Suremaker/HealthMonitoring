@@ -17,9 +17,26 @@ I want to monitor registered web endpoints")]
                 _ => Given_an_endpoint_that_has_not_been_deployed_yet(),
                 _ => When_client_registers_the_endpoint(),
                 _ => Then_monitor_should_start_monitoring_the_endpoint(),
-                _ => Then_monitor_should_observe_endpoint_status_being_STATUS(EndpointStatus.Inactive),
+                _ => Then_monitor_should_observe_endpoint_status_being_STATUS(EndpointStatus.NotExists),
                 _ => When_client_requests_endpoint_details(),
-                _ => Then_the_endpoint_status_should_be_provided(EndpointStatus.Inactive),
+                _ => Then_the_endpoint_status_should_be_provided(EndpointStatus.NotExists),
+                _ => Then_the_last_check_time_should_be_provided(),
+                _ => Then_the_response_time_should_be_provided(),
+                _ => Then_the_endpoint_additional_details_should_be_not_available()
+                );
+        }
+
+        [Scenario]
+        public void Monitoring_offline_web_endpoint()
+        {
+            Runner.RunScenario(
+                _ => Given_a_monitor_api_client(),
+                _ => Given_an_endpoint_is_offline(),
+                _ => When_client_registers_the_endpoint(),
+                _ => Then_monitor_should_start_monitoring_the_endpoint(),
+                _ => Then_monitor_should_observe_endpoint_status_being_STATUS(EndpointStatus.Offline),
+                _ => When_client_requests_endpoint_details(),
+                _ => Then_the_endpoint_status_should_be_provided(EndpointStatus.Offline),
                 _ => Then_the_last_check_time_should_be_provided(),
                 _ => Then_the_response_time_should_be_provided(),
                 _ => Then_the_endpoint_additional_details_should_be_not_available()

@@ -108,6 +108,12 @@ namespace HealthMonitoring.AcceptanceTests
             _restEndpoint.SetupStatusResponse(HttpStatusCode.OK, new { Machine = "localhost", Version = "1.0.0.0" });
         }
 
+        private void Given_an_endpoint_is_offline()
+        {
+            Given_a_rest_endpoint();
+            _restEndpoint.SetupStatusResponse(HttpStatusCode.ServiceUnavailable);
+        }
+
         private void Given_an_unhealthy_rest_endpoint()
         {
             Given_a_rest_endpoint();

@@ -17,9 +17,9 @@ I want to monitor registered nsb endpoints")]
                 _ => Given_an_endpoint_that_has_not_been_deployed_yet(),
                 _ => When_client_registers_the_endpoint(),
                 _ => Then_monitor_should_start_monitoring_the_endpoint(),
-                _ => Then_monitor_should_observe_endpoint_status_being_STATUS(EndpointStatus.Faulty),
+                _ => Then_monitor_should_observe_endpoint_status_being_STATUS(EndpointStatus.TimedOut),
                 _ => When_client_requests_endpoint_details(),
-                _ => Then_the_endpoint_status_should_be_provided(EndpointStatus.Faulty),
+                _ => Then_the_endpoint_status_should_be_provided(EndpointStatus.TimedOut),
                 _ => Then_the_last_check_time_should_be_provided(),
                 _ => Then_the_response_time_should_be_provided(),
                 _ => Then_the_endpoint_additional_details_should_contain_timeout_information()

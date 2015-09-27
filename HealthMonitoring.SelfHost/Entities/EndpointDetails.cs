@@ -26,6 +26,7 @@ namespace HealthMonitoring.SelfHost.Entities
             else
             {
                 Details = new Dictionary<string, string>();
+                Status = EndpointStatus.NotRun;
             }
         }
 

@@ -23,7 +23,7 @@ namespace HealthMonitoring.UnitTests.Domain
         [Theory]
         [InlineData(HealthStatus.Faulty)]
         [InlineData(HealthStatus.Healthy)]
-        [InlineData(HealthStatus.Inactive)]
+        [InlineData(HealthStatus.Offline)]
         public void CheckHealth_should_update_the_endpoint_with_its_health_status(HealthStatus healthStatus)
         {
             var tokenSource = new CancellationTokenSource();

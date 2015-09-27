@@ -2,9 +2,12 @@ namespace HealthMonitoring.Model
 {
     public enum EndpointStatus
     {
-        NotRun = 0,
-        Inactive = 1,
-        Healthy = 2,
-        Faulty = 3
+        NotRun = -1,
+        NotExists = 0,
+        Offline,
+        Healthy,
+        Faulty,
+        Unhealthy,
+        TimedOut
     }
 }

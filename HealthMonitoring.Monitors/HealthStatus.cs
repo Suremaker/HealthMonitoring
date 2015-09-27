@@ -2,9 +2,29 @@ namespace HealthMonitoring.Monitors
 {
     public enum HealthStatus
     {
-        NotRun = 0,
-        Inactive = 1,
+        /// <summary>
+        /// The target endpoint does not exist
+        /// </summary>
+        NotExists = 0,
+        /// <summary>
+        /// The target endpoint exists, but is not active, shutdown or offline
+        /// </summary>
+        Offline = 1,
+        /// <summary>
+        /// The target endpoint is fully operational
+        /// </summary>
         Healthy = 2,
-        Faulty = 3
+        /// <summary>
+        /// The target endpoint is faulty, a communication error occurred or endpoint definition is invalid
+        /// </summary>
+        Faulty = 3,
+        /// <summary>
+        /// The target endpoint is operational but has long response time or other issues
+        /// </summary>
+        Unhealthy = 4,
+        /// <summary>
+        /// The target endpoint may be operational, but it was not possible retrieve the response on time
+        /// </summary>
+        TimedOut = 5
     }
 }
