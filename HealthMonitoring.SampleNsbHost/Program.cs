@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Messaging;
 using HealthMonitoring.Monitors.Nsb3.Messages;
 using NServiceBus;
 using NServiceBus.Config;
@@ -12,6 +13,8 @@ namespace HealthMonitoring.SampleNsbHost
     {
         static void Main(string[] args)
         {
+            CreateQueue();
+
             Configure configure = Configure.With(typeof(GetStatusRequest).Assembly, typeof(Handler).Assembly)
             .Log4Net()
             .DefineEndpointName("HealthMonitoring.SampleNsbHost")
@@ -29,6 +32,13 @@ namespace HealthMonitoring.SampleNsbHost
                 Console.ReadKey();
             }
 
+        }
+
+        private static void CreateQueue()
+        {
+            var queue = ".\\private$\\HealthMonitoring.SampleNsbHost";
+            if (!MessageQueue.Exists(queue))
+                MessageQueue.Create(queue, true);
         }
     }
 
