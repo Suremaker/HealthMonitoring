@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
+using HealthMonitoring.Configuration;
 using HealthMonitoring.Model;
 
 namespace HealthMonitoring
@@ -13,17 +14,17 @@ namespace HealthMonitoring
     {
         private static readonly ILog Logger = LogManager.GetLogger<HealthMonitor>();
         private readonly IEndpointRegistry _registry;
-        private readonly TimeSpan _healthCheckInterval;
+        private readonly IMonitorSettings _settings;
         private readonly CancellationTokenSource _cancellation;
         private readonly Thread _monitor;
         private readonly ConcurrentDictionary<Endpoint, Task<Endpoint>> _tasks = new ConcurrentDictionary<Endpoint, Task<Endpoint>>();
         private readonly ManualResetEventSlim _onNewTask = new ManualResetEventSlim();
         private Task<Endpoint> _onNewEndpoint;
 
-        public HealthMonitor(IEndpointRegistry registry, TimeSpan healthCheckInterval)
+        public HealthMonitor(IEndpointRegistry registry, IMonitorSettings settings)
         {
             _registry = registry;
-            _healthCheckInterval = healthCheckInterval;
+            _settings = settings;
             _registry.NewEndpointAdded += HandleNewEndpoint;
             _cancellation = new CancellationTokenSource();
 
@@ -78,8 +79,8 @@ namespace HealthMonitoring
             await Task.Yield();
             while (!_cancellation.IsCancellationRequested && !endpoint.IsDisposed)
             {
-                await endpoint.CheckHealth(_cancellation.Token);
-                await Task.Delay(_healthCheckInterval);
+                await endpoint.CheckHealth(_cancellation.Token,_settings);
+                await Task.Delay(_settings.HealthCheckInterval);
             }
             return endpoint;
         }

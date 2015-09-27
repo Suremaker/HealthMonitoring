@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Messaging;
+using System.Text.RegularExpressions;
+using System.Threading;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Entities;
 using LightBDD;
@@ -36,6 +38,11 @@ namespace HealthMonitoring.AcceptanceTests
             var queue = ".\\private$\\some_inexistent";
             if (!MessageQueue.Exists(queue))
                 MessageQueue.Create(queue);
+        }
+
+        private void Given_an_unreachable_endpoint()
+        {
+            _endpointName = "unreachable@localhost";
         }
 
         private void Given_a_monitor_api_client()
@@ -86,6 +93,13 @@ namespace HealthMonitoring.AcceptanceTests
             Assert.Equal(new Dictionary<string, string> { { "message", "health check timeout" } }, _details.Details);
         }
 
+        private void Then_the_endpoint_additional_details_should_contain_failure_information()
+        {
+            Assert.True(_details.Details.ContainsKey("reason"), "Reason field should be set");
+            var reason = _details.Details["reason"];
+            Assert.True(Regex.IsMatch(reason, "^The destination queue 'unreachable@.+' could not be found.+"), string.Format("Reason field is invalid: {0}", reason));
+        }
+
         private void Then_the_endpoint_additional_details_should_be_provided()
         {
             Assert.Equal(new Dictionary<string, string> { { "Machine", "localhost" }, { "Version", "1.0.0.0" } }, _details.Details);
@@ -100,6 +114,11 @@ namespace HealthMonitoring.AcceptanceTests
         {
             if (_process != null)
                 _process.Kill();
+        }
+
+        private void When_more_time_pass()
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(10));
         }
     }
 }

@@ -16,7 +16,7 @@ namespace HealthMonitoring.UnitTests.Domain
         public HealthMonitorTests()
         {
             _testableHealthMonitor = new TestableHealthMonitor();
-            _endpointRegistry = new EndpointRegistry(new HealthMonitorRegistry(new[] { _testableHealthMonitor }), new Mock<IConfigurationStore>().Object);
+            _endpointRegistry = new EndpointRegistry(new HealthMonitorRegistry(new[] { _testableHealthMonitor }), new Mock<IEndpointConfigurationStore>().Object);
         }
 
         [Fact]
@@ -26,7 +26,7 @@ namespace HealthMonitoring.UnitTests.Domain
             _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address2", "group", "name");
             _testableHealthMonitor.StartWatch();
 
-            using (new HealthMonitor(_endpointRegistry, TimeSpan.FromMilliseconds(50)))
+            using (new HealthMonitor(_endpointRegistry, MonitorSettingsHelper.ConfigureSettings(TimeSpan.FromMilliseconds(50))))
             {
                 WaitForAnyCall();
 

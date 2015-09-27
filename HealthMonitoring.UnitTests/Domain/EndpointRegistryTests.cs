@@ -12,12 +12,12 @@ namespace HealthMonitoring.UnitTests.Domain
     {
         private readonly EndpointRegistry _registry;
         private readonly Mock<IHealthMonitorRegistry> _monitorRegistry;
-        private readonly Mock<IConfigurationStore> _configurationStore;
+        private readonly Mock<IEndpointConfigurationStore> _configurationStore;
 
         public EndpointRegistryTests()
         {
             _monitorRegistry = new Mock<IHealthMonitorRegistry>();
-            _configurationStore = new Mock<IConfigurationStore>();
+            _configurationStore = new Mock<IEndpointConfigurationStore>();
             _registry = new EndpointRegistry(_monitorRegistry.Object, _configurationStore.Object);
         }
 

@@ -19,9 +19,12 @@ namespace HealthMonitoring.Model
         public DateTime CheckTimeUtc { get; private set; }
         public IReadOnlyDictionary<string, string> Details { get; private set; }
 
-        public static EndpointHealth FromResult(DateTime checkTimeUtc, HealthInfo health)
+        public static EndpointHealth FromResult(DateTime checkTimeUtc, HealthInfo health, TimeSpan healthyResponseTimeLimit)
         {
-            return new EndpointHealth(checkTimeUtc, health.ResponseTime, (EndpointStatus)health.Status, health.Details);
+            var status = (EndpointStatus)health.Status;
+            if (status == EndpointStatus.Healthy && health.ResponseTime > healthyResponseTimeLimit)
+                status = EndpointStatus.Unhealthy;
+            return new EndpointHealth(checkTimeUtc, health.ResponseTime, status, health.Details);
         }
 
         public static EndpointHealth FromException(DateTime checkTimeUtc, Exception exception)

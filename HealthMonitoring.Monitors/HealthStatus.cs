@@ -23,8 +23,8 @@ namespace HealthMonitoring.Monitors
         /// </summary>
         Unhealthy = 4,
         /// <summary>
-        /// The target endpoint may be operational, but it was not possible retrieve the response on time
+        /// The target endpoint may be operational but it did not finished in specified time
         /// </summary>
-        TimedOut = 5
+        TimedOut=5
     }
 }

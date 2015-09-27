@@ -82,6 +82,7 @@
     <Compile Include="Domain\MonitorDiscoveryTests.cs" />
     <Compile Include="Helpers\CollectionAssert.cs" />
     <Compile Include="Helpers\MonitorMock.cs" />
+    <Compile Include="Helpers\MonitorSettingsHelper.cs" />
     <Compile Include="Helpers\TestableHealthMonitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Domain\MonitorRegistryTests.cs" />

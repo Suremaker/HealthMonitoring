@@ -10,19 +10,19 @@ namespace HealthMonitoring
     public class EndpointRegistry : IEndpointRegistry
     {
         private readonly IHealthMonitorRegistry _healthMonitorRegistry;
-        private readonly IConfigurationStore _configurationStore;
+        private readonly IEndpointConfigurationStore _endpointConfigurationStore;
         private readonly ConcurrentDictionary<string, Endpoint> _endpoints = new ConcurrentDictionary<string, Endpoint>();
         private readonly ConcurrentDictionary<Guid, Endpoint> _endpointsByGuid = new ConcurrentDictionary<Guid, Endpoint>();
 
         public IEnumerable<Endpoint> Endpoints { get { return _endpoints.Select(p => p.Value); } }
         public event Action<Endpoint> NewEndpointAdded;
 
-        public EndpointRegistry(IHealthMonitorRegistry healthMonitorRegistry, IConfigurationStore configurationStore)
+        public EndpointRegistry(IHealthMonitorRegistry healthMonitorRegistry, IEndpointConfigurationStore endpointConfigurationStore)
         {
             _healthMonitorRegistry = healthMonitorRegistry;
-            _configurationStore = configurationStore;
+            _endpointConfigurationStore = endpointConfigurationStore;
 
-            foreach (var endpoint in _configurationStore.LoadEndpoints(healthMonitorRegistry))
+            foreach (var endpoint in _endpointConfigurationStore.LoadEndpoints(healthMonitorRegistry))
             {
                 if (_endpoints.TryAdd(GetKey(endpoint.MonitorType, endpoint.Address), endpoint))
                     _endpointsByGuid.TryAdd(endpoint.Id, endpoint);
@@ -43,7 +43,7 @@ namespace HealthMonitoring
             if (endpoint.Id == newId && NewEndpointAdded != null)
                 NewEndpointAdded(endpoint);
 
-            _configurationStore.SaveEndpoint(endpoint);
+            _endpointConfigurationStore.SaveEndpoint(endpoint);
 
             return endpoint.Id;
         }
@@ -63,7 +63,7 @@ namespace HealthMonitoring
                 return false;
 
             endpoint.Dispose();
-            _configurationStore.DeleteEndpoint(endpoint.Id);
+            _endpointConfigurationStore.DeleteEndpoint(endpoint.Id);
             return true;
         }
 

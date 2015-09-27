@@ -135,7 +135,7 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
             monitor.Setup(p => p.CheckHealthAsync("address", It.IsAny<CancellationToken>())).Returns(Task.FromResult(healthInfo));
 
             var endpoint = new Endpoint(id, monitor.Object, "address", "name", "group");
-            endpoint.CheckHealth(new CancellationToken()).Wait();
+            endpoint.CheckHealth(new CancellationToken(), MonitorSettingsHelper.ConfigureDefaultSettings()).Wait();
             _endpointRegistry.Setup(r => r.GetById(id)).Returns(endpoint);
 
             var result = _controller.GetEndpoint(id) as OkNegotiatedContentResult<EndpointDetails>;

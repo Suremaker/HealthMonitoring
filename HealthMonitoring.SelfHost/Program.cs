@@ -13,8 +13,8 @@ namespace HealthMonitoring.SelfHost
         private static readonly ILog Logger = LogManager.GetLogger<Program>();
         public static void Main(params string[] args)
         {
-            Common.Logging.LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(new NameValueCollection { { "configType", "FILE-WATCH" }, { "configFile", "~/log4net.config" } });
-            string baseAddress = ConfigurationManager.AppSettings["BaseUrl"];
+            LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(new NameValueCollection { { "configType", "FILE-WATCH" }, { "configFile", "~/log4net.config" } });
+            var baseAddress = ConfigurationManager.AppSettings["BaseUrl"];
 
             try
             {

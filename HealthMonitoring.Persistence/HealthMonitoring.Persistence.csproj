@@ -49,7 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointEntity.cs" />
-    <Compile Include="SqlConfigurationStore.cs" />
+    <Compile Include="SqlEndpointConfigurationStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqliteDatabase.cs" />
   </ItemGroup>
