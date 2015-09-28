@@ -1,82 +1,60 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="utf-8">
     <title>Health Monitoring - dashboard</title>
-    <script src="/dashboard/angular.min.js"></script>
-    <style>
-        body {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            border: 0;
-            background-color: black;
-        }
-        a{text-decoration: none;}
-
-        .endpoint {
-            border: solid 1px #888888;
-            margin: 1px;
-            font: 10px sans-serif;
-            display: inline-block;
-            color: #eeeeee;
-            padding: 3px;
-            width: 120px;
-        }
-        .endpoint > div:first-child {
-            font-weight: bold;
-        }
-
-        @keyframes blink {
-            from { border-color: yellow; }
-            to { border-color: #888888; }
-        }
-        .endpoint[data-status="healthy"] { background-color: darkgreen; }
-        .endpoint[data-status="faulty"] { background-color: darkred; }
-        .endpoint[data-status="unhealthy"] { background-color: gold;color: #222222; }
-        .endpoint[data-status="timedOut"] { background-color: orangered; }
-        .endpoint[data-status="offline"] { background-color: blue; }
-        .endpoint[data-status="notRun"] { background-color: #000000; }
-        .endpoint[data-status="notExists"] { background-color: #333333; }
-        .endpoint[data-changed="true"] {animation-name: blink;animation-duration: 0.9s;}
-    </style>
-</head>
-<body>
-    <div data-ng-app="app" data-ng-controller="ctrl">
-        <a data-ng-repeat="e in endpoints | orderBy: 'Group'" class="endpoint" data-status="{{e.Status}}" data-changed="{{e.changed}}" href="/api/endpoints/{{e.Id}}" target="_blank">
-            <div>{{e.Group}}</div>
-            <div>{{e.Name}}</div>
-        </a>
+    <script src="angular.min.js"></script>
+    <link rel="stylesheet" href="main.css">
+  </head>
+  <body>
+    <div ng-app="app" data-ng-controller="ctrl">
+      <ul>
+        <li ng-repeat="e in endpoints| orderBy: 'Group'" ng-class="getEndpointClassName(e)" class="endpoint" data-status="{{e.Status}}" data-changed="{{e.changed}}" href="/api/endpoints/{{e.Id}}" target="_blank">
+          <div>{{e.Group}}</div>
+          <div>{{e.Name}}</div>
+        </li>
+      </ul>
     </div>
     <script>
-        var app = angular.module('app', []);
-        app.controller('ctrl', function ($scope, $http) {
-            $scope.endpoints = [];
+      var app = angular.module('app', []);
+      app.controller('ctrl', function ($scope, $http) {
+        var groupClassNames = {};
 
-            $scope.update = function () {
-                $http.get("/api/endpoints")
-                    .success(function (response) {
-                        $scope.endpoints = updateEndpoints(response,$scope.endpoints);
-                    })
-                    .error(function (data, status) {
-                        $scope.endpoints = [];
-                    });
+        $scope.endpoints = [];
+
+        $scope.update = function () {
+          $http.get("/api/endpoints")
+            .success(function (response) {
+              $scope.endpoints = updateEndpoints(response, $scope.endpoints);
+            })
+            .error(function (data, status) {
+              $scope.endpoints = [];
+            });
+        };
+        $scope.update();
+        setInterval($scope.update, 1000);
+
+        $scope.getEndpointClassName = function (endpoint) {
+          if (!groupClassNames[endpoint.Group]) {
+            groupClassNames[endpoint.Group] = 'group' + (Object.keys(groupClassNames).length % 3 + 1);
+          }
+          return groupClassNames[endpoint.Group];
+        };
+      });
+
+      function updateEndpoints(endpoints, oldEndpoints) {
+        for (var i = 0; i < endpoints.length; ++i) {
+          endpoints[i].changed = true;
+
+          for (var j = 0; j < oldEndpoints.length; ++j) {
+            if (endpoints[i].Id === oldEndpoints[j].Id) {
+              endpoints[i].changed = true; //(endpoints[i].LastCheckUtc !== oldEndpoints[j].LastCheckUtc);
+              break;
             }
-            $scope.update();
-            setInterval($scope.update, 1000);
-        });
-
-        function updateEndpoints(endpoints, oldEndpoints) {
-            for (var i = 0; i < endpoints.length; ++i) {
-                endpoints[i].changed = true;
-
-                for (var j = 0; j < oldEndpoints.length; ++j) {
-                    if (endpoints[i].Id === oldEndpoints[j].Id) {
-                        endpoints[i].changed = (endpoints[i].LastCheckUtc !== oldEndpoints[j].LastCheckUtc);
-                        break;
-                    }
-                }
-            }
-            return endpoints;
+          }
         }
+        return endpoints;
+      }
     </script>
-</body>
+  </body>
 </html>
