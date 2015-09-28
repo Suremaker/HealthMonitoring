@@ -49,6 +49,8 @@ namespace HealthMonitoring.SelfHost.Controllers
                     return "text/html";
                 case ".js":
                     return "application/javascript";
+                case ".css":
+                    return "text/css";
                 default:
                     return "text/plain";
             }

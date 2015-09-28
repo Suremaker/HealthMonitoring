@@ -1,19 +1,17 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
     <title>Health Monitoring - dashboard</title>
-    <script src="angular.min.js"></script>
-    <link rel="stylesheet" href="main.css">
+      <script src="/dashboard/angular.min.js"></script>
+      <link rel="stylesheet" href="/dashboard/main.css">
   </head>
   <body>
     <div ng-app="app" data-ng-controller="ctrl">
-      <ul>
-        <li ng-repeat="e in endpoints| orderBy: 'Group'" ng-class="getEndpointClassName(e)" class="endpoint" data-status="{{e.Status}}" data-changed="{{e.changed}}" href="/api/endpoints/{{e.Id}}" target="_blank">
+        <a ng-repeat="e in endpoints| orderBy: 'Group'" ng-class="getEndpointClassName(e)" class="endpoint" data-status="{{e.Status}}" data-changed="{{e.changed}}" href="/api/endpoints/{{e.Id}}" target="_blank">
           <div>{{e.Group}}</div>
           <div>{{e.Name}}</div>
-        </li>
-      </ul>
+        </a>
     </div>
     <script>
       var app = angular.module('app', []);
@@ -48,7 +46,7 @@
 
           for (var j = 0; j < oldEndpoints.length; ++j) {
             if (endpoints[i].Id === oldEndpoints[j].Id) {
-              endpoints[i].changed = true; //(endpoints[i].LastCheckUtc !== oldEndpoints[j].LastCheckUtc);
+              endpoints[i].changed = (endpoints[i].LastCheckUtc !== oldEndpoints[j].LastCheckUtc);
               break;
             }
           }

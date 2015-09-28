@@ -5,13 +5,11 @@ body {
     font-size: .9em;
 }
 
-ul, li {
+
+a{
+  text-decoration: none;
   margin: 0;
   padding: 0;
-}
-
-li {
-  text-decoration: none;
 }
 
 .endpoint {
@@ -31,7 +29,7 @@ li {
 
 @keyframes blink {
     from { border-color: yellow; }
-    to { border-color: #888888; }
+    to { }
 }
 .endpoint[data-status="healthy"] { background-color: darkgreen; }
 .endpoint[data-status="faulty"] { background-color: darkred; }
@@ -50,10 +48,4 @@ li {
 }
 .group3 {
   border-bottom: solid 10px #474747;
-}
-.group4 {
-  border-bottom: solid 10px #ffffff;
-}
-.group5 {
-  border-bottom: solid 10px #F8AD16;
 }
