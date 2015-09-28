@@ -10,7 +10,8 @@
     <div ng-app="app" data-ng-controller="ctrl">
         <a ng-repeat="e in endpoints| orderBy: 'Group'" ng-class="getEndpointClassName(e)" class="endpoint" data-status="{{e.Status}}" data-changed="{{e.changed}}" href="/api/endpoints/{{e.Id}}" target="_blank">
           <div>{{e.Group}}</div>
-          <div>{{e.Name}}</div>
+            <div>{{e.Name}}</div>
+            <div class="time">{{parseDuration(e.LastResponseTime)}}</div>
         </a>
     </div>
     <script>
@@ -38,6 +39,27 @@
           }
           return groupClassNames[endpoint.Group];
         };
+
+        $scope.parseDuration = function (timeSpan) {
+            if (timeSpan == null) {
+                return "";
+            }
+
+            var parts = timeSpan.split(".");
+
+            var ms = 0;
+            if (parts.length > 1)
+                ms = +(parts[1].substring(0,3));
+
+            parts = parts[0].split(':');
+
+            var mul = 1000;
+            for (var i = parts.length - 1; i >= 0; --i) {
+                ms += (+(parts[i])) * mul;
+                mul *= 60;
+            }
+            return ms + ' ms';
+        }
       });
 
       function updateEndpoints(endpoints, oldEndpoints) {

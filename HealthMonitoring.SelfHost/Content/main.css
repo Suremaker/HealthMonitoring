@@ -13,6 +13,7 @@ a{
 }
 
 .endpoint {
+    position: relative;
     margin: 2px;
     display: inline-block;
     color: #eeeeee;
@@ -25,6 +26,14 @@ a{
 .endpoint > div:first-child {
     font-weight: bold;
     font-size: 1.1em;
+}
+
+.endpoint > .time {
+    font-size: smaller;
+    text-align: right;
+    position: absolute;
+    bottom: 0;
+    width: 150px;
 }
 
 @keyframes blink {
