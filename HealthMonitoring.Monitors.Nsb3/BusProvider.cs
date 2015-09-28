@@ -11,9 +11,13 @@ namespace HealthMonitoring.Monitors.Nsb3
     {
         public static void CreateQueue(string queueName)
         {
-            var queue = ".\\private$\\" + queueName;
-            if (!MessageQueue.Exists(queue))
-                MessageQueue.Create(queue, true);
+            var queueFullName = ".\\private$\\" + queueName;
+            if (!MessageQueue.Exists(queueFullName))
+            {
+                var queue = MessageQueue.Create(queueFullName, true);
+                queue.SetPermissions("Everyone", MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
+            }
+
         }
     }
 
