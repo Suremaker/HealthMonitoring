@@ -78,7 +78,7 @@ namespace HealthMonitoring.UnitTests.Domain
             var endpoint = new Endpoint(Guid.NewGuid(), monitor.Object, "address", "name", "group");
             var settings = new Mock<IMonitorSettings>();
 
-            var delay = TimeSpan.FromMilliseconds(100);
+            var delay = TimeSpan.FromSeconds(5);
             var shortTimeout = TimeSpan.FromMilliseconds(50);
             settings.Setup(s => s.ShortTimeOut).Returns(shortTimeout);
             CancellationToken? monitorToken = null;
