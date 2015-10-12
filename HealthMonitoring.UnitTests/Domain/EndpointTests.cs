@@ -69,5 +69,73 @@ namespace HealthMonitoring.UnitTests.Domain
             Assert.Equal(TimeSpan.Zero, health.ResponseTime);
             Assert.Equal(expectedDetails, health.Details);
         }
+
+        [Fact]
+        public void CheckHealth_should_timeout_if_it_takes_too_long_to_process_a_request()
+        {
+            var tokenSource = new CancellationTokenSource();
+            var monitor = MonitorMock.GetMock("monitor");
+            var endpoint = new Endpoint(Guid.NewGuid(), monitor.Object, "address", "name", "group");
+            var settings = new Mock<IMonitorSettings>();
+
+            var delay = TimeSpan.FromMilliseconds(100);
+            var shortTimeout = TimeSpan.FromMilliseconds(50);
+            settings.Setup(s => s.ShortTimeOut).Returns(shortTimeout);
+            CancellationToken? monitorToken = null;
+            monitor
+                .Setup(m => m.CheckHealthAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Callback<string, CancellationToken>((addr, token) =>
+                {
+                    monitorToken = token;
+                })
+                .Returns(ReturnWithDelay(delay, HealthStatus.Healthy));
+
+            endpoint.CheckHealth(tokenSource.Token, settings.Object).Wait();
+            Assert.NotNull(monitorToken);
+            Assert.True(monitorToken.Value.IsCancellationRequested);
+
+            Assert.Equal(EndpointStatus.TimedOut, endpoint.Health.Status);
+        }
+
+        [Fact]
+        public void CheckHealth_should_return_Unhealthy_if_request_takes_long_time()
+        {
+            var tokenSource = new CancellationTokenSource();
+            var monitor = new DelayingMonitor(TimeSpan.FromMilliseconds(100));
+            var endpoint = new Endpoint(Guid.NewGuid(), monitor, "address", "name", "group");
+            var settings = new Mock<IMonitorSettings>();
+
+            settings.Setup(s => s.ShortTimeOut).Returns(TimeSpan.FromSeconds(1));
+            settings.Setup(s => s.HealthyResponseTimeLimit).Returns(TimeSpan.FromMilliseconds(50));
+
+            endpoint.CheckHealth(tokenSource.Token, settings.Object).Wait();
+
+            Assert.Equal(EndpointStatus.Unhealthy, endpoint.Health.Status);
+        }
+
+        [Fact]
+        public void CheckHealth_should_return_Faulty_if_request_takes_too_long_time_and_endpoint_is_already_unhealthy()
+        {
+            var tokenSource = new CancellationTokenSource();
+            var monitor = new DelayingMonitor(TimeSpan.FromSeconds(10));
+            var endpoint = new Endpoint(Guid.NewGuid(), monitor, "address", "name", "group");
+            var settings = new Mock<IMonitorSettings>();
+
+            settings.Setup(s => s.ShortTimeOut).Returns(TimeSpan.FromMilliseconds(50));
+            settings.Setup(s => s.HealthyResponseTimeLimit).Returns(TimeSpan.FromMilliseconds(25));
+            settings.Setup(s => s.FailureTimeOut).Returns(TimeSpan.FromMilliseconds(75));
+
+            endpoint.CheckHealth(tokenSource.Token, settings.Object).Wait();
+            Assert.Equal(EndpointStatus.TimedOut, endpoint.Health.Status);
+
+            endpoint.CheckHealth(tokenSource.Token, settings.Object).Wait();
+            Assert.Equal(EndpointStatus.Faulty, endpoint.Health.Status);
+        }
+
+        private async Task<HealthInfo> ReturnWithDelay(TimeSpan delay, HealthStatus status)
+        {
+            await Task.Delay(delay);
+            return new HealthInfo(status, delay);
+        }
     }
 }
