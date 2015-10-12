@@ -117,6 +117,7 @@
     <Compile Include="Helpers\Http\MockWebEndpoint.cs" />
     <Compile Include="Helpers\Http\MockWebEndpointFactory.cs" />
     <Compile Include="Helpers\MonitorTypes.cs" />
+    <Compile Include="Helpers\Timeouts.cs" />
     <Compile Include="Helpers\Wait.cs" />
     <Compile Include="Nsb_endpoint_monitoring.cs" />
     <Compile Include="Nsb_endpoint_monitoring.Steps.cs">
