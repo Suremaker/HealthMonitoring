@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
+using Xunit;
 
 [assembly: AssemblyTitle("HealthMonitoring.UnitTests")]
 [assembly: AssemblyDescription("")]
@@ -12,3 +13,5 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+//Appveyor
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
