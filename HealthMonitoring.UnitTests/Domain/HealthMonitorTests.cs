@@ -26,17 +26,19 @@ namespace HealthMonitoring.UnitTests.Domain
             _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address2", "group", "name");
             _testableHealthMonitor.StartWatch();
 
+            var delay = TimeSpan.FromMilliseconds(400);
+
             using (new HealthMonitor(_endpointRegistry, MonitorSettingsHelper.ConfigureSettings(TimeSpan.FromMilliseconds(50))))
             {
                 WaitForAnyCall();
 
                 _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address3", "group", "name");
-                Thread.Sleep(TimeSpan.FromMilliseconds(200));
+                Thread.Sleep(delay);
                 _endpointRegistry.TryUnregisterById(endpoint1);
-                Thread.Sleep(TimeSpan.FromMilliseconds(200));
+                Thread.Sleep(delay);
             }
             var afterStop = _testableHealthMonitor.Calls.Count();
-            Thread.Sleep(TimeSpan.FromMilliseconds(200));
+            Thread.Sleep(delay);
             var afterDelay = _testableHealthMonitor.Calls.Count();
 
             Assert.Equal(afterStop, afterDelay);
