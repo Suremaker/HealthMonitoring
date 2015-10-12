@@ -1,7 +1,7 @@
 version: 1.0.{build}
 
 skip_tags: false
-os: Visual Studio 2015
+os: Windows Server 2012 R2
 platform: Any CPU
 configuration: Release
 services:

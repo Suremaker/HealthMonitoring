@@ -18,7 +18,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
             var client = new RestClient(GetBaseUrl());
             
             Wait.Until(
-                TimeSpan.FromSeconds(10),
+                TimeSpan.FromSeconds(30),
                 () => client.Get(new RestRequest("/api/monitors")).StatusCode,
                 status => status == HttpStatusCode.OK,
                 "Service is not functioning");
