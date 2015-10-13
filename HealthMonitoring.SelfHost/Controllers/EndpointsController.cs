@@ -12,10 +12,12 @@ namespace HealthMonitoring.SelfHost.Controllers
     public class EndpointsController : ApiController
     {
         private readonly IEndpointRegistry _endpointRegistry;
+        private readonly IEndpointStatsRepository _endpointStatsRepository;
 
-        public EndpointsController(IEndpointRegistry endpointRegistry)
+        public EndpointsController(IEndpointRegistry endpointRegistry, IEndpointStatsRepository endpointStatsRepository)
         {
             _endpointRegistry = endpointRegistry;
+            _endpointStatsRepository = endpointStatsRepository;
         }
 
         [Route("api/endpoints/register")]
@@ -48,6 +50,14 @@ namespace HealthMonitoring.SelfHost.Controllers
             if (endpoint == null)
                 return NotFound();
             return Ok(new EndpointDetails(endpoint));
+        }
+
+        [Route("api/endpoints/{id}/stats")]
+        [SwaggerResponse(HttpStatusCode.OK, Type = typeof (EndpointDetails))]
+        [SwaggerResponse(HttpStatusCode.BadRequest)]
+        public EndpointHealthStats[] GetEndpointStats(Guid id, int? limitDays)
+        {
+            return _endpointStatsRepository.GetStatistics(id, limitDays.GetValueOrDefault(1)).Select(EndpointHealthStats.FromDomain).ToArray();
         }
 
         [Route("api/endpoints/{id}")]

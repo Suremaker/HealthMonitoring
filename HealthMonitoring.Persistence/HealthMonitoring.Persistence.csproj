@@ -48,7 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EndpointEntity.cs" />
+    <Compile Include="EndpointStatsRepository.cs" />
+    <Compile Include="Entities\EndpointEntity.cs" />
+    <Compile Include="Entities\EndpointStatsEntity.cs" />
     <Compile Include="SqlEndpointConfigurationStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqliteDatabase.cs" />

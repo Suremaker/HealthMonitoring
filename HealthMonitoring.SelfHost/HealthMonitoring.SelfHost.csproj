@@ -141,6 +141,7 @@
     <Compile Include="Controllers\MonitorsController.cs" />
     <Compile Include="Controllers\StaticController.cs" />
     <Compile Include="Entities\EndpointDetails.cs" />
+    <Compile Include="Entities\EndpointHealthStats.cs" />
     <Compile Include="Entities\EndpointRegistration.cs" />
     <Compile Include="Entities\EntityValidator.cs" />
     <Compile Include="Program.cs" />

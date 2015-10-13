@@ -20,11 +20,13 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
     {
         private readonly EndpointsController _controller;
         private readonly Mock<IEndpointRegistry> _endpointRegistry;
+        private readonly Mock<IEndpointStatsRepository> _statsRepository;
 
         public EndpointsControllerTests()
         {
             _endpointRegistry = new Mock<IEndpointRegistry>();
-            _controller = new EndpointsController(_endpointRegistry.Object);
+            _statsRepository = new Mock<IEndpointStatsRepository>();
+            _controller = new EndpointsController(_endpointRegistry.Object, _statsRepository.Object);
         }
 
         [Theory]
@@ -135,7 +137,7 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
             monitor.Setup(p => p.CheckHealthAsync("address", It.IsAny<CancellationToken>())).Returns(Task.FromResult(healthInfo));
 
             var endpoint = new Endpoint(id, monitor.Object, "address", "name", "group");
-            endpoint.CheckHealth(new CancellationToken(), MonitorSettingsHelper.ConfigureDefaultSettings()).Wait();
+            endpoint.CheckHealth(new CancellationToken(), MonitorSettingsHelper.ConfigureDefaultSettings(), new Mock<IEndpointStatsManager>().Object).Wait();
             _endpointRegistry.Setup(r => r.GetById(id)).Returns(endpoint);
 
             var result = _controller.GetEndpoint(id) as OkNegotiatedContentResult<EndpointDetails>;
@@ -170,6 +172,38 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
 
             foreach (var endpoint in endpoints)
                 AssertEndpoint(endpoint, results.SingleOrDefault(r => r.Id == endpoint.Id));
+        }
+
+        [Fact]
+        public void GetEndpointStats_should_return_all_stats()
+        {
+            var endpointId = Guid.NewGuid();
+            var endpointStatses = new[]
+            {
+                new EndpointStats(DateTime.UtcNow, EndpointStatus.Healthy, TimeSpan.FromSeconds(4)),
+                new EndpointStats(DateTime.UtcNow.AddMilliseconds(100), EndpointStatus.Faulty, TimeSpan.FromMilliseconds(250))
+            };
+            var limitDays = 5;
+            _statsRepository.Setup(r => r.GetStatistics(endpointId, limitDays)).Returns(endpointStatses);
+            var stats = _controller.GetEndpointStats(endpointId, limitDays);
+            Assert.Equal(2, stats.Length);
+            AssertStats(endpointStatses[0], stats[0]);
+            AssertStats(endpointStatses[1], stats[1]);
+        }
+
+        [Fact]
+        public void GetEndpointStats_should_query_stats_for_one_day_by_default()
+        {
+            var endpointId = Guid.NewGuid();
+            _controller.GetEndpointStats(endpointId, null);
+            _statsRepository.Verify(r => r.GetStatistics(endpointId, 1));
+        }
+
+        private void AssertStats(EndpointStats expected, EndpointHealthStats actual)
+        {
+            Assert.Equal(expected.Status, actual.Status);
+            Assert.Equal(expected.CheckTimeUtc, actual.CheckTimeUtc);
+            Assert.Equal(expected.ResponseTime, actual.ResponseTime);
         }
     }
 }

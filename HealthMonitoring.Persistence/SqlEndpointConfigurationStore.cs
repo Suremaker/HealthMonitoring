@@ -5,6 +5,7 @@ using System.Linq;
 using Dapper;
 using HealthMonitoring.Configuration;
 using HealthMonitoring.Model;
+using HealthMonitoring.Persistence.Entities;
 
 namespace HealthMonitoring.Persistence
 {

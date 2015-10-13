@@ -13,12 +13,14 @@ namespace HealthMonitoring.UnitTests.Domain
         private readonly EndpointRegistry _registry;
         private readonly Mock<IHealthMonitorRegistry> _monitorRegistry;
         private readonly Mock<IEndpointConfigurationStore> _configurationStore;
+        private readonly Mock<IEndpointStatsRepository> _statsRepository;
 
         public EndpointRegistryTests()
         {
             _monitorRegistry = new Mock<IHealthMonitorRegistry>();
             _configurationStore = new Mock<IEndpointConfigurationStore>();
-            _registry = new EndpointRegistry(_monitorRegistry.Object, _configurationStore.Object);
+            _statsRepository=new Mock<IEndpointStatsRepository>();
+            _registry = new EndpointRegistry(_monitorRegistry.Object, _configurationStore.Object,_statsRepository.Object);
         }
 
         [Fact]
@@ -27,7 +29,7 @@ namespace HealthMonitoring.UnitTests.Domain
             var endpoint = new Endpoint(Guid.NewGuid(), MonitorMock.Mock("monitor"), "address", "name", "group");
             _configurationStore.Setup(s => s.LoadEndpoints(_monitorRegistry.Object)).Returns(new[] { endpoint });
 
-            var registry = new EndpointRegistry(_monitorRegistry.Object, _configurationStore.Object);
+            var registry = new EndpointRegistry(_monitorRegistry.Object, _configurationStore.Object,_statsRepository.Object);
 
             Assert.Same(endpoint, registry.GetById(endpoint.Id));
         }
@@ -126,6 +128,7 @@ namespace HealthMonitoring.UnitTests.Domain
             Assert.Null(_registry.GetById(id));
 
             _configurationStore.Verify(s => s.DeleteEndpoint(id));
+            _statsRepository.Verify(s=>s.DeleteStatistics(id));
         }
 
         [Fact]

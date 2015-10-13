@@ -8,5 +8,6 @@ namespace HealthMonitoring.Configuration
         TimeSpan HealthyResponseTimeLimit { get; }
         TimeSpan ShortTimeOut { get; }
         TimeSpan FailureTimeOut { get; }
+        TimeSpan StatsHistoryMaxAge { get; }
     }
 }

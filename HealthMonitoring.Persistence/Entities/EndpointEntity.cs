@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HealthMonitoring.Persistence
+namespace HealthMonitoring.Persistence.Entities
 {
     internal class EndpointEntity
     {

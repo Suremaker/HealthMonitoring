@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
+using System.Linq;
 using Dapper;
 
 namespace HealthMonitoring.Persistence
@@ -12,8 +13,7 @@ namespace HealthMonitoring.Persistence
 
         public SqliteDatabase()
         {
-            if (!File.Exists(_path))
-                CreateDatabase();
+            CreateDatabaseIfNeeded();
         }
 
         public IDbConnection OpenConnection()
@@ -21,12 +21,50 @@ namespace HealthMonitoring.Persistence
             return new SQLiteConnection("Data Source=" + _path).OpenAndReturn();
         }
 
-        private void CreateDatabase()
+        private void CreateDatabaseIfNeeded()
         {
             using (var conn = OpenConnection())
             {
-                conn.Execute("create table EndpointConfig (Id uniqueidentifier primary key, MonitorType varchar(100) not null, Address varchar(2048) not null, GroupName varchar(1024) not null, Name varchar(1024) not null)");
+                if (!DoesTableExists(conn, "EndpointConfig"))
+                    CreateEndpointConfig(conn);
+                if (!DoesTableExists(conn, "EndpointStats"))
+                    CreateEndpointStats(conn);
             }
+        }
+
+        private bool DoesTableExists(IDbConnection conn, string tableName)
+        {
+            return conn
+                .Query<string>("SELECT name FROM sqlite_master WHERE type='table' AND name=@tableName;", new { tableName })
+                .Any();
+        }
+
+        private static void CreateEndpointConfig(IDbConnection conn)
+        {
+            conn.Execute(@"
+create table EndpointConfig (
+    Id uniqueidentifier primary key, 
+    MonitorType varchar(100) not null, 
+    Address varchar(2048) not null, 
+    GroupName varchar(1024) not null, 
+    Name varchar(1024) not null
+)");
+        }
+
+        private void CreateEndpointStats(IDbConnection conn)
+        {
+            conn.Execute(@"
+create table EndpointStats (
+    Id integer primary key,
+    EndpointId uniqueidentifier not null,
+    CheckTimeUtc datetime not null,
+    ResponseTime integer not null,
+    Status integer not null
+);
+
+create index EndpointStats_EndpointId_idx on EndpointStats(EndpointId);
+create index EndpointStats_CheckTimeUtc_idx on EndpointStats(CheckTimeUtc);
+");
         }
     }
 }

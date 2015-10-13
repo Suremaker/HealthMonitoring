@@ -11,6 +11,7 @@ namespace HealthMonitoring.Configuration
         public TimeSpan HealthyResponseTimeLimit { get; private set; }
         public TimeSpan ShortTimeOut { get; private set; }
         public TimeSpan FailureTimeOut { get; private set; }
+        public TimeSpan StatsHistoryMaxAge { get; private set; }
 
         public AppSettingsMonitorSettings()
         {
@@ -18,6 +19,7 @@ namespace HealthMonitoring.Configuration
             HealthyResponseTimeLimit = GetTimeSpanOrDefault("Monitor.HealthyResponseTimeLimit", TimeSpan.FromSeconds(3));
             ShortTimeOut = GetTimeSpanOrDefault("Monitor.ShortTimeOut", TimeSpan.FromSeconds(4));
             FailureTimeOut = GetTimeSpanOrDefault("Monitor.FailureTimeOut", TimeSpan.FromSeconds(20));
+            StatsHistoryMaxAge = GetTimeSpanOrDefault("Monitor.StatsHistoryMaxAge", TimeSpan.FromDays(7));
         }
 
         private TimeSpan GetTimeSpanOrDefault(string name, TimeSpan defaultValue)

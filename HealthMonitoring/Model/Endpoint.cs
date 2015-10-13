@@ -39,12 +39,13 @@ namespace HealthMonitoring.Model
             return this;
         }
 
-        public async Task CheckHealth(CancellationToken cancellationToken, IMonitorSettings settings)
+        public async Task CheckHealth(CancellationToken cancellationToken, IMonitorSettings settings, IEndpointStatsManager statsManager)
         {
             Logger.DebugFormat("Checking health of {0}...", this);
             var endpointHealth = await PerformHealthCheck(cancellationToken, settings);
             LogHealthStatus(endpointHealth);
             Health = endpointHealth;
+            statsManager.RecordEndpointStatistics(Id, endpointHealth);
         }
 
         private void LogHealthStatus(EndpointHealth endpointHealth)

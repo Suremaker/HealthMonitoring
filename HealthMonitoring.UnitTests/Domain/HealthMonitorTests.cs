@@ -16,7 +16,7 @@ namespace HealthMonitoring.UnitTests.Domain
         public HealthMonitorTests()
         {
             _testableHealthMonitor = new TestableHealthMonitor();
-            _endpointRegistry = new EndpointRegistry(new HealthMonitorRegistry(new[] { _testableHealthMonitor }), new Mock<IEndpointConfigurationStore>().Object);
+            _endpointRegistry = new EndpointRegistry(new HealthMonitorRegistry(new[] { _testableHealthMonitor }), new Mock<IEndpointConfigurationStore>().Object, new Mock<IEndpointStatsRepository>().Object);
         }
 
         [Fact]
@@ -28,7 +28,8 @@ namespace HealthMonitoring.UnitTests.Domain
 
             var delay = TimeSpan.FromMilliseconds(400);
 
-            using (new HealthMonitor(_endpointRegistry, MonitorSettingsHelper.ConfigureSettings(TimeSpan.FromMilliseconds(50))))
+            var statsManager = new Mock<IEndpointStatsManager>();
+            using (new HealthMonitor(_endpointRegistry, MonitorSettingsHelper.ConfigureSettings(TimeSpan.FromMilliseconds(50)), statsManager.Object))
             {
                 WaitForAnyCall();
 

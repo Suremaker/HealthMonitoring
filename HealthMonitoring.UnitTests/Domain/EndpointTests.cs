@@ -32,10 +32,11 @@ namespace HealthMonitoring.UnitTests.Domain
             var healthInfo = new HealthInfo(healthStatus, TimeSpan.FromSeconds(1), new Dictionary<string, string> { { "property1", "value1" }, { "property2", "value2" } });
             var monitor = MonitorMock.GetMock("monitor");
             monitor.Setup(x => x.CheckHealthAsync("address", It.IsAny<CancellationToken>())).Returns(Task.FromResult(healthInfo));
+            var statsManager = new Mock<IEndpointStatsManager>();
 
             var endpoint = new Endpoint(Guid.NewGuid(), monitor.Object, "address", "name", "group");
 
-            endpoint.CheckHealth(tokenSource.Token, MonitorSettingsHelper.ConfigureDefaultSettings()).Wait();
+            endpoint.CheckHealth(tokenSource.Token, MonitorSettingsHelper.ConfigureDefaultSettings(), statsManager.Object).Wait();
 
             var health = endpoint.Health;
             Assert.NotNull(health);
@@ -43,18 +44,21 @@ namespace HealthMonitoring.UnitTests.Domain
             Assert.Equal(healthInfo.Status.ToString(), health.Status.ToString());
             Assert.True(DateTime.UtcNow - health.CheckTimeUtc < TimeSpan.FromMilliseconds(500), "CheckTimeUtc should be captured");
             Assert.Equal(healthInfo.Details, health.Details);
+
+            statsManager.Verify(m => m.RecordEndpointStatistics(endpoint.Id, endpoint.Health));
         }
 
         [Fact]
         public void CheckHealth_should_update_the_endpoint_with_Faulty_status_if_monitor_fails()
         {
+            var statsManager = new Mock<IEndpointStatsManager>();
             var tokenSource = new CancellationTokenSource();
             var monitor = MonitorMock.GetMock("monitor");
             var exception = new Exception("some error");
             monitor.Setup(x => x.CheckHealthAsync("address", It.IsAny<CancellationToken>())).Throws(exception);
 
             var endpoint = new Endpoint(Guid.NewGuid(), monitor.Object, "address", "name", "group");
-            endpoint.CheckHealth(tokenSource.Token, MonitorSettingsHelper.ConfigureDefaultSettings()).Wait();
+            endpoint.CheckHealth(tokenSource.Token, MonitorSettingsHelper.ConfigureDefaultSettings(), statsManager.Object).Wait();
 
             var expectedDetails = new Dictionary<string, string>
             {
@@ -68,11 +72,14 @@ namespace HealthMonitoring.UnitTests.Domain
             Assert.True(DateTime.UtcNow - health.CheckTimeUtc < TimeSpan.FromMilliseconds(500), "CheckTimeUtc should be captured");
             Assert.Equal(TimeSpan.Zero, health.ResponseTime);
             Assert.Equal(expectedDetails, health.Details);
+
+            statsManager.Verify(m => m.RecordEndpointStatistics(endpoint.Id, endpoint.Health));
         }
 
         [Fact]
         public void CheckHealth_should_timeout_if_it_takes_too_long_to_process_a_request()
         {
+            var statsManager = new Mock<IEndpointStatsManager>();
             var tokenSource = new CancellationTokenSource();
             var monitor = MonitorMock.GetMock("monitor");
             var endpoint = new Endpoint(Guid.NewGuid(), monitor.Object, "address", "name", "group");
@@ -90,16 +97,18 @@ namespace HealthMonitoring.UnitTests.Domain
                 })
                 .Returns(ReturnWithDelay(delay, HealthStatus.Healthy));
 
-            endpoint.CheckHealth(tokenSource.Token, settings.Object).Wait();
+            endpoint.CheckHealth(tokenSource.Token, settings.Object, statsManager.Object).Wait();
             Assert.NotNull(monitorToken);
             Assert.True(monitorToken.Value.IsCancellationRequested);
 
             Assert.Equal(EndpointStatus.TimedOut, endpoint.Health.Status);
+            statsManager.Verify(m => m.RecordEndpointStatistics(endpoint.Id, endpoint.Health));
         }
 
         [Fact]
         public void CheckHealth_should_return_Unhealthy_if_request_takes_long_time()
         {
+            var statsManager = new Mock<IEndpointStatsManager>();
             var tokenSource = new CancellationTokenSource();
             var monitor = new DelayingMonitor(TimeSpan.FromMilliseconds(100));
             var endpoint = new Endpoint(Guid.NewGuid(), monitor, "address", "name", "group");
@@ -108,14 +117,16 @@ namespace HealthMonitoring.UnitTests.Domain
             settings.Setup(s => s.ShortTimeOut).Returns(TimeSpan.FromSeconds(1));
             settings.Setup(s => s.HealthyResponseTimeLimit).Returns(TimeSpan.FromMilliseconds(50));
 
-            endpoint.CheckHealth(tokenSource.Token, settings.Object).Wait();
+            endpoint.CheckHealth(tokenSource.Token, settings.Object, statsManager.Object).Wait();
 
             Assert.Equal(EndpointStatus.Unhealthy, endpoint.Health.Status);
+            statsManager.Verify(m => m.RecordEndpointStatistics(endpoint.Id, endpoint.Health));
         }
 
         [Fact]
         public void CheckHealth_should_return_Faulty_if_request_takes_too_long_time_and_endpoint_is_already_unhealthy()
         {
+            var statsManager = new Mock<IEndpointStatsManager>();
             var tokenSource = new CancellationTokenSource();
             var monitor = new DelayingMonitor(TimeSpan.FromSeconds(10));
             var endpoint = new Endpoint(Guid.NewGuid(), monitor, "address", "name", "group");
@@ -125,11 +136,12 @@ namespace HealthMonitoring.UnitTests.Domain
             settings.Setup(s => s.HealthyResponseTimeLimit).Returns(TimeSpan.FromMilliseconds(25));
             settings.Setup(s => s.FailureTimeOut).Returns(TimeSpan.FromMilliseconds(75));
 
-            endpoint.CheckHealth(tokenSource.Token, settings.Object).Wait();
+            endpoint.CheckHealth(tokenSource.Token, settings.Object, statsManager.Object).Wait();
             Assert.Equal(EndpointStatus.TimedOut, endpoint.Health.Status);
 
-            endpoint.CheckHealth(tokenSource.Token, settings.Object).Wait();
+            endpoint.CheckHealth(tokenSource.Token, settings.Object, statsManager.Object).Wait();
             Assert.Equal(EndpointStatus.Faulty, endpoint.Health.Status);
+            statsManager.Verify(m => m.RecordEndpointStatistics(endpoint.Id, It.IsAny<EndpointHealth>()), Times.Exactly(2));
         }
 
         private async Task<HealthInfo> ReturnWithDelay(TimeSpan delay, HealthStatus status)

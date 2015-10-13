@@ -15,16 +15,18 @@ namespace HealthMonitoring
         private static readonly ILog Logger = LogManager.GetLogger<HealthMonitor>();
         private readonly IEndpointRegistry _registry;
         private readonly IMonitorSettings _settings;
+        private readonly IEndpointStatsManager _endpointStatsManager;
         private readonly CancellationTokenSource _cancellation;
         private readonly Thread _monitor;
         private readonly ConcurrentDictionary<Endpoint, Task<Endpoint>> _tasks = new ConcurrentDictionary<Endpoint, Task<Endpoint>>();
         private readonly ManualResetEventSlim _onNewTask = new ManualResetEventSlim();
         private Task<Endpoint> _onNewEndpoint;
 
-        public HealthMonitor(IEndpointRegistry registry, IMonitorSettings settings)
+        public HealthMonitor(IEndpointRegistry registry, IMonitorSettings settings, IEndpointStatsManager endpointStatsManager)
         {
             _registry = registry;
             _settings = settings;
+            _endpointStatsManager = endpointStatsManager;
             _registry.NewEndpointAdded += HandleNewEndpoint;
             _cancellation = new CancellationTokenSource();
 
@@ -79,7 +81,7 @@ namespace HealthMonitoring
             await Task.Yield();
             while (!_cancellation.IsCancellationRequested && !endpoint.IsDisposed)
             {
-                await endpoint.CheckHealth(_cancellation.Token,_settings);
+                await endpoint.CheckHealth(_cancellation.Token, _settings, _endpointStatsManager);
                 await Task.Delay(_settings.HealthCheckInterval);
             }
             return endpoint;

@@ -11,16 +11,18 @@ namespace HealthMonitoring
     {
         private readonly IHealthMonitorRegistry _healthMonitorRegistry;
         private readonly IEndpointConfigurationStore _endpointConfigurationStore;
+        private readonly IEndpointStatsRepository _statsRepository;
         private readonly ConcurrentDictionary<string, Endpoint> _endpoints = new ConcurrentDictionary<string, Endpoint>();
         private readonly ConcurrentDictionary<Guid, Endpoint> _endpointsByGuid = new ConcurrentDictionary<Guid, Endpoint>();
 
         public IEnumerable<Endpoint> Endpoints { get { return _endpoints.Select(p => p.Value); } }
         public event Action<Endpoint> NewEndpointAdded;
 
-        public EndpointRegistry(IHealthMonitorRegistry healthMonitorRegistry, IEndpointConfigurationStore endpointConfigurationStore)
+        public EndpointRegistry(IHealthMonitorRegistry healthMonitorRegistry, IEndpointConfigurationStore endpointConfigurationStore, IEndpointStatsRepository statsRepository)
         {
             _healthMonitorRegistry = healthMonitorRegistry;
             _endpointConfigurationStore = endpointConfigurationStore;
+            _statsRepository = statsRepository;
 
             foreach (var endpoint in _endpointConfigurationStore.LoadEndpoints(healthMonitorRegistry))
             {
@@ -64,6 +66,7 @@ namespace HealthMonitoring
 
             endpoint.Dispose();
             _endpointConfigurationStore.DeleteEndpoint(endpoint.Id);
+            _statsRepository.DeleteStatistics(endpoint.Id);
             return true;
         }
 
