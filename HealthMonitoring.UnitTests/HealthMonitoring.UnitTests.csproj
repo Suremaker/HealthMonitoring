@@ -89,6 +89,7 @@
     <Compile Include="Domain\MonitorRegistryTests.cs" />
     <Compile Include="SelfHost\Controllers\EndpointsControllerTests.cs" />
     <Compile Include="SelfHost\Controllers\MonitorsControllerTests.cs" />
+    <Compile Include="SelfHost\Controllers\StaticControllerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

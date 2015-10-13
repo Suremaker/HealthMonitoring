@@ -1,9 +1,7 @@
-using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Web.Http;
 
 namespace HealthMonitoring.SelfHost.Controllers
@@ -30,14 +28,14 @@ namespace HealthMonitoring.SelfHost.Controllers
 
         private static HttpResponseMessage ReturnFileContent(string file)
         {
-            var path = string.Format("{0}content/{1}", AppDomain.CurrentDomain.BaseDirectory, file);
-
-            if (!File.Exists(path))
+            var path = string.Format("HealthMonitoring.SelfHost.Content.{0}", file);
+            var stream = typeof(StaticController).Assembly.GetManifestResourceStream(path);
+            if (stream == null)
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
 
             var response = new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StreamContent(new FileStream(path, FileMode.Open))
+                Content = new StreamContent(stream)
             };
             response.Content.Headers.ContentType = new MediaTypeHeaderValue(GetMediaType(file));
             return response;

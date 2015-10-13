@@ -148,23 +148,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <Content Include="..\icons\favicon.ico">
+    <EmbeddedResource Include="..\icons\favicon.ico">
       <Link>Content\favicon.ico</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\angular.min.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\home.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\dashboard.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <EmbeddedResource Include="Embedded\index.html" />
-    <Content Include="Content\main.css">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\angular.min.js" />
+    <EmbeddedResource Include="Content\home.html" />
+    <EmbeddedResource Include="Content\dashboard.html" />
+    <EmbeddedResource Include="Content\swagger.html" />
+    <EmbeddedResource Include="Content\main.css" />
     <Content Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

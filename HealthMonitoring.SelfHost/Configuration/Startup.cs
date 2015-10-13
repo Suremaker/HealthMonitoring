@@ -48,7 +48,7 @@ namespace HealthMonitoring.SelfHost.Configuration
                 .EnableSwaggerUi(c =>
                 {
                     c.DisableValidator();
-                    c.CustomAsset("index", typeof(Startup).Assembly, "HealthMonitoring.SelfHost.Embedded.index.html");
+                    c.CustomAsset("index", typeof(Startup).Assembly, "HealthMonitoring.SelfHost.Content.swagger.html");
 
                 });
         }
