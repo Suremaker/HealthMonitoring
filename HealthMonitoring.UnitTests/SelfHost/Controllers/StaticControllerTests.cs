@@ -16,16 +16,24 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         }
 
         [Fact]
-        public void GetDashboard_should_return_home_page()
+        public void GetDashboard_should_return_dashboard_page()
         {
             var controller = new StaticController();
             var response = controller.GetDashboard();
             AssertValidFile(response, "text/html");
         }
 
+        [Fact]
+        public void GetEndpointDetails_should_return_details_page()
+        {
+            var controller = new StaticController();
+            var response = controller.GetEndpointDetails();
+            AssertValidFile(response, "text/html");
+        }
+
         [Theory]
         [InlineData("favicon.ico", "image/x-icon")]
-        [InlineData("main.css", "text/css")]
+        [InlineData("dashboard.css", "text/css")]
         [InlineData("angular.min.js", "application/javascript")]
         public void GetStatic_should_return_content(string path, string mediaType)
         {

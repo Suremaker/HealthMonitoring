@@ -15,7 +15,7 @@ namespace HealthMonitoring.SelfHost.Controllers
         }
 
         [Route("dashboard/details")]
-        public HttpResponseMessage GetDashboardDetails()
+        public HttpResponseMessage GetEndpointDetails()
         {
             return ReturnFileContent("details.html");
         }
