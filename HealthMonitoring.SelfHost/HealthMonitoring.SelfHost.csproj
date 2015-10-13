@@ -156,7 +156,9 @@
     <EmbeddedResource Include="Content\home.html" />
     <EmbeddedResource Include="Content\dashboard.html" />
     <EmbeddedResource Include="Content\swagger.html" />
-    <EmbeddedResource Include="Content\main.css" />
+    <EmbeddedResource Include="Content\dashboard.css" />
+    <EmbeddedResource Include="Content\details.html" />
+    <EmbeddedResource Include="Content\details.css" />
     <Content Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

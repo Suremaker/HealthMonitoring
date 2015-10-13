@@ -1,0 +1,47 @@
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    border: 0;
+    background-color: #999999;
+    font-size: .9em;
+}
+
+.chart {
+  border-left:1px solid black;
+  border-bottom:1px solid black;
+  margin:60px auto;
+  position:relative;
+}
+
+.y {
+  position:absolute;
+  transform:rotate(-90deg);
+  transform-origin: bottom left;
+  bottom:0;
+  padding:5px;
+}
+
+.x {
+  position:absolute;
+  top:100%;
+  width:100%;
+  padding:5px;
+}
+
+svg {
+  position:absolute;
+  transform:rotateX(180deg);
+  left:0;
+}
+
+line{
+  stroke-width:3px;
+
+}
+
+.healthy { stroke: darkgreen; }
+.faulty { stroke: darkred; }
+.unhealthy { stroke: gold;color: #222222; }
+.timedOut { stroke: orangered; }
+.offline { stroke: blue; }
+.notRun{ stroke: #000000; }
+.notExists { stroke: #333333; }
