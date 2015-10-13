@@ -1,80 +1,81 @@
 ﻿<!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
     <title>Health Monitoring - dashboard</title>
-      <script src="/dashboard/angular.min.js"></script>
-      <link rel="stylesheet" href="/dashboard/main.css">
-  </head>
-  <body>
+    <link rel="icon" href="/static/favicon.ico">
+    <script src="/static/angular.min.js"></script>
+    <link rel="stylesheet" href="/static/main.css">
+</head>
+<body>
     <div ng-app="app" data-ng-controller="ctrl">
         <a ng-repeat="e in endpoints| orderBy: 'Group'" ng-class="getEndpointClassName(e)" class="endpoint" data-status="{{e.Status}}" data-changed="{{e.changed}}" href="/api/endpoints/{{e.Id}}" target="_blank">
-          <div>{{e.Group}}</div>
+            <div>{{e.Group}}</div>
             <div>{{e.Name}}</div>
             <div class="time">{{parseDuration(e.LastResponseTime)}}</div>
         </a>
     </div>
     <script>
-      var app = angular.module('app', []);
-      app.controller('ctrl', function ($scope, $http) {
-        var groupClassNames = {};
+        var app = angular.module('app', []);
+        app.controller('ctrl', function ($scope, $http) {
+            var groupClassNames = {};
 
-        $scope.endpoints = [];
+            $scope.endpoints = [];
 
-        $scope.update = function () {
-          $http.get("/api/endpoints")
-            .success(function (response) {
-              $scope.endpoints = updateEndpoints(response, $scope.endpoints);
-            })
-            .error(function (data, status) {
-              $scope.endpoints = [];
-            });
-        };
-        $scope.update();
-        setInterval($scope.update, 1000);
+            $scope.update = function () {
+                $http.get("/api/endpoints")
+                  .success(function (response) {
+                      $scope.endpoints = updateEndpoints(response, $scope.endpoints);
+                  })
+                  .error(function (data, status) {
+                      $scope.endpoints = [];
+                  });
+            };
+            $scope.update();
+            setInterval($scope.update, 1000);
 
-        $scope.getEndpointClassName = function (endpoint) {
-          if (!groupClassNames[endpoint.Group]) {
-            groupClassNames[endpoint.Group] = 'group' + (Object.keys(groupClassNames).length % 3 + 1);
-          }
-          return groupClassNames[endpoint.Group];
-        };
+            $scope.getEndpointClassName = function (endpoint) {
+                if (!groupClassNames[endpoint.Group]) {
+                    groupClassNames[endpoint.Group] = 'group' + (Object.keys(groupClassNames).length % 3 + 1);
+                }
+                return groupClassNames[endpoint.Group];
+            };
 
-        $scope.parseDuration = function (timeSpan) {
-            if (timeSpan == null) {
-                return "";
+            $scope.parseDuration = function (timeSpan) {
+                if (timeSpan == null) {
+                    return "";
+                }
+
+                var parts = timeSpan.split(".");
+
+                var ms = 0;
+                if (parts.length > 1)
+                    ms = +(parts[1].substring(0, 3));
+
+                parts = parts[0].split(':');
+
+                var mul = 1000;
+                for (var i = parts.length - 1; i >= 0; --i) {
+                    ms += (+(parts[i])) * mul;
+                    mul *= 60;
+                }
+                return ms + ' ms';
             }
+        });
 
-            var parts = timeSpan.split(".");
+        function updateEndpoints(endpoints, oldEndpoints) {
+            for (var i = 0; i < endpoints.length; ++i) {
+                endpoints[i].changed = true;
 
-            var ms = 0;
-            if (parts.length > 1)
-                ms = +(parts[1].substring(0,3));
-
-            parts = parts[0].split(':');
-
-            var mul = 1000;
-            for (var i = parts.length - 1; i >= 0; --i) {
-                ms += (+(parts[i])) * mul;
-                mul *= 60;
+                for (var j = 0; j < oldEndpoints.length; ++j) {
+                    if (endpoints[i].Id === oldEndpoints[j].Id) {
+                        endpoints[i].changed = (endpoints[i].LastCheckUtc !== oldEndpoints[j].LastCheckUtc);
+                        break;
+                    }
+                }
             }
-            return ms + ' ms';
+            return endpoints;
         }
-      });
-
-      function updateEndpoints(endpoints, oldEndpoints) {
-        for (var i = 0; i < endpoints.length; ++i) {
-          endpoints[i].changed = true;
-
-          for (var j = 0; j < oldEndpoints.length; ++j) {
-            if (endpoints[i].Id === oldEndpoints[j].Id) {
-              endpoints[i].changed = (endpoints[i].LastCheckUtc !== oldEndpoints[j].LastCheckUtc);
-              break;
-            }
-          }
-        }
-        return endpoints;
-      }
     </script>
-  </body>
+</body>
 </html>
