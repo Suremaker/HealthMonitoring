@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Xunit;
+
 [assembly: AssemblyTitle("HealthMonitoring.AcceptanceTests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
@@ -16,3 +18,5 @@ using System.Runtime.InteropServices;
 
 // Allows to display scenario names properly in Release mode
 [assembly: Debuggable(true, true)]
+//Appveyor
+[assembly: CollectionBehavior(DisableTestParallelization = true)]

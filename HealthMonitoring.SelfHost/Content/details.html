@@ -18,7 +18,7 @@
     <tr><td>Group:</td><td>{{details.Group}}</td></tr>
     <tr><td>Status:</td><td>{{details.Status}}</td></tr>
     <tr><td>LastCheckUtc:</td><td>{{details.LastCheckUtc}}</td></tr>
-    <tr><td>LastResponseTime:</td><td>{{details.LastResponseTime}}</td></tr>
+    <tr><td>LastResponseTime:</td><td>{{parseDuration(details.LastResponseTime)}} ms</td></tr>
 </table>
 <h1>Details</h1>
 <table>
@@ -34,12 +34,44 @@
         <div class="y" style="width:{{graph.height}}px;">Response Time</div>
         <div class="x">Time</div>
         <!-- Data -->
-        <svg style="width:{{graph.width}}px; height:{{graph.height}}px;">
-            <line ng-repeat="line in stats.lines" class="{{line.status}}" x1="{{$index / stats.lines.length * graph.width }}" y1="{{stats.lines[$index - 1].value / stats.max * graph.height}}" x2="{{($index + 1) / stats.lines.length * graph.width}}" y2="{{line.value / stats.max * graph.height}}"></line>
+        <svg style="width:{{graph.width}}px; height:{{graph.height}}px;" ng-mousemove="displayHint($event)" ng-mouseleave="currentStat=null">
+            <line ng-repeat="line in stats.lines" ng-if="$index>0" class="{{line.status}}" ng-x1="{{$index / stats.lines.length * graph.width }}" ng-y1="{{stats.lines[$index - 1].value / stats.max * graph.height}}" ng-x2="{{($index + 1) / stats.lines.length * graph.width}}" ng-y2="{{line.value / stats.max * graph.height}}"></line>
         </svg>
     </div>
+<div class="tooltip" ng-if="currentStat">
+    <table>
+        <tr><td>Check Time Utc:</td><td>{{currentStat.time}}</td></tr>
+        <tr><td>Response Time:</td><td>{{parseDuration(currentStat.duration)}} ms</td></tr>
+        <tr><td>Status:</td><td>{{currentStat.status}}</td></tr>
+    </table>
+</div>
 <script>
-    var app = angular.module('app', []);
+    var app = angular.module('app', [])
+    .directive('ngX1', function () {
+        return function (scope, element, attrs) {
+            scope.$watch(attrs.ngX1, function (value) {
+                element.attr('x1', value);
+            });
+        };
+    }).directive('ngX2', function () {
+        return function (scope, element, attrs) {
+            scope.$watch(attrs.ngX2, function (value) {
+                element.attr('x2', value);
+            });
+        };
+    }).directive('ngY1', function () {
+        return function (scope, element, attrs) {
+            scope.$watch(attrs.ngY1, function (value) {
+                element.attr('y1', value);
+            });
+        };
+    }).directive('ngY2', function () {
+        return function (scope, element, attrs) {
+            scope.$watch(attrs.ngY2, function (value) {
+                element.attr('y2', value);
+            });
+        };
+    });
 
     app.config(function ($locationProvider) {
         $locationProvider.html5Mode(true);
@@ -85,7 +117,7 @@
         function convert(stats) {
             var max = 0;
             var r = [];
-            for (var i = 0; i < stats.length; ++i) {
+            for (var i = stats.length-1; i >= 0; --i) {
                 var duration = parseDuration(stats[i].ResponseTime);
                 if (max < duration) {
                     max = duration;
@@ -99,6 +131,7 @@
             $http.get("/api/endpoints/" + $location.search().id + "/stats?limitDays=1")
                 .success(function(response) {
                     $scope.stats = convert(response);
+                    $scope.graph.width = Math.max(800, $scope.stats.lines.length);
                 })
                 .error(function(data, status) {
                     $scope.stats = [];
@@ -109,6 +142,14 @@
             $scope.updateDetails();
             $scope.updateStats();
         }
+
+        $scope.parseDuration = parseDuration;
+
+        $scope.displayHint = function ($evt) {
+            var index = Math.floor($evt.offsetX * $scope.stats.lines.length / $scope.graph.width);
+            $scope.currentStat = (index < $scope.stats.lines.length) ? $scope.stats.lines[index] : null;
+            $scope.toolTipPosition = { x: $evt.clientX, y: $evt.clientY };
+        };
 
         $scope.update();
         setInterval($scope.update, 3000);
