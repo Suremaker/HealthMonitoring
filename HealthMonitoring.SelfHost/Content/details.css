@@ -10,6 +10,7 @@ body {
   border-bottom:1px solid black;
   margin:60px 20px;
   position:relative;
+  padding: 1px;
 }
 
 .y {
@@ -30,16 +31,20 @@ body {
 svg {
   position:absolute;
   transform:rotateX(180deg);
-  left:0;
+  left: 1px;
+  top: 1px;
 }
 
-line{
+path{
   stroke-width:1px;
+  stroke-linecap: butt;
+  fill: none;
+  stroke-linejoin: miter;
 }
 
 .healthy { stroke: darkgreen; }
 .faulty { stroke: darkred; }
-.unhealthy { stroke: gold;color: #222222; }
+.unhealthy { stroke: gold; }
 .timedOut { stroke: orangered; }
 .offline { stroke: blue; }
 .notRun{ stroke: #000000; }
