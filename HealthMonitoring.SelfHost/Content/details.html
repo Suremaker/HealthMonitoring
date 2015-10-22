@@ -25,10 +25,6 @@
     <tr ng-repeat="(key,value) in details.Details"><td>{{key}}</td><td>{{value}}</td></tr>
 </table>
 <h1>Stats</h1>
-<table>
-    <tr ng-repeat="s in stats"><td>{{s.Status}}</td><td>{{s.CheckTimeUtc}}</td><td>{{s.ResponseTime}}</td></tr>
-</table>
-
     <div class="chart" style="width:{{graph.width+2}}px; height:{{graph.height+2}}px;">
         <!-- Labels -->
         <div class="y" style="width:{{graph.height}}px;">Response Time</div>
@@ -38,6 +34,7 @@
             <path ng-repeat="(k,v) in stats.paths" d="{{v.data}}" class="{{k}}"/>
         </svg>
     </div>
+<div class="legendBar">Legend: <div ng-repeat="(k,v) in stats.paths" class="legend {{k}}">{{k}}</div></div>
 <div class="tooltip" ng-if="currentStat">
     <table>
         <tr><td>Check Time Utc:</td><td>{{currentStat.time}}</td></tr>
@@ -93,16 +90,16 @@
 
             var paths = {};
 
-            for (var i = 0; i < lines.length; ++i) {
+            for (var i = 0; i < lines.length-1; ++i) {
                 var point = lines[i];
                 var path = paths[point.status];
                 if (path == null) {
                     paths[point.status] = path =  { data: "", last: -1 }
                 };
-                var ox = i * graphDims.width / lines.length;
-                var nx = (i + 1) * graphDims.width / lines.length;
+                var ox = (i+1) * graphDims.width / lines.length;
+                var nx = i * graphDims.width / lines.length;
                 var ny = point.value * graphDims.height / maxDuration;
-                var oy = (i > 0) ? (lines[i - 1].value * graphDims.height / maxDuration) : ny;
+                var oy = lines[i+1].value * graphDims.height / maxDuration;
                 if (path.last !== ox) {
                     path.data += "M " + ox + " " + oy + " ";
                 }

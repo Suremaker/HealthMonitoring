@@ -8,7 +8,8 @@ body {
 .chart {
   border-left:1px solid black;
   border-bottom:1px solid black;
-  margin:60px 20px;
+  margin-bottom: 30px;
+  margin-left: 20px;
   position:relative;
   padding: 1px;
 }
@@ -42,13 +43,23 @@ path{
   stroke-linejoin: miter;
 }
 
-.healthy { stroke: darkgreen; }
-.faulty { stroke: darkred; }
-.unhealthy { stroke: gold; }
-.timedOut { stroke: orangered; }
-.offline { stroke: blue; }
-.notRun{ stroke: #000000; }
-.notExists { stroke: #333333; }
+path.healthy { stroke: darkgreen; }
+path.faulty { stroke: darkred; }
+path.unhealthy { stroke: gold; }
+path.timedOut { stroke: orangered; }
+path.offline { stroke: blue; }
+path.notRun{ stroke: #000000; }
+path.notExists { stroke: #333333; }
+
+.legendBar { margin-left: 20px;}
+.legend { padding: 2px;font-size: smaller;display: inline-block;margin-right: 2px;}
+.legend.healthy { background-color: darkgreen;color: white;}
+.legend.faulty { background-color: darkred;color: white;}
+.legend.unhealthy { background-color: gold;color: black;}
+.legend.timedOut { background-color: orangered;color: white;}
+.legend.offline { background-color: blue;color: white;}
+.legend.notRun { background-color: #000000;color: white;}
+.legend.notExists { background-color: #333333;color: white;}
 
 .tooltip {
     display:block;
