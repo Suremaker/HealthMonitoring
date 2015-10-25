@@ -1,8 +1,17 @@
 body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     border: 0;
-    background-color: #999999;
+    background-color: #eeeeee;
     font-size: .9em;
+    color: #222222;
+}
+
+td:first-of-type {
+    font-weight: bold;
+}
+
+td:nth-of-type(2) {
+    white-space: pre;
 }
 
 .chart {
@@ -11,7 +20,7 @@ body {
   margin-bottom: 30px;
   margin-left: 20px;
   position:relative;
-  padding: 1px;
+  background-color: #bbbbbb;
 }
 
 .y {
@@ -48,24 +57,24 @@ path.faulty { stroke: darkred; }
 path.unhealthy { stroke: gold; }
 path.timedOut { stroke: orangered; }
 path.offline { stroke: blue; }
-path.notRun{ stroke: #000000; }
-path.notExists { stroke: #333333; }
+path.notRun{ stroke: #111111; }
+path.notExists { stroke: #444444; }
 
 .legendBar { margin-left: 20px;}
-.legend { padding: 2px;font-size: smaller;display: inline-block;margin-right: 2px;}
-.legend.healthy { background-color: darkgreen;color: white;}
-.legend.faulty { background-color: darkred;color: white;}
-.legend.unhealthy { background-color: gold;color: black;}
-.legend.timedOut { background-color: orangered;color: white;}
-.legend.offline { background-color: blue;color: white;}
-.legend.notRun { background-color: #000000;color: white;}
-.legend.notExists { background-color: #333333;color: white;}
+.status { padding: 2px;font-size: smaller;display: inline-block;margin-right: 2px;}
+.status.healthy { background-color: darkgreen;color: #eeeeee;}
+.status.faulty { background-color: darkred;color: #eeeeee;}
+.status.unhealthy { background-color: gold;}
+.status.timedOut { background-color: orangered;color: #eeeeee;}
+.status.offline { background-color: blue;color: #eeeeee;}
+.status.notRun { background-color: #111111;color: #eeeeee;}
+.status.notExists { background-color: #444444;color: #eeeeee;}
 
 .tooltip {
     display:block;
     position:fixed;
     overflow:hidden;
-    background-color: #999999;
+    background-color: #bbbbbb;
     border: 1px solid black;
     padding: 1em;
     left: 20px;

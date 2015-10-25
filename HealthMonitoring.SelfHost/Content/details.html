@@ -12,34 +12,34 @@
 <h1>Endpoint</h1>
 <table>
     <tr><td>Id:</td><td>{{details.Id}}</td></tr>
+    <tr><td>Group:</td><td>{{details.Group}}</td></tr>
     <tr><td>Name:</td><td>{{details.Name}}</td></tr>
     <tr><td>Address:</td><td>{{details.Address}}</td></tr>
-    <tr><td>MonitorType:</td><td>{{details.MonitorType}}</td></tr>
-    <tr><td>Group:</td><td>{{details.Group}}</td></tr>
-    <tr><td>Status:</td><td>{{details.Status}}</td></tr>
-    <tr><td>LastCheckUtc:</td><td>{{details.LastCheckUtc}}</td></tr>
-    <tr><td>LastResponseTime:</td><td>{{parseDuration(details.LastResponseTime)}} ms</td></tr>
+    <tr><td>Monitor Type:</td><td>{{details.MonitorType}}</td></tr>
+    <tr><td>Status:</td><td class="status {{details.Status}}">{{details.Status}}</td></tr>
+    <tr><td>Last Check:</td><td>{{formatDate(details.LastCheckUtc)}}</td></tr>
+    <tr><td>Last Response Time:</td><td>{{formatDuration(details.LastResponseTime)}}</td></tr>
 </table>
 <h1>Details</h1>
 <table>
-    <tr ng-repeat="(key,value) in details.Details"><td>{{key}}</td><td>{{value}}</td></tr>
+    <tr ng-repeat="(key,value) in details.Details"><td>{{key}}:</td><td>{{value}}</td></tr>
 </table>
 <h1>Stats</h1>
     <div class="chart" style="width:{{graph.width+2}}px; height:{{graph.height+2}}px;">
         <!-- Labels -->
-        <div class="y" style="width:{{graph.height}}px;">Response Time</div>
-        <div class="x">Time</div>
+        <div class="y" style="width:{{graph.height}}px;">Response Time: 0 ms - {{stats.maxDuration}} ms</div>
+        <div class="x">Time: {{formatDate(stats.newestTime)}} - {{formatDate(stats.oldestTime)}}</div>
         <!-- Data -->
         <svg style="width: {{graph.width}}px; height: {{graph.height}}px; " ng-mousemove="displayHint($event)" ng-mouseleave="currentStat=null">
             <path ng-repeat="(k,v) in stats.paths" d="{{v.data}}" class="{{k}}"/>
         </svg>
     </div>
-<div class="legendBar">Legend: <div ng-repeat="(k,v) in stats.paths" class="legend {{k}}">{{k}}</div></div>
+<div class="legendBar">Legend: <div ng-repeat="(k,v) in stats.paths" class="status {{k}}">{{k}}</div></div>
 <div class="tooltip" ng-if="currentStat">
     <table>
-        <tr><td>Check Time Utc:</td><td>{{currentStat.time}}</td></tr>
-        <tr><td>Response Time:</td><td>{{parseDuration(currentStat.duration)}} ms</td></tr>
-        <tr><td>Status:</td><td>{{currentStat.status}}</td></tr>
+        <tr><td>Check Time:</td><td>{{formatDate(currentStat.time)}}</td></tr>
+        <tr><td>Response Time:</td><td>{{formatDuration(currentStat.duration)}}</td></tr>
+        <tr><td>Status:</td><td class="status {{currentStat.status}}">{{currentStat.status}}</td></tr>
     </table>
 </div>
 <script>
@@ -86,20 +86,31 @@
             return ms;
         }
 
+        function formatDate(dateString) {
+            if (dateString == null) {return "";}
+            return new Date(dateString).toUTCString();
+        }
+
+        function formatDuration(timeSpan) {
+            if (timeSpan == null) { return ""; }
+            return parseDuration(timeSpan) + " ms";
+        }
+
         function buildPaths(lines, maxDuration, graphDims) {
 
             var paths = {};
 
-            for (var i = 0; i < lines.length-1; ++i) {
+            for (var i = 0; i < lines.length; ++i) {
                 var point = lines[i];
                 var path = paths[point.status];
                 if (path == null) {
                     paths[point.status] = path =  { data: "", last: -1 }
                 };
+
                 var ox = (i+1) * graphDims.width / lines.length;
                 var nx = i * graphDims.width / lines.length;
                 var ny = point.value * graphDims.height / maxDuration;
-                var oy = lines[i+1].value * graphDims.height / maxDuration;
+                var oy = (i+1<lines.length) ? (lines[i+1].value * graphDims.height / maxDuration) : ny;
                 if (path.last !== ox) {
                     path.data += "M " + ox + " " + oy + " ";
                 }
@@ -110,8 +121,11 @@
         }
 
         function convert(stats,graphDims) {
-            var maxDuration = 0;
+            var maxDuration = 1;
             var lines = [];
+            var oldestTime = null;
+            var newestTime = null;
+
             for (var i = stats.length - 1; i >=0; --i) {
                 var stat = stats[i];
                 var duration = parseDuration(stat.ResponseTime);
@@ -120,8 +134,13 @@
                 }
                 lines.push({ status: stat.Status, value: duration, duration: stat.ResponseTime, time: stat.CheckTimeUtc });
             }
-            
-            return { lines: lines, paths: buildPaths(lines, maxDuration, graphDims) };
+
+            if (lines.length > 0) {
+                newestTime = lines[0].time;
+                oldestTime = lines[lines.length - 1].time;
+            }
+
+            return { lines: lines, maxDuration: maxDuration, newestTime: newestTime, oldestTime: oldestTime, paths: buildPaths(lines, maxDuration, graphDims) };
         }
 
         $scope.updateStats = function() {
@@ -131,7 +150,7 @@
                     $scope.stats = convert(response, $scope.graph);
                 })
                 .error(function(data, status) {
-                    $scope.stats = { lines: [], paths: {} };
+                    $scope.stats = { lines: [], paths: {}, maxDuration:0 };
                 });
         };
 
@@ -141,6 +160,8 @@
         }
 
         $scope.parseDuration = parseDuration;
+        $scope.formatDate = formatDate;
+        $scope.formatDuration = formatDuration;
 
         $scope.displayHint = function ($evt) {
             var index = Math.floor($evt.offsetX * $scope.stats.lines.length / $scope.graph.width);

@@ -5,7 +5,6 @@ body {
     font-size: .9em;
 }
 
-
 a{
   text-decoration: none;
   margin: 0;
@@ -40,13 +39,13 @@ a{
     from { border-color: yellow; }
     to { }
 }
-.endpoint[data-status="healthy"] { background-color: darkgreen; }
-.endpoint[data-status="faulty"] { background-color: darkred; }
-.endpoint[data-status="unhealthy"] { background-color: gold;color: #222222; }
-.endpoint[data-status="timedOut"] { background-color: orangered; }
-.endpoint[data-status="offline"] { background-color: blue; }
-.endpoint[data-status="notRun"] { background-color: #000000; }
-.endpoint[data-status="notExists"] { background-color: #333333; }
+.endpoint[data-status="healthy"] { background-color: darkgreen;background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), darkgreen;}
+.endpoint[data-status="faulty"] { background-color: darkred; background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), darkred;}
+.endpoint[data-status="unhealthy"] { background-color: gold;color: #222222; background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), gold;}
+.endpoint[data-status="timedOut"] { background-color: orangered; background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), orangered;}
+.endpoint[data-status="offline"] { background-color: blue; background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), blue;}
+.endpoint[data-status="notRun"] { background-color: #111111; background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), #111111;}
+.endpoint[data-status="notExists"] { background-color: #444444; background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), #444444;}
 .endpoint[data-changed="true"] {animation-name: blink;animation-duration: 0.9s;}
 
 .group1 {
