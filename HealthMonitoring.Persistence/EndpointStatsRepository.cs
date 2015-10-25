@@ -31,7 +31,7 @@ namespace HealthMonitoring.Persistence
             using (var conn = _db.OpenConnection())
             {
                 return conn
-                    .Query<EndpointStatsEntity>("select CheckTimeUtc, ResponseTime, Status from EndpointStats where endpointId=@id and checkTimeUtc > @dateLimit", new { id, dateLimit = DateTime.UtcNow.AddDays(-limitDays) })
+                    .Query<EndpointStatsEntity>("select CheckTimeUtc, ResponseTime, Status from EndpointStats where endpointId=@id and checkTimeUtc > @dateLimit order by checkTimeUtc", new { id, dateLimit = DateTime.UtcNow.AddDays(-limitDays) })
                     .Select(e => e.ToDomain());
             }
         }

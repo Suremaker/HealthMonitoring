@@ -1,16 +1,31 @@
-﻿using LightBDD;
-using HealthMonitoring.AcceptanceTests.Helpers;
+﻿using HealthMonitoring.AcceptanceTests.Helpers;
+using LightBDD;
 
-namespace HealthMonitoring.AcceptanceTests
+namespace HealthMonitoring.AcceptanceTests.Scenarios
 {
     [FeatureDescription(
 @"In order to monitor system effectively
 As ops
-I want to monitor registered web endpoints")]
-    public partial class Web_endpoint_monitoring
+I want to monitor registered rest (http.json) endpoints")]
+    public partial class Rest_endpoint_monitoring
     {
         [Scenario]
-        public void Monitoring_inexistent_web_endpoint()
+        public void Monitoring_rest_endpoint()
+        {
+            Runner.RunScenario(
+                _ => Given_a_monitor_api_client(),
+                _ => Given_a_rest_endpoint(),
+                _ => When_client_registers_the_endpoint(),
+                _ => Then_monitor_should_start_monitoring_the_endpoint(),
+                _ => When_client_requests_endpoint_details(),
+                _ => Then_the_endpoint_status_should_be_provided(),
+                _ => Then_the_last_check_time_should_be_provided(),
+                _ => Then_the_response_time_should_be_provided()
+                );
+        }
+
+        [Scenario]
+        public void Monitoring_inexistent_rest_endpoint()
         {
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),
@@ -27,7 +42,7 @@ I want to monitor registered web endpoints")]
         }
 
         [Scenario]
-        public void Monitoring_offline_web_endpoint()
+        public void Monitoring_offline_rest_endpoint()
         {
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),
@@ -44,7 +59,7 @@ I want to monitor registered web endpoints")]
         }
 
         [Scenario]
-        public void Monitoring_healthy_web_endpoint()
+        public void Monitoring_healthy_rest_endpoint()
         {
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),
@@ -56,12 +71,12 @@ I want to monitor registered web endpoints")]
                 _ => Then_the_endpoint_status_should_be_provided(EndpointStatus.Healthy),
                 _ => Then_the_last_check_time_should_be_provided(),
                 _ => Then_the_response_time_should_be_provided(),
-                _ => Then_the_endpoint_additional_details_should_be_not_available()
+                _ => Then_the_endpoint_additional_details_should_be_provided()
                 );
         }
 
         [Scenario]
-        public void Monitoring_faulty_web_endpoint()
+        public void Monitoring_faulty_rest_endpoint()
         {
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),

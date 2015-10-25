@@ -73,5 +73,11 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
             response.VerifyValidStatus(HttpStatusCode.OK);
             return JsonConvert.DeserializeObject<EndpointEntity>(response.Content);
         }
+
+        public static EndpointHealthStats[] DeserializeEndpointStats(this IRestResponse response)
+        {
+            response.VerifyValidStatus(HttpStatusCode.OK);
+            return JsonConvert.DeserializeObject<EndpointHealthStats[]>(response.Content);
+        }
     }
 }

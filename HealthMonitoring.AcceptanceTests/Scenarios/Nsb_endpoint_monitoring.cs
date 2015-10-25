@@ -1,7 +1,7 @@
 ﻿using HealthMonitoring.AcceptanceTests.Helpers;
 using LightBDD;
 
-namespace HealthMonitoring.AcceptanceTests
+namespace HealthMonitoring.AcceptanceTests.Scenarios
 {
     [FeatureDescription(
 @"In order to monitor system effectively

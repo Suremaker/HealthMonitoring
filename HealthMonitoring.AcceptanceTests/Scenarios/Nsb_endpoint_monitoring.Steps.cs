@@ -11,7 +11,7 @@ using RestSharp;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace HealthMonitoring.AcceptanceTests
+namespace HealthMonitoring.AcceptanceTests.Scenarios
 {
     public partial class Nsb_endpoint_monitoring : FeatureFixture, IDisposable
     {

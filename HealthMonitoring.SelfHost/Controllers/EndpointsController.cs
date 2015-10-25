@@ -53,9 +53,9 @@ namespace HealthMonitoring.SelfHost.Controllers
         }
 
         [Route("api/endpoints/{id}/stats")]
-        [SwaggerResponse(HttpStatusCode.OK, Type = typeof (EndpointDetails))]
+        [SwaggerResponse(HttpStatusCode.OK, Type = typeof(EndpointHealthStats[]))]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
-        public EndpointHealthStats[] GetEndpointStats(Guid id, int? limitDays)
+        public EndpointHealthStats[] GetEndpointStats(Guid id, int? limitDays = null)
         {
             return _endpointStatsRepository.GetStatistics(id, limitDays.GetValueOrDefault(1)).Select(EndpointHealthStats.FromDomain).ToArray();
         }
@@ -66,7 +66,7 @@ namespace HealthMonitoring.SelfHost.Controllers
         [SwaggerResponse(HttpStatusCode.NotFound)]
         public IHttpActionResult DeleteEndpoint(Guid id)
         {
-            if (_endpointRegistry.TryUnregisterById(id)) 
+            if (_endpointRegistry.TryUnregisterById(id))
                 return Ok();
             return NotFound();
         }

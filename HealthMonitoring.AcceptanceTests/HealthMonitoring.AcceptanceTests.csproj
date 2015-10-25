@@ -105,8 +105,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Endpoint_registration.cs" />
-    <Compile Include="Endpoint_registration.Steps.cs">
+    <Compile Include="Helpers\Entities\EndpointHealthStats.cs" />
+    <Compile Include="Scenarios\Endpoint_registration.cs" />
+    <Compile Include="Scenarios\Endpoint_registration.Steps.cs">
       <DependentUpon>Endpoint_registration.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ClientHelper.cs" />
@@ -119,26 +120,30 @@
     <Compile Include="Helpers\MonitorTypes.cs" />
     <Compile Include="Helpers\Timeouts.cs" />
     <Compile Include="Helpers\Wait.cs" />
-    <Compile Include="Nsb_endpoint_monitoring.cs" />
-    <Compile Include="Nsb_endpoint_monitoring.Steps.cs">
+    <Compile Include="Scenarios\Endpoint_statistics.cs" />
+    <Compile Include="Scenarios\Endpoint_statistics.Steps.cs">
+      <DependentUpon>Endpoint_statistics.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Scenarios\Nsb_endpoint_monitoring.cs" />
+    <Compile Include="Scenarios\Nsb_endpoint_monitoring.Steps.cs">
       <DependentUpon>Nsb_endpoint_monitoring.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Monitors_configuration.cs" />
-    <Compile Include="Monitors_configuration.Steps.cs">
+    <Compile Include="Scenarios\Monitors_configuration.cs" />
+    <Compile Include="Scenarios\Monitors_configuration.Steps.cs">
       <DependentUpon>Monitors_configuration.cs</DependentUpon>
     </Compile>
-    <Compile Include="Rest_endpoint_monitoring.cs" />
-    <Compile Include="Rest_endpoint_monitoring.Steps.cs">
+    <Compile Include="Scenarios\Rest_endpoint_monitoring.cs" />
+    <Compile Include="Scenarios\Rest_endpoint_monitoring.Steps.cs">
       <DependentUpon>Rest_endpoint_monitoring.cs</DependentUpon>
     </Compile>
-    <Compile Include="Swagger_documentation.cs" />
-    <Compile Include="Swagger_documentation.Steps.cs">
+    <Compile Include="Scenarios\Swagger_documentation.cs" />
+    <Compile Include="Scenarios\Swagger_documentation.Steps.cs">
       <DependentUpon>Swagger_documentation.cs</DependentUpon>
     </Compile>
-    <Compile Include="Web_endpoint_monitoring.cs" />
-    <Compile Include="Web_endpoint_monitoring.Steps.cs">
-      <DependentUpon>Web_endpoint_monitoring.cs</DependentUpon>
+    <Compile Include="Scenarios\Http_endpoint_monitoring.cs" />
+    <Compile Include="Scenarios\Http_endpoint_monitoring.Steps.cs">
+      <DependentUpon>Http_endpoint_monitoring.cs</DependentUpon>
     </Compile>
     <Compile Include="Xunit\TestInitialization.cs" />
   </ItemGroup>

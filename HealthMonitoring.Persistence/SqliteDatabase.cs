@@ -1,7 +1,6 @@
 ﻿using System.Configuration;
 using System.Data;
 using System.Data.SQLite;
-using System.IO;
 using System.Linq;
 using Dapper;
 

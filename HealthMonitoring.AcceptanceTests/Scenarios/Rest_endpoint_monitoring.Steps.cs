@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Entities;
@@ -8,16 +9,16 @@ using RestSharp;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace HealthMonitoring.AcceptanceTests
+namespace HealthMonitoring.AcceptanceTests.Scenarios
 {
-    public partial class Web_endpoint_monitoring : FeatureFixture, IDisposable
+    public partial class Rest_endpoint_monitoring : FeatureFixture, IDisposable
     {
         private Guid _identifier;
         private RestClient _client;
         private MockWebEndpoint _restEndpoint;
         private EndpointEntity _details;
 
-        public Web_endpoint_monitoring(ITestOutputHelper output)
+        public Rest_endpoint_monitoring(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -42,7 +43,7 @@ namespace HealthMonitoring.AcceptanceTests
 
         private void When_client_registers_the_endpoint()
         {
-            _identifier = _client.RegisterEndpoint(MonitorTypes.Http, _restEndpoint.StatusAddress, "group", "name");
+            _identifier = _client.RegisterEndpoint(MonitorTypes.HttpJson, _restEndpoint.StatusAddress, "group", "name");
         }
 
         private void Then_monitor_should_start_monitoring_the_endpoint()
@@ -57,6 +58,11 @@ namespace HealthMonitoring.AcceptanceTests
         private void When_client_requests_endpoint_details()
         {
             _details = _client.GetEndpointDetails(_identifier);
+        }
+
+        private void Then_the_endpoint_status_should_be_provided()
+        {
+            Assert.True(_details.Status != null, "Status is not provided");
         }
 
         private void Then_the_last_check_time_should_be_provided()
@@ -93,12 +99,19 @@ namespace HealthMonitoring.AcceptanceTests
         {
             Assert.NotEmpty(_details.Details);
             Assert.True(_details.Details.ContainsKey("code"), "Code missing");
+            Assert.True(_details.Details.ContainsKey("content"), "Content missing");
         }
 
         private void Given_a_healthy_rest_endpoint()
         {
             Given_a_rest_endpoint();
-            _restEndpoint.SetupStatusPlainResponse(HttpStatusCode.OK, "hello world!");
+            _restEndpoint.SetupStatusResponse(HttpStatusCode.OK, new { Machine = "localhost", Version = "1.0.0.0" });
+        }
+
+        private void Given_an_endpoint_is_offline()
+        {
+            Given_a_rest_endpoint();
+            _restEndpoint.SetupStatusResponse(HttpStatusCode.ServiceUnavailable);
         }
 
         private void Given_an_unhealthy_rest_endpoint()
@@ -107,10 +120,9 @@ namespace HealthMonitoring.AcceptanceTests
             _restEndpoint.SetupStatusResponse(HttpStatusCode.InternalServerError);
         }
 
-        private void Given_an_endpoint_is_offline()
+        private void Then_the_endpoint_additional_details_should_be_provided()
         {
-            Given_a_rest_endpoint();
-            _restEndpoint.SetupStatusResponse(HttpStatusCode.ServiceUnavailable);
+            Assert.Equal(new Dictionary<string, string> { { "Machine", "localhost" }, { "Version", "1.0.0.0" } }, _details.Details);
         }
 
         private void Then_the_endpoint_status_should_be_provided(EndpointStatus status)
