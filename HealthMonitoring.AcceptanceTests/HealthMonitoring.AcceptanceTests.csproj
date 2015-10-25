@@ -145,6 +145,10 @@
     <Compile Include="Scenarios\Http_endpoint_monitoring.Steps.cs">
       <DependentUpon>Http_endpoint_monitoring.cs</DependentUpon>
     </Compile>
+    <Compile Include="Scenarios\UI_pages.cs" />
+    <Compile Include="Scenarios\UI_pages.Steps.cs">
+      <DependentUpon>UI_pages.cs</DependentUpon>
+    </Compile>
     <Compile Include="Xunit\TestInitialization.cs" />
   </ItemGroup>
   <ItemGroup>

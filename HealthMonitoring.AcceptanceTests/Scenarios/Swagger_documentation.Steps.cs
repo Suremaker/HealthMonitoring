@@ -17,7 +17,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         {
         }
 
-        private void Given_a_monitor_api_client()
+        private void Given_a_monitor_client()
         {
             _client = ClientHelper.Build();
         }
