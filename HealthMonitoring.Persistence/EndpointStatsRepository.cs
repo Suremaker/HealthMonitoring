@@ -19,10 +19,12 @@ namespace HealthMonitoring.Persistence
         public void InsertEndpointStatistics(Guid endpointId, EndpointHealth stats)
         {
             using (var conn = _db.OpenConnection())
+            using (var tx = conn.BeginTransaction())
             {
                 conn.Execute(
                     "insert into EndpointStats (EndpointId, CheckTimeUtc, ResponseTime, Status) values (@endpointId, @checkTimeUtc, @responseTime, @status)",
-                    new { endpointId, stats.CheckTimeUtc, responseTime = stats.ResponseTime.Ticks, stats.Status });
+                    new { endpointId, stats.CheckTimeUtc, responseTime = stats.ResponseTime.Ticks, stats.Status }, tx);
+                tx.Commit();
             }
         }
 
@@ -39,13 +41,21 @@ namespace HealthMonitoring.Persistence
         public void DeleteStatistics(Guid id)
         {
             using (var conn = _db.OpenConnection())
-                conn.Execute("delete from EndpointStats where endpointId=@id", new {id});
+            using (var tx = conn.BeginTransaction())
+            {
+                conn.Execute("delete from EndpointStats where endpointId=@id", new { id }, tx);
+                tx.Commit();
+            }
         }
 
         public void DeleteStatisticsOlderThan(DateTime date)
         {
             using (var conn = _db.OpenConnection())
-                conn.Execute("delete from EndpointStats where CheckTimeUtc < @date", new { date });
+            using (var tx = conn.BeginTransaction())
+            {
+                conn.Execute("delete from EndpointStats where CheckTimeUtc < @date", new { date }, tx);
+                tx.Commit();
+            }
         }
     }
 }

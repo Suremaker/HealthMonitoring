@@ -17,7 +17,7 @@ namespace HealthMonitoring.Persistence
 
         public IDbConnection OpenConnection()
         {
-            return new SQLiteConnection("Data Source=" + _path).OpenAndReturn();
+            return new SQLiteConnection("Data Source=" + _path + ";Version=3;PRAGMA journal_mode=WAL;").OpenAndReturn();
         }
 
         private void CreateDatabaseIfNeeded()

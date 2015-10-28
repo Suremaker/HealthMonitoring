@@ -21,23 +21,29 @@ namespace HealthMonitoring.Persistence
         public void SaveEndpoint(Endpoint endpoint)
         {
             using (var conn = _db.OpenConnection())
+            using (var tx = conn.BeginTransaction())
             {
-                if (IsEndpointExistent(conn, endpoint.Id))
-                    conn.Execute("update EndpointConfig set MonitorType=@MonitorType, Address=@Address, GroupName=@Group, Name=@Name where Id=@Id", new { endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Id });
+                if (IsEndpointExistent(conn, endpoint.Id, tx))
+                    conn.Execute("update EndpointConfig set MonitorType=@MonitorType, Address=@Address, GroupName=@Group, Name=@Name where Id=@Id", new { endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Id }, tx);
                 else
-                    conn.Execute("insert into EndpointConfig (MonitorType, Address, GroupName, Name, Id) values(@MonitorType,@Address,@Group,@Name,@Id)", new { endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Id });
+                    conn.Execute("insert into EndpointConfig (MonitorType, Address, GroupName, Name, Id) values(@MonitorType,@Address,@Group,@Name,@Id)", new { endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Id }, tx);
+                tx.Commit();
             }
         }
 
-        private bool IsEndpointExistent(IDbConnection conn, Guid id)
+        private bool IsEndpointExistent(IDbConnection conn, Guid id, IDbTransaction tx)
         {
-            return conn.Query<int>("select count(*) from EndpointConfig where Id=@id", new { id }).Single() == 1;
+            return conn.Query<int>("select count(*) from EndpointConfig where Id=@id", new { id }, tx).Single() == 1;
         }
 
         public void DeleteEndpoint(Guid endpointId)
         {
             using (var conn = _db.OpenConnection())
-                conn.Execute("delete from EndpointConfig where Id=@endpointId", new { endpointId });
+            using (var tx = conn.BeginTransaction())
+            {
+                conn.Execute("delete from EndpointConfig where Id=@endpointId", new { endpointId }, tx);
+                tx.Commit();
+            }
         }
 
         public IEnumerable<Endpoint> LoadEndpoints(IHealthMonitorRegistry monitorRegistry)
