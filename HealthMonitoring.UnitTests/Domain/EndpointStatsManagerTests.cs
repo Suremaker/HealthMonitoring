@@ -14,13 +14,13 @@ namespace HealthMonitoring.UnitTests.Domain
         {
             var repository = new Mock<IEndpointStatsRepository>();
             var monitorSettings = new Mock<IMonitorSettings>();
+
+            var endpointHealth = EndpointHealth.FromResult(DateTime.UtcNow, new HealthInfo(HealthStatus.Offline, TimeSpan.Zero), TimeSpan.Zero);
+            var endpointId = Guid.NewGuid();
+
             using (var manager = new EndpointStatsManager(repository.Object, monitorSettings.Object))
-            {
-                var endpointHealth = EndpointHealth.FromResult(DateTime.UtcNow, new HealthInfo(HealthStatus.Offline, TimeSpan.Zero), TimeSpan.Zero);
-                var endpointId = Guid.NewGuid();
                 manager.RecordEndpointStatistics(endpointId, endpointHealth);
-                repository.Verify(r => r.InsertEndpointStatistics(endpointId, endpointHealth));
-            }
+            repository.Verify(r => r.InsertEndpointStatistics(endpointId, endpointHealth));
         }
 
         [Fact]

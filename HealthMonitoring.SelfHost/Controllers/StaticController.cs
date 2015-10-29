@@ -34,8 +34,7 @@ namespace HealthMonitoring.SelfHost.Controllers
 
         private static HttpResponseMessage ReturnFileContent(string file)
         {
-            var path = string.Format("HealthMonitoring.SelfHost.Content.{0}", file);
-            var stream = typeof(StaticController).Assembly.GetManifestResourceStream(path);
+            var stream = GetCustomStream(file)??GetDefaultStream(file);
             if (stream == null)
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
 
@@ -45,6 +44,19 @@ namespace HealthMonitoring.SelfHost.Controllers
             };
             response.Content.Headers.ContentType = new MediaTypeHeaderValue(GetMediaType(file));
             return response;
+        }
+
+        private static Stream GetCustomStream(string file)
+        {
+            var path = "content\\" + file;
+            return File.Exists(path) ? File.OpenRead(path) : null;
+        }
+
+        private static Stream GetDefaultStream(string file)
+        {
+            var path = string.Format("HealthMonitoring.SelfHost.Content.{0}", file);
+            var stream = typeof (StaticController).Assembly.GetManifestResourceStream(path);
+            return stream;
         }
 
         private static string GetMediaType(string file)
