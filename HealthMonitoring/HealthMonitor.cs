@@ -39,18 +39,22 @@ namespace HealthMonitoring
 
         private void Start()
         {
+            int errorCounter = 0;
             while (!_cancellation.IsCancellationRequested)
             {
                 try
                 {
                     ProcessTasks();
+                    errorCounter = 0;
                 }
                 catch (OperationCanceledException)
                 {
                 }
                 catch (Exception e)
                 {
-                    Logger.ErrorFormat("Monitoring error: {0}", e);
+                    ++errorCounter;
+                    Logger.ErrorFormat("Monitoring error ({0} occurrence): {1}", errorCounter, e.ToString());
+                    Thread.Sleep(TimeSpan.FromSeconds(errorCounter));
                 }
             }
         }
