@@ -4,6 +4,7 @@ using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
 using HealthMonitoring.Persistence;
+using HealthMonitoring.SelfHost.Filters;
 using Microsoft.Owin.Host.HttpListener;
 using Newtonsoft.Json.Converters;
 using Owin;
@@ -33,6 +34,7 @@ namespace HealthMonitoring.SelfHost.Configuration
         {
             config.MapHttpAttributeRoutes();
             config.Routes.MapHttpRoute("Swagger", "api", null, null, new RedirectHandler(SwaggerDocsConfig.DefaultRootUrlResolver, "swagger/ui/index"));
+            config.Filters.Add(new ExceptionFilter());
         }
 
         private static void ConfigureSwagger(HttpConfiguration config)

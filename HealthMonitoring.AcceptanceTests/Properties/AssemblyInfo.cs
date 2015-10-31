@@ -18,5 +18,3 @@ using Xunit;
 
 // Allows to display scenario names properly in Release mode
 [assembly: Debuggable(true, true)]
-//Appveyor
-[assembly: CollectionBehavior(DisableTestParallelization = true)]

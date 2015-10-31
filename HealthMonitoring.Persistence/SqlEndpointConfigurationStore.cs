@@ -23,17 +23,10 @@ namespace HealthMonitoring.Persistence
             using (var conn = _db.OpenConnection())
             using (var tx = conn.BeginTransaction())
             {
-                if (IsEndpointExistent(conn, endpoint.Id, tx))
-                    conn.Execute("update EndpointConfig set MonitorType=@MonitorType, Address=@Address, GroupName=@Group, Name=@Name where Id=@Id", new { endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Id }, tx);
-                else
+                if (conn.Execute("update EndpointConfig set MonitorType=@MonitorType, Address=@Address, GroupName=@Group, Name=@Name where Id=@Id", new { endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Id }, tx) == 0)
                     conn.Execute("insert into EndpointConfig (MonitorType, Address, GroupName, Name, Id) values(@MonitorType,@Address,@Group,@Name,@Id)", new { endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Id }, tx);
                 tx.Commit();
             }
-        }
-
-        private bool IsEndpointExistent(IDbConnection conn, Guid id, IDbTransaction tx)
-        {
-            return conn.Query<int>("select count(*) from EndpointConfig where Id=@id", new { id }, tx).Single() == 1;
         }
 
         public void DeleteEndpoint(Guid endpointId)

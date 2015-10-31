@@ -8,7 +8,7 @@ namespace HealthMonitoring.Persistence
 {
     public class SqliteDatabase
     {
-        private static readonly string _path = ConfigurationManager.AppSettings["DatabaseFile"];
+        private static readonly string Path = ConfigurationManager.AppSettings["DatabaseFile"];
         private readonly string _connectionString = BuildConnectionString();
 
         public SqliteDatabase()
@@ -18,14 +18,15 @@ namespace HealthMonitoring.Persistence
 
         private static string BuildConnectionString()
         {
-            var builder = new SQLiteConnectionStringBuilder();
-            builder.DataSource = _path;
-            builder.Version = 3;
-            builder.Pooling = true;
-            builder.JournalMode=SQLiteJournalModeEnum.Wal;
-            builder.DefaultIsolationLevel=IsolationLevel.ReadCommitted;
-            builder.BusyTimeout = 10000;
-            return builder.ToString();
+            return new SQLiteConnectionStringBuilder
+            {
+                DataSource = Path,
+                Version = 3,
+                Pooling = true,
+                JournalMode = SQLiteJournalModeEnum.Wal,
+                DefaultIsolationLevel = IsolationLevel.ReadCommitted,
+                BusyTimeout = 10000
+            }.ToString();
         }
 
         public IDbConnection OpenConnection()

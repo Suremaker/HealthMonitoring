@@ -116,7 +116,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
 
         private void When_more_time_pass()
         {
-            Thread.Sleep(TimeSpan.FromSeconds(20));
+            Thread.Sleep(Timeouts.HealthCheckInterval);
         }
     }
 }
