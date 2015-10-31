@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http.Results;
 using HealthMonitoring.Model;
-using HealthMonitoring.Monitors;
 using HealthMonitoring.SelfHost.Controllers;
 using HealthMonitoring.SelfHost.Entities;
 using HealthMonitoring.UnitTests.Helpers;
@@ -126,28 +125,30 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         }
 
         [Theory]
-        [InlineData(HealthStatus.Healthy)]
-        [InlineData(HealthStatus.Faulty)]
-        [InlineData(HealthStatus.Offline)]
-        public void GetEndpoint_should_return_endpoint_information_with_details(HealthStatus status)
+        [InlineData(EndpointStatus.Healthy)]
+        [InlineData(EndpointStatus.Faulty)]
+        [InlineData(EndpointStatus.Offline)]
+        public void GetEndpoint_should_return_endpoint_information_with_details(EndpointStatus status)
         {
             Guid id = Guid.NewGuid();
-            var monitor = MonitorMock.GetMock("monitor");
-            var healthInfo = new HealthInfo(status, TimeSpan.FromSeconds(2), new Dictionary<string, string> { { "a", "b" }, { "c", "d" } });
-            monitor.Setup(p => p.CheckHealthAsync("address", It.IsAny<CancellationToken>())).Returns(Task.FromResult(healthInfo));
+            var healthSampler = new Mock<IHealthSampler>();
 
-            var endpoint = new Endpoint(id, monitor.Object, "address", "name", "group");
-            endpoint.CheckHealth(new CancellationToken(), MonitorSettingsHelper.ConfigureDefaultSettings(), new Mock<IEndpointStatsManager>().Object).Wait();
+            var endpoint = new Endpoint(id, MonitorMock.GetMock("monitor").Object, "address", "name", "group");
+            var token = new CancellationToken();
+            var endpointHealth = new EndpointHealth(DateTime.UtcNow, TimeSpan.FromSeconds(1), status, new Dictionary<string, string> { { "a", "b" }, { "c", "d" } });
+            healthSampler.Setup(s => s.CheckHealth(endpoint, token)).Returns(Task.FromResult(endpointHealth));
+            endpoint.CheckHealth(healthSampler.Object, token).Wait();
+
             _endpointRegistry.Setup(r => r.GetById(id)).Returns(endpoint);
 
             var result = _controller.GetEndpoint(id) as OkNegotiatedContentResult<EndpointDetails>;
             Assert.NotNull(result);
             AssertEndpoint(endpoint, result.Content);
 
-            Assert.Equal(status.ToString(), result.Content.Status.ToString());
-            Assert.NotNull(result.Content.LastCheckUtc);
-            Assert.Equal(healthInfo.ResponseTime, result.Content.LastResponseTime);
-            Assert.Equal(healthInfo.Details, result.Content.Details);
+            Assert.Equal(status, result.Content.Status);
+            Assert.Equal(endpointHealth.CheckTimeUtc, result.Content.LastCheckUtc);
+            Assert.Equal(endpointHealth.ResponseTime, result.Content.LastResponseTime);
+            Assert.Equal(endpointHealth.Details, result.Content.Details);
         }
 
         private static void AssertEndpoint(Endpoint expected, EndpointDetails actual)

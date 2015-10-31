@@ -1,7 +1,6 @@
 using System;
 using HealthMonitoring.Configuration;
 using HealthMonitoring.Model;
-using HealthMonitoring.Monitors;
 using Moq;
 using Xunit;
 
@@ -15,7 +14,7 @@ namespace HealthMonitoring.UnitTests.Domain
             var repository = new Mock<IEndpointStatsRepository>();
             var monitorSettings = new Mock<IMonitorSettings>();
 
-            var endpointHealth = EndpointHealth.FromResult(DateTime.UtcNow, new HealthInfo(HealthStatus.Offline, TimeSpan.Zero), TimeSpan.Zero);
+            var endpointHealth = new EndpointHealth(DateTime.UtcNow, TimeSpan.Zero, EndpointStatus.Offline);
             var endpointId = Guid.NewGuid();
 
             using (var manager = new EndpointStatsManager(repository.Object, monitorSettings.Object))

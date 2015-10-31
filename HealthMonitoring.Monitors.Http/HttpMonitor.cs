@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -22,18 +21,20 @@ namespace HealthMonitoring.Monitors.Http
 
         public async Task<HealthInfo> CheckHealthAsync(string address, CancellationToken cancellationToken)
         {
-            var sw = Stopwatch.StartNew();
             using (var client = new HttpClient())
             using (var response = await client.GetAsync(address, cancellationToken))
             {
-                sw.Stop();
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                    return new HealthInfo(HealthStatus.NotExists, sw.Elapsed);
-                if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
-                    return new HealthInfo(HealthStatus.Offline, sw.Elapsed);
-                if (response.StatusCode == HttpStatusCode.OK)
-                    return new HealthInfo(HealthStatus.Healthy, sw.Elapsed, await ReadSuccessfulContent(response.Content));
-                return new HealthInfo(HealthStatus.Faulty, sw.Elapsed, await GetFaultyResponseDetails(response));
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.NotFound:
+                        return new HealthInfo(HealthStatus.NotExists);
+                    case HttpStatusCode.ServiceUnavailable:
+                        return new HealthInfo(HealthStatus.Offline);
+                    case HttpStatusCode.OK:
+                        return new HealthInfo(HealthStatus.Healthy, await ReadSuccessfulContent(response.Content));
+                    default:
+                        return new HealthInfo(HealthStatus.Faulty, await GetFaultyResponseDetails(response));
+                }
             }
         }
 

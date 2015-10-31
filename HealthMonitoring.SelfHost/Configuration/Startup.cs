@@ -65,7 +65,7 @@ namespace HealthMonitoring.SelfHost.Configuration
 
             builder.RegisterInstance<IHealthMonitorRegistry>(new HealthMonitorRegistry(MonitorDiscovery.DiscoverAllInCurrentFolder()));
             var container = builder.Build();
-            container.Resolve<HealthMonitor>();
+            container.Resolve<EndpointMonitor>();
             config.DependencyResolver = new AutofacWebApiDependencyResolver(container);
         }
 

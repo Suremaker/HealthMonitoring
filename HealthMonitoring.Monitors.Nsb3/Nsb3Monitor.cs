@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Monitors.Nsb3.Messages;
@@ -11,6 +10,7 @@ namespace HealthMonitoring.Monitors.Nsb3
 {
     public class Nsb3Monitor : IHealthMonitor
     {
+        private static readonly HealthInfo MessageTimeoutResponse = new HealthInfo(HealthStatus.Faulty, new Dictionary<string, string> { { "message", "health check timeout" } });
         private readonly IBus _bus;
         private readonly TimeSpan _messageTimeout;
         public string Name { get { return "nsb3"; } }
@@ -35,23 +35,16 @@ namespace HealthMonitoring.Monitors.Nsb3
             var requestId = Guid.NewGuid();
             using (var wait = new ResponseWaiter(requestId, _messageTimeout))
             {
-                var watch = Stopwatch.StartNew();
                 _bus.Send(Address.Parse(address), new GetStatusRequest { RequestId = requestId });
                 var response = await wait.GetResponseAsync(cancellationToken);
-                watch.Stop();
 
-                return response != null ? Healthy(watch, response) : Faulty(watch);
+                return response != null ? Healthy(response) : MessageTimeoutResponse;
             }
         }
 
-        private static HealthInfo Healthy(Stopwatch watch, GetStatusResponse response)
+        private static HealthInfo Healthy(GetStatusResponse response)
         {
-            return new HealthInfo(HealthStatus.Healthy, watch.Elapsed, response.Details);
-        }
-
-        private static HealthInfo Faulty(Stopwatch watch)
-        {
-            return new HealthInfo(HealthStatus.Faulty, watch.Elapsed, new Dictionary<string, string> { { "message", "health check timeout" } });
+            return new HealthInfo(HealthStatus.Healthy,  response.Details);
         }
     }
 

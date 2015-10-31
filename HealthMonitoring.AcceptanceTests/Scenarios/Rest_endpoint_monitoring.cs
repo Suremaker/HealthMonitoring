@@ -80,9 +80,11 @@ I want to monitor registered rest (http.json) endpoints")]
         {
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),
-                _ => Given_an_unhealthy_rest_endpoint(),
+                _ => Given_a_healthy_rest_endpoint(),
                 _ => When_client_registers_the_endpoint(),
                 _ => Then_monitor_should_start_monitoring_the_endpoint(),
+                _ => Then_monitor_should_observe_endpoint_status_being_STATUS(EndpointStatus.Healthy),
+                _ => When_endpoint_becomes_faulty(),
                 _ => Then_monitor_should_observe_endpoint_status_being_STATUS(EndpointStatus.Faulty),
                 _ => When_client_requests_endpoint_details(),
                 _ => Then_the_endpoint_status_should_be_provided(EndpointStatus.Faulty),

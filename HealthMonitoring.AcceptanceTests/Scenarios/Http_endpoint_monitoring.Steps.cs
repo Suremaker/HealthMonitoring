@@ -101,9 +101,8 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             _restEndpoint.SetupStatusPlainResponse(HttpStatusCode.OK, "hello world!");
         }
 
-        private void Given_an_unhealthy_rest_endpoint()
+        private void When_rest_endpoint_becomes_faulty()
         {
-            Given_a_rest_endpoint();
             _restEndpoint.SetupStatusResponse(HttpStatusCode.InternalServerError);
         }
 
