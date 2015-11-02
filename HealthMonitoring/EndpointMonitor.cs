@@ -93,8 +93,9 @@ namespace HealthMonitoring
             await Task.Yield();
             while (!_cancellation.IsCancellationRequested && !endpoint.IsDisposed)
             {
+                var delay = Task.Delay(_settings.HealthCheckInterval);
                 await endpoint.CheckHealth(_sampler, _cancellation.Token);
-                await Task.Delay(_settings.HealthCheckInterval);
+                await delay;
             }
             return endpoint;
         }

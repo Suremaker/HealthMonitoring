@@ -14,16 +14,18 @@ namespace HealthMonitoring.UnitTests.Helpers
         private readonly Stopwatch _stopwatch = new Stopwatch();
         public string Name { get { return "test"; } }
         public IEnumerable<Tuple<string, TimeSpan>> Calls { get { return _calls; } }
+        public TimeSpan Delay { get; set; }
 
         public void StartWatch()
         {
             _stopwatch.Start();
         }
 
-        public Task<HealthInfo> CheckHealthAsync(string address, CancellationToken cancellationToken)
+        public async Task<HealthInfo> CheckHealthAsync(string address, CancellationToken cancellationToken)
         {
+            await Task.Delay(Delay, cancellationToken);
             _calls.Enqueue(Tuple.Create(address, _stopwatch.Elapsed));
-            return Task.FromResult(new HealthInfo(HealthStatus.Healthy, new Dictionary<string, string>()));
+            return new HealthInfo(HealthStatus.Healthy, new Dictionary<string, string>());
         }
     }
 }
