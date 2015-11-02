@@ -19,6 +19,7 @@ The Health Monitoring service is self hosted.
 The [HealthMonitoring.SelfHost](https://github.com/wongatech/HealthMonitoring/tree/master/HealthMonitoring.SelfHost) project is a console application that offers all the functionality.
 
 The easiest way to install it is to:
+
 1. install a **HealthMonitoring.Service-deploy** nuget package in target folder,
 2. make a **monitors** directory in target folder (where *HealthMonitoring.SelfHost.exe* is),
 3. install one or more **HealthMonitoring.Monitors.XXX-deploy** monitor packages in **monitors** directory,
@@ -50,6 +51,17 @@ Below there is an example request body to register a monitoring for http://googl
 
 Please note that **MonitorType** value has to be one of supported monitors (they are installed as plugins).
 To list the currently supported monitors, please use ``GET /api/monitors``
+
+### Contributing
+
+Any kind of contribution is welcome :)
+
+To contribute please:
+* fork the repo,
+* write code, unit tests and acceptance tests (if applicable),
+* add nuspec file for the new plugin (if applicable) and ensure that it is being packaged with ``PS> .\make\make_local.ps1``,
+* ensure that ``PS> .\make\make_local.ps1`` finish successfuly,
+* update README.MD if necesarry.
 
 ### More details
 To see more details, please visit the Wiki page of the project.
