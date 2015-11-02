@@ -137,9 +137,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\Startup.cs" />
+    <Compile Include="Controllers\ConfigController.cs" />
     <Compile Include="Controllers\EndpointsController.cs" />
     <Compile Include="Controllers\MonitorsController.cs" />
     <Compile Include="Controllers\StaticController.cs" />
+    <Compile Include="Entities\Config.cs" />
     <Compile Include="Entities\EndpointDetails.cs" />
     <Compile Include="Entities\EndpointHealthStats.cs" />
     <Compile Include="Entities\EndpointRegistration.cs" />

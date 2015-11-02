@@ -7,8 +7,11 @@
     <script src="/static/angular.min.js"></script>
     <link rel="stylesheet" href="/static/dashboard.css">
 </head>
-<body>
-    <div ng-app="app" data-ng-controller="ctrl">
+<body ng-app="app" data-ng-controller="ctrl">
+<header>
+    <h1>{{dashSettings.Title}}</h1>
+</header>
+    <div class="board">
         <a ng-repeat="e in endpoints| orderBy: ['Group','Name']" ng-class="getEndpointClassName(e)" class="endpoint" data-status="{{e.Status}}" data-changed="{{e.changed}}" href="/dashboard/details?id={{e.Id}}" target="_blank">
             <div>{{e.Group}}</div>
             <div>{{e.Name}}</div>
@@ -21,6 +24,17 @@
             var groupClassNames = {};
 
             $scope.endpoints = [];
+            $scope.dashSettings = { Title: "Health Monitor" };
+
+            $scope.getConfig = function () {
+                $http.get("/api/config")
+                    .success(function (response) {
+                        $scope.dashSettings = response.Dashboard;
+                    })
+                    .error(function (data, status) {
+                        //do nothing
+                    });
+            }
 
             $scope.update = function () {
                 $http.get("/api/endpoints")
@@ -31,8 +45,10 @@
                       $scope.endpoints = [];
                   });
             };
+            $scope.getConfig();
             $scope.update();
             setInterval($scope.update, 1000);
+            setInterval($scope.getConfig, 20000);
 
             $scope.getEndpointClassName = function (endpoint) {
                 if (!groupClassNames[endpoint.Group]) {

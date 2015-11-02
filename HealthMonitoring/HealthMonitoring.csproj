@@ -46,7 +46,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\AppSettingsDashboardSettings.cs" />
     <Compile Include="Configuration\AppSettingsMonitorSettings.cs" />
+    <Compile Include="Configuration\IDashboardSettings.cs" />
     <Compile Include="Configuration\IEndpointConfigurationStore.cs" />
     <Compile Include="Configuration\IMonitorSettings.cs" />
     <Compile Include="EndpointRegistry.cs" />

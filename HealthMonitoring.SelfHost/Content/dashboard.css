@@ -5,6 +5,28 @@ body {
     font-size: .9em;
 }
 
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #222222;
+    color: #eeeeee;
+    height: 40px;
+    border-bottom: 1px solid black;
+    z-index: 9999;
+}
+
+header > h1 {
+    font-size: large;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.board {
+    margin-top: 41px;
+}
+
 a{
   text-decoration: none;
   margin: 0;
