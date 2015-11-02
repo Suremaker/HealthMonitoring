@@ -61,7 +61,8 @@ To contribute please:
 * write code, unit tests and acceptance tests (if applicable),
 * add nuspec file for the new plugin (if applicable) and ensure that it is being packaged with ``PS> .\make\make_local.ps1``,
 * ensure that ``PS> .\make\make_local.ps1`` finish successfuly,
-* update README.MD if necesarry.
+* update README.MD if necesarry,
+* make a pull request.
 
 ### More details
 To see more details, please visit the Wiki page of the project.
