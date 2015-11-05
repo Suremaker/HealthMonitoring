@@ -15,11 +15,30 @@ header {
     height: 40px;
     border-bottom: 1px solid black;
     z-index: 9999;
+    vertical-align: middle;
 }
 
-header > h1 {
-    font-size: large;
+td.filter{ width: 100%;text-align: right;}
+
+input.filter{ background: transparent;border: 1px solid black;color: #eeeeee;margin: 0;padding: 2px;margin-right: 10px;}
+
+td > h1 {
+    font-size: 1.6em;
+    line-height: 40px;
     font-weight: bold;
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    white-space: nowrap;
+}
+
+td > img {
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: baseline;
     margin-left: 10px;
 }
 

@@ -9,10 +9,16 @@
 </head>
 <body ng-app="app" data-ng-controller="ctrl">
 <header>
-    <h1>{{dashSettings.Title}}</h1>
+    <table>
+        <tr>
+            <td><img src="/static/favicon.ico" alt="icon"/></td>
+            <td><h1>{{dashSettings.Title}}</h1></td>
+            <td class="filter"><input type="text" placeholder="filter..." ng-model="filter" class="filter"/></td>
+        </tr>
+    </table>
 </header>
     <div class="board">
-        <a ng-repeat="e in endpoints| orderBy: ['Group','Name']" ng-class="getEndpointClassName(e)" class="endpoint" data-status="{{e.Status}}" data-changed="{{e.changed}}" href="/dashboard/details?id={{e.Id}}" target="_blank">
+        <a ng-repeat="e in endpoints| filter:filter | orderBy: ['Group','Name']" ng-class="getEndpointClassName(e)" class="endpoint" data-status="{{e.Status}}" data-changed="{{e.changed}}" href="/dashboard/details?id={{e.Id}}" target="_blank">
             <div>{{e.Group}}</div>
             <div>{{e.Name}}</div>
             <div class="time">{{parseDuration(e.LastResponseTime)}}</div>

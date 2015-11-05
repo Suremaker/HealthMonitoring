@@ -52,7 +52,7 @@ namespace HealthMonitoring
                 }
                 catch (AggregateException e)
                 {
-                    if (e.Flatten().InnerExceptions.FirstOrDefault() is OperationCanceledException) 
+                    if (e.Flatten().InnerExceptions.FirstOrDefault() is OperationCanceledException)
                         continue;
                     ++errorCounter;
                     Logger.ErrorFormat("Monitoring error ({0} occurrence): {1}", errorCounter, e.ToString());
@@ -90,7 +90,7 @@ namespace HealthMonitoring
 
         private async Task<Endpoint> CreateTaskFor(Endpoint endpoint)
         {
-            await Task.Yield();
+            await Task.Delay(GetRandomizedDelay());
             while (!_cancellation.IsCancellationRequested && !endpoint.IsDisposed)
             {
                 var delay = Task.Delay(_settings.HealthCheckInterval);
@@ -98,6 +98,13 @@ namespace HealthMonitoring
                 await delay;
             }
             return endpoint;
+        }
+
+        private TimeSpan GetRandomizedDelay()
+        {
+            var rand = new Random();
+            var delay = rand.NextDouble() * _settings.HealthCheckInterval.TotalMilliseconds;
+            return TimeSpan.FromMilliseconds(delay);
         }
 
         private void HandleNewEndpoint(Endpoint endpoint)
