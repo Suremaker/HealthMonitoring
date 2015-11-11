@@ -4,7 +4,7 @@ Define-Step -Name 'Update version info' -Target 'build' -Body {
 }
 
 Define-Step -Name 'Building' -Target 'build' -Body {
-	call "$($Context.NuGetExe)" restore HealthMonitoring.sln
+	call "$($Context.NuGetExe)" restore HealthMonitoring.sln -ConfigFile "$($Context.NuGetConfig)"
 	call "msbuild.exe" HealthMonitoring.sln /t:"Clean,Build" /p:Configuration=Release /m /verbosity:m /nologo /p:TreatWarningsAsErrors=true
 }
 
