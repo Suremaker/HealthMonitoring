@@ -72,6 +72,8 @@ namespace HealthMonitoring.SelfHost.Controllers
                     return "text/css";
                 case ".ico":
                     return "image/x-icon";
+                case ".svg":
+                    return "image/svg+xml";
                 default:
                     return "text/plain";
             }

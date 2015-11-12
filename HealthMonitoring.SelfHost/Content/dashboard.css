@@ -80,13 +80,13 @@ a{
     from { border-color: yellow; }
     to { }
 }
-.endpoint[data-status="healthy"] { background-color: darkgreen;background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), darkgreen;}
-.endpoint[data-status="faulty"] { background-color: darkred; background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), darkred;}
-.endpoint[data-status="unhealthy"] { background-color: gold;color: #222222; background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), gold;}
-.endpoint[data-status="timedOut"] { background-color: orangered; background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), orangered;}
-.endpoint[data-status="offline"] { background-color: blue; background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), blue;}
-.endpoint[data-status="notRun"] { background-color: #111111; background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), #111111;}
-.endpoint[data-status="notExists"] { background-color: #444444; background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), #444444;}
+.endpoint[data-status="healthy"] { background-color: darkgreen;background: url("/static/healthy.svg") no-repeat center center,linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), darkgreen;background-size: contain;background-blend-mode: screen,normal;}
+.endpoint[data-status="faulty"] { background-color: darkred; background: url("/static/faulty.svg") no-repeat center center,linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), darkred;background-size: contain;background-blend-mode: screen,normal;}
+.endpoint[data-status="unhealthy"] { background-color: gold;color: #222222; background: url("/static/unhealthy.svg") no-repeat center center,linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), gold;background-size: contain;background-blend-mode: screen,normal;}
+.endpoint[data-status="timedOut"] { background-color: orangered; background: url("/static/timedOut.svg") no-repeat center center,linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), orangered;background-size: contain;background-blend-mode: screen,normal;}
+.endpoint[data-status="offline"] { background-color: blue; background: url("/static/offline.svg") no-repeat center center,linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), blue;background-size: contain;background-blend-mode: screen,normal;}
+.endpoint[data-status="notRun"] { background-color: #111111; background: url("/static/notRun.svg") no-repeat center center,linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), #111111;background-size: contain;background-blend-mode: screen,normal;}
+.endpoint[data-status="notExists"] { background-color: #444444; background: url("/static/notExists.svg") no-repeat center center,linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), #444444;background-size: contain;background-blend-mode: screen,normal;}
 .endpoint[data-changed="true"] {animation-name: blink;animation-duration: 0.9s;}
 
 .group1 {

@@ -162,6 +162,27 @@
     <EmbeddedResource Include="Content\dashboard.css" />
     <EmbeddedResource Include="Content\details.html" />
     <EmbeddedResource Include="Content\details.css" />
+    <EmbeddedResource Include="..\icons\faulty.svg">
+      <Link>Content\faulty.svg</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\icons\healthy.svg">
+      <Link>Content\healthy.svg</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\icons\notRun.svg">
+      <Link>Content\notRun.svg</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\icons\offline.svg">
+      <Link>Content\offline.svg</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\icons\unhealthy.svg">
+      <Link>Content\unhealthy.svg</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\icons\timedOut.svg">
+      <Link>Content\timedOut.svg</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\icons\notExists.svg">
+      <Link>Content\notExists.svg</Link>
+    </EmbeddedResource>
     <Content Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
