@@ -27,16 +27,9 @@ Define-Step -Name 'Testing' -Target 'build' -Body {
 }
 
 Define-Step -Name 'Packaging' -Target 'build' -Body {
+	. (require 'psmake.mod.packaging')
 
-	Get-ChildItem . -filter "*-deploy.nuspec" -recurse | Foreach {
-		Write-Host "Packing $($_.fullname)"
-		call "$($Context.NuGetExe)" pack $($_.fullname) -NoPackageAnalysis -version $($Context.Version)
-	}
+	Find-VSProjectsForPackaging | Package-VSProject
 	
-	Get-ChildItem . -filter "*.nuspec" -recurse -exclude "*-deploy.nuspec" | Foreach {
-		$csprj = $_.fullname -replace '.nuspec','.csproj'
-		Write-Host "Packing $csprj"
-		call "$($Context.NuGetExe)" pack $csprj -Prop Configuration=Release -Prop Platform=AnyCPU
-
-	}
+	Find-NuSpecFiles -filter "*-deploy.nuspec" | Package-DeployableNuSpec -Version $($Context.Version)
 }

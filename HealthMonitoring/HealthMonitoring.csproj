@@ -48,9 +48,11 @@
   <ItemGroup>
     <Compile Include="Configuration\AppSettingsDashboardSettings.cs" />
     <Compile Include="Configuration\AppSettingsMonitorSettings.cs" />
+    <Compile Include="Configuration\AppSettingsThrottlingSettings.cs" />
     <Compile Include="Configuration\IDashboardSettings.cs" />
     <Compile Include="Configuration\IEndpointConfigurationStore.cs" />
     <Compile Include="Configuration\IMonitorSettings.cs" />
+    <Compile Include="Configuration\IThrottlingSettings.cs" />
     <Compile Include="EndpointRegistry.cs" />
     <Compile Include="EndpointStatsManager.cs" />
     <Compile Include="EndpointMonitor.cs" />
@@ -59,6 +61,7 @@
     <Compile Include="IEndpointStatsManager.cs" />
     <Compile Include="IEndpointStatsRepository.cs" />
     <Compile Include="IHealthMonitorRegistry.cs" />
+    <Compile Include="ThrottlingSampler.cs" />
     <Compile Include="Model\Endpoint.cs" />
     <Compile Include="Model\EndpointHealth.cs" />
     <Compile Include="Model\EndpointStats.cs" />

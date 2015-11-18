@@ -4,13 +4,13 @@ using HealthMonitoring.SelfHost.Entities;
 
 namespace HealthMonitoring.SelfHost.Controllers
 {
-    public class ConfigController: ApiController
+    public class ConfigController : ApiController
     {
         private readonly Config _config;
 
-        public ConfigController(IMonitorSettings monitorSettings, IDashboardSettings dashboardSettings)
+        public ConfigController(IMonitorSettings monitorSettings, IDashboardSettings dashboardSettings, IThrottlingSettings throttlingSettings)
         {
-            _config = new Config(monitorSettings, dashboardSettings);
+            _config = new Config(monitorSettings, dashboardSettings, throttlingSettings);
         }
 
         [Route("api/config")]
