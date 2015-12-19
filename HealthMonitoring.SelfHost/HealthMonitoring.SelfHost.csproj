@@ -183,6 +183,12 @@
     <EmbeddedResource Include="..\icons\notExists.svg">
       <Link>Content\notExists.svg</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="Content\home.css" />
+    <EmbeddedResource Include="..\icons\favicon.svg">
+      <Link>Content\favicon.svg</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\angular-filter.min.js" />
+    <EmbeddedResource Include="Content\functions.js" />
     <Content Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

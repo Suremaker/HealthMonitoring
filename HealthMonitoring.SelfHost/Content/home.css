@@ -1,0 +1,93 @@
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    border: 0;
+    background-color: #eeeeee;
+    font-size: .9em;
+    color: #222222;
+}
+
+#main {
+    min-width: 1024px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 3em;
+    border: 2px solid #888888;
+    border-radius: 25px;
+    background-color: #dddddd;
+}
+
+#main > header {
+    border-bottom: 1px solid #888888;
+    font-size: larger;
+    font-weight: bold;
+    text-align: center;
+}
+
+#main > header>h1{ display: inline-block;padding: 0;margin: 0;line-height: 64px;}
+
+#main > footer {
+    border-top: 1px solid #888888;
+    font-size: smaller;
+    text-align: center;
+}
+
+#main > *{
+    padding: 0.5em;
+}
+
+.logo {
+    width: 64px;
+    height: 64px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: top;
+}
+
+h1,h2,article>header{ font-weight: bold;}
+#main > article > header { margin-bottom: 1em;font-size: large;}
+#main > article{ display: block;padding: 2em;vertical-align: top;border-bottom: 1px dashed #888888;}
+#main > article:last-of-type{ border-bottom: none;}
+
+nav {
+    display: block;
+    border-bottom: 1px solid #888888;
+}
+
+nav ul {
+     padding: 0;
+     margin: 0;
+}
+
+nav li {
+    display: inline-block;
+    list-style: none;
+    font-weight: bold;
+    border-right: 1px solid #888888;
+    padding-right: 1em;
+    padding-left: 1em;
+}
+
+a{ 
+    text-decoration: none;
+    color: darkblue;
+}
+
+.stats{ padding-left: 1em;}
+.stats > div { display: inline-block;margin-right: 1em;}
+.stats-key{ display: inline-block;margin-right: 0.2em;text-transform: capitalize;}
+.stats-key:after{ content: ":";}
+.stats-value{ font-weight: bold;}
+
+.status-healthy { background-color: darkgreen;color: #eeeeee;}
+.status-faulty { background-color: darkred;color: #eeeeee;}
+.status-unhealthy { background-color: gold;}
+.status-timedOut { background-color: orangered;color: #eeeeee;}
+.status-offline { background-color: blue;color: #eeeeee;}
+.status-notRun { background-color: #111111;color: #eeeeee;}
+.status-notExists { background-color: #444444;color: #eeeeee;}
+
+table.endpoints{ border-spacing: 1em 0.2em;}
+table.endpoints td,table.endpoints th { text-align: left;}
+table.endpoints tr td:nth-child(4), table.endpoints td:nth-child(5) { text-align: right;}

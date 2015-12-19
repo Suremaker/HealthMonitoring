@@ -32,6 +32,11 @@ td > h1 {
     white-space: nowrap;
 }
 
+td > h1 > a {
+    color: inherit;
+    display: block;
+}
+
 td > img {
     width: 32px;
     height: 32px;

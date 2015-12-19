@@ -7,10 +7,12 @@ namespace HealthMonitoring.Configuration
     {
         private static readonly ILog Logger = LogManager.GetLogger<AppSettingsDashboardSettings>();
         public string Title { get; private set; }
+        public string Version { get; private set; }
 
         public AppSettingsDashboardSettings()
         {
             Title = GetValueOrDefault("Dashboard.Title", "Dashboard");
+            Version = GetType().Assembly.GetName().Version.ToString(4);
         }
 
         private string GetValueOrDefault(string name, string defaultValue)

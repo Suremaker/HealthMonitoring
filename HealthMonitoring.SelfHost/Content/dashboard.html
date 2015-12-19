@@ -5,14 +5,15 @@
     <title>Health Monitoring - dashboard</title>
     <link rel="icon" href="/static/favicon.ico">
     <script src="/static/angular.min.js"></script>
+    <script src="/static/functions.js"></script>
     <link rel="stylesheet" href="/static/dashboard.css">
 </head>
 <body ng-app="app" data-ng-controller="ctrl">
 <header>
     <table>
         <tr>
-            <td><img src="/static/favicon.ico#-moz-resolution=32,32" alt="icon" /></td>
-            <td><h1>{{dashSettings.Title}}</h1></td>
+            <td><img src="/static/favicon.svg" alt="icon" /></td>
+            <td><h1><a href="/">{{dashSettings.Title}}</a></h1></td>
             <td class="filter"><input type="text" placeholder="filter..." ng-model="filter" class="filter"/></td>
         </tr>
     </table>
@@ -21,7 +22,7 @@
         <a ng-repeat="e in endpoints| filter:filter | orderBy: ['Group','Name']" ng-class="getEndpointClassName(e)" class="endpoint" data-status="{{e.Status}}" data-changed="{{e.changed}}" href="/dashboard/details?id={{e.Id}}" target="_blank">
             <div>{{e.Group}}</div>
             <div>{{e.Name}}</div>
-            <div class="time">{{parseDuration(e.LastResponseTime)}}</div>
+            <div class="time">{{formatDuration(e.LastResponseTime)}}</div>
         </a>
     </div>
     <script>
@@ -63,26 +64,7 @@
                 return groupClassNames[endpoint.Group];
             };
 
-            $scope.parseDuration = function (timeSpan) {
-                if (timeSpan == null) {
-                    return "";
-                }
-
-                var parts = timeSpan.split(".");
-
-                var ms = 0;
-                if (parts.length > 1)
-                    ms = +(parts[1].substring(0, 3));
-
-                parts = parts[0].split(':');
-
-                var mul = 1000;
-                for (var i = parts.length - 1; i >= 0; --i) {
-                    ms += (+(parts[i])) * mul;
-                    mul *= 60;
-                }
-                return ms + ' ms';
-            }
+            $scope.formatDuration = formatDuration;
         });
 
         function updateEndpoints(endpoints, oldEndpoints) {
