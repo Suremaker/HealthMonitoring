@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.Http.Description;
 using HealthMonitoring.SelfHost.Entities;
 using Swashbuckle.Swagger.Annotations;
 
 namespace HealthMonitoring.SelfHost.Controllers
 {
+    [EnableCors(methods: "GET", origins: "*", headers: "*")]
     public class EndpointsController : ApiController
     {
         private readonly IEndpointRegistry _endpointRegistry;

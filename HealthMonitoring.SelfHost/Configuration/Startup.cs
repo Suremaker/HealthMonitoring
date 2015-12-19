@@ -23,6 +23,7 @@ namespace HealthMonitoring.SelfHost.Configuration
             ConfigureRoutes(config);
             ConfigureSwagger(config);
             ConfigureDependencies(config);
+            config.EnableCors();
             appBuilder.UseWebApi(config);
         }
 
