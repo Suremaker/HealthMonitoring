@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
@@ -21,6 +22,7 @@ namespace HealthMonitoring
         private readonly ManualResetEventSlim _onNewTask = new ManualResetEventSlim();
         private Task<Endpoint> _onNewEndpoint;
         private readonly IHealthSampler _sampler;
+        private readonly Random _randomizer = new Random();
 
         public EndpointMonitor(IEndpointRegistry registry, IHealthSampler sampler, IMonitorSettings settings)
         {
@@ -100,10 +102,10 @@ namespace HealthMonitoring
             return endpoint;
         }
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         private TimeSpan GetRandomizedDelay()
         {
-            var rand = new Random();
-            var delay = rand.NextDouble() * _settings.HealthCheckInterval.TotalMilliseconds;
+            var delay = _randomizer.NextDouble() * _settings.HealthCheckInterval.TotalMilliseconds;
             return TimeSpan.FromMilliseconds(delay);
         }
 

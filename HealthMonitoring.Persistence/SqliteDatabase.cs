@@ -25,7 +25,8 @@ namespace HealthMonitoring.Persistence
                 Pooling = true,
                 JournalMode = SQLiteJournalModeEnum.Wal,
                 DefaultIsolationLevel = IsolationLevel.ReadCommitted,
-                BusyTimeout = 10000
+                BusyTimeout = 10000,
+                SyncMode = SynchronizationModes.Normal
             }.ToString();
         }
 
