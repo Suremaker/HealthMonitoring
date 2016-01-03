@@ -32,7 +32,7 @@ namespace HealthMonitoring.Persistence
 
         public IDbConnection OpenConnection()
         {
-            return new SQLiteConnection(_connectionString).OpenAndReturn();
+            return new SQLiteConnection(_connectionString, true).OpenAndReturn();
         }
 
         private void CreateDatabaseIfNeeded()

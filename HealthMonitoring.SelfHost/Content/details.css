@@ -23,6 +23,15 @@ td:nth-of-type(2) {
   background-color: #bbbbbb;
 }
 
+.chartLoading {
+    margin-left: 20px;
+    visibility: hidden;
+}
+
+.chartLoading[data-pending="true"] {
+    visibility: visible;
+}
+
 .y {
   position:absolute;
   transform:rotate(-90deg);

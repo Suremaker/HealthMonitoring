@@ -26,15 +26,16 @@
     <tr ng-repeat="(key,value) in details.Details"><td>{{key}}:</td><td>{{value}}</td></tr>
 </table>
 <h1>Stats</h1>
-    <div class="chart" style="width:{{graph.width+2}}px; height:{{graph.height+2}}px;">
-        <!-- Labels -->
-        <div class="y" style="width:{{graph.height}}px;">Response Time: 0 ms - {{stats.maxDuration}} ms</div>
-        <div class="x">Time: {{formatDate(stats.newestTime)}} - {{formatDate(stats.oldestTime)}}</div>
-        <!-- Data -->
-        <svg style="width: {{graph.width}}px; height: {{graph.height}}px; " ng-mousemove="displayHint($event)" ng-mouseleave="currentStat=null">
-            <path ng-repeat="(k,v) in stats.paths" d="{{v.data}}" class="{{k}}"/>
-        </svg>
-    </div>
+<div class="chartLoading" data-pending="{{detailsLoading}}">Loading...</div>
+<div class="chart" style="width:{{graph.width+2}}px; height:{{graph.height+2}}px;">
+    <!-- Labels -->
+    <div class="y" style="width:{{graph.height}}px;">Response Time: 0 ms - {{stats.maxDuration}} ms</div>
+    <div class="x">Time: {{formatDate(stats.newestTime)}} - {{formatDate(stats.oldestTime)}}</div>
+    <!-- Data -->
+    <svg style="width: {{graph.width}}px; height: {{graph.height}}px; " ng-mousemove="displayHint($event)" ng-mouseleave="currentStat=null">
+        <path ng-repeat="(k,v) in stats.paths" d="{{v.data}}" class="{{k}}"/>
+    </svg>
+</div>
 <div class="legendBar">Legend: <div ng-repeat="(k,v) in stats.paths" class="status {{k}}">{{k}}</div></div>
 <div class="tooltip" ng-if="currentStat">
     <table>
@@ -54,15 +55,23 @@
 
         $scope.details = {};
         $scope.stats = {lines:[],paths:{}};
-        $scope.graph = { width: 800, height: 400};
+        $scope.graph = { width: 800, height: 400 };
+        $scope.detailsLoading = false;
 
-        $scope.updateDetails = function() {
+        $scope.updateDetails = function () {
+
+            if ($scope.detailsLoading)
+                return;
+
+            $scope.detailsLoading = true;
             $http.get("/api/endpoints/" + $location.search().id)
                 .success(function(response) {
                     $scope.details = response;
+                    $scope.detailsLoading = false;
                 })
                 .error(function(data, status) {
                     $scope.details = {};
+                    $scope.detailsLoading = false;
                 });
         };
 
