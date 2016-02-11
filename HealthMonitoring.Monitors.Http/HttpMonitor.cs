@@ -10,6 +10,11 @@ namespace HealthMonitoring.Monitors.Http
     {
         private readonly string _name;
 
+        static HttpMonitor()
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls | SecurityProtocolType.Ssl3;
+        }
+
         public HttpMonitor() : this("http") { }
 
         protected HttpMonitor(string name)
