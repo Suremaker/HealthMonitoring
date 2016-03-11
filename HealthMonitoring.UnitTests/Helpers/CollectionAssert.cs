@@ -10,10 +10,12 @@ namespace HealthMonitoring.UnitTests.Helpers
         {
             var expectedArray = expected.ToArray();
             var actualArray = actual.ToArray();
-            Assert.True(expectedArray.Length == actualArray.Length, string.Format("Collections size are not equal - expected: {0}, got: {1}\nExpected collection: {2}\nActual collection: {3}", expectedArray.Length, actualArray.Length, expectedArray, actualArray));
+            Assert.True(expectedArray.Length == actualArray.Length,
+                $"Collections size are not equal - expected: {expectedArray.Length}, got: {actualArray.Length}\nExpected collection: {expectedArray}\nActual collection: {actualArray}");
             var actualList = actualArray.ToList();
             foreach (var expectedItem in expectedArray)
-                Assert.True(actualList.Remove(expectedItem), string.Format("Actual collection does not have element: {0}\nExpected collection: {1}\nActual collection: {2}", expectedItem, expectedArray, actualArray));
+                Assert.True(actualList.Remove(expectedItem),
+                    $"Actual collection does not have element: {expectedItem}\nExpected collection: {expectedArray}\nActual collection: {actualArray}");
         }
     }
 }

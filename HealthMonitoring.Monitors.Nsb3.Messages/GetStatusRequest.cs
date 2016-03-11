@@ -10,7 +10,7 @@ namespace HealthMonitoring.Monitors.Nsb3.Messages
 
         public override string ToString()
         {
-            return string.Format("{0} - RequestId={1}", GetType(), RequestId);
+            return $"{GetType()} - RequestId={RequestId}";
         }
     }
 }

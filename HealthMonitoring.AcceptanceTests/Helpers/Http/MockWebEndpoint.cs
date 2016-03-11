@@ -14,13 +14,13 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Http
     class MockWebEndpoint : IDisposable
     {
         private MockedHttpServer _server;
-        public string Address { get; private set; }
+        public string Address { get; }
 
-        public string StatusAddress { get { return Address + "status"; } }
+        public string StatusAddress => Address + "status";
 
         public MockWebEndpoint(int port)
         {
-            Address = string.Format("http://localhost:{0}/", port);
+            Address = $"http://localhost:{port}/";
             _server = StartServer(port);
         }
 
@@ -43,7 +43,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Http
         private void MakeNamespaceReservation(int port)
         {
             var windowsIdentity = WindowsIdentity.GetCurrent();
-            var args = string.Format("http add urlacl url=http://+:{0}/ user={1}", port, windowsIdentity.Name);
+            var args = $"http add urlacl url=http://+:{port}/ user={windowsIdentity.Name}";
             var startInfo = new ProcessStartInfo("netsh", args)
             {
                 Verb = "runas",
@@ -53,7 +53,8 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Http
             process.WaitForExit();
 
             if (process.ExitCode != 0)
-                throw new InvalidOperationException(string.Format("Unable to make namespace reservation for port {0}. Exit code:{1}", port, process.ExitCode));
+                throw new InvalidOperationException(
+                    $"Unable to make namespace reservation for port {port}. Exit code:{process.ExitCode}");
         }
 
         public void Dispose()

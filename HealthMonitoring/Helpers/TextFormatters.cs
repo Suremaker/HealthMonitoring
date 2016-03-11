@@ -7,7 +7,8 @@ namespace HealthMonitoring.Helpers
     {
         public static string PrettyFormatDetails(this EndpointHealth endpointHealth)
         {
-            return string.Join(", ", endpointHealth.Details.Select(kv => string.Format("{0}={1}", kv.Key, PrettyFormatLongText(kv.Value, 128))));
+            return string.Join(", ", endpointHealth.Details.Select(kv =>
+                $"{kv.Key}={PrettyFormatLongText(kv.Value, 128)}"));
         }
 
         private static string PrettyFormatLongText(this string text, int maxLength)

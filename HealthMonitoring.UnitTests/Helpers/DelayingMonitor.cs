@@ -14,7 +14,8 @@ namespace HealthMonitoring.UnitTests.Helpers
             _delay = delay;
         }
 
-        public string Name { get { return "delaying"; } }
+        public string Name => "delaying";
+
         public async Task<HealthInfo> CheckHealthAsync(string address, CancellationToken cancellationToken)
         {
             await Task.Delay(_delay, cancellationToken);

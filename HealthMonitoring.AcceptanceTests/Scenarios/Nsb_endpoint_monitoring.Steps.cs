@@ -95,7 +95,8 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         {
             Assert.True(_details.Details.ContainsKey("reason"), "Reason field should be set");
             var reason = _details.Details["reason"];
-            Assert.True(Regex.IsMatch(reason, "^The destination queue 'unreachable@.+' could not be found.+"), string.Format("Reason field is invalid: {0}", reason));
+            Assert.True(Regex.IsMatch(reason, "^The destination queue 'unreachable@.+' could not be found.+"),
+                $"Reason field is invalid: {reason}");
         }
 
         private void Then_the_endpoint_additional_details_should_be_provided()
@@ -110,8 +111,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
 
         public void Dispose()
         {
-            if (_process != null)
-                _process.Kill();
+            _process?.Kill();
         }
 
         private void When_more_time_pass()

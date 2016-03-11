@@ -11,7 +11,7 @@ namespace HealthMonitoring.SelfHost.Controllers
 {
     public class StaticController : ApiController
     {
-        private static readonly string InstanceTag = string.Format("\"{0}\"", Guid.NewGuid());
+        private static readonly string InstanceTag = $"\"{Guid.NewGuid()}\"";
 
         [Route("dashboard")]
         [SwaggerResponse(HttpStatusCode.OK)]
@@ -19,7 +19,7 @@ namespace HealthMonitoring.SelfHost.Controllers
         [SwaggerResponse(HttpStatusCode.NotModified)]
         public HttpResponseMessage GetDashboard()
         {
-            return ReturnFileContent("dashboard.html");
+            return ReturnFileContent("Dashboard", "dashboard.html");
         }
 
         [Route("dashboard/details")]
@@ -28,7 +28,7 @@ namespace HealthMonitoring.SelfHost.Controllers
         [SwaggerResponse(HttpStatusCode.NotModified)]
         public HttpResponseMessage GetEndpointDetails()
         {
-            return ReturnFileContent("details.html");
+            return ReturnFileContent("Details", "details.html");
         }
 
         [Route("")]
@@ -37,24 +37,24 @@ namespace HealthMonitoring.SelfHost.Controllers
         [SwaggerResponse(HttpStatusCode.NotModified)]
         public HttpResponseMessage GetHome()
         {
-            return ReturnFileContent("home.html");
+            return ReturnFileContent("Home", "home.html");
         }
 
-        [Route("static/{file}")]
+        [Route("static/{directory}/{file}")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
         [SwaggerResponse(HttpStatusCode.NotModified)]
-        public HttpResponseMessage GetStatic(string file)
+        public HttpResponseMessage GetStatic(string directory, string file)
         {
-            return ReturnFileContent(file);
+            return ReturnFileContent(directory, file);
         }
 
-        private HttpResponseMessage ReturnFileContent(string file)
+        private HttpResponseMessage ReturnFileContent(string directory, string file)
         {
             if (Request.Headers.IfNoneMatch.Any(t => t.Tag == InstanceTag))
                 return new HttpResponseMessage(HttpStatusCode.NotModified);
 
-            var stream = GetCustomStream(file) ?? GetDefaultStream(file);
+            var stream = GetCustomStream(directory, file) ?? GetDefaultStream(directory, file);
             if (stream == null)
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
 
@@ -68,16 +68,18 @@ namespace HealthMonitoring.SelfHost.Controllers
             return response;
         }
 
-        protected virtual Stream GetCustomStream(string file)
+        protected virtual Stream GetCustomStream(string directory, string file)
         {
-            var path = "content\\" + file;
+            var path = $"content\\{directory}\\{file}";
             return File.Exists(path) ? File.OpenRead(path) : null;
         }
 
-        private static Stream GetDefaultStream(string file)
+        private static Stream GetDefaultStream(string directory, string file)
         {
-            var path = string.Format("HealthMonitoring.SelfHost.Content.{0}", file);
-            var stream = typeof(StaticController).Assembly.GetManifestResourceStream(path);
+            var path = $"HealthMonitoring.SelfHost.Content.{directory}.{file}";
+            var assembly = typeof(StaticController).Assembly;
+            var assemblyPath = assembly.GetManifestResourceNames().FirstOrDefault(n => n.Equals(path, StringComparison.OrdinalIgnoreCase)) ?? path;
+            var stream = assembly.GetManifestResourceStream(assemblyPath);
             return stream;
         }
 

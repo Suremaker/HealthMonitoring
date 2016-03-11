@@ -9,9 +9,7 @@ namespace HealthMonitoring.Monitors.Nsb3
         public static event Action<GetStatusResponse> OnResponse;
         public void Handle(GetStatusResponse message)
         {
-            var handler = OnResponse;
-            if (handler != null)
-                handler.Invoke(message);
+            OnResponse?.Invoke(message);
         }
     }
 }

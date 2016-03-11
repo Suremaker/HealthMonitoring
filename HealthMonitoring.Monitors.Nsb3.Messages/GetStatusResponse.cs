@@ -15,9 +15,9 @@ namespace HealthMonitoring.Monitors.Nsb3.Messages
         {
             var details = string.Empty;
             if (Details != null)
-                details = string.Join(", ", Details.Select(d => string.Format("{0}={1}", d.Key, d.Value)));
+                details = string.Join(", ", Details.Select(d => $"{d.Key}={d.Value}"));
 
-            return string.Format("{0} - RequestId={1}, Details={2}", GetType(), RequestId, details);
+            return $"{GetType()} - RequestId={RequestId}, Details={details}";
         }
     }
 }

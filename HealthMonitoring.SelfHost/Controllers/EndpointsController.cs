@@ -33,7 +33,7 @@ namespace HealthMonitoring.SelfHost.Controllers
             {
                 var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name);
 
-                return Created(new Uri(Request.RequestUri, string.Format("/api/endpoints/{0}", id)), id);
+                return Created(new Uri(Request.RequestUri, $"/api/endpoints/{id}"), id);
             }
             catch (UnsupportedMonitorException e)
             {

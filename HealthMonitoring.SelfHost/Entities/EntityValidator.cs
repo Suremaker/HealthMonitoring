@@ -8,7 +8,7 @@ namespace HealthMonitoring.SelfHost.Entities
         public static void ValidateModel(this object model)
         {
             if (model == null)
-                throw new ArgumentNullException("model");
+                throw new ArgumentNullException(nameof(model));
             Validator.ValidateObject(model, new ValidationContext(model));
         }
     }

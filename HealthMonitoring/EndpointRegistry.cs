@@ -72,7 +72,7 @@ namespace HealthMonitoring
 
         private static string GetKey(string monitor, string address)
         {
-            return string.Format("{0}|{1}", monitor, address.ToLowerInvariant());
+            return $"{monitor}|{address.ToLowerInvariant()}";
         }
     }
 }

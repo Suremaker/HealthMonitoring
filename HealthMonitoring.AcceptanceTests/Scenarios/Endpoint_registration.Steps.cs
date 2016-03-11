@@ -37,7 +37,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             _response.VerifyValidStatus(HttpStatusCode.Created);
             _identifier = JsonConvert.DeserializeObject<Guid>(_response.Content);
             Assert.NotEqual(Guid.Empty, _identifier);
-            _response.VerifyLocationHeader(string.Format("api/endpoints/{0}", _identifier));
+            _response.VerifyLocationHeader($"api/endpoints/{_identifier}");
         }
 
         private void When_client_requests_endpoint_details_via_url(string url)
@@ -61,7 +61,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
 
         private void When_client_requests_endpoint_details_for_inexistent_endpoint_identifier()
         {
-            When_client_requests_endpoint_details_via_url(string.Format("api/endpoints/{0}", Guid.NewGuid()));
+            When_client_requests_endpoint_details_via_url($"api/endpoints/{Guid.NewGuid()}");
         }
 
         private void Then_status_should_be_returned(HttpStatusCode status)
@@ -106,7 +106,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
 
         private void When_client_requests_endpoint_deletion_for_inexistent_endpoint_identifier()
         {
-            When_client_requests_endpoint_deletion_via_url(string.Format("api/endpoints/{0}", Guid.NewGuid()));
+            When_client_requests_endpoint_deletion_via_url($"api/endpoints/{Guid.NewGuid()}");
         }
     }
 }

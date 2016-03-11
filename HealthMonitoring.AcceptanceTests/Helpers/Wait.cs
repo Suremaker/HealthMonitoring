@@ -18,7 +18,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
                     return value;
                 Thread.Sleep(100);
             }
-            throw new TimeoutException(string.Format("{0}, Last value: {1}", errorMessage, value));
+            throw new TimeoutException($"{errorMessage}, Last value: {value}");
         }
     }
 }

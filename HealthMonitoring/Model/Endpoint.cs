@@ -20,9 +20,9 @@ namespace HealthMonitoring.Model
 
         public Guid Id { get; private set; }
         public string Name { get; private set; }
-        public string Address { get; private set; }
-        public string MonitorType { get { return _monitor.Name; } }
-        public IHealthMonitor Monitor{ get { return _monitor; } }
+        public string Address { get; }
+        public string MonitorType => _monitor.Name;
+        public IHealthMonitor Monitor => _monitor;
         public string Group { get; private set; }
         public bool IsDisposed { get; private set; }
         public EndpointHealth Health { get; private set; }
@@ -46,7 +46,7 @@ namespace HealthMonitoring.Model
 
         public override string ToString()
         {
-            return string.Format("{0}/{1} ({2}: {3})", Group, Name, MonitorType, Address);
+            return $"{Group}/{Name} ({MonitorType}: {Address})";
         }
     }
 }

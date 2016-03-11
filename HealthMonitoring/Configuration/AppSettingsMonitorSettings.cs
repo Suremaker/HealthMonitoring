@@ -7,11 +7,11 @@ namespace HealthMonitoring.Configuration
     public class AppSettingsMonitorSettings : IMonitorSettings
     {
         private static readonly ILog Logger = LogManager.GetLogger<AppSettingsMonitorSettings>();
-        public TimeSpan HealthCheckInterval { get; private set; }
-        public TimeSpan HealthyResponseTimeLimit { get; private set; }
-        public TimeSpan ShortTimeOut { get; private set; }
-        public TimeSpan FailureTimeOut { get; private set; }
-        public TimeSpan StatsHistoryMaxAge { get; private set; }
+        public TimeSpan HealthCheckInterval { get; }
+        public TimeSpan HealthyResponseTimeLimit { get; }
+        public TimeSpan ShortTimeOut { get; }
+        public TimeSpan FailureTimeOut { get; }
+        public TimeSpan StatsHistoryMaxAge { get; }
 
         public AppSettingsMonitorSettings()
         {

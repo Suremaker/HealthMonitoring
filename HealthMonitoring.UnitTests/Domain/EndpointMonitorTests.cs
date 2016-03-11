@@ -50,9 +50,10 @@ namespace HealthMonitoring.UnitTests.Domain
             var a2 = _testableHealthMonitor.Calls.Where(c => c.Item1 == "address2").ToArray();
             var a3 = _testableHealthMonitor.Calls.Where(c => c.Item1 == "address3").ToArray();
 
-            Assert.True(a1.Length > 1, string.Format("Expected more than 1 check of address1, got: {0}", a1.Length));
-            Assert.True(a1.Length < a2.Length, string.Format("Expected less checks of address1 than address 2, got: address1={0}, address2={1}", a1.Length, a2.Length));
-            Assert.True(a3.Length > 1, string.Format("Expected more than 1 check of address3, got: {0}", a3.Length));
+            Assert.True(a1.Length > 1, $"Expected more than 1 check of address1, got: {a1.Length}");
+            Assert.True(a1.Length < a2.Length,
+                $"Expected less checks of address1 than address 2, got: address1={a1.Length}, address2={a2.Length}");
+            Assert.True(a3.Length > 1, $"Expected more than 1 check of address3, got: {a3.Length}");
         }
 
         [Theory]
@@ -81,7 +82,8 @@ namespace HealthMonitoring.UnitTests.Domain
 
                 var margin = TimeSpan.FromMilliseconds(50);
                 var expected = TimeSpan.FromMilliseconds(expectedIntervalInMs);
-                Assert.True((diff - expected).Duration() < margin, string.Format("Expected interval {0}ms ~ {1}ms, got {2}ms", expected.TotalMilliseconds, margin.TotalMilliseconds, diff.TotalMilliseconds));
+                Assert.True((diff - expected).Duration() < margin,
+                    $"Expected interval {expected.TotalMilliseconds}ms ~ {margin.TotalMilliseconds}ms, got {diff.TotalMilliseconds}ms");
             }
         }
 

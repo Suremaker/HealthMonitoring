@@ -65,7 +65,7 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
 
             Assert.NotNull(response);
             Assert.Equal(id, response.Content);
-            Assert.Equal(string.Format("http://localhost:9090/api/endpoints/{0}", id), response.Location.ToString());
+            Assert.Equal($"http://localhost:9090/api/endpoints/{id}", response.Location.ToString());
         }
 
         [Fact]

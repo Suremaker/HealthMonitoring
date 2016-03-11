@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Health Monitoring - dashboard</title>
+    <link rel="icon" href="/static/assets/favicon.ico">
+    <script src="/static/scripts/angular.min.js"></script>
+    <script src="/static/scripts/functions.js"></script>
+    <link rel="stylesheet" href="/static/dashboard/dashboard.css">
+</head>
+<body ng-app="app" data-ng-controller="ctrl">
+<header>
+    <table>
+        <tr>
+            <td><img src="/static/assets/favicon.svg" alt="icon" /></td>
+            <td><h1><a href="/">{{dashSettings.Title}}</a></h1></td>
+            <td class="toolbar">
+                <input type="text" placeholder="filter..." ng-model="filter" class="filter"/>
+            </td>
+        </tr>
+    </table>
+</header>
+    <div class="board">
+        <a ng-repeat="e in endpoints| filter:filter | orderBy: ['Group','Name']" ng-class="getEndpointClassName(e)" class="endpoint" data-status="{{e.Status}}" data-changed="{{e.changed}}" href="/dashboard/details?id={{e.Id}}" target="_blank">
+            <div>{{e.Group}}</div>
+            <div>{{e.Name}}</div>
+            <div class="time">{{formatDuration(e.LastResponseTime)}}</div>
+        </a>
+    </div>
+    <script>
+        var app = angular.module('app', []);
+        app.controller('ctrl', function ($scope, $http) {
+            var groupClassNames = {};
+
+            $scope.endpoints = [];
+            $scope.dashSettings = { Title: "Health Monitor" };
+
+            $scope.getConfig = function () {
+                $http.get("/api/config")
+                    .success(function (response) {
+                        $scope.dashSettings = response.Dashboard;
+                    })
+                    .error(function (data, status) {
+                        //do nothing
+                    });
+            }
+
+            $scope.update = function () {
+                $http.get("/api/endpoints")
+                  .success(function (response) {
+                      $scope.endpoints = updateEndpoints(response, $scope.endpoints);
+                  })
+                  .error(function (data, status) {
+                      $scope.endpoints = [];
+                  });
+            };
+            $scope.getConfig();
+            $scope.update();
+            setInterval($scope.update, 1000);
+            setInterval($scope.getConfig, 20000);
+
+            $scope.getEndpointClassName = function (endpoint) {
+                if (!groupClassNames[endpoint.Group]) {
+                    groupClassNames[endpoint.Group] = 'group' + (Object.keys(groupClassNames).length % 3 + 1);
+                }
+                return groupClassNames[endpoint.Group];
+            };
+
+            $scope.formatDuration = formatDuration;
+        });
+
+        function updateEndpoints(endpoints, oldEndpoints) {
+            for (var i = 0; i < endpoints.length; ++i) {
+                endpoints[i].changed = true;
+
+                for (var j = 0; j < oldEndpoints.length; ++j) {
+                    if (endpoints[i].Id === oldEndpoints[j].Id) {
+                        endpoints[i].changed = (endpoints[i].LastCheckUtc !== oldEndpoints[j].LastCheckUtc);
+                        break;
+                    }
+                }
+            }
+            return endpoints;
+        }
+    </script>
+</body>
+</html>

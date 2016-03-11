@@ -153,42 +153,42 @@
   <ItemGroup>
     <None Include="App.config" />
     <EmbeddedResource Include="..\icons\favicon.ico">
-      <Link>Content\favicon.ico</Link>
+      <Link>Content\Assets\favicon.ico</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\angular.min.js" />
-    <EmbeddedResource Include="Content\home.html" />
-    <EmbeddedResource Include="Content\dashboard.html" />
-    <EmbeddedResource Include="Content\swagger.html" />
-    <EmbeddedResource Include="Content\dashboard.css" />
-    <EmbeddedResource Include="Content\details.html" />
-    <EmbeddedResource Include="Content\details.css" />
+    <EmbeddedResource Include="Content\Scripts\angular.min.js" />
+    <EmbeddedResource Include="Content\Home\home.html" />
+    <EmbeddedResource Include="Content\Dashboard\dashboard.html" />
+    <EmbeddedResource Include="Content\Swagger\swagger.html" />
+    <EmbeddedResource Include="Content\Dashboard\dashboard.css" />
+    <EmbeddedResource Include="Content\Details\details.html" />
+    <EmbeddedResource Include="Content\Details\details.css" />
     <EmbeddedResource Include="..\icons\faulty.svg">
-      <Link>Content\faulty.svg</Link>
+      <Link>Content\Assets\faulty.svg</Link>
     </EmbeddedResource>
     <EmbeddedResource Include="..\icons\healthy.svg">
-      <Link>Content\healthy.svg</Link>
+      <Link>Content\Assets\healthy.svg</Link>
     </EmbeddedResource>
     <EmbeddedResource Include="..\icons\notRun.svg">
-      <Link>Content\notRun.svg</Link>
+      <Link>Content\Assets\notRun.svg</Link>
     </EmbeddedResource>
     <EmbeddedResource Include="..\icons\offline.svg">
-      <Link>Content\offline.svg</Link>
+      <Link>Content\Assets\offline.svg</Link>
     </EmbeddedResource>
     <EmbeddedResource Include="..\icons\unhealthy.svg">
-      <Link>Content\unhealthy.svg</Link>
+      <Link>Content\Assets\unhealthy.svg</Link>
     </EmbeddedResource>
     <EmbeddedResource Include="..\icons\timedOut.svg">
-      <Link>Content\timedOut.svg</Link>
+      <Link>Content\Assets\timedOut.svg</Link>
     </EmbeddedResource>
     <EmbeddedResource Include="..\icons\notExists.svg">
-      <Link>Content\notExists.svg</Link>
+      <Link>Content\Assets\notExists.svg</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\home.css" />
+    <EmbeddedResource Include="Content\Home\home.css" />
     <EmbeddedResource Include="..\icons\favicon.svg">
-      <Link>Content\favicon.svg</Link>
+      <Link>Content\Assets\favicon.svg</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\angular-filter.min.js" />
-    <EmbeddedResource Include="Content\functions.js" />
+    <EmbeddedResource Include="Content\Scripts\angular-filter.min.js" />
+    <EmbeddedResource Include="Content\Scripts\functions.js" />
     <Content Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

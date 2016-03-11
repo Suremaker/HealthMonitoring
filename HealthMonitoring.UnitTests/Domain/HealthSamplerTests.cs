@@ -228,7 +228,8 @@ namespace HealthMonitoring.UnitTests.Domain
         {
             var delta = TimeSpan.FromMilliseconds(100);
             var difference = result.ResponseTime - expectedTime;
-            Assert.True(difference.Duration() < delta, string.Format("Expected ResponseTime being {0} ~ {1}ms, got: {2}", expectedTime, delta.TotalMilliseconds, result.ResponseTime));
+            Assert.True(difference.Duration() < delta,
+                $"Expected ResponseTime being {expectedTime} ~ {delta.TotalMilliseconds}ms, got: {result.ResponseTime}");
         }
 
         private static void AssertCheckTime(EndpointHealth result)
@@ -237,7 +238,8 @@ namespace HealthMonitoring.UnitTests.Domain
             var delta = TimeSpan.FromMilliseconds(100);
             var dateFormat = "yyyy-MM-dd HH:mm:ss.fff";
             var difference = (now - result.CheckTimeUtc) - result.ResponseTime;
-            Assert.True(difference.Duration() < delta, string.Format("Expected CheckTimeUtc being {0} ~ {1}ms, got: {2}", (now - result.ResponseTime).ToString(dateFormat), delta.TotalMilliseconds, result.CheckTimeUtc.ToString(dateFormat)));
+            Assert.True(difference.Duration() < delta,
+                $"Expected CheckTimeUtc being {(now - result.ResponseTime).ToString(dateFormat)} ~ {delta.TotalMilliseconds}ms, got: {result.CheckTimeUtc.ToString(dateFormat)}");
         }
 
         private void SetupDefaultTimeouts()

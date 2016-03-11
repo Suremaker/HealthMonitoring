@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html>
+<html ng-app="app" data-ng-controller="ctrl">
+<head>
+    <meta charset="utf-8">
+    <title>Health Monitoring - {{details.Group}}:{{details.Name}}</title>
+    <link rel="icon" href="/static/assets/favicon.ico">
+    <script src="/static/scripts/angular.min.js"></script>
+    <script src="/static/scripts/functions.js"></script>
+    <link rel="stylesheet" href="/static/details/details.css">
+    <base href="/dashboard" target="_blank"/>
+</head>
+<body>
+<h1>Endpoint</h1>
+<table>
+    <tr><td>Id:</td><td>{{details.Id}}</td></tr>
+    <tr><td>Group:</td><td>{{details.Group}}</td></tr>
+    <tr><td>Name:</td><td>{{details.Name}}</td></tr>
+    <tr><td>Address:</td><td>{{details.Address}}</td></tr>
+    <tr><td>Monitor Type:</td><td>{{details.MonitorType}}</td></tr>
+    <tr><td>Status:</td><td class="status {{details.Status}}">{{details.Status}}</td></tr>
+    <tr><td>Last Check:</td><td>{{formatDate(details.LastCheckUtc)}}</td></tr>
+    <tr><td>Last Response Time:</td><td>{{formatDuration(details.LastResponseTime)}}</td></tr>
+</table>
+<h1>Details</h1>
+<table>
+    <tr ng-repeat="(key,value) in details.Details"><td>{{key}}:</td><td>{{value}}</td></tr>
+</table>
+<h1>Stats</h1>
+<div class="chartLoading" data-pending="{{statsLoading}}">Loading...</div>
+<div class="chart" style="width:{{graph.width+2}}px; height:{{graph.height+2}}px;">
+    <!-- Labels -->
+    <div class="y" style="width:{{graph.height}}px;">Response Time: 0 ms - {{stats.maxDuration}} ms</div>
+    <div class="x">Time: {{formatDate(stats.newestTime)}} - {{formatDate(stats.oldestTime)}}</div>
+    <!-- Data -->
+    <svg style="width: {{graph.width}}px; height: {{graph.height}}px; " ng-mousemove="displayHint($event)" ng-mouseleave="currentStat=null">
+        <path ng-repeat="(k,v) in stats.paths" d="{{v.data}}" class="{{k}}"/>
+    </svg>
+</div>
+<div class="legendBar">Legend: <div ng-repeat="(k,v) in stats.paths" class="status {{k}}">{{k}}</div></div>
+<div class="tooltip" ng-if="currentStat">
+    <table>
+        <tr><td>Check Time:</td><td>{{formatDate(currentStat.time)}}</td></tr>
+        <tr><td>Response Time:</td><td>{{formatDuration(currentStat.duration)}}</td></tr>
+        <tr><td>Status:</td><td class="status {{currentStat.status}}">{{currentStat.status}}</td></tr>
+    </table>
+</div>
+<script>
+    var app = angular.module('app', []);
+
+    app.config(function ($locationProvider) {
+        $locationProvider.html5Mode(true);
+    });
+
+    app.controller('ctrl', function ($scope, $http, $location) {
+
+        $scope.details = {};
+        $scope.stats = {lines:[],paths:{}};
+        $scope.graph = { width: 800, height: 400 };
+        $scope.statsLoading = false;
+
+        $scope.updateDetails = function () {
+
+            $http.get("/api/endpoints/" + $location.search().id)
+                .success(function(response) {
+                    $scope.details = response;
+                })
+                .error(function(data, status) {
+                    $scope.details = {};
+                });
+        };
+
+        function buildPaths(lines, maxDuration, graphDims) {
+
+            var paths = {};
+
+            for (var i = 0; i < lines.length; ++i) {
+                var point = lines[i];
+                var path = paths[point.status];
+                if (path == null) {
+                    paths[point.status] = path =  { data: "", last: -1 }
+                };
+
+                var ox = (i+1) * graphDims.width / lines.length;
+                var nx = i * graphDims.width / lines.length;
+                var ny = point.value * graphDims.height / maxDuration;
+                var oy = (i+1<lines.length) ? (lines[i+1].value * graphDims.height / maxDuration) : ny;
+                if (path.last !== ox) {
+                    path.data += "M " + ox + " " + oy + " ";
+                }
+                path.data += "L " + nx + " " + ny + " ";
+                path.last = nx;
+            }
+            return paths;
+        }
+
+        function convert(stats,graphDims) {
+            var maxDuration = 1;
+            var lines = [];
+            var oldestTime = null;
+            var newestTime = null;
+
+            for (var i = stats.length - 1; i >=0; --i) {
+                var stat = stats[i];
+                var duration = parseDuration(stat.ResponseTime);
+                if (maxDuration < duration) {
+                    maxDuration = duration;
+                }
+                lines.push({ status: stat.Status, value: duration, duration: stat.ResponseTime, time: stat.CheckTimeUtc });
+            }
+
+            if (lines.length > 0) {
+                newestTime = lines[0].time;
+                oldestTime = lines[lines.length - 1].time;
+            }
+
+            return { lines: lines, maxDuration: maxDuration, newestTime: newestTime, oldestTime: oldestTime, paths: buildPaths(lines, maxDuration, graphDims) };
+        }
+
+        $scope.updateStats = function () {
+
+            if ($scope.statsLoading)
+                return;
+
+            $scope.statsLoading = true;
+
+            $http.get("/api/endpoints/" + $location.search().id + "/stats?limitDays=1")
+                .success(function (response) {
+                    $scope.graph.width = Math.max(800, response.length);
+                    $scope.stats = convert(response, $scope.graph);
+                    $scope.statsLoading = false;
+                })
+                .error(function(data, status) {
+                    $scope.stats = { lines: [], paths: {}, maxDuration: 0 };
+                    $scope.statsLoading = false;
+                });
+        };
+
+        $scope.update = function() {
+            $scope.updateDetails();
+            $scope.updateStats();
+        }
+
+        $scope.parseDuration = parseDuration;
+        $scope.formatDate = formatDate;
+        $scope.formatDuration = formatDuration;
+
+        $scope.displayHint = function ($evt) {
+            var index = Math.floor($evt.offsetX * $scope.stats.lines.length / $scope.graph.width);
+            $scope.currentStat = (index < $scope.stats.lines.length) ? $scope.stats.lines[index] : null;
+            $scope.toolTipPosition = { x: $evt.clientX, y: $evt.clientY };
+        };
+
+        $scope.update();
+        setInterval($scope.update, 3000);
+    });
+</script>
+</body>
+</html>

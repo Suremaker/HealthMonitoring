@@ -8,3 +8,4 @@ packages/
 make/psmake.*
 reports/
 *.nupkg
+.vs

@@ -71,7 +71,8 @@ namespace HealthMonitoring.UnitTests.Domain
 
     internal class TestHealthMonitor : IHealthMonitor
     {
-        public string Name { get { return "test"; } }
+        public string Name => "test";
+
         public Task<HealthInfo> CheckHealthAsync(string address, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
@@ -80,7 +81,7 @@ namespace HealthMonitoring.UnitTests.Domain
 
     internal class TestHealthMonitor2 : IHealthMonitor
     {
-        public string Name { get { return "test"; } }
+        public string Name => "test";
 
         public Task<HealthInfo> CheckHealthAsync(string address, CancellationToken cancellationToken)
         {

@@ -6,8 +6,8 @@ namespace HealthMonitoring.Configuration
     public class AppSettingsDashboardSettings : IDashboardSettings
     {
         private static readonly ILog Logger = LogManager.GetLogger<AppSettingsDashboardSettings>();
-        public string Title { get; private set; }
-        public string Version { get; private set; }
+        public string Title { get; }
+        public string Version { get; }
 
         public AppSettingsDashboardSettings()
         {

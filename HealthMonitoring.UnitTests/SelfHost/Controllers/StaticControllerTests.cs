@@ -35,14 +35,14 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         }
 
         [Theory]
-        [InlineData("favicon.ico", "image/x-icon")]
-        [InlineData("dashboard.css", "text/css")]
-        [InlineData("angular.min.js", "application/javascript")]
-        [InlineData("favicon.svg", "image/svg+xml")]
-        public void GetStatic_should_return_content(string path, string mediaType)
+        [InlineData("assets", "favicon.ico", "image/x-icon")]
+        [InlineData("dashboard", "dashboard.css", "text/css")]
+        [InlineData("scripts", "angular.min.js", "application/javascript")]
+        [InlineData("assets", "favicon.svg", "image/svg+xml")]
+        public void GetStatic_should_return_content(string directory, string file, string mediaType)
         {
             var controller = CreateController();
-            var response = controller.GetStatic(path);
+            var response = controller.GetStatic(directory, file);
             AssertValidFile(response, mediaType);
         }
 
@@ -50,26 +50,26 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         public void GetStatic_should_return_content_with_static_ETag_and_NotModified_status_code()
         {
             var controller = CreateController();
-            var response1 = controller.GetStatic("favicon.ico");
+            var response1 = controller.GetStatic("assets", "favicon.ico");
             Assert.NotEmpty(response1.Headers.ETag.Tag);
 
             controller.Request.Headers.IfNoneMatch.Add(response1.Headers.ETag);
-            var response2 = controller.GetStatic("favicon.ico");
+            var response2 = controller.GetStatic("assets", "favicon.ico");
 
             Assert.Equal(HttpStatusCode.NotModified, response2.StatusCode);
         }
 
         [Theory]
-        [InlineData("image.gif", "image/gif")]
-        [InlineData("image.png", "image/png")]
-        [InlineData("image.jpg", "image/jpeg")]
-        [InlineData("image.jpeg", "image/jpeg")]
-        public void GetStatic_should_return_custom_content(string path, string mediaType)
+        [InlineData("assets", "image.gif", "image/gif")]
+        [InlineData("assets", "image.png", "image/png")]
+        [InlineData("assets", "image.jpg", "image/jpeg")]
+        [InlineData("assets", "image.jpeg", "image/jpeg")]
+        public void GetStatic_should_return_custom_content(string directory, string path, string mediaType)
         {
             var controller = new Mock<StaticController>();
-            controller.Protected().Setup<Stream>("GetCustomStream", path).Returns(new MemoryStream(new[] { (byte)1 }));
+            controller.Protected().Setup<Stream>("GetCustomStream", directory, path).Returns(new MemoryStream(new[] { (byte)1 }));
             controller.Object.Request = new HttpRequestMessage();
-            var response = controller.Object.GetStatic(path);
+            var response = controller.Object.GetStatic(directory, path);
             AssertValidFile(response, mediaType);
         }
 
@@ -77,7 +77,7 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         public void GetStatic_should_return_404_for_not_known_files()
         {
             var controller = CreateController();
-            var response = controller.GetStatic("something.png");
+            var response = controller.GetStatic("assets", "something.png");
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 

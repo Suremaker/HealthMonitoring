@@ -16,9 +16,8 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Entities
 
         public override string ToString()
         {
-            return string.Format(
-                    "Name: {0}, Address: {1}, MonitorType: {2}, Group: {3}, Status: {4}, LastCheckUtc: {5}, LastResponseTime: {6}, Details: {7}",
-                    Name, Address, MonitorType, Group, Status, LastCheckUtc, LastResponseTime, Details);
+            return
+                $"Name: {Name}, Address: {Address}, MonitorType: {MonitorType}, Group: {Group}, Status: {Status}, LastCheckUtc: {LastCheckUtc}, LastResponseTime: {LastResponseTime}, Details: {Details}";
         }
     }
 }

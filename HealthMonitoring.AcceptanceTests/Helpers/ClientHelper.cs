@@ -47,7 +47,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
         public static void VerifyHeader(this IRestResponse response, string header, string value)
         {
             var headerObject = response.Headers.SingleOrDefault(h => String.Equals(h.Name, header, StringComparison.OrdinalIgnoreCase));
-            Assert.True(headerObject != null, String.Format("Header {0} is missing", header));
+            Assert.True(headerObject != null, $"Header {header} is missing");
             Assert.Equal(value, headerObject.Value);
         }
 

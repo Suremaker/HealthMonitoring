@@ -8,7 +8,7 @@ namespace HealthMonitoring.Configuration
     class AppSettingsThrottlingSettings : IThrottlingSettings
     {
         private static readonly ILog Logger = LogManager.GetLogger<AppSettingsThrottlingSettings>();
-        public IReadOnlyDictionary<string, int> Throttling { get; private set; }
+        public IReadOnlyDictionary<string, int> Throttling { get; }
 
         public AppSettingsThrottlingSettings()
         {

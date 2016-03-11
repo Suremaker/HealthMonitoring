@@ -20,7 +20,8 @@ namespace HealthMonitoring
             }
         }
 
-        public IEnumerable<IHealthMonitor> Monitors { get { return _monitors.Values; } }
+        public IEnumerable<IHealthMonitor> Monitors => _monitors.Values;
+
         public IHealthMonitor FindByName(string monitorType)
         {
             IHealthMonitor monitor;

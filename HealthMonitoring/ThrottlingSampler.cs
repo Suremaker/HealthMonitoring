@@ -45,8 +45,7 @@ namespace HealthMonitoring
 
             public void Dispose()
             {
-                if (_semaphore != null)
-                    _semaphore.Release();
+                _semaphore?.Release();
                 _semaphore = null;
             }
         }

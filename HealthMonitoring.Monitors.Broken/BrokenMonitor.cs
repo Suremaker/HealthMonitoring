@@ -6,7 +6,8 @@ namespace HealthMonitoring.Monitors.Broken
 {
     public class BrokenMonitor : IHealthMonitor
     {
-        public string Name { get { return "broken"; } }
+        public string Name => "broken";
+
         public Task<HealthInfo> CheckHealthAsync(string address, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();

@@ -8,8 +8,6 @@ namespace HealthMonitoring.Monitors.Http
 {
     public class HttpMonitor : IHealthMonitor
     {
-        private readonly string _name;
-
         static HttpMonitor()
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls | SecurityProtocolType.Ssl3;
@@ -19,10 +17,10 @@ namespace HealthMonitoring.Monitors.Http
 
         protected HttpMonitor(string name)
         {
-            _name = name;
+            Name = name;
         }
 
-        public string Name { get { return _name; } }
+        public string Name { get; }
 
         public async Task<HealthInfo> CheckHealthAsync(string address, CancellationToken cancellationToken)
         {

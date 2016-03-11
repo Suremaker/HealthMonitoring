@@ -12,8 +12,8 @@ namespace HealthMonitoring.UnitTests.Helpers
     {
         private readonly ConcurrentQueue<Tuple<string, TimeSpan>> _calls = new ConcurrentQueue<Tuple<string, TimeSpan>>();
         private readonly Stopwatch _stopwatch = new Stopwatch();
-        public string Name { get { return "test"; } }
-        public IEnumerable<Tuple<string, TimeSpan>> Calls { get { return _calls; } }
+        public string Name => "test";
+        public IEnumerable<Tuple<string, TimeSpan>> Calls => _calls;
         public TimeSpan Delay { get; set; }
 
         public void StartWatch()
