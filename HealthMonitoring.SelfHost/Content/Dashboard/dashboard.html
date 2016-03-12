@@ -5,7 +5,9 @@
     <title>Health Monitoring - dashboard</title>
     <link rel="icon" href="/static/assets/favicon.ico">
     <script src="/static/scripts/angular.min.js"></script>
+    <script src="/static/scripts/angular-filter.min.js"></script>
     <script src="/static/scripts/functions.js"></script>
+    <script src="/static/dashboard/groupNodeSizer.js"></script>
     <link rel="stylesheet" href="/static/dashboard/dashboard.css">
 </head>
 <body ng-app="app" data-ng-controller="ctrl">
@@ -15,22 +17,34 @@
             <td><img src="/static/assets/favicon.svg" alt="icon" /></td>
             <td><h1><a href="/">{{dashSettings.Title}}</a></h1></td>
             <td class="toolbar">
+                <input type="checkbox" id="endpointGrouping" ng-model="endpointGrouping" />
+                <label for="endpointGrouping">Group View</label>
                 <input type="text" placeholder="filter..." ng-model="filter" class="filter"/>
             </td>
         </tr>
     </table>
 </header>
-    <div class="board">
-        <a ng-repeat="e in endpoints| filter:filter | orderBy: ['Group','Name']" ng-class="getEndpointClassName(e)" class="endpoint" data-status="{{e.Status}}" data-changed="{{e.changed}}" href="/dashboard/details?id={{e.Id}}" target="_blank">
+    <div class="board" ng-if="!endpointGrouping">
+        <a ng-repeat="e in endpoints| filter:filter | orderBy: ['Group','Name']" ng-class="getEndpointClassName(e.Group)" class="endpoint endpoint-status" data-status="{{e.Status}}" data-changed="{{e.changed}}" href="/dashboard/details?id={{e.Id}}" target="_blank">
             <div>{{e.Group}}</div>
             <div>{{e.Name}}</div>
-            <div class="time">{{formatDuration(e.LastResponseTime)}}</div>
+            <div class="label">{{formatDuration(e.LastResponseTime)}}</div>
+        </a>
+    </div>
+    <div class="board" ng-if="endpointGrouping">
+        <a ng-repeat="(group,endpointList) in endpoints | groupBy: 'Group'" ng-class="getEndpointClassName(group)" data-status="{{findHighestStatus(endpointList)}}" data-changed="{{didAnyChanged(endpointList)}}" class="endpoint endpoint-status endpoint-group" href="/dashboard" target="_blank">
+            <div>{{group}}</div>
+            <div ng-init="nodeSize=getNodeSize(endpointList.length);" class="nodeBar">
+                <div ng-repeat="e in endpointList" class="endpoint-node endpoint-status" data-status="{{e.Status}}" data-changed="{{e.changed}}" style="width:{{nodeSize.percentWidth}}%;height:{{nodeSize.percentHeight}}%;"></div>
+            </div>
+            <div class="label">{{endpointList.length}}</div>
         </a>
     </div>
     <script>
-        var app = angular.module('app', []);
+        var app = angular.module('app', ['angular.filter']);
         app.controller('ctrl', function ($scope, $http) {
             var groupClassNames = {};
+            var groupNodeSizer = new GroupNodeSizer(3.0);
 
             $scope.endpoints = [];
             $scope.dashSettings = { Title: "Health Monitor" };
@@ -59,14 +73,59 @@
             setInterval($scope.update, 1000);
             setInterval($scope.getConfig, 20000);
 
-            $scope.getEndpointClassName = function (endpoint) {
-                if (!groupClassNames[endpoint.Group]) {
-                    groupClassNames[endpoint.Group] = 'group' + (Object.keys(groupClassNames).length % 3 + 1);
+            $scope.getEndpointClassName = function (endpointGroup) {
+                if (!groupClassNames[endpointGroup]) {
+                    groupClassNames[endpointGroup] = 'group' + (Object.keys(groupClassNames).length % 3 + 1);
                 }
-                return groupClassNames[endpoint.Group];
+                return groupClassNames[endpointGroup];
             };
 
             $scope.formatDuration = formatDuration;
+
+            $scope.findHighestStatus = function(endpoints) {
+                var severities = { 'notRun': 0, 'healthy': 1, 'offline': 2, 'notExists': 3, 'unhealthy': 4, 'timedOut': 5, 'faulty': 6 };
+                var severity = 0;
+                for (var i = endpoints.length-1; i >= 0; --i) {
+                    var current = severities[endpoints[i].Status];
+                    if (current > severity) {
+                        severity = current;
+                    }
+                }
+                for (var prop in severities) {
+                    if (severities.hasOwnProperty(prop) && severities[prop] === severity) {
+                        return prop;
+                    }
+                }
+                return 'notRun';
+            }
+
+            $scope.didAnyChanged = function(endpoints) {
+                for (var i = endpoints.length-1; i >= 0; --i) {
+                    if (endpoints[i].changed === true) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            $scope.getNodeSize = groupNodeSizer.getNodeSize;
+                /*function (count) {
+                var aspect = 3.0; //w = 3h
+                var unitSize = Math.sqrt(count / aspect);
+                var percentHeight = 100.0 / unitSize;
+                var percentWidth = percentHeight / aspect;
+                return { percentWidth: percentWidth, percentHeight: percentHeight };
+            }*/
+
+            $scope.getNodeWidth = function (count) {
+                var multiplier = 3.0;
+                return 100.0 / (multiplier * Math.sqrt(count / multiplier));
+            }
+
+            $scope.getNodeHeight = function (count) {
+                var multiplier = 3.0;
+                return 100.0 / ( Math.sqrt(count / multiplier));
+            }
         });
 
         function updateEndpoints(endpoints, oldEndpoints) {
