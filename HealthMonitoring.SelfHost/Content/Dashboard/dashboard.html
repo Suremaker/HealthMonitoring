@@ -9,6 +9,7 @@
     <script src="/static/scripts/functions.js"></script>
     <script src="/static/dashboard/groupNodeSizer.js"></script>
     <link rel="stylesheet" href="/static/dashboard/dashboard.css">
+    <base href="/dashboard">
 </head>
 <body ng-app="app" data-ng-controller="ctrl">
 <header>
@@ -17,34 +18,41 @@
             <td><img src="/static/assets/favicon.svg" alt="icon" /></td>
             <td><h1><a href="/">{{dashSettings.Title}}</a></h1></td>
             <td class="toolbar">
-                <input type="checkbox" id="endpointGrouping" ng-model="endpointGrouping" />
+                <input type="checkbox" id="endpointGrouping" ng-model="endpointGrouping" ng-click="updateEndpointGrouping()"/>
                 <label for="endpointGrouping">Group View</label>
-                <input type="text" placeholder="filter..." ng-model="filter" class="filter"/>
+                <input type="text" placeholder="group filter..." ng-model="filter.Group" class="filter" />
+                <input type="text" placeholder="text filter..." ng-model="filter.$" class="filter"/>
             </td>
         </tr>
     </table>
 </header>
     <div class="board" ng-if="!endpointGrouping">
-        <a ng-repeat="e in endpoints| filter:filter | orderBy: ['Group','Name']" ng-class="getEndpointClassName(e.Group)" class="endpoint endpoint-status" data-status="{{e.Status}}" data-changed="{{e.changed}}" href="/dashboard/details?id={{e.Id}}" target="_blank">
-            <div>{{e.Group}}</div>
-            <div>{{e.Name}}</div>
-            <div class="label">{{formatDuration(e.LastResponseTime)}}</div>
+        <a ng-repeat="e in endpoints | filter:filter | orderBy: ['Group','Name']" ng-class="::getEndpointClassName(e.Group)" class="endpoint endpoint-status" data-status="{{::e.Status}}" data-changed="{{::e.changed}}" href="/dashboard/details?id={{::e.Id}}" target="_blank">
+            <div>{{::e.Group}}</div>
+            <div>{{::e.Name}}</div>
+            <div class="label">{{::formatDuration(e.LastResponseTime)}}</div>
         </a>
     </div>
     <div class="board" ng-if="endpointGrouping">
-        <a ng-repeat="(group,endpointList) in endpoints | groupBy: 'Group'" ng-class="getEndpointClassName(group)" data-status="{{findHighestStatus(endpointList)}}" data-changed="{{didAnyChanged(endpointList)}}" class="endpoint endpoint-status endpoint-group" href="/dashboard" target="_blank">
-            <div>{{group}}</div>
-            <div ng-init="nodeSize=getNodeSize(endpointList.length);" class="nodeBar">
-                <div ng-repeat="e in endpointList" class="endpoint-node endpoint-status" data-status="{{e.Status}}" data-changed="{{e.changed}}" style="width:{{nodeSize.percentWidth}}%;height:{{nodeSize.percentHeight}}%;"></div>
+        <a ng-repeat="group in endpoints | groupBy: 'Group' |toArray:true| filter:filter | orderBy: '$key'" ng-class="::getEndpointClassName(group.$key)" data-status="{{findHighestStatus(group)}}" data-changed="{{didAnyChanged(group)}}" class="endpoint endpoint-status endpoint-group" href="/dashboard?filter-group={{encodeURIComponent(group.$key)}}" target="_blank">
+            <div>{{::group.$key}}</div>
+            <div class="nodeBar">
+                <div ng-repeat="e in group" class="endpoint-node endpoint-status" data-status="{{::e.Status}}" data-changed="{{::e.changed}}" style="width:{{getNodeSize(group.length).percentWidth}}%;height:{{getNodeSize(group.length).percentHeight}}%;"></div>
             </div>
-            <div class="label">{{endpointList.length}}</div>
+            <div class="label">{{group.length}}</div>
         </a>
     </div>
     <script>
         var app = angular.module('app', ['angular.filter']);
-        app.controller('ctrl', function ($scope, $http) {
+        app.config(function($locationProvider) {
+            $locationProvider.html5Mode(true);
+        });
+        app.controller('ctrl', ['$scope', '$http', '$location', function ($scope, $http, $location) {
             var groupClassNames = {};
             var groupNodeSizer = new GroupNodeSizer(3.0);
+
+            $scope.filter = {};
+            initializeToolbar($scope, $location);
 
             $scope.endpoints = [];
             $scope.dashSettings = { Title: "Health Monitor" };
@@ -62,8 +70,8 @@
             $scope.update = function () {
                 $http.get("/api/endpoints")
                   .success(function (response) {
-                      $scope.endpoints = updateEndpoints(response, $scope.endpoints);
-                  })
+                        updateEndpointsInPlace($scope.endpoints, response);
+                    })
                   .error(function (data, status) {
                       $scope.endpoints = [];
                   });
@@ -109,37 +117,66 @@
             }
 
             $scope.getNodeSize = groupNodeSizer.getNodeSize;
-                /*function (count) {
-                var aspect = 3.0; //w = 3h
-                var unitSize = Math.sqrt(count / aspect);
-                var percentHeight = 100.0 / unitSize;
-                var percentWidth = percentHeight / aspect;
-                return { percentWidth: percentWidth, percentHeight: percentHeight };
-            }*/
+            $scope.encodeURIComponent = encodeURIComponent;
 
-            $scope.getNodeWidth = function (count) {
-                var multiplier = 3.0;
-                return 100.0 / (multiplier * Math.sqrt(count / multiplier));
+            $scope.updateEndpointGrouping = function() {
+                $location.search('group-view', $scope.endpointGrouping?true:null);
+            }
+        }]);
+
+        function updateEndpointsInPlace(endpoints, newEndpoints) {
+            var newDict = {};
+            var index;
+            var newItem;
+
+            //to dictionary
+            for (index = newEndpoints.length - 1; index >= 0; --index) {
+                var e = newEndpoints[index];
+                newDict[e.Id] = e;
+            }
+            
+            //update/delete
+            for (index = endpoints.length - 1; index >= 0; --index) {
+                var currentItem = endpoints[index];
+                newItem = newDict[currentItem.Id];
+                if (!newItem) {
+                    endpoints.splice(index, 1);
+                }
+                else if (currentItem.LastModifiedTime !== newItem.LastModifiedTime) {
+                    newItem.changed = true;
+                    endpoints[index] = newItem;
+                } else if (currentItem.changed) {
+                    newItem.changed = false;
+                    endpoints[index] = newItem;
+                } 
+                newDict[currentItem.Id] = null;
             }
 
-            $scope.getNodeHeight = function (count) {
-                var multiplier = 3.0;
-                return 100.0 / ( Math.sqrt(count / multiplier));
-            }
-        });
-
-        function updateEndpoints(endpoints, oldEndpoints) {
-            for (var i = 0; i < endpoints.length; ++i) {
-                endpoints[i].changed = true;
-
-                for (var j = 0; j < oldEndpoints.length; ++j) {
-                    if (endpoints[i].Id === oldEndpoints[j].Id) {
-                        endpoints[i].changed = (endpoints[i].LastCheckUtc !== oldEndpoints[j].LastCheckUtc);
-                        break;
+            //insert
+            for (var id in newDict) {
+                if (newDict.hasOwnProperty(id)) {
+                    newItem = newDict[id];
+                    if (newItem != null) {
+                        newItem.changed = true;
+                        endpoints.push(newItem);
                     }
                 }
             }
-            return endpoints;
+        }
+
+        function initializeToolbar(scope, location) {
+            var textFilter = location.search()['filter-text'];
+            var groupFilter = location.search()['filter-group'];
+            var groupView = location.search()['group-view'];
+            if (textFilter) {
+                scope.filter.$ = textFilter;
+            }
+            if (groupFilter) {
+                scope.filter.Group = groupFilter;
+            }
+            if (groupView) {
+                scope.endpointGrouping = true;
+            }
         }
     </script>
 </body>

@@ -9,19 +9,21 @@ namespace HealthMonitoring.SelfHost.Entities
     public class EndpointDetails
     {
         public EndpointDetails() { }
-        public EndpointDetails(Endpoint endpoint)
+        private EndpointDetails(Endpoint endpoint)
         {
             Id = endpoint.Id;
             Name = endpoint.Name;
             Address = endpoint.Address;
             MonitorType = endpoint.MonitorType;
             Group = endpoint.Group;
-            if (endpoint.Health != null)
+            var health = endpoint.Health;
+            LastModifiedTime = endpoint.LastModifiedTime;
+            if (health != null)
             {
-                Status = endpoint.Health.Status;
-                LastCheckUtc = endpoint.Health.CheckTimeUtc;
-                LastResponseTime = endpoint.Health.ResponseTime;
-                Details = endpoint.Health.Details.ToDictionary(p => p.Key, p => p.Value);
+                Status = health.Status;
+                LastCheckUtc = health.CheckTimeUtc;
+                LastResponseTime = health.ResponseTime;
+                Details = health.Details.ToDictionary(p => p.Key, p => p.Value);
             }
             else
             {
@@ -30,8 +32,15 @@ namespace HealthMonitoring.SelfHost.Entities
             }
         }
 
+        public static EndpointDetails FromDomain(Endpoint endpoint)
+        {
+            return new EndpointDetails(endpoint);
+        }
+
         [Required]
         public Guid Id { get; set; }
+        [Required]
+        public DateTimeOffset LastModifiedTime { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]

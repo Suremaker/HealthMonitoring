@@ -42,8 +42,8 @@ namespace HealthMonitoring
             var endpoint = _endpoints.AddOrUpdate(key, new Endpoint(newId, monitor, address, name, group), (k, e) => e.Update(group, name));
             _endpointsByGuid[endpoint.Id] = endpoint;
 
-            if (endpoint.Id == newId && NewEndpointAdded != null)
-                NewEndpointAdded(endpoint);
+            if (endpoint.Id == newId)
+                NewEndpointAdded?.Invoke(endpoint);
 
             _endpointConfigurationStore.SaveEndpoint(endpoint);
 
@@ -65,6 +65,7 @@ namespace HealthMonitoring
                 return false;
 
             endpoint.Dispose();
+
             _endpointConfigurationStore.DeleteEndpoint(endpoint.Id);
             _statsRepository.DeleteStatistics(endpoint.Id);
             return true;

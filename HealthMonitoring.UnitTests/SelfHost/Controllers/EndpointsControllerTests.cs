@@ -20,7 +20,6 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         private readonly EndpointsController _controller;
         private readonly Mock<IEndpointRegistry> _endpointRegistry;
         private readonly Mock<IEndpointStatsRepository> _statsRepository;
-
         public EndpointsControllerTests()
         {
             _endpointRegistry = new Mock<IEndpointRegistry>();
@@ -122,6 +121,7 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
             Assert.Equal(null, result.Content.LastCheckUtc);
             Assert.Equal(null, result.Content.LastResponseTime);
             Assert.Equal(new Dictionary<string, string>(), result.Content.Details);
+            Assert.Equal(endpoint.LastModifiedTime, result.Content.LastModifiedTime);
         }
 
         [Theory]

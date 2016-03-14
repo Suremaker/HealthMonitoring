@@ -51,7 +51,7 @@ namespace HealthMonitoring.SelfHost.Controllers
             var endpoint = _endpointRegistry.GetById(id);
             if (endpoint == null)
                 return NotFound();
-            return Ok(new EndpointDetails(endpoint));
+            return Ok(EndpointDetails.FromDomain(endpoint));
         }
 
         [Route("api/endpoints/{id}/stats")]
@@ -74,11 +74,11 @@ namespace HealthMonitoring.SelfHost.Controllers
         }
 
         [Route("api/endpoints")]
-        [SwaggerResponse(HttpStatusCode.OK, Type = typeof(EndpointDetails))]
-        [ResponseType(typeof(EndpointDetails))]
+        [SwaggerResponse(HttpStatusCode.OK, Type = typeof(EndpointDetails[]))]
+        [ResponseType(typeof(EndpointDetails[]))]
         public IEnumerable<EndpointDetails> GetEndpoints()
         {
-            return _endpointRegistry.Endpoints.Select(e => new EndpointDetails(e));
+            return _endpointRegistry.Endpoints.Select(EndpointDetails.FromDomain);
         }
     }
 }

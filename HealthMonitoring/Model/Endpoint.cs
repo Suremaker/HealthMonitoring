@@ -16,6 +16,7 @@ namespace HealthMonitoring.Model
             Address = address;
             Name = name;
             Group = group;
+            UpdateLastModifiedTime();
         }
 
         public Guid Id { get; private set; }
@@ -26,22 +27,35 @@ namespace HealthMonitoring.Model
         public string Group { get; private set; }
         public bool IsDisposed { get; private set; }
         public EndpointHealth Health { get; private set; }
-
+        public DateTimeOffset LastModifiedTime { get; private set; }
         public Endpoint Update(string group, string name)
         {
             Group = group;
             Name = name;
+            UpdateLastModifiedTime();
             return this;
         }
 
         public async Task CheckHealth(IHealthSampler sampler, CancellationToken cancellationToken)
         {
-            Health = await sampler.CheckHealth(this, cancellationToken);
+            var health = await sampler.CheckHealth(this, cancellationToken);
+            if (!IsDisposed)
+            {
+                Health = health;
+                UpdateLastModifiedTime();
+            }
         }
 
         public void Dispose()
         {
             IsDisposed = true;
+            Health = null;
+            UpdateLastModifiedTime();
+        }
+
+        private void UpdateLastModifiedTime()
+        {
+            LastModifiedTime = DateTimeOffset.UtcNow;
         }
 
         public override string ToString()

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using HealthMonitoring.Configuration;
 using HealthMonitoring.Model;
 using HealthMonitoring.Monitors;
@@ -19,8 +20,8 @@ namespace HealthMonitoring.UnitTests.Domain
         {
             _monitorRegistry = new Mock<IHealthMonitorRegistry>();
             _configurationStore = new Mock<IEndpointConfigurationStore>();
-            _statsRepository=new Mock<IEndpointStatsRepository>();
-            _registry = new EndpointRegistry(_monitorRegistry.Object, _configurationStore.Object,_statsRepository.Object);
+            _statsRepository = new Mock<IEndpointStatsRepository>();
+            _registry = new EndpointRegistry(_monitorRegistry.Object, _configurationStore.Object, _statsRepository.Object);
         }
 
         [Fact]
@@ -29,7 +30,7 @@ namespace HealthMonitoring.UnitTests.Domain
             var endpoint = new Endpoint(Guid.NewGuid(), MonitorMock.Mock("monitor"), "address", "name", "group");
             _configurationStore.Setup(s => s.LoadEndpoints(_monitorRegistry.Object)).Returns(new[] { endpoint });
 
-            var registry = new EndpointRegistry(_monitorRegistry.Object, _configurationStore.Object,_statsRepository.Object);
+            var registry = new EndpointRegistry(_monitorRegistry.Object, _configurationStore.Object, _statsRepository.Object);
 
             Assert.Same(endpoint, registry.GetById(endpoint.Id));
         }
@@ -50,6 +51,7 @@ namespace HealthMonitoring.UnitTests.Domain
             Assert.Equal("name", endpoint.Name);
             Assert.Equal("group", endpoint.Group);
             Assert.Equal(id, endpoint.Id);
+            Assert.True(endpoint.LastModifiedTime > DateTime.UtcNow.AddSeconds(-1), "LastModifiedTime should be updated");
         }
 
         [Fact]
@@ -86,10 +88,12 @@ namespace HealthMonitoring.UnitTests.Domain
         {
             MockMonitor("monitor");
             var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name");
+            var lastModifiedTime = _registry.GetById(id).LastModifiedTime;
 
             Endpoint newEndpointCapture = null;
             _registry.NewEndpointAdded += e => { newEndpointCapture = e; };
 
+            Thread.Sleep(100);
             var id2 = _registry.RegisterOrUpdate("monitor", "ADDRESS", "group2", "name2");
 
             Assert.Equal(id, id2);
@@ -101,6 +105,7 @@ namespace HealthMonitoring.UnitTests.Domain
             Assert.Equal("address", endpoint.Address);
             Assert.Equal("name2", endpoint.Name);
             Assert.Equal("group2", endpoint.Group);
+            Assert.True(_registry.GetById(id2).LastModifiedTime > lastModifiedTime, "LastModifiedTime should be updated");
         }
 
         [Fact]
@@ -128,7 +133,7 @@ namespace HealthMonitoring.UnitTests.Domain
             Assert.Null(_registry.GetById(id));
 
             _configurationStore.Verify(s => s.DeleteEndpoint(id));
-            _statsRepository.Verify(s=>s.DeleteStatistics(id));
+            _statsRepository.Verify(s => s.DeleteStatistics(id));
         }
 
         [Fact]
