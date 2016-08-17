@@ -23,8 +23,9 @@ namespace HealthMonitoring.UnitTests.Domain
         [Fact]
         public void Monitor_should_start_checking_the_health_of_endpoints_until_disposed()
         {
-            var endpoint1 = _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address1", "group", "name");
-            _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address2", "group", "name");
+            var tags = new[] { "t1", "t2" };
+            var endpoint1 = _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address1", "group", "name", tags);
+            _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address2", "group", "name", tags);
             _testableHealthMonitor.StartWatch();
 
             var delay = TimeSpan.FromMilliseconds(400);
@@ -35,7 +36,7 @@ namespace HealthMonitoring.UnitTests.Domain
             {
                 WaitForAnyCall();
 
-                _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address3", "group", "name");
+                _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address3", "group", "name", tags);
                 Thread.Sleep(delay);
                 _endpointRegistry.TryUnregisterById(endpoint1);
                 Thread.Sleep(delay);
@@ -61,7 +62,7 @@ namespace HealthMonitoring.UnitTests.Domain
         [InlineData(400, 300, 400)]
         public void Monitor_should_ping_endpoint_with_regular_intervals(int delayInMs, int intervalInMs, int expectedIntervalInMs)
         {
-            _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address", "group", "name");
+            _endpointRegistry.RegisterOrUpdate(_testableHealthMonitor.Name, "address", "group", "name", new[] { "t1", "t2" });
             _testableHealthMonitor.Delay = TimeSpan.FromMilliseconds(delayInMs);
             _testableHealthMonitor.StartWatch();
             var interval = TimeSpan.FromMilliseconds(intervalInMs);

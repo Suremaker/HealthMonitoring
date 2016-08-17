@@ -31,7 +31,7 @@ namespace HealthMonitoring.SelfHost.Controllers
             endpoint.ValidateModel();
             try
             {
-                var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name);
+                var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Tags);
 
                 return Created(new Uri(Request.RequestUri, $"/api/endpoints/{id}"), id);
             }
@@ -79,6 +79,17 @@ namespace HealthMonitoring.SelfHost.Controllers
         public IEnumerable<EndpointDetails> GetEndpoints()
         {
             return _endpointRegistry.Endpoints.Select(EndpointDetails.FromDomain);
+        }
+
+        [Route("api/endpoints/{id}/tags")]
+        [ResponseType(typeof (Guid))]
+        [SwaggerResponse(HttpStatusCode.Created, Type = typeof (Guid))]
+        [SwaggerResponse(HttpStatusCode.BadRequest)]
+        public IHttpActionResult PostUpdateEndpointTags(Guid id, [FromBody]TagsModel model)
+        {
+            model.ValidateModel();
+            _endpointRegistry.UpdateEndpointTags(id, model.Tags);
+            return Ok();
         }
     }
 }

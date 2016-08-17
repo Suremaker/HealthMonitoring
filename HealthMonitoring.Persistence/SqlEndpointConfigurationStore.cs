@@ -22,8 +22,29 @@ namespace HealthMonitoring.Persistence
             using (var conn = _db.OpenConnection())
             using (var tx = conn.BeginTransaction())
             {
-                if (conn.Execute("update EndpointConfig set MonitorType=@MonitorType, Address=@Address, GroupName=@Group, Name=@Name where Id=@Id", new { endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Id }, tx) == 0)
-                    conn.Execute("insert into EndpointConfig (MonitorType, Address, GroupName, Name, Id) values(@MonitorType,@Address,@Group,@Name,@Id)", new { endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Id }, tx);
+                var entity = conn.Query<EndpointEntity>("select * from EndpointConfig where Id=@id", new {endpoint.Id}).FirstOrDefault();
+                var tags = endpoint.Tags.ToDbString();
+
+                if (entity == null)
+                {
+                    conn.Execute("insert into EndpointConfig (MonitorType, Address, GroupName, Name, Id, Tags) values(@MonitorType,@Address,@Group,@Name,@Id,@Tags)", 
+                        new { endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Id, tags }, tx);
+                }
+                else
+                {
+                    if (tags == null)
+                    {
+                        tags = entity.Tags;
+                    }
+                    if (string.Empty.Equals(tags))
+                    {
+                        tags = null;
+                    }
+
+                    conn.Execute("update EndpointConfig set MonitorType=@MonitorType, Address=@Address, GroupName=@Group, Name=@Name, Tags=@tags where Id=@Id",
+                        new {endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, tags, endpoint.Id}, tx);
+                }
+
                 tx.Commit();
             }
         }
@@ -43,7 +64,7 @@ namespace HealthMonitoring.Persistence
             using (var conn = _db.OpenConnection())
                 return conn.Query<EndpointEntity>("select * from EndpointConfig")
                     .Select(
-                        e => new Endpoint(e.Id, monitorRegistry.FindByName(e.MonitorType), e.Address, e.Name, e.GroupName))
+                        e => new Endpoint(e.Id, monitorRegistry.FindByName(e.MonitorType), e.Address, e.Name, e.GroupName, e.Tags.FromDbString()))
                     .ToArray();
         }
     }

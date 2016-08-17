@@ -13,7 +13,7 @@ namespace HealthMonitoring.UnitTests.Domain
         [Fact]
         public void Dispose_should_mark_endpoint_disposed()
         {
-            var endpoint = new Endpoint(Guid.Empty, MonitorMock.Mock("monitor"), "address", "name", "group");
+            var endpoint = new Endpoint(Guid.Empty, MonitorMock.Mock("monitor"), "address", "name", "group", new[] { "t1", "t2" });
             Assert.False(endpoint.IsDisposed);
             endpoint.Dispose();
             Assert.True(endpoint.IsDisposed);
@@ -22,7 +22,7 @@ namespace HealthMonitoring.UnitTests.Domain
         [Fact]
         public void CheckHealth_should_update_the_endpoint_with_its_health_status()
         {
-            var endpoint = new Endpoint(Guid.Empty, MonitorMock.Mock("monitor"), "address", "name", "group");
+            var endpoint = new Endpoint(Guid.Empty, MonitorMock.Mock("monitor"), "address", "name", "group", new[] { "t1", "t2" });
             var lastModifiedTime = endpoint.LastModifiedTime;
             var sampler = new Mock<IHealthSampler>();
             var token = new CancellationToken();
@@ -37,7 +37,7 @@ namespace HealthMonitoring.UnitTests.Domain
         [Fact]
         public async void CheckHealth_should_not_update_disposed_endpoint()
         {
-            var endpoint = new Endpoint(Guid.Empty, MonitorMock.Mock("monitor"), "address", "name", "group");
+            var endpoint = new Endpoint(Guid.Empty, MonitorMock.Mock("monitor"), "address", "name", "group", new[] { "t1", "t2" });
 
             var sampler = new Mock<IHealthSampler>();
             var token = new CancellationToken();

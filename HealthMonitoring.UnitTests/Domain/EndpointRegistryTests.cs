@@ -27,7 +27,7 @@ namespace HealthMonitoring.UnitTests.Domain
         [Fact]
         public void EndpointRegistry_should_load_endpoints_from_store()
         {
-            var endpoint = new Endpoint(Guid.NewGuid(), MonitorMock.Mock("monitor"), "address", "name", "group");
+            var endpoint = new Endpoint(Guid.NewGuid(), MonitorMock.Mock("monitor"), "address", "name", "group", new[] { "t1", "t2" });
             _configurationStore.Setup(s => s.LoadEndpoints(_monitorRegistry.Object)).Returns(new[] { endpoint });
 
             var registry = new EndpointRegistry(_monitorRegistry.Object, _configurationStore.Object, _statsRepository.Object);
@@ -43,7 +43,7 @@ namespace HealthMonitoring.UnitTests.Domain
             Endpoint endpoint = null;
             _registry.NewEndpointAdded += e => { endpoint = e; };
 
-            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name");
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" });
 
             Assert.NotNull(endpoint);
             Assert.Equal("monitor", endpoint.MonitorType);
@@ -59,12 +59,12 @@ namespace HealthMonitoring.UnitTests.Domain
         {
             MockMonitor("monitor");
 
-            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name");
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" });
 
             _configurationStore.Verify(s => s.SaveEndpoint(It.Is<Endpoint>(e => e.Id == id)));
 
             var newName = "name1";
-            _registry.RegisterOrUpdate("monitor", "address", "group", newName);
+            _registry.RegisterOrUpdate("monitor", "address", "group", newName, new[] { "t1", "t2" });
             _configurationStore.Verify(s => s.SaveEndpoint(It.Is<Endpoint>(e => e.Id == id && e.Name == newName)));
         }
 
@@ -74,9 +74,9 @@ namespace HealthMonitoring.UnitTests.Domain
             MockMonitor("monitor");
             MockMonitor("monitor1");
 
-            var id1 = _registry.RegisterOrUpdate("monitor", "address", "group", "name");
-            var id2 = _registry.RegisterOrUpdate("monitor1", "address", "group", "name");
-            var id3 = _registry.RegisterOrUpdate("monitor", "address1", "group", "name");
+            var id1 = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" });
+            var id2 = _registry.RegisterOrUpdate("monitor1", "address", "group", "name", new[] { "t1", "t2" });
+            var id3 = _registry.RegisterOrUpdate("monitor", "address1", "group", "name", new[] { "t1", "t2" });
 
             Assert.NotEqual(id1, id2);
             Assert.NotEqual(id1, id3);
@@ -87,14 +87,14 @@ namespace HealthMonitoring.UnitTests.Domain
         public void RegisterOrUpdate_should_update_existing_endpoint_and_return_same_id_but_not_emit_NewEndpointAdded_event()
         {
             MockMonitor("monitor");
-            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name");
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" });
             var lastModifiedTime = _registry.GetById(id).LastModifiedTime;
 
             Endpoint newEndpointCapture = null;
             _registry.NewEndpointAdded += e => { newEndpointCapture = e; };
 
             Thread.Sleep(100);
-            var id2 = _registry.RegisterOrUpdate("monitor", "ADDRESS", "group2", "name2");
+            var id2 = _registry.RegisterOrUpdate("monitor", "ADDRESS", "group2", "name2", new[] { "t1", "t2" });
 
             Assert.Equal(id, id2);
             Assert.Null(newEndpointCapture);
@@ -112,7 +112,7 @@ namespace HealthMonitoring.UnitTests.Domain
         public void GetById_should_return_registered_endpoint()
         {
             MockMonitor("monitor");
-            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name");
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" });
             var endpoint = _registry.GetById(id);
 
             Assert.NotNull(endpoint);
@@ -126,7 +126,7 @@ namespace HealthMonitoring.UnitTests.Domain
         public void TryUnregister_should_remove_endpoint_and_dispose_it()
         {
             MockMonitor("monitor");
-            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name");
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" });
             var endpoint = _registry.GetById(id);
             Assert.True(_registry.TryUnregisterById(id), "Endpoint should be unregistered");
             Assert.True(endpoint.IsDisposed, "Endpoint should be disposed");
@@ -152,7 +152,7 @@ namespace HealthMonitoring.UnitTests.Domain
         public void RegisterOrUpdate_should_throw_UnsupportedMonitorException_if_monitor_is_not_recognized()
         {
             _monitorRegistry.Setup(r => r.FindByName("monitor")).Returns((IHealthMonitor)null);
-            var exception = Assert.Throws<UnsupportedMonitorException>(() => _registry.RegisterOrUpdate("monitor", "a", "b", "c"));
+            var exception = Assert.Throws<UnsupportedMonitorException>(() => _registry.RegisterOrUpdate("monitor", "a", "b", "c", new[] { "t1", "t2" }));
             Assert.Equal("Unsupported monitor: monitor", exception.Message);
         }
 

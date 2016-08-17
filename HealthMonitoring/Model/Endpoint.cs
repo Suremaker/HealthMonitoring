@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Monitors;
@@ -9,13 +10,14 @@ namespace HealthMonitoring.Model
     {
         private readonly IHealthMonitor _monitor;
 
-        public Endpoint(Guid id, IHealthMonitor monitor, string address, string name, string group)
+        public Endpoint(Guid id, IHealthMonitor monitor, string address, string name, string group, string[] tags)
         {
             Id = id;
             _monitor = monitor;
             Address = address;
             Name = name;
             Group = group;
+            Tags = tags;
             UpdateLastModifiedTime();
         }
 
@@ -28,11 +30,22 @@ namespace HealthMonitoring.Model
         public bool IsDisposed { get; private set; }
         public EndpointHealth Health { get; private set; }
         public DateTimeOffset LastModifiedTime { get; private set; }
-        public Endpoint Update(string group, string name)
+        public string[] Tags { get; private set; }
+
+        public void UpdateTags(string[] tags)
+        {
+            if(tags == null)
+                return;
+           
+            Tags = tags;
+        }
+
+        public Endpoint Update(string group, string name, string[] tags)
         {
             Group = group;
             Name = name;
             UpdateLastModifiedTime();
+            UpdateTags(tags);
             return this;
         }
 
