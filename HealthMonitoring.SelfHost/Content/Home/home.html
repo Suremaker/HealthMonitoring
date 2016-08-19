@@ -94,14 +94,9 @@
 
             $scope.tagFilter = function (endpoint) {
                 for (var i = 0; i < $scope.filterTags.length; i++) {
-                    if (endpoint.Tags) {
-                        if (endpoint.Tags.length > 0) {
-                            if (endpoint.Tags.indexOf($scope.filterTags[i]) === -1) {
-                                return false;
-                            }
-                        }
-                        else { return false; }
-                    } else { return false; }
+                    if (endpoint.Tags == null || endpoint.Tags.indexOf($scope.filterTags[i]) < 0) {
+                         return false;
+                    }
                 }
 
                 return true;

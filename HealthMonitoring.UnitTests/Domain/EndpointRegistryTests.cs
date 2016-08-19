@@ -43,7 +43,7 @@ namespace HealthMonitoring.UnitTests.Domain
             Endpoint endpoint = null;
             _registry.NewEndpointAdded += e => { endpoint = e; };
 
-            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" });
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1" });
 
             Assert.NotNull(endpoint);
             Assert.Equal("monitor", endpoint.MonitorType);
@@ -51,7 +51,25 @@ namespace HealthMonitoring.UnitTests.Domain
             Assert.Equal("name", endpoint.Name);
             Assert.Equal("group", endpoint.Group);
             Assert.Equal(id, endpoint.Id);
+            Assert.Equal("t1", endpoint.Tags[0]);
             Assert.True(endpoint.LastModifiedTime > DateTime.UtcNow.AddSeconds(-1), "LastModifiedTime should be updated");
+        }
+
+        [Fact]
+        public void RegisterOrUpdate_should_not_uptate_existing_tags_if_null_passed()
+        {
+            MockMonitor("monitor");
+
+            Endpoint endpoint = null;
+            _registry.NewEndpointAdded += e => { endpoint = e; };
+
+            _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" });
+
+            Assert.NotNull(endpoint);
+
+            _registry.RegisterOrUpdate("monitor", "address", "group", "name", null);
+
+            CollectionAssert.AreEquivalent(endpoint.Tags, new[] {"t1", "t2"});
         }
 
         [Fact]

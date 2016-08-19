@@ -89,7 +89,7 @@ namespace HealthMonitoring.SelfHost.Controllers
         {
             model.ValidateModel();
             _endpointRegistry.UpdateEndpointTags(id, model.Tags);
-            return Ok();
+            return Ok(EndpointDetails.FromDomain(_endpointRegistry.GetById(id)));
         }
     }
 }

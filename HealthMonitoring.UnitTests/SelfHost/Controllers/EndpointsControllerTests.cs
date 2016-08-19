@@ -61,7 +61,8 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
                 Address = address,
                 Group = group,
                 Name = name,
-                MonitorType = monitor
+                MonitorType = monitor, 
+                Tags = tags
             }) as CreatedNegotiatedContentResult<Guid>;
 
             Assert.NotNull(response);
@@ -207,6 +208,12 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
             Assert.Equal(expected.Status, actual.Status);
             Assert.Equal(expected.CheckTimeUtc, actual.CheckTimeUtc);
             Assert.Equal(expected.ResponseTime, actual.ResponseTime);
+        }
+
+        [Fact]
+        public void UpdateTags_should_fail_if_model_is_not_provided()
+        {
+            Assert.Throws<ValidationException>(() => _controller.PostUpdateEndpointTags(Guid.NewGuid(), new TagsModel {Tags = null}));
         }
     }
 }

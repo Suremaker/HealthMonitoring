@@ -20,11 +20,7 @@ namespace HealthMonitoring.SelfHost.Entities
         {
             const string allowedSymbols = "_";
 
-            var symbols = string.Join(string.Empty, tags ?? new string[0]);
-
-            bool isValid = symbols.All(symbol => char.IsLetterOrDigit(symbol) || allowedSymbols.Contains(symbol));
-
-            if (isValid)
+            if (tags == null || tags.All(tag => tag.All(symbol => char.IsLetterOrDigit(symbol) || allowedSymbols.Contains(symbol))))
             {
                 return ValidationResult.Success;
             }
