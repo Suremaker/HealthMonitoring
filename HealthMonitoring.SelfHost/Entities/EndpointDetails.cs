@@ -30,6 +30,7 @@ namespace HealthMonitoring.SelfHost.Entities
                 Details = new Dictionary<string, string>();
                 Status = EndpointStatus.NotRun;
             }
+            Tags = endpoint.Tags;
         }
 
         public static EndpointDetails FromDomain(Endpoint endpoint)
@@ -55,5 +56,6 @@ namespace HealthMonitoring.SelfHost.Entities
         public TimeSpan? LastResponseTime { get; set; }
         [Required]
         public IDictionary<string, string> Details { get; set; }
+        public string[] Tags { get; set; }
     }
 }

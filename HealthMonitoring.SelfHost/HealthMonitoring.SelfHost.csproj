@@ -146,6 +146,7 @@
     <Compile Include="Entities\EndpointHealthStats.cs" />
     <Compile Include="Entities\EndpointRegistration.cs" />
     <Compile Include="Entities\EntityValidator.cs" />
+    <Compile Include="Entities\TagsModel.cs" />
     <Compile Include="Filters\ExceptionFilter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -190,6 +191,7 @@
     <EmbeddedResource Include="Content\Scripts\angular-filter.min.js" />
     <EmbeddedResource Include="Content\Scripts\functions.js" />
     <EmbeddedResource Include="Content\Dashboard\groupNodeSizer.js" />
+    <EmbeddedResource Include="Content\styles\Common.css" />
     <Content Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

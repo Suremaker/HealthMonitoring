@@ -24,7 +24,7 @@ namespace HealthMonitoring.UnitTests.Domain
             _statsManager = new Mock<IEndpointStatsManager>();
             _sampler = new HealthSampler(_settings.Object, _statsManager.Object);
             _monitor = new Mock<IHealthMonitor>();
-            _endpoint = new Endpoint(Guid.NewGuid(), _monitor.Object, "address", "name", "group");
+            _endpoint = new Endpoint(Guid.NewGuid(), _monitor.Object, "address", "name", "group", new[] { "t1", "t2" });
         }
 
         [Fact]

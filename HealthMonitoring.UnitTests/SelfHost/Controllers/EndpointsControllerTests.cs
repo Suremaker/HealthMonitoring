@@ -51,7 +51,9 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
             var address = "abc";
             var group = "def";
             var name = "ghi";
-            _endpointRegistry.Setup(r => r.RegisterOrUpdate(monitor, address, group, name)).Returns(id);
+            var tags = new[] {"t1", "t2"};
+
+            _endpointRegistry.Setup(r => r.RegisterOrUpdate(monitor, address, group, name, tags)).Returns(id);
 
             _controller.Request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:9090/");
             var response = _controller.PostRegisterEndpoint(new EndpointRegistration
@@ -59,7 +61,8 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
                 Address = address,
                 Group = group,
                 Name = name,
-                MonitorType = monitor
+                MonitorType = monitor, 
+                Tags = tags
             }) as CreatedNegotiatedContentResult<Guid>;
 
             Assert.NotNull(response);
@@ -92,7 +95,7 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         {
             var monitor = "monitor";
             _endpointRegistry
-                .Setup(r => r.RegisterOrUpdate(monitor, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(r => r.RegisterOrUpdate(monitor, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>()))
                 .Throws(new UnsupportedMonitorException(monitor));
 
             var response = _controller.PostRegisterEndpoint(new EndpointRegistration
@@ -111,7 +114,7 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         public void GetEndpoint_should_return_endpoint_information()
         {
             Guid id = Guid.NewGuid();
-            var endpoint = new Endpoint(id, MonitorMock.Mock("monitor"), "address", "name", "group");
+            var endpoint = new Endpoint(id, MonitorMock.Mock("monitor"), "address", "name", "group", new[] { "t1", "t2" });
             _endpointRegistry.Setup(r => r.GetById(id)).Returns(endpoint);
 
             var result = _controller.GetEndpoint(id) as OkNegotiatedContentResult<EndpointDetails>;
@@ -133,7 +136,7 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
             Guid id = Guid.NewGuid();
             var healthSampler = new Mock<IHealthSampler>();
 
-            var endpoint = new Endpoint(id, MonitorMock.GetMock("monitor").Object, "address", "name", "group");
+            var endpoint = new Endpoint(id, MonitorMock.GetMock("monitor").Object, "address", "name", "group", new[] { "t1", "t2" });
             var token = new CancellationToken();
             var endpointHealth = new EndpointHealth(DateTime.UtcNow, TimeSpan.FromSeconds(1), status, new Dictionary<string, string> { { "a", "b" }, { "c", "d" } });
             healthSampler.Setup(s => s.CheckHealth(endpoint, token)).Returns(Task.FromResult(endpointHealth));
@@ -165,8 +168,8 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         {
             var endpoints = new[]
             {
-                new Endpoint(Guid.NewGuid(), MonitorMock.Mock("a"), "b", "c", "d"),
-                new Endpoint(Guid.NewGuid(), MonitorMock.Mock("e"), "f", "g", "h")
+                new Endpoint(Guid.NewGuid(), MonitorMock.Mock("a"), "b", "c", "d", new[] { "t1", "t2" }),
+                new Endpoint(Guid.NewGuid(), MonitorMock.Mock("e"), "f", "g", "h" ,new[] { "t1", "t2" })
             };
             _endpointRegistry.Setup(r => r.Endpoints).Returns(endpoints);
             var results = _controller.GetEndpoints().ToArray();
@@ -205,6 +208,12 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
             Assert.Equal(expected.Status, actual.Status);
             Assert.Equal(expected.CheckTimeUtc, actual.CheckTimeUtc);
             Assert.Equal(expected.ResponseTime, actual.ResponseTime);
+        }
+
+        [Fact]
+        public void UpdateTags_should_fail_if_model_is_not_provided()
+        {
+            Assert.Throws<ValidationException>(() => _controller.PostUpdateEndpointTags(Guid.NewGuid(), new TagsModel {Tags = null}));
         }
     }
 }

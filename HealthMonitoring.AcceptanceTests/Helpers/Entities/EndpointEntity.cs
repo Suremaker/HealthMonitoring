@@ -13,6 +13,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Entities
         public DateTime? LastCheckUtc { get; set; }
         public TimeSpan? LastResponseTime { get; set; }
         public IDictionary<string,string> Details { get; set; }
+        public string[] Tags { get; set; }
 
         public override string ToString()
         {

@@ -31,7 +31,7 @@ namespace HealthMonitoring
             }
         }
 
-        public Guid RegisterOrUpdate(string monitorType, string address, string group, string name)
+        public Guid RegisterOrUpdate(string monitorType, string address, string group, string name, string[] tags)
         {
             var monitor = _healthMonitorRegistry.FindByName(monitorType);
             if (monitor == null)
@@ -39,7 +39,7 @@ namespace HealthMonitoring
 
             var key = GetKey(monitorType, address);
             var newId = Guid.NewGuid();
-            var endpoint = _endpoints.AddOrUpdate(key, new Endpoint(newId, monitor, address, name, group), (k, e) => e.Update(group, name));
+            var endpoint = _endpoints.AddOrUpdate(key, new Endpoint(newId, monitor, address, name, group, tags), (k, e) => e.Update(group, name, tags));
             _endpointsByGuid[endpoint.Id] = endpoint;
 
             if (endpoint.Id == newId)
@@ -48,6 +48,14 @@ namespace HealthMonitoring
             _endpointConfigurationStore.SaveEndpoint(endpoint);
 
             return endpoint.Id;
+        }
+
+        public Guid UpdateEndpointTags(Guid id, string[] tags)
+        {
+            var endpooint = _endpointsByGuid[id];
+            endpooint.UpdateTags(tags);
+            _endpointConfigurationStore.SaveEndpoint(endpooint);
+            return id;
         }
 
         public Endpoint GetById(Guid id)

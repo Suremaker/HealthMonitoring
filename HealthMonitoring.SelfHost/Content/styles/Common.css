@@ -1,0 +1,22 @@
+﻿.tagsContainer {
+    margin: 0;
+}
+
+.endpointTag {
+    margin: 0 0.1em 0 0.1em;
+    background: rgb(90, 190, 222);
+    display: inline-block;
+    line-height: 1.9em;
+    padding: 0 0.55em;
+    font-weight: 600;
+    color: white;
+    text-shadow: rgba(0, 0, 0, 0.2) 0 -1px 0;
+    font-size: 0.76em;
+    text-align: center;
+    border-radius: 0.25em;
+}
+
+.endpointTag:hover {
+    background: rgb(90, 170, 230);
+    cursor: pointer;
+}

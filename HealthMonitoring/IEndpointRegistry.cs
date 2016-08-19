@@ -6,7 +6,8 @@ namespace HealthMonitoring
 {
     public interface IEndpointRegistry
     {
-        Guid RegisterOrUpdate(string monitorType, string address, string group, string name);
+        Guid RegisterOrUpdate(string monitorType, string address, string group, string name, string[] tags);
+        Guid UpdateEndpointTags(Guid id, string[] tags);
         Endpoint GetById(Guid id);
         bool TryUnregisterById(Guid id);
 
