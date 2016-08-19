@@ -9,3 +9,5 @@ make/psmake.*
 reports/
 *.nupkg
 .vs
+
+monitoring.db
