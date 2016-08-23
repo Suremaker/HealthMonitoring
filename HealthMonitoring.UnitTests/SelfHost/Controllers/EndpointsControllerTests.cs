@@ -51,7 +51,7 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
             var address = "abc";
             var group = "def";
             var name = "ghi";
-            var tags = new[] {"t1", "t2"};
+            var tags = new[] { "t1", "t2" };
 
             _endpointRegistry.Setup(r => r.RegisterOrUpdate(monitor, address, group, name, tags)).Returns(id);
 
@@ -61,7 +61,7 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
                 Address = address,
                 Group = group,
                 Name = name,
-                MonitorType = monitor, 
+                MonitorType = monitor,
                 Tags = tags
             }) as CreatedNegotiatedContentResult<Guid>;
 
@@ -213,7 +213,13 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         [Fact]
         public void UpdateTags_should_fail_if_model_is_not_provided()
         {
-            Assert.Throws<ValidationException>(() => _controller.PostUpdateEndpointTags(Guid.NewGuid(), new TagsModel {Tags = null}));
+            Assert.Throws<ValidationException>(() => _controller.PostUpdateEndpointTags(Guid.NewGuid(), new TagsModel { Tags = null }));
+        }
+
+        [Fact]
+        public void UpdateTags_should_return_NOTFOUND_if_there_is_no_matching_endpoint()
+        {
+            Assert.IsType<NotFoundResult>(_controller.PostUpdateEndpointTags(Guid.NewGuid(), new TagsModel { Tags = new[] { "tag" } }));
         }
     }
 }
