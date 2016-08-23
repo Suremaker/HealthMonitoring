@@ -32,8 +32,6 @@
                 <div ng-repeat="(key,value) in endpoints | groupBy: 'Status'"><span class="stats-key status-{{key}}">{{key}}</span><span class="stats-value">{{value.length}}</span></div>
             </div>
             <div class="tagFilterDiv">
-                <label>Filter by tags: <input ng-model="inputFilterTag"></label>
-                <button ng-click="addTagButtonClick()">Go</button>
                 <p class="tagsContainer"><span ng-repeat="tag in filterTags | orderBy: 'toString()'" ng-click="removeFromTagFilter(tag)" class="endpointTag">{{tag}}</span></p>
             </div>
         </article>
@@ -87,18 +85,12 @@
                     });
             }
 
-            $scope.addTagButtonClick = function () {
-                $scope.addToTagFilter($scope.inputFilterTag);
-                $scope.inputFilterTag = null;
-            };
-
             $scope.tagFilter = function (endpoint) {
                 for (var i = 0; i < $scope.filterTags.length; i++) {
                     if (endpoint.Tags == null || endpoint.Tags.indexOf($scope.filterTags[i]) < 0) {
                          return false;
                     }
                 }
-
                 return true;
             }
 
@@ -115,7 +107,7 @@
             }
 
             $scope.updateLocationTagParams = function () {
-                $location.search('tags', tagsToParamString($scope.filterTags));
+                $location.search('filter-tags', tagsToParamString($scope.filterTags));
             };
 
             $scope.parseDuration = parseDuration;
@@ -129,7 +121,7 @@
         });
 
         function initTagsFromUrl(scope, location) {
-            var searchParams = location.search().tags;
+            var searchParams = location.search()["filter-tags"];
             if (searchParams !== undefined && searchParams != null)
                 scope.filterTags = tagsFromParamString(searchParams);
         }

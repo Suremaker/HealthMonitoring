@@ -86,12 +86,12 @@ namespace HealthMonitoring.SelfHost.Controllers
         [SwaggerResponse(HttpStatusCode.NotFound)]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
         [ResponseType(typeof(EndpointDetails))]
-        public IHttpActionResult PostUpdateEndpointTags(Guid id, [FromBody]TagsModel model)
+        public IHttpActionResult PostUpdateEndpointTags(Guid id, [FromBody]string[] tags)
         {
-            model.ValidateModel();
+            tags.CheckForUnallowedSymbols();
             try
             {
-                if(_endpointRegistry.TryUpdateEndpointTags(id, model.Tags))
+                if(_endpointRegistry.TryUpdateEndpointTags(id, tags))
                     return Ok(EndpointDetails.FromDomain(_endpointRegistry.GetById(id)));
                 return NotFound();
             }

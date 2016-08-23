@@ -211,15 +211,15 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         }
 
         [Fact]
-        public void UpdateTags_should_fail_if_model_is_not_provided()
+        public void UpdateTags_should_fail_if_model_is_incorrect()
         {
-            Assert.Throws<ValidationException>(() => _controller.PostUpdateEndpointTags(Guid.NewGuid(), new TagsModel { Tags = null }));
+            Assert.Throws<ArgumentException>(() => _controller.PostUpdateEndpointTags(Guid.NewGuid(), new[] { "tag!@$%^&():,./" }));
         }
 
         [Fact]
         public void UpdateTags_should_return_NOTFOUND_if_there_is_no_matching_endpoint()
         {
-            Assert.IsType<NotFoundResult>(_controller.PostUpdateEndpointTags(Guid.NewGuid(), new TagsModel { Tags = new[] { "tag" } }));
+            Assert.IsType<NotFoundResult>(_controller.PostUpdateEndpointTags(Guid.NewGuid(), new[] { "tag" }));
         }
     }
 }

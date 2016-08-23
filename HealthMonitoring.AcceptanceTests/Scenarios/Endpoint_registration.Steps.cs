@@ -110,7 +110,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         }
         private void When_client_requests_tags_updating_via_url(string url, string[] tags)
         {
-            _response = _client.Post(new RestRequest(url).AddJsonBody(new { Tags = tags }));
+            _response = _client.Post(new RestRequest(url).AddJsonBody(tags));
         }
 
         private void Then_endpoint_tags_should_be_updated(string[] tags)

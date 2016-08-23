@@ -146,7 +146,6 @@
     <Compile Include="Entities\EndpointHealthStats.cs" />
     <Compile Include="Entities\EndpointRegistration.cs" />
     <Compile Include="Entities\EntityValidator.cs" />
-    <Compile Include="Entities\TagsModel.cs" />
     <Compile Include="Filters\ExceptionFilter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
