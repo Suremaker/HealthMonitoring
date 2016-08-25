@@ -144,6 +144,7 @@
     <Compile Include="Entities\Config.cs" />
     <Compile Include="Entities\EndpointDetails.cs" />
     <Compile Include="Entities\EndpointHealthStats.cs" />
+    <Compile Include="Entities\EndpointHealthUpdate.cs" />
     <Compile Include="Entities\EndpointRegistration.cs" />
     <Compile Include="Entities\EntityValidator.cs" />
     <Compile Include="Filters\ExceptionFilter.cs" />
@@ -196,6 +197,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HealthMonitoring.Management.Core\HealthMonitoring.Management.Core.csproj">
+      <Project>{DDEAC82F-7D78-4962-B180-9711D574AF8D}</Project>
+      <Name>HealthMonitoring.Management.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HealthMonitoring.Monitors\HealthMonitoring.Monitors.csproj">
       <Project>{D26577BB-BEA8-4911-8C25-37E268609E3F}</Project>
       <Name>HealthMonitoring.Monitors</Name>

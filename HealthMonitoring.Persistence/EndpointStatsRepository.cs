@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dapper;
+using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
 using HealthMonitoring.Persistence.Entities;
 

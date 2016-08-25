@@ -62,38 +62,23 @@
       <HintPath>..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="xunit.assert, Version=2.1.0.3168, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\packages\xunit.assert.2.1.0-rc1-build3168\lib\portable-net45+win8+wp8+wpa81\xunit.assert.dll</HintPath>
+    <Reference Include="xunit.assert, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.assert.2.1.0\lib\dotnet\xunit.assert.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="xunit.core, Version=2.1.0.3168, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\packages\xunit.extensibility.core.2.1.0-rc1-build3168\lib\portable-net45+win8+wp8+wpa81\xunit.core.dll</HintPath>
+    <Reference Include="xunit.core, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.extensibility.core.2.1.0\lib\dotnet\xunit.core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="xunit.execution.desktop, Version=2.1.0.3168, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\packages\xunit.extensibility.execution.2.1.0-rc1-build3168\lib\net35\xunit.execution.desktop.dll</HintPath>
+    <Reference Include="xunit.execution.desktop, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\xunit.extensibility.execution.2.1.0\lib\net45\xunit.execution.desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Domain\EndpointRegistryTests.cs" />
-    <Compile Include="Domain\EndpointStatsManagerTests.cs" />
-    <Compile Include="Domain\EndpointTests.cs" />
-    <Compile Include="Domain\EndpointMonitorTests.cs" />
-    <Compile Include="Domain\HealthSamplerTests.cs" />
-    <Compile Include="Domain\MonitorDiscoveryTests.cs" />
-    <Compile Include="Domain\ThrottlingSamplerTests.cs" />
-    <Compile Include="Helpers\CollectionAssert.cs" />
     <Compile Include="Helpers\DelayingMonitor.cs" />
-    <Compile Include="Helpers\MonitorMock.cs" />
-    <Compile Include="Helpers\MonitorSettingsHelper.cs" />
-    <Compile Include="Helpers\TestableHealthMonitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Domain\MonitorRegistryTests.cs" />
-    <Compile Include="SelfHost\Controllers\EndpointsControllerTests.cs" />
-    <Compile Include="SelfHost\Controllers\ConfigControllerTests.cs" />
-    <Compile Include="SelfHost\Controllers\MonitorsControllerTests.cs" />
-    <Compile Include="SelfHost\Controllers\StaticControllerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -121,7 +106,9 @@
       <Name>HealthMonitoring</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="SelfHost\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

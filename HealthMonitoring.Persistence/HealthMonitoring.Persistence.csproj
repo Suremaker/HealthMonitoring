@@ -51,7 +51,8 @@
     <Compile Include="EndpointStatsRepository.cs" />
     <Compile Include="Entities\EndpointEntity.cs" />
     <Compile Include="Entities\EndpointStatsEntity.cs" />
-    <Compile Include="SqlEndpointConfigurationStore.cs" />
+    <Compile Include="HealthMonitorTypeRepository.cs" />
+    <Compile Include="SqlEndpointConfigurationRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqliteDatabase.cs" />
   </ItemGroup>
@@ -59,6 +60,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HealthMonitoring.Management.Core\HealthMonitoring.Management.Core.csproj">
+      <Project>{DDEAC82F-7D78-4962-B180-9711D574AF8D}</Project>
+      <Name>HealthMonitoring.Management.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HealthMonitoring.Monitors\HealthMonitoring.Monitors.csproj">
       <Project>{D26577BB-BEA8-4911-8C25-37E268609E3F}</Project>
       <Name>HealthMonitoring.Monitors</Name>

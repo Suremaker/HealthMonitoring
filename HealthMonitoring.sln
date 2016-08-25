@@ -51,6 +51,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Helpers", "Helpers", "{E92D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.SampleNsbHost", "HealthMonitoring.SampleNsbHost\HealthMonitoring.SampleNsbHost.csproj", "{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.SelfHost", "HealthMonitoring.Monitors.SelfHost\HealthMonitoring.Monitors.SelfHost.csproj", "{35E7D788-521C-4944-93F0-7C064B28F9A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.Core", "HealthMonitoring.Monitors.Core\HealthMonitoring.Monitors.Core.csproj", "{5656BBBD-1BF3-4160-BF1B-0EECC3AC97FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Management.Core", "HealthMonitoring.Management.Core\HealthMonitoring.Management.Core.csproj", "{DDEAC82F-7D78-4962-B180-9711D574AF8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Management.Core.UnitTests", "HealthMonitoring.Management.Core.UnitTests\HealthMonitoring.Management.Core.UnitTests.csproj", "{C52D6B95-1626-4FD0-A9A2-7D31F2D091C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.Core.UnitTests", "HealthMonitoring.Monitors.Core.UnitTests\HealthMonitoring.Monitors.Core.UnitTests.csproj", "{CB4EB4AD-DCFA-406A-8A06-51A1E31CDA81}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Api.UnitTests", "HealthMonitoring.Api.UnitTests\HealthMonitoring.Api.UnitTests.csproj", "{CB424169-E843-4256-81E4-372ACFE07B29}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +113,30 @@ Global
 		{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35E7D788-521C-4944-93F0-7C064B28F9A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35E7D788-521C-4944-93F0-7C064B28F9A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35E7D788-521C-4944-93F0-7C064B28F9A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35E7D788-521C-4944-93F0-7C064B28F9A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5656BBBD-1BF3-4160-BF1B-0EECC3AC97FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5656BBBD-1BF3-4160-BF1B-0EECC3AC97FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5656BBBD-1BF3-4160-BF1B-0EECC3AC97FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5656BBBD-1BF3-4160-BF1B-0EECC3AC97FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDEAC82F-7D78-4962-B180-9711D574AF8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDEAC82F-7D78-4962-B180-9711D574AF8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDEAC82F-7D78-4962-B180-9711D574AF8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDEAC82F-7D78-4962-B180-9711D574AF8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C52D6B95-1626-4FD0-A9A2-7D31F2D091C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C52D6B95-1626-4FD0-A9A2-7D31F2D091C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C52D6B95-1626-4FD0-A9A2-7D31F2D091C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C52D6B95-1626-4FD0-A9A2-7D31F2D091C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB4EB4AD-DCFA-406A-8A06-51A1E31CDA81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB4EB4AD-DCFA-406A-8A06-51A1E31CDA81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB4EB4AD-DCFA-406A-8A06-51A1E31CDA81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB4EB4AD-DCFA-406A-8A06-51A1E31CDA81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB424169-E843-4256-81E4-372ACFE07B29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB424169-E843-4256-81E4-372ACFE07B29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB424169-E843-4256-81E4-372ACFE07B29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB424169-E843-4256-81E4-372ACFE07B29}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,5 +147,8 @@ Global
 		{B38787FD-3B64-47B3-82B9-381E34BBDC5F} = {F0A0E7E8-5BFB-483F-84DA-957D5930539B}
 		{F0A0E7E8-5BFB-483F-84DA-957D5930539B} = {11868196-C99E-4959-BE4D-7BEB75B76986}
 		{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05} = {E92D0044-EBF8-4893-B402-1754AA5B173D}
+		{C52D6B95-1626-4FD0-A9A2-7D31F2D091C3} = {11868196-C99E-4959-BE4D-7BEB75B76986}
+		{CB4EB4AD-DCFA-406A-8A06-51A1E31CDA81} = {11868196-C99E-4959-BE4D-7BEB75B76986}
+		{CB424169-E843-4256-81E4-372ACFE07B29} = {11868196-C99E-4959-BE4D-7BEB75B76986}
 	EndGlobalSection
 EndGlobal
