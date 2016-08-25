@@ -56,6 +56,25 @@ namespace HealthMonitoring.UnitTests.Domain
         }
 
         [Fact]
+        public void RegisterOrUpdate_shouldnt_update_tags_if_null_passed()
+        {
+            MockMonitor("monitor");
+
+            Endpoint endpoint = null;
+            _registry.NewEndpointAdded += e => { endpoint = e; };
+
+            _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1" });
+
+            Assert.NotNull(endpoint);
+            Assert.Equal("t1", endpoint.Tags[0]);
+
+            _registry.RegisterOrUpdate("monitor", "address", "group", "name", null);
+
+            Assert.NotNull(endpoint);
+            Assert.Equal("t1", endpoint.Tags[0]);
+        }
+
+        [Fact]
         public void RegisterOrUpdate_should_not_uptate_existing_tags_if_null_passed()
         {
             MockMonitor("monitor");
