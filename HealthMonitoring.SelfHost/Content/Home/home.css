@@ -80,6 +80,9 @@ a{
 .stats-key:after{ content: ":";}
 .stats-value{ font-weight: bold;}
 
+.status{cursor:pointer;}
+.selected-status > .stats-key {border-bottom: 7px solid #FFCC00;}
+
 .status-healthy { background-color: darkgreen;color: #eeeeee;}
 .status-faulty { background-color: darkred;color: #eeeeee;}
 .status-unhealthy { background-color: gold;}

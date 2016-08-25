@@ -191,6 +191,7 @@
     <EmbeddedResource Include="Content\Scripts\functions.js" />
     <EmbeddedResource Include="Content\Dashboard\groupNodeSizer.js" />
     <EmbeddedResource Include="Content\styles\Common.css" />
+    <EmbeddedResource Include="Content\Scripts\wonga-filter.js" />
     <Content Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -86,5 +86,10 @@ namespace HealthMonitoring
         {
             return $"{monitor}|{address.ToLowerInvariant()}";
         }
+
+        public IEnumerable<string> HealthStatuses()
+        {
+            return Enum.GetNames(typeof(EndpointStatus)).Select(m => m.ToLower());
+        }
     }
 }

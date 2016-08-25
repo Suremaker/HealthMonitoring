@@ -7,6 +7,7 @@
     <script src="/static/scripts/angular.min.js"></script>
     <script src="/static/scripts/angular-filter.min.js"></script>
     <script src="/static/scripts/functions.js"></script>
+    <script src="/static/scripts/wonga-filter.js"></script>
     <script src="/static/dashboard/groupNodeSizer.js"></script>
     <link rel="stylesheet" href="/static/dashboard/dashboard.css">
     <base href="/dashboard">
@@ -18,23 +19,28 @@
             <td><img src="/static/assets/favicon.svg" alt="icon" /></td>
             <td><h1><a href="/"  target="_self">{{dashSettings.Title}}</a></h1></td>
             <td class="toolbar">
+                <select name="health-status" class="filter health-status ng-cloak" ng-model="filter.Status" ng-change="onStatusFilterChanged()">
+                    <option value="" selected="selected">all statuses</option>
+                    <option ng-repeat="status in healthStatuses" value="{{::status}}">{{::status}}</option>
+                </select>
+                <input type="text" placeholder="tags filter..." ng-model="tagsFilter" class="filter" ng-change="onTagsFilterChanged()" />
                 <input type="checkbox" id="endpointGrouping" ng-model="endpointGrouping" ng-click="updateEndpointGrouping()"/>
                 <label for="endpointGrouping">Group View</label>
-                <input type="text" placeholder="group filter..." ng-model="filter.Group" class="filter" />
-                <input type="text" placeholder="text filter..." ng-model="filter.$" class="filter"/>
+                <input type="text" placeholder="group filter..." ng-model="filter.Group" class="filter" ng-change="onGroupFilterChanged()"/>
+                <input type="text" placeholder="text filter..." ng-model="filter.$" class="filter" ng-change="onTextFilterChanged()"/>
             </td>
         </tr>
     </table>
 </header>
     <div class="board" ng-if="!endpointGrouping">
-        <a ng-repeat="e in endpoints | filter:filter | orderBy: ['Group','Name']" ng-class="::getEndpointClassName(e.Group)" class="endpoint endpoint-status" data-status="{{::e.Status}}" data-changed="{{::e.changed}}" href="/dashboard/details?id={{::e.Id}}" target="_blank">
+        <a ng-repeat="e in endpoints | tagsFilter:tagsFilter | wildcardFilter:filter:['Group','Status'] | orderBy: ['Group','Name']" ng-class="::getEndpointClassName(e.Group)" class="endpoint endpoint-status" data-status="{{::e.Status}}" data-changed="{{::e.changed}}" href="/dashboard/details?id={{::e.Id}}" target="_blank">
             <div>{{::e.Group}}</div>
             <div>{{::e.Name}}</div>
             <div class="label">{{::formatDuration(e.LastResponseTime)}}</div>
         </a>
     </div>
     <div class="board" ng-if="endpointGrouping">
-        <a ng-repeat="group in endpoints | groupBy: 'Group' |toArray:true| filter:filter | orderBy: '$key'" ng-class="::getEndpointClassName(group.$key)" data-status="{{findHighestStatus(group)}}" data-changed="{{didAnyChanged(group)}}" class="endpoint endpoint-status endpoint-group" href="/dashboard?filter-group={{encodeURIComponent(group.$key)}}" target="_self">
+        <a ng-repeat="group in endpoints | tagsFilter:tagsFilter | wildcardFilter:filter:['Group','Status'] | groupBy: 'Group' |toArray:true | orderBy: '$key'" ng-class="::getEndpointClassName(group.$key)" data-status="{{findHighestStatus(group)}}" data-changed="{{didAnyChanged(group)}}" class="endpoint endpoint-status endpoint-group" href="/dashboard?filter-group={{encodeURIComponent(group.$key)}}" target="_self">
             <div>{{::group.$key}}</div>
             <div class="nodeBar">
                 <div ng-repeat="e in group" class="endpoint-node endpoint-status" data-status="{{::e.Status}}" data-changed="{{::e.changed}}" style="width:{{getNodeSize(group.length).percentWidth}}%;height:{{getNodeSize(group.length).percentHeight}}%;"></div>
@@ -43,7 +49,7 @@
         </a>
     </div>
     <script>
-        var app = angular.module('app', ['angular.filter']);
+        var app = angular.module('app', ['angular.filter', 'wonga.filter']);
         app.config(function($locationProvider) {
             $locationProvider.html5Mode(true);
         });
@@ -52,6 +58,9 @@
             var groupNodeSizer = new GroupNodeSizer(3.0);
 
             $scope.filter = {};
+            $scope.tagsFilter = "";
+            $scope.healthStatuses = [];
+
             initializeToolbar($scope, $location);
 
             $scope.endpoints = [];
@@ -76,8 +85,17 @@
                       $scope.endpoints = [];
                   });
             };
+
+            $scope.getAllHealthStatuses = function () {
+                $http.get("/api/endpoints/health/statuses")
+                  .success(function (response) {
+                      $scope.healthStatuses = response;
+                  });
+            };
+
             $scope.getConfig();
             $scope.update();
+            $scope.getAllHealthStatuses();
             setInterval($scope.update, 1000);
             setInterval($scope.getConfig, 20000);
 
@@ -115,6 +133,26 @@
                 }
                 return false;
             }
+
+            $scope.onStatusFilterChanged = function () {
+                var urlParam = $scope.filter.Status || null;
+                $location.search('filter-status', urlParam);
+            };
+
+            $scope.onGroupFilterChanged = function () {
+                var urlParam = $scope.filter.Group == "" ? null : $scope.filter.Group;
+                $location.search('filter-group', urlParam);
+            };
+
+            $scope.onTextFilterChanged = function () {
+                var urlParam = $scope.filter.$ == "" ? null : $scope.filter.$;
+                $location.search('filter-text', urlParam);
+            };
+
+            $scope.onTagsFilterChanged = function () {
+                var urlParam = $scope.tagsFilter || null;
+                $location.search('filter-tags', urlParam);
+            };
 
             $scope.getNodeSize = groupNodeSizer.getNodeSize;
             $scope.encodeURIComponent = encodeURIComponent;
@@ -167,6 +205,8 @@
         function initializeToolbar(scope, location) {
             var textFilter = location.search()['filter-text'];
             var groupFilter = location.search()['filter-group'];
+            var statusFilter = location.search()['filter-status'];
+            var tagsFilter = location.search()['filter-tags'];
             var groupView = location.search()['group-view'];
             if (textFilter) {
                 scope.filter.$ = textFilter;
@@ -176,6 +216,12 @@
             }
             if (groupView) {
                 scope.endpointGrouping = true;
+            }
+            if (statusFilter) {
+                scope.filter.Status = statusFilter;
+            }
+            if (tagsFilter) {
+                scope.tagsFilter = tagsFilter;
             }
         }
     </script>

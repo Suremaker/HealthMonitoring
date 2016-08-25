@@ -7,6 +7,7 @@
     <script src="/static/scripts/angular.min.js"></script>
     <script src="/static/scripts/angular-filter.min.js"></script>
     <script src="/static/scripts/functions.js"></script>
+    <script src="/static/scripts/wonga-filter.js"></script>
     <link rel="stylesheet" href="/static/home/home.css">
     <link rel="stylesheet" href="/static/styles/common.css">
 </head>
@@ -28,8 +29,14 @@
             <p ng-if="endpoints==null">-- connection issue --</p>
             <p ng-if="endpoints.length==0">No endpoints registered yet</p>
             <div class="stats" ng-if="endpoints.length>0">
-                <div><span class="stats-key">total</span><span class="stats-value">{{endpoints.length}}</span></div>
-                <div ng-repeat="(key,value) in endpoints | groupBy: 'Status'"><span class="stats-key status-{{key}}">{{key}}</span><span class="stats-value">{{value.length}}</span></div>
+                <div ng-click="onChangedStatus()"  class="status" ng-class="{'selected-status': !filter.Status}">
+                    <span class="stats-key">total</span>
+                    <span class="stats-value">{{endpoints.length}}</span>
+                </div>
+                <div ng-repeat="(key,value) in endpoints | groupBy: 'Status'" ng-click="onChangedStatus(key)"  class="status" ng-class="{'selected-status': filter.Status === key}">
+                    <span class="stats-key status-{{key}}">{{key}}</span>
+                    <span class="stats-value">{{value.length}}</span>
+                </div>
             </div>
             <div class="tagFilterDiv">
                 <p class="tagsContainer"><span ng-repeat="tag in filterTags | orderBy: 'toString()'" ng-click="removeFromTagFilter(tag)" class="endpointTag">{{tag}}</span></p>
@@ -41,7 +48,7 @@
             <p ng-if="endpoints.length==0">No endpoints registered yet</p>
             <table ng-if="endpoints.length>0" class="endpoints">
                 <tr><th>Group</th><th>Name</th><th>Status</th><th>Response time</th><th>Last check time</th><th>Tags<th></tr>
-                <tr ng-repeat="e in endpoints | orderBy: ['Group','Name'] | filter:tagFilter">
+                <tr ng-repeat="e in endpoints | wildcardFilter:filter:['Status'] | orderBy: ['Group','Name'] | filter:tagFilter">
                     <td>{{e.Group}}</td>
                     <td><a href="/dashboard/details?id={{e.Id}}" target="_blank">{{e.Name}}</a></td>
                     <td class="status-{{e.Status}}">{{e.Status}}</td>
@@ -56,12 +63,13 @@
         <footer>Version: {{config.Dashboard.Version}}</footer>
     </section>
     <script>
-        var app = angular.module('app', ['angular.filter']);
+        var app = angular.module('app', ['angular.filter', 'wonga.filter']);
         app.controller('ctrl', function ($scope, $http, $location) {
             $scope.config = null;
             $scope.alerts = [];
             $scope.filterTags = [];
             $scope.inputFilterTag = null;
+            $scope.filter = {};
 
             initTagsFromUrl($scope, $location);
 
@@ -84,6 +92,11 @@
                         $scope.endpoints = null;
                     });
             }
+
+            $scope.onChangedStatus = function (status) {
+                $scope.filter.Status = status || null;
+                $location.search('filter-status', $scope.filter.Status);
+            };
 
             $scope.tagFilter = function (endpoint) {
                 for (var i = 0; i < $scope.filterTags.length; i++) {
@@ -122,8 +135,13 @@
 
         function initTagsFromUrl(scope, location) {
             var searchParams = location.search()["filter-tags"];
+            var statusFilter = location.search()["filter-status"];
             if (searchParams !== undefined && searchParams != null)
                 scope.filterTags = tagsFromParamString(searchParams);
+
+            if (statusFilter) {
+                scope.filter.Status = statusFilter;
+            }                
         }
 
         function tagsToParamString(tags) {

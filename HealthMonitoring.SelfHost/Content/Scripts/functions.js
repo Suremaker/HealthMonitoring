@@ -28,3 +28,34 @@ function formatDuration(timeSpan) {
     if (timeSpan == null) { return ""; }
     return parseDuration(timeSpan) + " ms";
 }
+
+String.prototype.replaceAll = function (search, replacement) {
+    return this.split(search).join(replacement);
+};
+
+Array.prototype.unique = function (comparator) {
+
+    for (var i = 0; i < this.length; i++) {
+        for (var j = i + 1; j < this.length; j++) {
+            if (comparator(this[i], this[j])) {
+                this.splice(j--, 1);
+            }
+        }
+    }
+    return this;
+};
+
+Array.prototype.merge = function (arr, comparator) {
+    var result = [];
+
+    for (var i = 0; i < this.length; i++) {
+        for (var j = 0; j < arr.length; j++) {
+            if (comparator(this[i], arr[j])) {
+                result.push(this[i]);
+                arr.splice(j, 1);
+                break;
+            }
+        }
+    }
+    return result;
+};
