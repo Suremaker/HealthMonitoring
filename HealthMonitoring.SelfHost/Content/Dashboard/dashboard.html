@@ -34,7 +34,7 @@
         </a>
     </div>
     <div class="board" ng-if="endpointGrouping">
-        <a ng-repeat="group in endpoints | groupBy: 'Group' |toArray:true| filter:filter | orderBy: '$key'" ng-class="::getEndpointClassName(group.$key)" data-status="{{findHighestStatus(group)}}" data-changed="{{didAnyChanged(group)}}" class="endpoint endpoint-status endpoint-group" href="/dashboard?filter-group={{encodeURIComponent(group.$key)}}" target="_blank">
+        <a ng-repeat="group in endpoints | groupBy: 'Group' |toArray:true| filter:filter | orderBy: '$key'" ng-class="::getEndpointClassName(group.$key)" data-status="{{findHighestStatus(group)}}" data-changed="{{didAnyChanged(group)}}" class="endpoint endpoint-status endpoint-group" href="/dashboard?filter-group={{encodeURIComponent(group.$key)}}" target="_self">
             <div>{{::group.$key}}</div>
             <div class="nodeBar">
                 <div ng-repeat="e in group" class="endpoint-node endpoint-status" data-status="{{::e.Status}}" data-changed="{{::e.changed}}" style="width:{{getNodeSize(group.length).percentWidth}}%;height:{{getNodeSize(group.length).percentHeight}}%;"></div>
