@@ -17,7 +17,7 @@ namespace HealthMonitoring.Model
             Address = address;
             Name = name;
             Group = group;
-            Tags = tags;
+            UpdateTags(tags);
             UpdateLastModifiedTime();
         }
 
@@ -37,7 +37,7 @@ namespace HealthMonitoring.Model
             if(tags == null)
                 return;
            
-            Tags = tags;
+            Tags = tags.Distinct().ToArray();
         }
 
         public Endpoint Update(string group, string name, string[] tags)

@@ -110,26 +110,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         }
         private void When_client_requests_tags_updating_via_url(string url, string[] tags)
         {
-            _response = _client.Post(new RestRequest(url).AddJsonBody(new { Tags = tags }));
-        }
-
-        private void Then_endpoint_tags_should_be_updated(string[] tags)
-        {
-            EndpointEntity ed  = _response.DeserializeEndpointDetails();
-
-            AssertTags(ed.Tags, tags);
-        }
-
-        private void AssertTags(string[] existing, string[] expected)
-        {
-            Assert.Equal(existing.Length, expected.Length);
-            existing = existing.OrderBy(x => x).ToArray();
-            expected = expected.OrderBy(x => x).ToArray();
-
-            for (int i = 0; i < expected.Length; i++)
-            {
-                Assert.Equal(expected[i], existing[i]);
-            }
+            _response = _client.Put(new RestRequest(url).AddJsonBody(tags));
         }
     }
 }

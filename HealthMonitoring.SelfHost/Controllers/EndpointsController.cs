@@ -82,14 +82,24 @@ namespace HealthMonitoring.SelfHost.Controllers
         }
 
         [Route("api/endpoints/{id}/tags")]
-        [ResponseType(typeof (Guid))]
-        [SwaggerResponse(HttpStatusCode.Created, Type = typeof (Guid))]
+        [SwaggerResponse(HttpStatusCode.OK)]
+        [SwaggerResponse(HttpStatusCode.NotFound)]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
-        public IHttpActionResult PostUpdateEndpointTags(Guid id, [FromBody]TagsModel model)
+        [ResponseType(typeof(EndpointDetails))]
+        public IHttpActionResult PutUpdateEndpointTags(Guid id, [FromBody]string[] tags)
         {
-            model.ValidateModel();
-            _endpointRegistry.UpdateEndpointTags(id, model.Tags);
-            return Ok(EndpointDetails.FromDomain(_endpointRegistry.GetById(id)));
+            try
+            {
+                tags.CheckForUnallowedSymbols();
+
+                if (_endpointRegistry.TryUpdateEndpointTags(id, tags))
+                    return Ok();
+                return NotFound();
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

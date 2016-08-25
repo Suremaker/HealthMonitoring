@@ -14,9 +14,9 @@ namespace HealthMonitoring.SelfHost.Entities
         }
     }
 
-    public class TagsAllowedSymbols
+    public static class TagsValidator
     {
-        public static ValidationResult ValidateTags(string[] tags)
+        public static ValidationResult CheckForUnallowedSymbols(this string[] tags)
         {
             const string allowedSymbols = "_";
 

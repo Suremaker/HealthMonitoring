@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Http;
 using System.Web.Http.Results;
 using HealthMonitoring.Model;
 using HealthMonitoring.SelfHost.Controllers;
@@ -51,7 +53,7 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
             var address = "abc";
             var group = "def";
             var name = "ghi";
-            var tags = new[] {"t1", "t2"};
+            var tags = new[] { "t1", "t2" };
 
             _endpointRegistry.Setup(r => r.RegisterOrUpdate(monitor, address, group, name, tags)).Returns(id);
 
@@ -61,7 +63,7 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
                 Address = address,
                 Group = group,
                 Name = name,
-                MonitorType = monitor, 
+                MonitorType = monitor,
                 Tags = tags
             }) as CreatedNegotiatedContentResult<Guid>;
 
@@ -211,9 +213,15 @@ namespace HealthMonitoring.UnitTests.SelfHost.Controllers
         }
 
         [Fact]
-        public void UpdateTags_should_fail_if_model_is_not_provided()
+        public void UpdateTags_should_return_BadRequest_if_tags_contains_unallowed_symbols()
         {
-            Assert.Throws<ValidationException>(() => _controller.PostUpdateEndpointTags(Guid.NewGuid(), new TagsModel {Tags = null}));
+            Assert.IsType<BadRequestErrorMessageResult>(_controller.PutUpdateEndpointTags(Guid.NewGuid(), new[] { "tag!@$%^&():,./" }));
+        }
+
+        [Fact]
+        public void UpdateTags_should_return_NOTFOUND_if_there_is_no_matching_endpoint()
+        {
+            Assert.IsType<NotFoundResult>(_controller.PutUpdateEndpointTags(Guid.NewGuid(), new[] { "tag" }));
         }
     }
 }

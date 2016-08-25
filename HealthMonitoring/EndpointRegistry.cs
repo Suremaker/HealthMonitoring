@@ -50,12 +50,15 @@ namespace HealthMonitoring
             return endpoint.Id;
         }
 
-        public Guid UpdateEndpointTags(Guid id, string[] tags)
+        public bool TryUpdateEndpointTags(Guid id, string[] tags)
         {
-            var endpooint = _endpointsByGuid[id];
-            endpooint.UpdateTags(tags);
-            _endpointConfigurationStore.SaveEndpoint(endpooint);
-            return id;
+            Endpoint endpoint;
+            if(!_endpointsByGuid.TryGetValue(id, out endpoint))
+                return false;
+
+            endpoint.UpdateTags(tags);
+            _endpointConfigurationStore.SaveEndpoint(endpoint);
+            return true;
         }
 
         public Endpoint GetById(Guid id)
