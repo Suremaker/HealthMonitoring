@@ -59,3 +59,12 @@ Array.prototype.merge = function (arr, comparator) {
     }
     return result;
 };
+
+Array.prototype.remove = function(value, comparator) {
+    for (var i = 0; i < this.length; i++) {
+        if (comparator(value, this[i]))
+            this.splice(i--,1);
+    }
+
+    return this;
+};

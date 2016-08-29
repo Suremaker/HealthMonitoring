@@ -1,5 +1,5 @@
 ﻿
-angular.module('wonga.filter', [])
+angular.module('advanced.filters', [])
     .filter('wildcardFilter', function ($filter) {
 
         /*  converts wildcard string to regex pattern
@@ -8,10 +8,10 @@ angular.module('wonga.filter', [])
         @strict - do we need strict comparing to value
         */
         function preparePattern(value, rules, strict) {
-            var pattern = value.replace(/[&\/\\#,+()$~%.'":?<>{}\[\]]/g, ''),
-                rules = rules || [];
+            var pattern = value.replace(/[&\/\\#,+()$~%.'":?<>{}\[\]]/g, '');
+            rules = rules || [];
 
-            if (value == null || value == '')
+            if (!value)
                 return new RegExp('^.*$', 'i', 'g');
 
             for (var i = 0; i < rules.length; i++) {
@@ -94,7 +94,7 @@ angular.module('wonga.filter', [])
         };
     })
 
-    .filter('tagsFilter', function ($filter) {
+    .filter('tagsFilter', function () {
         return function (endpoints, tags) {
             var filtered = [],
                 tagProperty = 'Tags';

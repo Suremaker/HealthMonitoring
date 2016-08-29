@@ -22,14 +22,6 @@ namespace HealthMonitoring.SelfHost.Controllers
             _endpointStatsRepository = endpointStatsRepository;
         }
 
-        [Route("api/endpoints/health/statuses")]
-        [SwaggerResponse(HttpStatusCode.OK, Type = typeof(IEnumerable<string>))]
-        public IHttpActionResult GetHealthStatuses()
-        {
-            var statuses = _endpointRegistry.HealthStatuses();
-            return Ok(statuses);
-        }
-
         [Route("api/endpoints/register")]
         [ResponseType(typeof(Guid))]
         [SwaggerResponse(HttpStatusCode.Created, Type = typeof(Guid))]

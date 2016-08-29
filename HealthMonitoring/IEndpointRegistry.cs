@@ -10,7 +10,6 @@ namespace HealthMonitoring
         bool TryUpdateEndpointTags(Guid id, string[] tags);
         Endpoint GetById(Guid id);
         bool TryUnregisterById(Guid id);
-        IEnumerable<String> HealthStatuses();
 
         IEnumerable<Endpoint> Endpoints { get; }
         event Action<Endpoint> NewEndpointAdded;

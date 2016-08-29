@@ -7,7 +7,8 @@
     <script src="/static/scripts/angular.min.js"></script>
     <script src="/static/scripts/angular-filter.min.js"></script>
     <script src="/static/scripts/functions.js"></script>
-    <script src="/static/scripts/wonga-filter.js"></script>
+    <script src="/static/scripts/advanced-filters.js"></script>
+    <script src="/static/scripts/advanced-directives.js"></script>
     <script src="/static/dashboard/groupNodeSizer.js"></script>
     <link rel="stylesheet" href="/static/dashboard/dashboard.css">
     <base href="/dashboard">
@@ -19,11 +20,9 @@
             <td><img src="/static/assets/favicon.svg" alt="icon" /></td>
             <td><h1><a href="/"  target="_self">{{dashSettings.Title}}</a></h1></td>
             <td class="toolbar">
-                <select name="health-status" class="filter health-status ng-cloak" ng-model="filter.Status" ng-change="onStatusFilterChanged()">
-                    <option value="" selected="selected">all statuses</option>
-                    <option ng-repeat="status in healthStatuses" value="{{::status}}">{{::status}}</option>
-                </select>
-                <input type="text" placeholder="tags filter..." ng-model="tagsFilter" class="filter" ng-change="onTagsFilterChanged()" />
+                <wg-multiselect items="healthStatuses" after-select="onStatusFilterChanged" selected="selectedStatuses"></wg-multiselect>
+
+                <input type="text" placeholder="tags filter..." ng-model="tagsFilter" class="filter" ng-change="onTagsFilterChanged()"/>
                 <input type="checkbox" id="endpointGrouping" ng-model="endpointGrouping" ng-click="updateEndpointGrouping()"/>
                 <label for="endpointGrouping">Group View</label>
                 <input type="text" placeholder="group filter..." ng-model="filter.Group" class="filter" ng-change="onGroupFilterChanged()"/>
@@ -49,7 +48,7 @@
         </a>
     </div>
     <script>
-        var app = angular.module('app', ['angular.filter', 'wonga.filter']);
+        var app = angular.module('app', ['angular.filter', 'advanced.filters', 'advanced.directives']);
         app.config(function($locationProvider) {
             $locationProvider.html5Mode(true);
         });
@@ -60,6 +59,7 @@
             $scope.filter = {};
             $scope.tagsFilter = "";
             $scope.healthStatuses = [];
+            $scope.selectedStatuses = [];
 
             initializeToolbar($scope, $location);
 
@@ -70,6 +70,7 @@
                 $http.get("/api/config")
                     .success(function (response) {
                         $scope.dashSettings = response.Dashboard;
+                        $scope.healthStatuses = response.HealthStatuses;
                     })
                     .error(function (data, status) {
                         //do nothing
@@ -86,16 +87,8 @@
                   });
             };
 
-            $scope.getAllHealthStatuses = function () {
-                $http.get("/api/endpoints/health/statuses")
-                  .success(function (response) {
-                      $scope.healthStatuses = response;
-                  });
-            };
-
             $scope.getConfig();
             $scope.update();
-            $scope.getAllHealthStatuses();
             setInterval($scope.update, 1000);
             setInterval($scope.getConfig, 20000);
 
@@ -134,9 +127,10 @@
                 return false;
             }
 
-            $scope.onStatusFilterChanged = function () {
-                var urlParam = $scope.filter.Status || null;
-                $location.search('filter-status', urlParam);
+            $scope.onStatusFilterChanged = function (statuses) {
+                $scope.selectedStatuses = statuses;
+                $scope.filter.Status = statuses.length ? statuses.join(';') : null;
+                $location.search('filter-status', $scope.filter.Status);
             };
 
             $scope.onGroupFilterChanged = function () {
@@ -219,6 +213,7 @@
             }
             if (statusFilter) {
                 scope.filter.Status = statusFilter;
+                scope.selectedStatuses = statusFilter.split(';');
             }
             if (tagsFilter) {
                 scope.tagsFilter = tagsFilter;
