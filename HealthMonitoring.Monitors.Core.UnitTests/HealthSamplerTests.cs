@@ -9,7 +9,6 @@ using HealthMonitoring.Monitors.Core.Samplers;
 using HealthMonitoring.Monitors.Core.UnitTests.Helpers;
 using Moq;
 using Xunit;
-using Xunit.Sdk;
 
 namespace HealthMonitoring.Monitors.Core.UnitTests
 {

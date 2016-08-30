@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Threading;
-using HealthMonitoring.SelfHost;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -14,20 +12,15 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 {
     public class TestInitalization
     {
-        private static Thread _thread;
+        private static Process _apiProcess;
+        private static Process _monitorProcess;
 
         public static void Initialize()
         {
-            DisableSqlLiteErrorPrinting();
             DeleteDatabase();
 
-            _thread = new Thread(() => Program.Main());
-            _thread.Start();
-        }
-
-        private static void DisableSqlLiteErrorPrinting()
-        {
-            Console.SetError(Console.Out);
+            _apiProcess = Process.Start(new ProcessStartInfo("api\\HealthMonitoring.SelfHost.exe") { WindowStyle = ProcessWindowStyle.Minimized });
+            _monitorProcess = Process.Start(new ProcessStartInfo("monitor\\HealthMonitoring.Monitors.SelfHost.exe") { WindowStyle = ProcessWindowStyle.Minimized });
         }
 
         private static void DeleteDatabase()
@@ -39,8 +32,13 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
         public static void Terminate()
         {
-            _thread.Interrupt();
-            _thread.Join();
+            _apiProcess.CloseMainWindow();
+            _monitorProcess.CloseMainWindow();
+
+            if (!_apiProcess.WaitForExit(3000))
+                _apiProcess.Kill();
+            if (!_monitorProcess.WaitForExit(3000))
+                _monitorProcess.Kill();
         }
     }
 

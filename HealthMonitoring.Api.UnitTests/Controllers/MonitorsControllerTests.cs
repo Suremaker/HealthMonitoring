@@ -1,8 +1,5 @@
-﻿using System.Net;
-using System.Threading;
-using System.Web.Http.Results;
+﻿using System.Web.Http.Results;
 using HealthMonitoring.Management.Core;
-using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.SelfHost.Controllers;
 using Moq;
 using Xunit;

@@ -12,11 +12,11 @@ using HealthMonitoring.Monitors.Core.Samplers;
 
 namespace HealthMonitoring.Monitors.SelfHost
 {
-    class Program
+    public class Program
     {
         private static ILog _logger;
 
-        static int Main(string[] args)
+        public static int Main()
         {
             LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(new NameValueCollection { { "configType", "FILE-WATCH" }, { "configFile", "~/log4net.config" } });
             _logger = LogManager.GetLogger<Program>();

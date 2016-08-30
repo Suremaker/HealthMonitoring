@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Web.Http.Results;
 using HealthMonitoring.Management.Core;
 using HealthMonitoring.Management.Core.Repositories;

@@ -35,12 +35,12 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LightBDD, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\LightBDD.Core.1.7.0.0\lib\net40\LightBDD.dll</HintPath>
+    <Reference Include="LightBDD, Version=1.7.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\LightBDD.Core.1.7.2.0\lib\net40\LightBDD.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="LightBDD.XUnit, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\LightBDD.XUnit.1.7.0.0\lib\net451\LightBDD.XUnit.dll</HintPath>
+    <Reference Include="LightBDD.XUnit, Version=1.7.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\LightBDD.XUnit.1.7.2.0\lib\net451\LightBDD.XUnit.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -77,7 +77,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Net.Http.WebRequest" />
-    <Reference Include="System.Runtime" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
@@ -159,12 +158,6 @@
     </Content>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\HealthMonitoring.SelfHost\HealthMonitoring.SelfHost.csproj">
-      <Project>{C7EB3E43-9DC4-4D10-9799-3371133BAEF9}</Project>
-      <Name>HealthMonitoring.SelfHost</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
@@ -172,10 +165,14 @@
     <Error Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
   </Target>
   <PropertyGroup>
-    <PreBuildEvent>RD /S /Q $(TargetDir)monitors
+    <PreBuildEvent>RD /S /Q $(TargetDir)monitor
+RD /S /Q $(TargetDir)api
 RD /S /Q $(TargetDir)sample
-xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.Http\$(OutDir). $(TargetDir)monitors\HealthMonitoring.Monitors.Http
-xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.Nsb3\$(OutDir). $(TargetDir)monitors\HealthMonitoring.Monitors.Nsb3
+
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SelfHost\$(OutDir). $(TargetDir)api
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.SelfHost\$(OutDir). $(TargetDir)monitor
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.Http\$(OutDir). $(TargetDir)monitor\monitors\HealthMonitoring.Monitors.Http
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.Nsb3\$(OutDir). $(TargetDir)monitor\monitors\HealthMonitoring.Monitors.Nsb3
 xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SampleNsbHost\$(OutDir). $(TargetDir)sample</PreBuildEvent>
   </PropertyGroup>
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.99.0\build\net451\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.99.0\build\net451\System.Data.SQLite.Core.targets')" />
