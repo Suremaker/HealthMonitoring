@@ -20,6 +20,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
                 typeof(TestHealthMonitor), 
                 typeof(TestHealthMonitor2),
                 typeof(TestableHealthMonitor),
+                typeof(MockableMonitor)
             };
 
 

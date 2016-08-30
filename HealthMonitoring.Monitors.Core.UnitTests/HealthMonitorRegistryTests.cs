@@ -5,7 +5,7 @@ using Xunit;
 
 namespace HealthMonitoring.Monitors.Core.UnitTests
 {
-    public class MonitorRegistryTests
+    public class HealthMonitorRegistryTests
     {
         [Fact]
         public void Monitors_should_return_all_monitors()

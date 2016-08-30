@@ -3,32 +3,29 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
 using HealthMonitoring.Model;
-using HealthMonitoring.Monitors.Core.Exchange;
 using HealthMonitoring.Monitors.Core.Helpers;
 using HealthMonitoring.Monitors.Core.Registers;
 
-namespace HealthMonitoring.Monitors.Core
+namespace HealthMonitoring.Monitors.Core.Exchange
 {
     public class MonitorDataExchange : IDisposable, IEndpointHealthUpdateListener
     {
-        public const int OutgoingQueueMaxCapacity = 1024;
-        public const int ExchangeOutBucketSize = 64;
-        public static readonly TimeSpan UploadRetryInterval = TimeSpan.FromSeconds(5);
-        public static readonly TimeSpan EndpointChangeQueryInterval = TimeSpan.FromSeconds(60);
-
         private static readonly ILog Logger = LogManager.GetLogger<MonitorDataExchange>();
         private readonly Thread _exchangeThread;
         private readonly IHealthMonitorRegistry _registry;
         private readonly IHealthMonitorExchangeClient _exchangeClient;
         private readonly IMonitorableEndpointRegistry _monitorableEndpointRegistry;
-        private readonly OutgoingQueue<EndpointHealthUpdate> _outgoingQueue = new OutgoingQueue<EndpointHealthUpdate>(OutgoingQueueMaxCapacity);
+        private readonly OutgoingQueue<EndpointHealthUpdate> _outgoingQueue;
         private readonly CancellationTokenSource _cancellation = new CancellationTokenSource();
+        private readonly DataExchangeConfig _config;
 
-        public MonitorDataExchange(IHealthMonitorRegistry registry, IHealthMonitorExchangeClient exchangeClient, IMonitorableEndpointRegistry monitorableEndpointRegistry)
+        public MonitorDataExchange(IHealthMonitorRegistry registry, IHealthMonitorExchangeClient exchangeClient, IMonitorableEndpointRegistry monitorableEndpointRegistry, DataExchangeConfig config)
         {
+            _config = config;
             _registry = registry;
             _exchangeClient = exchangeClient;
             _monitorableEndpointRegistry = monitorableEndpointRegistry;
+            _outgoingQueue = new OutgoingQueue<EndpointHealthUpdate>(_config.OutgoingQueueMaxCapacity);
             _exchangeThread = new Thread(StartExchange) { Name = "Exchange" };
             _exchangeThread.Start();
         }
@@ -47,7 +44,7 @@ namespace HealthMonitoring.Monitors.Core
             {
                 try
                 {
-                    var bucket = _outgoingQueue.Dequeue(ExchangeOutBucketSize, UploadRetryInterval, _cancellation.Token);
+                    var bucket = _outgoingQueue.Dequeue(_config.ExchangeOutBucketSize, _config.UploadRetryInterval, _cancellation.Token);
                     if (bucket.Length > 0)
                         await UploadChangesAsync(bucket);
                 }
@@ -58,7 +55,7 @@ namespace HealthMonitoring.Monitors.Core
                 catch (Exception e)
                 {
                     Logger.Error($"Unable to exchange data: {e.Message}", e);
-                    await Task.Delay(UploadRetryInterval, _cancellation.Token);
+                    await Task.Delay(_config.UploadRetryInterval, _cancellation.Token);
                 }
             }
         }
@@ -79,7 +76,7 @@ namespace HealthMonitoring.Monitors.Core
                 catch (Exception e)
                 {
                     Logger.Error($"Unable to upload endpoint updates: {e.Message}", e);
-                    await Task.Delay(UploadRetryInterval, _cancellation.Token);
+                    await Task.Delay(_config.UploadRetryInterval, _cancellation.Token);
                 }
             }
         }
@@ -102,7 +99,7 @@ namespace HealthMonitoring.Monitors.Core
                     Logger.Error($"Unable to query changes: {e.Message}", e);
                 }
 
-                await Task.Delay(EndpointChangeQueryInterval, _cancellation.Token);
+                await DelayNoThrow(_config.EndpointChangeQueryInterval);
             }
         }
 
@@ -122,9 +119,18 @@ namespace HealthMonitoring.Monitors.Core
                 catch (Exception e)
                 {
                     Logger.Error($"Unable to register monitors: {e.Message}", e);
-                    await Task.Delay(UploadRetryInterval, _cancellation.Token);
+                    await DelayNoThrow(_config.UploadRetryInterval);
                 }
             }
+        }
+
+        private async Task DelayNoThrow(TimeSpan interval)
+        {
+            try
+            {
+                await Task.Delay(interval, _cancellation.Token);
+            }
+            catch (OperationCanceledException) { }
         }
 
         public void UpdateHealth(Guid endpointId, EndpointHealth endpointHealth)

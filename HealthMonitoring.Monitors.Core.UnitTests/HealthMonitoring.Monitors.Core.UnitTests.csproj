@@ -71,7 +71,8 @@
     <Compile Include="Helpers\TestableHealthMonitor.cs" />
     <Compile Include="MonitorDataExchangeTests.cs" />
     <Compile Include="MonitorDiscoveryTests.cs" />
-    <Compile Include="MonitorRegistryTests.cs" />
+    <Compile Include="HealthMonitorRegistryTests.cs" />
+    <Compile Include="OutgoingQueueTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThrottlingSamplerTests.cs" />
   </ItemGroup>

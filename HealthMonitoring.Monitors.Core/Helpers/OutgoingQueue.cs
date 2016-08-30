@@ -27,21 +27,24 @@ namespace HealthMonitoring.Monitors.Core.Helpers
         public T[] Dequeue(int maxCount, TimeSpan maxWaitTime, CancellationToken cancellation)
         {
             var retrieved = new List<T>(maxCount);
-            var watch = Stopwatch.StartNew();
-            while (retrieved.Count < maxCount)
+            try
             {
-                var remainingTime = maxWaitTime - watch.Elapsed;
+                var watch = Stopwatch.StartNew();
+                while (retrieved.Count < maxCount)
+                {
+                    var remainingTime = maxWaitTime - watch.Elapsed;
 
-                if (remainingTime.Ticks < 0)
-                    break;
+                    T item;
+                    if (!_collection.TryTake(out item, Math.Max(0, (int)remainingTime.TotalMilliseconds), cancellation))
+                        break;
 
-                T item;
-                if (!_collection.TryTake(out item, (int)remainingTime.TotalMilliseconds, cancellation))
-                    break;
-
-                retrieved.Add(item);
+                    retrieved.Add(item);
+                }
             }
+            catch (OperationCanceledException) { }
             return retrieved.ToArray();
         }
+
+        public int Count => _collection.Count;
     }
 }

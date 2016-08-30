@@ -57,14 +57,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointMonitor.cs" />
-    <Compile Include="Exchange\ChangedEndpoints.cs" />
-    <Compile Include="Exchange\EndpointHealthUpdate.cs" />
-    <Compile Include="Exchange\Entities\ThrottlingSettings.cs" />
-    <Compile Include="Exchange\HealthMonitorExchangeClient.cs" />
-    <Compile Include="Exchange\IHealthMonitorExchangeClient.cs" />
-    <Compile Include="Exchange\HealthMonitorSettings.cs" />
-    <Compile Include="Exchange\Entities\MonitorSettings.cs" />
-    <Compile Include="Exchange\Entities\MonitorSettingsModel.cs" />
+    <Compile Include="Exchange\Client\ChangedEndpoints.cs" />
+    <Compile Include="Exchange\Client\EndpointHealthUpdate.cs" />
+    <Compile Include="Exchange\Client\Entities\ThrottlingSettings.cs" />
+    <Compile Include="Exchange\Client\HealthMonitorExchangeClient.cs" />
+    <Compile Include="Exchange\Client\IHealthMonitorExchangeClient.cs" />
+    <Compile Include="Exchange\Client\HealthMonitorSettings.cs" />
+    <Compile Include="Exchange\Client\Entities\MonitorSettings.cs" />
+    <Compile Include="Exchange\Client\Entities\MonitorSettingsModel.cs" />
+    <Compile Include="Exchange\DataExchangeConfig.cs" />
+    <Compile Include="Exchange\MonitorDataExchange.cs" />
     <Compile Include="Helpers\OutgoingQueue.cs" />
     <Compile Include="IEndpointHealthUpdateListener.cs" />
     <Compile Include="Registers\EndpointRegistry.cs" />
@@ -73,7 +75,6 @@
     <Compile Include="Registers\IMonitorableEndpointRegistry.cs" />
     <Compile Include="Registers\IHealthMonitorRegistry.cs" />
     <Compile Include="MonitorableEndpoint.cs" />
-    <Compile Include="MonitorDataExchange.cs" />
     <Compile Include="MonitorDiscovery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Samplers\HealthSampler.cs" />
