@@ -20,7 +20,7 @@ header {
 
 td.toolbar{ width: 100%;text-align: right;}
 
-input.filter{ background: transparent;border: 1px solid black;color: #eeeeee;margin: 0;padding: 2px;margin-right: 10px;}
+select.filter, input.filter{ background: transparent;border: 1px solid black;color: #eeeeee;margin: 0;padding: 2px;margin-right: 10px;}
 .toolbar > label{ color: #aaaaaa;}
 
 td > h1 {
@@ -134,4 +134,12 @@ a{
 }
 .group3 {
   border-bottom: solid 10px #474747;
+}
+
+.health-status{
+    width: 10%;
+}
+
+.health-status > option{
+    background-color: #222222;
 }
