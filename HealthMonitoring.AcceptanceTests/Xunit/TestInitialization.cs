@@ -16,23 +16,25 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
         private static Tuple<Thread, AppDomain> _api;
         private static Tuple<Thread, AppDomain> _monitor;
 
-        public static void Initialize()
+        public static void Initialize(string assemblyPath)
         {
             DeleteDatabase();
 
-            _monitor = StartAssembly("monitor\\HealthMonitoring.Monitors.SelfHost.exe");
-            _api = StartAssembly("api\\HealthMonitoring.SelfHost.exe");
+            _monitor = StartAssembly(assemblyPath, "monitor\\HealthMonitoring.Monitors.SelfHost.exe");
+            _api = StartAssembly(assemblyPath, "api\\HealthMonitoring.SelfHost.exe");
             EnsureProcessesAlive();
         }
 
-        private static Tuple<Thread, AppDomain> StartAssembly(string exePath)
+        private static Tuple<Thread, AppDomain> StartAssembly(string assemblyPath, string exeRelativePath)
         {
+            var exePath = Path.GetDirectoryName(assemblyPath) + "\\" + exeRelativePath;
+
             var setup = new AppDomainSetup
             {
-                ApplicationBase = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory + "\\" + exePath),
+                ApplicationBase = Path.GetDirectoryName(exePath),
                 ConfigurationFile = Path.GetFileName(exePath) + ".config"
             };
-            var domain = AppDomain.CreateDomain(exePath, AppDomain.CurrentDomain.Evidence, setup);
+            var domain = AppDomain.CreateDomain(exeRelativePath, AppDomain.CurrentDomain.Evidence, setup);
             var thread = new Thread(() => ExecuteAssembly(exePath, domain)) { IsBackground = true };
             thread.Start();
             return Tuple.Create(thread, domain);
@@ -104,7 +106,7 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
         protected override async void RunTestCases(IEnumerable<IXunitTestCase> testCases, IMessageSink executionMessageSink, ITestFrameworkExecutionOptions executionOptions)
         {
-            TestInitalization.Initialize();
+            TestInitalization.Initialize(TestAssembly.Assembly.AssemblyPath);
             try
             {
                 using (XunitTestAssemblyRunner testAssemblyRunner = new XunitTestAssemblyRunner(TestAssembly, testCases, DiagnosticMessageSink, executionMessageSink, executionOptions))
