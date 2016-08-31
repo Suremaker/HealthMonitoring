@@ -1,0 +1,106 @@
+2.1.0.0
+-------
+Extended Endpoints metadata with tags.
+
+2.0.3.0
+-------
+Dashboard performance optimizations
+Extended Dashboard with endpoint grouping
+
+2.0.2.5
+-------
+Updated HealthMonitoring.Monitors.Http to support Tls12 and Tls11
+
+2.0.2.4
+-------
+Added configuration to not place undeliverable messages in the transactional dead letter queue
+
+2.0.2.3
+-------
+Corrected details page to not load stats again if previous request is pending
+
+2.0.2.2
+-------
+Implemented caching static content as long as instance is running (ETag)
+
+2.0.2.1
+-------
+Updated logging levels to log less on console (IO performance improvement)
+Small optimization to SQLiteConnection creation
+Optimization for details page chart loading (no new queries are made if one is already pending...)
+Updated System.Data.SQLite version
+Increased SQLite IO performance (SyncMode=SynchronizationModes.Normal)
+Corrected delayed endpoint initialization on startup
+
+2.0.2.0
+-------
+Implemented home page and added Version property to Configuration controller
+
+2.0.1.0
+-------
+Enabled CORS for getting endpoint information
+
+2.0.0.0
+-------
+Implemented monitor health check throttling
+Simplified dashboard css
+Added icons representing dashboard endpoint status
+Fixed Header icon on dashboard page for firefox
+Updated makefile to use local NuGet config file for restore
+Added an icon and a filter field to the dashboard.
+Randomized first time delay for endpoint health check
+Added Dashboard.Title app setting
+Added Title panel to dashboard
+Added /api/config to retrieve monitor configuration
+Increased the default logging level to INFO
+Added all customizable settings to app.config
+Modified EndpointMonitor to include health check time in interval between checks
+Removed HealthInfo.ResponseTime property (updated HealthMonitoring.Monitors version to 2.0.0.0)
+Added ToString() methods to HealthMonitoring.Monitors.Nsb3 messages (updated version to 1.0.1.0)
+Reworked time measurement to measure endpoint time in generic way, including when monitor time-outs or throws exception
+Updated HealthMonitoring version to 2.0.0.X
+Made unit and acceptance tests parallel
+Configured acceptance tests to run faster
+Corrected SqlEndpointConfigurationStore to not cause database locking
+Added ExceptionFilter to log API exceptions
+
+1.X.X.X
+-------
+Made unit and acceptance tests parallel
+Enabled static controller to load customised files
+Optimized SQLite to avoid database locking between read and writes Separated endpoint update from stats writing to the database (EndpointStatsManager) Added more logging Added throttling to HealthMonitor
+Performed all write operation in transaction, enabled WAL journaling on sqlite
+Updated acceptance tests for UI pages
+Added acceptance tests for endpoint statistics
+Dashboard and endpoint details styles improvement
+Dashboard endpoint ordering improvement
+Endpoint details stats graph improvements (axis description, added last segment, corrected display for 0ms points)
+Added legend to endpoint stats + corrected graph
+Details.html: Changed the way how graph is being rendered (improved performance)
+Uupdated details page to display detailed information about graph
+Added endpoint details view
+Added stats gathering and api/endpoints/{id}/stats api operation
+Made StaticController returning embedded resources
+Added favicons
+Added duration to dashboard
+Core functionality: implemented endpoint timeout and unhealthy status 
+Core functionality: added more logging 
+Nsb3Monitor: implemented message expiration
+Modified health statuses to include: notExists, unhealthy and timedOut
+Monitors.Nsb3 - create queues on start
+HealthMonitoring.Monitors and HealthMonitoring.Monitors.Nsb3.Messages uses manual versioning
+Added acceptance tests for Nsb3 monitor
+Added nsb monitor prototype
+Added install_service and uninstall_service to the package
+Display json in browser by default
+Made swagger loading faster (2 mins to 14secs)
+Added simple home page
+Added persistence for endpoints
+Implement dashboard
+Implemented basic health monitor with rest protocol
+Added DELETE /api/endpoints/{id} operation
+Added validation of protocol in /api/endpoints/register operation
+Created methods to register and retrieve endpoint list
+Added EndpointController and refactored tests
+Added logging to SelfHost
+Implemented health check protocols discovery and API to retrieve supported protocols

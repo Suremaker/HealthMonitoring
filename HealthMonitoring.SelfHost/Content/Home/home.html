@@ -7,83 +7,193 @@
     <script src="/static/scripts/angular.min.js"></script>
     <script src="/static/scripts/angular-filter.min.js"></script>
     <script src="/static/scripts/functions.js"></script>
+    <script src="/static/scripts/advanced-filters.js"></script>
     <link rel="stylesheet" href="/static/home/home.css">
+    <link rel="stylesheet" href="/static/styles/common.css">
+    <base href="/">
 </head>
 <body ng-app="app" data-ng-controller="ctrl">
-<section id="main">
-    <header>
-        <img src="/static/assets/favicon.svg" alt="logo" class="logo"/>
-        <h1>{{config.Dashboard.Title}}</h1>
-    </header>
-    <nav>
-        <ul>
-            <li><a href="/dashboard">Dashboard</a></li>
-            <li><a href="/api">API swagger docs</a></li>
-            <li><a href="https://github.com/wongatech/HealthMonitoring">Project site</a></li>
-        </ul>
-    </nav>
-    <article>
-        <header>Summary</header>
-        <p ng-if="endpoints==null">-- connection issue --</p>
-        <p ng-if="endpoints.length==0">No endpoints registered yet</p>
-        <div class="stats" ng-if="endpoints.length>0">
-            <div><span class="stats-key">total</span><span class="stats-value">{{endpoints.length}}</span></div>
-            <div ng-repeat="(key,value) in endpoints | groupBy: 'Status'"><span class="stats-key status-{{key}}">{{key}}</span><span class="stats-value">{{value.length}}</span></div>
-        </div>
-    </article>
-    <article>
-        <header>Endpoints</header>
-        <p ng-if="endpoints==null">-- connection issue --</p>
-        <p ng-if="endpoints.length==0">No endpoints registered yet</p>
+    <section id="main">
+        <header>
+            <img src="/static/assets/favicon.svg" alt="logo" class="logo" />
+            <h1>{{config.Dashboard.Title}}</h1>
+        </header>
+        <nav>
+            <ul>
+                <li><a href="/dashboard" target="_self">Dashboard</a></li>
+                <li><a href="/api" target="_self">API swagger docs</a></li>
+                <li><a href="https://github.com/wongatech/HealthMonitoring" target="_self">Project site</a></li>
+            </ul>
+        </nav>
+        <article>
+            <header>Summary</header>
+            <p ng-if="endpoints==null">-- connection issue --</p>
+            <p ng-if="endpoints.length==0">No endpoints registered yet</p>
+            <div class="stats" ng-if="endpoints.length>0">
+                <div ng-click="onStatusSelected()">
+                    <span class="endpoint-status stats-key"  ng-class="{'selected-status': !filter.Status}">total</span>
+                    <span class="stats-value">{{endpoints.length}}</span>
+                </div>
+                <div ng-repeat="(key,value) in endpoints | groupBy: 'Status'" ng-click="onStatusSelected(key)">
+                    <span class="endpoint-status stats-key status-{{key}}">{{key}}</span>
+                    <span class="stats-value">{{value.length}}</span>
+                </div>
+            </div>
+        
+            <div class="selected-filters-container">
+                <span ng-if="selectedStatuses.length" class="endpoint-status stats-key">Selected Statuses</span>
+                <span ng-repeat="status in selectedStatuses" ng-click="onStatusSelected(status)" class="endpoint-status status-{{status}}">{{status}}</span>
+            </div>
 
-        <table ng-if="endpoints.length>0" class="endpoints">
-            <tr><th>Group</th><th>Name</th><th>Status</th><th>Response time</th><th>Last check time</th></tr>
-            <tr ng-repeat="e in endpoints | orderBy: ['Group','Name']">
-                <td>{{e.Group}}</td>
-                <td><a href="/dashboard/details?id={{e.Id}}" target="_blank">{{e.Name}}</a></td>
-                <td class="status-{{e.Status}}">{{e.Status}}</td>
-                <td>{{formatDuration(e.LastResponseTime)}}</td>
-                <td>{{formatDate(e.LastCheckUtc)}}</td>
-            </tr>
-        </table>
-    </article>
-    <footer>Version: {{config.Dashboard.Version}}</footer>
-</section>
+            <div class="selected-filters-container">
+                <p class="tagsContainer">
+                    <span ng-if="filterTags.length" class="endpoint-status stats-key">Selected Tags</span>
+                    <span ng-repeat="tag in filterTags | orderBy: 'toString()'" ng-click="removeFromTagFilter(tag)" class="endpointTag">{{tag}}</span>
+                </p>
+            </div>
+        </article>
+        <article>
+            <header>Endpoints</header>
+            <p ng-if="endpoints==null">-- connection issue --</p>
+            <p ng-if="endpoints.length==0">No endpoints registered yet</p>
+            <table ng-if="endpoints.length>0" class="endpoints">
+                <tr><th>Group</th><th>Name</th><th>Status</th><th>Response time</th><th>Last check time</th><th>Tags<th></tr>
+                <tr ng-repeat="e in endpoints | wildcardFilter:filter:['Status'] | orderBy: ['Group','Name'] | filter:tagFilter">
+                    <td>{{e.Group}}</td>
+                    <td><a href="/dashboard/details?id={{e.Id}}" target="_blank">{{e.Name}}</a></td>
+                    <td class="endpoint-status status-{{e.Status}}" ng-click="onStatusSelected(e.Status)">{{e.Status}}</td>
+                    <td>{{formatDuration(e.LastResponseTime)}}</td>
+                    <td>{{formatDate(e.LastCheckUtc)}}</td>
+                    <td>
+                        <p class="tagsContainer"><span ng-repeat="tag in e.Tags | orderBy: 'toString()'" ng-click="addToTagFilter(tag)" class="endpointTag">{{tag}}</span></p>
+                    </td>
+                </tr>
+            </table>
+        </article>
+        <footer>Version: {{config.Dashboard.Version}}</footer>
+    </section>
     <script>
-    var app = angular.module('app', ['angular.filter']);
-    app.controller('ctrl', function ($scope, $http) {
-        $scope.config = null;
-        $scope.alerts = [];
+        var app = angular.module('app', ['angular.filter', 'advanced.filters']);
+        app.config(function ($locationProvider) {
+            $locationProvider.html5Mode(true);
+        });
 
-        $scope.getConfig = function () {
-            $http.get("/api/config")
-                .success(function (response) {
-                    $scope.config = response;
-                })
-                .error(function (data, status) {
-                    $scope.config = { Dashboard: { Title: "-- connection issue --" }, Version: "-- connection issue --" };
+        app.controller('ctrl', function ($scope, $http, $location) {
+            $scope.config = null;
+            $scope.alerts = [];
+            $scope.filterTags = [];
+            $scope.selectedStatuses = [];
+            $scope.inputFilterTag = null;
+            $scope.filter = {};
+
+            $scope.getConfig = function () {
+                $http.get("/api/config")
+                    .success(function (response) {
+                        $scope.config = response;
+                    })
+                    .error(function (data, status) {
+                        $scope.config = { Dashboard: { Title: "-- connection issue --" }, Version: "-- connection issue --" };
+                    });
+            }
+            $scope.getEndpoints = function () {
+
+                $http.get("/api/endpoints")
+                    .success(function (response) {
+                        $scope.endpoints = response;
+                    })
+                    .error(function (data, status) {
+                        $scope.endpoints = null;
+                    });
+            }
+
+            $scope.onStatusSelected = function (status) {
+                if (status) {
+                    var isSelected = $scope.selectedStatuses.find(function(item) {
+                        return item === status;
+                    });
+
+                    if (isSelected) {
+                        $scope.selectedStatuses.remove(status, $scope.valueComparator);
+                    } else {
+                        $scope.selectedStatuses.push(status);
+                    }
+                    $scope.filter.Status = $scope.selectedStatuses.length 
+                        ? $scope.selectedStatuses.join(';')
+                        : null;
+                } else {
+                    $scope.selectedStatuses = [];
+                    $scope.filter.Status = null;
+                }
+
+                $location.search('filter-status', $scope.filter.Status);
+            };
+
+            $scope.tagFilter = function (endpoint) {
+                for (var i = 0; i < $scope.filterTags.length; i++) {
+                    if (endpoint.Tags == null || endpoint.Tags.indexOf($scope.filterTags[i]) < 0) {
+                         return false;
+                    }
+                }
+                return true;
+            }
+
+            $scope.addToTagFilter = function (tag) {
+                if ($scope.filterTags.indexOf(tag) === -1)
+                    $scope.filterTags.push(tag);
+                $scope.updateLocationTagParams();
+            }
+
+            $scope.removeFromTagFilter = function (tag) {
+                var index = $scope.filterTags.indexOf(tag);
+                $scope.filterTags.splice(index, 1);
+                $scope.updateLocationTagParams();
+            }
+
+            $scope.updateLocationTagParams = function () {
+                $location.search('filter-tags', tagsToParamString($scope.filterTags));
+            };
+
+            $scope.valueComparator = function (a, b) { return a === b; }
+
+            initFiltersFromUrl($scope, $location);
+
+            $scope.parseDuration = parseDuration;
+            $scope.formatDate = formatDate;
+            $scope.formatDuration = formatDuration;
+
+            $scope.getConfig();
+            $scope.getEndpoints();
+            setInterval($scope.getEndpoints, 5000);
+            setInterval($scope.getConfig, 20000);
+        });
+
+        function initFiltersFromUrl(scope, location) {
+            var searchParams = location.search()["filter-tags"];
+            var statusFilter = location.search()["filter-status"];
+            if (searchParams !== undefined && searchParams != null)
+                scope.filterTags = tagsFromParamString(searchParams);
+
+            if (statusFilter) {
+                scope.filter.Status = statusFilter;
+                angular.forEach(statusFilter.split(';'), function (status) {
+                    scope.onStatusSelected(status);
                 });
-        }
-        $scope.getEndpoints = function() {
-            
-            $http.get("/api/endpoints")
-                .success(function (response) {
-                    $scope.endpoints = response;
-                })
-                .error(function (data, status) {
-                    $scope.endpoints = null;
-                });
+            }                
         }
 
-        $scope.parseDuration = parseDuration;
-        $scope.formatDate = formatDate;
-        $scope.formatDuration = formatDuration;
+        function tagsToParamString(tags) {
+            var params = "";
+            for (var i = 0; i < tags.length; i++) {
+                params += tags[i] + ";";
+            }
+            return params;
+        }
 
-        $scope.getConfig();
-        $scope.getEndpoints();
-        setInterval($scope.getEndpoints, 5000);
-        setInterval($scope.getConfig, 20000);
-    });
+        function tagsFromParamString(str) {
+            return str.split(";").filter(Boolean);
+        }
+
+        
     </script>
 </body>
 </html>

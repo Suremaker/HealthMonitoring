@@ -91,3 +91,12 @@ a{
 table.endpoints{ border-spacing: 1em 0.2em;}
 table.endpoints td,table.endpoints th { text-align: left;}
 table.endpoints tr td:nth-child(4), table.endpoints td:nth-child(5) { text-align: right;}
+
+.endpoint-status{padding: 0.2em 0.4em 0.2em 0.4em; border-radius: 0.25em; cursor:pointer;margin: 0 0.1em 0 0.1em; text-align: center !important;}
+.selected-status{border-bottom: 8px solid #FFCC00;}
+
+.selected-filters-container {
+    padding-left: 1em;
+    padding-top: 1em;
+}
+

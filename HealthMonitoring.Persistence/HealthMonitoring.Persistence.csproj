@@ -55,6 +55,7 @@
     <Compile Include="SqlEndpointConfigurationRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqliteDatabase.cs" />
+    <Compile Include="TagsHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

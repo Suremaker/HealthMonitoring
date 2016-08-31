@@ -108,5 +108,9 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         {
             When_client_requests_endpoint_deletion_via_url($"api/endpoints/{Guid.NewGuid()}");
         }
+        private void When_client_requests_tags_updating_via_url(string url, string[] tags)
+        {
+            _response = _client.Put(new RestRequest(url).AddJsonBody(tags));
+        }
     }
 }

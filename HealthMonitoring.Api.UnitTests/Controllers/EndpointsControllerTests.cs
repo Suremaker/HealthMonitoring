@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Web.Http;
 using System.Web.Http.Results;
 using HealthMonitoring.Management.Core;
 using HealthMonitoring.Management.Core.Repositories;
@@ -50,7 +52,9 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
             var address = "abc";
             var group = "def";
             var name = "ghi";
-            _endpointRegistry.Setup(r => r.RegisterOrUpdate(monitor, address, group, name)).Returns(id);
+            var tags = new[] { "t1", "t2" };
+
+            _endpointRegistry.Setup(r => r.RegisterOrUpdate(monitor, address, group, name, tags)).Returns(id);
 
             _controller.Request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:9090/");
             var response = _controller.PostRegisterEndpoint(new EndpointRegistration
@@ -58,7 +62,8 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
                 Address = address,
                 Group = group,
                 Name = name,
-                MonitorType = monitor
+                MonitorType = monitor,
+                Tags = tags
             }) as CreatedNegotiatedContentResult<Guid>;
 
             Assert.NotNull(response);
@@ -91,7 +96,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         {
             var monitor = "monitor";
             _endpointRegistry
-                .Setup(r => r.RegisterOrUpdate(monitor, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(r => r.RegisterOrUpdate(monitor, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>()))
                 .Throws(new UnsupportedMonitorException(monitor));
 
             var response = _controller.PostRegisterEndpoint(new EndpointRegistration
@@ -110,7 +115,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         public void GetEndpoint_should_return_endpoint_information()
         {
             Guid id = Guid.NewGuid();
-            var endpoint = new Endpoint(new EndpointIdentity(id, "monitor", "address"), new EndpointMetadata("name", "group"));
+            var endpoint = new Endpoint(new EndpointIdentity(id, "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }));
             _endpointRegistry.Setup(r => r.GetById(id)).Returns(endpoint);
 
             var result = _controller.GetEndpoint(id) as OkNegotiatedContentResult<EndpointDetails>;
@@ -131,7 +136,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         {
             var id = Guid.NewGuid();
 
-            var endpoint = new Endpoint(new EndpointIdentity(id, "monitor", "address"), new EndpointMetadata("name", "group"));
+            var endpoint = new Endpoint(new EndpointIdentity(id, "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }));
             var endpointHealth = new EndpointHealth(DateTime.UtcNow, TimeSpan.FromSeconds(5), status, new Dictionary<string, string> { { "abc", "def" } });
 
             endpoint.UpdateHealth(endpointHealth);
@@ -161,8 +166,8 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         {
             var endpoints = new[]
             {
-                new Endpoint(new EndpointIdentity(Guid.NewGuid(),"a", "b"),new EndpointMetadata("c", "d")),
-                new Endpoint(new EndpointIdentity(Guid.NewGuid(), "e", "f"),new EndpointMetadata( "g", "h"))
+                new Endpoint(new EndpointIdentity(Guid.NewGuid(),"a", "b"),new EndpointMetadata("c", "d", new[] { "t1", "t2" })),
+                new Endpoint(new EndpointIdentity(Guid.NewGuid(), "e", "f"),new EndpointMetadata( "g", "h", new[] { "t1", "t2" }))
             };
             _endpointRegistry.Setup(r => r.Endpoints).Returns(endpoints);
             var results = _controller.GetEndpoints().ToArray();
@@ -201,9 +206,9 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         {
             var endpoints = new[]
             {
-                new Endpoint(new EndpointIdentity(Guid.NewGuid(), "monitor1", "address1"), new EndpointMetadata("name", "group")),
-                new Endpoint(new EndpointIdentity(Guid.NewGuid(), "monitor2", "address2"), new EndpointMetadata("name", "group")),
-                new Endpoint(new EndpointIdentity(Guid.NewGuid(), "monitor3", "address3"), new EndpointMetadata("name", "group"))
+                new Endpoint(new EndpointIdentity(Guid.NewGuid(), "monitor1", "address1"), new EndpointMetadata("name", "group",new string[0])),
+                new Endpoint(new EndpointIdentity(Guid.NewGuid(), "monitor2", "address2"), new EndpointMetadata("name", "group",new string[0])),
+                new Endpoint(new EndpointIdentity(Guid.NewGuid(), "monitor3", "address3"), new EndpointMetadata("name", "group",new string[0]))
             };
             _endpointRegistry.Setup(r => r.Endpoints).Returns(endpoints);
             var actual = _controller.GetEndpointsIdentities();
@@ -236,6 +241,18 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
             Assert.Equal(expected.Status, actual.Status);
             Assert.Equal(expected.CheckTimeUtc, actual.CheckTimeUtc);
             Assert.Equal(expected.ResponseTime, actual.ResponseTime);
+        }
+
+        [Fact]
+        public void UpdateTags_should_return_BadRequest_if_tags_contains_unallowed_symbols()
+        {
+            Assert.IsType<BadRequestErrorMessageResult>(_controller.PutUpdateEndpointTags(Guid.NewGuid(), new[] { "tag!@$%^&():,./" }));
+        }
+
+        [Fact]
+        public void UpdateTags_should_return_NOTFOUND_if_there_is_no_matching_endpoint()
+        {
+            Assert.IsType<NotFoundResult>(_controller.PutUpdateEndpointTags(Guid.NewGuid(), new[] { "tag" }));
         }
     }
 }

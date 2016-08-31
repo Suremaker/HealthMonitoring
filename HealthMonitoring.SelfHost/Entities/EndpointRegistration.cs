@@ -12,5 +12,7 @@ namespace HealthMonitoring.SelfHost.Entities
         public string MonitorType { get; set; }
         [Required]
         public string Group { get; set; }
+        [CustomValidation(typeof(TagsValidator), "CheckForUnallowedSymbols")]
+        public string[] Tags { get; set; }
     }
 }

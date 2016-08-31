@@ -30,9 +30,9 @@ namespace HealthMonitoring.Management.Core
             LastModifiedTime = DateTimeOffset.UtcNow;
         }
 
-        public Endpoint UpdateMetadata(string group, string name)
+        public Endpoint UpdateMetadata(string group, string name, string[] tags)
         {
-            Metadata = new EndpointMetadata(name, group);
+            Metadata = new EndpointMetadata(name, group, tags ?? Metadata.Tags);
             UpdateLastModifiedTime();
             return this;
         }

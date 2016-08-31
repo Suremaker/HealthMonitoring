@@ -30,15 +30,27 @@ namespace HealthMonitoring.Management.Core
             }
         }
 
-        public Guid RegisterOrUpdate(string monitorType, string address, string group, string name)
+        public Guid RegisterOrUpdate(string monitorType, string address, string group, string name, string[] tags)
         {
             if (!_healthMonitorTypeRegistry.GetMonitorTypes().Contains(monitorType))
                 throw new UnsupportedMonitorException(monitorType);
             var newIdentifier = new EndpointIdentity(Guid.NewGuid(), monitorType, address);
-            var endpoint = _endpoints.AddOrUpdate(newIdentifier.GetNaturalKey(), new Endpoint(newIdentifier, new EndpointMetadata(name, group)), (k, e) => e.UpdateMetadata(group, name));
+            var endpoint = _endpoints.AddOrUpdate(newIdentifier.GetNaturalKey(), new Endpoint(newIdentifier, new EndpointMetadata(name, group, tags)), (k, e) => e.UpdateMetadata(group, name, tags));
             _endpointsByGuid[endpoint.Identity.Id] = endpoint;
             _endpointConfigurationRepository.SaveEndpoint(endpoint);
             return endpoint.Identity.Id;
+        }
+
+        public bool TryUpdateEndpointTags(Guid id, string[] tags)
+        {
+            Endpoint endpoint;
+            if (!_endpointsByGuid.TryGetValue(id, out endpoint))
+                return false;
+
+            var metadata = endpoint.Metadata.Name;
+            endpoint.UpdateMetadata(endpoint.Metadata.Group, metadata, tags);
+            _endpointConfigurationRepository.SaveEndpoint(endpoint);
+            return true;
         }
 
         public Endpoint GetById(Guid id)

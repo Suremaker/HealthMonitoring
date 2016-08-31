@@ -34,7 +34,7 @@ namespace HealthMonitoring.SelfHost.Controllers
             endpoint.ValidateModel();
             try
             {
-                var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name);
+                var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Tags);
                 return Created(new Uri(Request.RequestUri, $"/api/endpoints/{id}"), id);
             }
             catch (UnsupportedMonitorException e)
@@ -103,6 +103,27 @@ namespace HealthMonitoring.SelfHost.Controllers
         public IEnumerable<EndpointDetails> GetEndpoints()
         {
             return _endpointRegistry.Endpoints.Select(EndpointDetails.FromDomain);
+        }
+
+        [Route("api/endpoints/{id}/tags")]
+        [SwaggerResponse(HttpStatusCode.OK)]
+        [SwaggerResponse(HttpStatusCode.NotFound)]
+        [SwaggerResponse(HttpStatusCode.BadRequest)]
+        [ResponseType(typeof(EndpointDetails))]
+        public IHttpActionResult PutUpdateEndpointTags(Guid id, [FromBody]string[] tags)
+        {
+            try
+            {
+                tags.CheckForUnallowedSymbols();
+
+                if (_endpointRegistry.TryUpdateEndpointTags(id, tags))
+                    return Ok();
+                return NotFound();
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

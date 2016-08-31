@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using LightBDD;
 
@@ -72,6 +73,17 @@ I want to be able to register browse and unregister endpoints")]
                 _ => Given_a_monitor_api_client(),
                 _ => When_client_requests_endpoint_deletion_for_inexistent_endpoint_identifier(),
                 _ => Then_status_should_be_returned(HttpStatusCode.NotFound)
+                );
+        }
+
+        [Scenario]
+        public void Updating_endpoint_tags()
+        {
+            Runner.RunScenario(
+                _ => Given_a_monitor_api_client(),
+                _ => Given_endpoint_with_name_address_group_and_monitor_is_registered("my_name", "http://localhost:3333/status", "my_group", MonitorTypes.HttpJson),
+                _ => When_client_requests_tags_updating_via_url($"api/endpoints/{_identifier}/tags", new [] {"tag1", "tag2"}),
+                _ => Then_status_should_be_returned(HttpStatusCode.OK)
                 );
         }
     }

@@ -63,7 +63,8 @@ create table EndpointConfig (
     MonitorType varchar(100) not null, 
     Address varchar(2048) not null, 
     GroupName varchar(1024) not null, 
-    Name varchar(1024) not null
+    Name varchar(1024) not null,
+    Tags varchar(4096)
 )");
         }
 

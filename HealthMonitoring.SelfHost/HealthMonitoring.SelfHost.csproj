@@ -191,6 +191,10 @@
     <EmbeddedResource Include="Content\Scripts\angular-filter.min.js" />
     <EmbeddedResource Include="Content\Scripts\functions.js" />
     <EmbeddedResource Include="Content\Dashboard\groupNodeSizer.js" />
+    <EmbeddedResource Include="Content\styles\Common.css" />
+    <EmbeddedResource Include="Content\Scripts\advanced-filters.js" />
+    <EmbeddedResource Include="Content\Scripts\advanced-directives.js" />
+    <EmbeddedResource Include="Content\Templates\wg-multiselect.html" />
     <Content Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

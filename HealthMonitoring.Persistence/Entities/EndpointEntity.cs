@@ -9,5 +9,6 @@ namespace HealthMonitoring.Persistence.Entities
         public string Address { get; set; }
         public string Name { get; set; }
         public string GroupName { get; set; }
+        public string Tags { get; set; }
     }
 }
