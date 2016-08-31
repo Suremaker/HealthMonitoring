@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
 using HealthMonitoring.Model;
+using HealthMonitoring.Monitors.Core.Exchange.Client;
 using HealthMonitoring.Monitors.Core.Helpers;
 using HealthMonitoring.Monitors.Core.Registers;
 
@@ -109,7 +110,6 @@ namespace HealthMonitoring.Monitors.Core.Exchange
             {
                 try
                 {
-                    //TODO: create a concept of monitor instance
                     await _exchangeClient.RegisterMonitorsAsync(_registry.MonitorTypes, _cancellation.Token);
                     return;
                 }

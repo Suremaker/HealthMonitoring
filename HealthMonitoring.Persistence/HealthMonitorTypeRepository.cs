@@ -19,8 +19,7 @@ namespace HealthMonitoring.Persistence
             using (var conn = _db.OpenConnection())
             using (var tx = conn.BeginTransaction())
             {
-                conn.Execute("insert or replace into HealthMonitorTypes(MonitorType) values(@monitorType)",
-                    new { monitorType });
+                conn.Execute("insert or replace into HealthMonitorTypes(MonitorType) values(@monitorType)", new { monitorType });
                 tx.Commit();
             }
         }

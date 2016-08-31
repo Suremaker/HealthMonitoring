@@ -12,8 +12,8 @@ Define-Step -Name 'Testing' -Target 'build' -Body {
 	. (require 'psmake.mod.testing')
 	
 	$tests = @()
-	$tests += Define-XUnitTests -GroupName 'Unit tests' -TestAssembly "*\bin\Release\*.UnitTests.dll"
-	$tests += Define-XUnitTests -GroupName 'Acceptance tests' -TestAssembly "*\bin\Release\*.AcceptanceTests.dll"
+	$tests += Define-XUnitTests -GroupName 'Unit tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.UnitTests.dll"
+	$tests += Define-XUnitTests -GroupName 'Acceptance tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.AcceptanceTests.dll"
 
 	try {
 		$tests | Run-Tests -EraseReportDirectory -Cover -CodeFilter '+[HealthMonitoring*]* -[*Tests*]*' -TestFilter '*Tests.dll' | Generate-CoverageSummary | Check-AcceptableCoverage -AcceptableCoverage 90

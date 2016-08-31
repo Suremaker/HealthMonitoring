@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Model;
 
-namespace HealthMonitoring.Monitors.Core.Exchange
+namespace HealthMonitoring.Monitors.Core.Exchange.Client
 {
     public interface IHealthMonitorExchangeClient
     {

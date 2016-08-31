@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace HealthMonitoring.Monitors.Core.Exchange.Entities
+namespace HealthMonitoring.Monitors.Core.Exchange.Client.Entities
 {
     internal class MonitorSettingsModel
     {

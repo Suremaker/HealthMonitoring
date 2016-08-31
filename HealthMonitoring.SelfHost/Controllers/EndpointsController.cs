@@ -43,7 +43,7 @@ namespace HealthMonitoring.SelfHost.Controllers
             }
         }
 
-        [Route("api/endpoints/updateHealth")]
+        [Route("api/endpoints/health")]
         [ResponseType(typeof(Guid))]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.BadRequest)]

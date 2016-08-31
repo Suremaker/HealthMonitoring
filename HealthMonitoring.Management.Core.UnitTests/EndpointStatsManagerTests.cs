@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using HealthMonitoring.Configuration;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
@@ -32,9 +33,8 @@ namespace HealthMonitoring.Management.Core.UnitTests
             var delta = TimeSpan.FromSeconds(5);
             monitorSettings.Setup(s => s.StatsHistoryMaxAge).Returns(age);
             using (new EndpointStatsManager(repository.Object, monitorSettings.Object))
-            {
-                repository.Verify(r => r.DeleteStatisticsOlderThan(It.Is<DateTime>(t => DateTime.UtcNow - t > age.Subtract(delta) && DateTime.UtcNow - t < age.Add(delta))));
-            }
+                Thread.Sleep(250);
+            repository.Verify(r => r.DeleteStatisticsOlderThan(It.Is<DateTime>(t => DateTime.UtcNow - t > age.Subtract(delta) && DateTime.UtcNow - t < age.Add(delta))));
         }
     }
 }

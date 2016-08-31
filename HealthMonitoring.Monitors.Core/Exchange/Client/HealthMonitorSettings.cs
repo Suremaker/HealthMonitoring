@@ -1,6 +1,6 @@
 using HealthMonitoring.Configuration;
 
-namespace HealthMonitoring.Monitors.Core.Exchange
+namespace HealthMonitoring.Monitors.Core.Exchange.Client
 {
     public class HealthMonitorSettings
     {

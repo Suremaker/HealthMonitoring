@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Model;
 using HealthMonitoring.Monitors.Core.Exchange;
+using HealthMonitoring.Monitors.Core.Exchange.Client;
 using HealthMonitoring.Monitors.Core.Registers;
 using HealthMonitoring.Monitors.Core.UnitTests.Helpers;
 using Moq;

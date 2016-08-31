@@ -77,11 +77,6 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
             }
             catch { }
         }
-
-        private static void KillAppDomain(AppDomain domain, Thread thread)
-        {
-
-        }
     }
 
     public class TestFramework : XunitTestFramework

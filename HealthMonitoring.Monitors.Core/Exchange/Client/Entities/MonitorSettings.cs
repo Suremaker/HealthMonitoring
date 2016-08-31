@@ -1,7 +1,7 @@
 using System;
 using HealthMonitoring.Configuration;
 
-namespace HealthMonitoring.Monitors.Core.Exchange.Entities
+namespace HealthMonitoring.Monitors.Core.Exchange.Client.Entities
 {
     internal class MonitorSettings : IMonitorSettings
     {

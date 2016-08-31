@@ -7,6 +7,7 @@ using Common.Logging.Configuration;
 using HealthMonitoring.Configuration;
 using HealthMonitoring.Monitors.Core;
 using HealthMonitoring.Monitors.Core.Exchange;
+using HealthMonitoring.Monitors.Core.Exchange.Client;
 using HealthMonitoring.Monitors.Core.Registers;
 using HealthMonitoring.Monitors.Core.Samplers;
 using HealthMonitoring.Monitors.SelfHost.Configuration;
@@ -61,7 +62,7 @@ namespace HealthMonitoring.Monitors.SelfHost
             return container.Resolve<EndpointMonitor>();
         }
 
-        private static HealthMonitorSettings LoadSettings(HealthMonitorExchangeClient exchangeClient)
+        private static HealthMonitorSettings LoadSettings(IHealthMonitorExchangeClient exchangeClient)
         {
             int attempts = 0;
             int totalAttempts = 10;

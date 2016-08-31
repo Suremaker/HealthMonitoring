@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using HealthMonitoring.Configuration;
 
-namespace HealthMonitoring.Monitors.Core.Exchange.Entities
+namespace HealthMonitoring.Monitors.Core.Exchange.Client.Entities
 {
     internal class ThrottlingSettings : IThrottlingSettings
     {

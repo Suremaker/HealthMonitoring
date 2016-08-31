@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Model;
-using HealthMonitoring.Monitors.Core.Exchange.Entities;
+using HealthMonitoring.Monitors.Core.Exchange.Client.Entities;
 using Newtonsoft.Json;
 
-namespace HealthMonitoring.Monitors.Core.Exchange
+namespace HealthMonitoring.Monitors.Core.Exchange.Client
 {
     public class HealthMonitorExchangeClient : IHealthMonitorExchangeClient
     {
@@ -36,7 +36,7 @@ namespace HealthMonitoring.Monitors.Core.Exchange
 
         public Task UploadHealthAsync(EndpointHealthUpdate[] updates, CancellationToken token)
         {
-            return PostAsync("/api/endpoints/updateHealth", updates.Select(u => new { EndpointId = u.EndpointId, Status = u.Health.Status, CheckTimeUtc = u.Health.CheckTimeUtc, ResponseTime = u.Health.ResponseTime, Details = u.Health.Details }), token);
+            return PostAsync("/api/endpoints/health", updates.Select(u => new { EndpointId = u.EndpointId, Status = u.Health.Status, CheckTimeUtc = u.Health.CheckTimeUtc, ResponseTime = u.Health.ResponseTime, Details = u.Health.Details }), token);
         }
 
         public async Task<HealthMonitorSettings> LoadSettingsAsync(CancellationToken token)

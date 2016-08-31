@@ -1,7 +1,7 @@
 using System;
 using HealthMonitoring.Model;
 
-namespace HealthMonitoring.Monitors.Core.Exchange
+namespace HealthMonitoring.Monitors.Core.Exchange.Client
 {
     public class EndpointHealthUpdate
     {
