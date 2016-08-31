@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -21,6 +23,17 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
             _apiProcess = Process.Start(new ProcessStartInfo("api\\HealthMonitoring.SelfHost.exe") { WindowStyle = ProcessWindowStyle.Minimized });
             _monitorProcess = Process.Start(new ProcessStartInfo("monitor\\HealthMonitoring.Monitors.SelfHost.exe") { WindowStyle = ProcessWindowStyle.Minimized });
+            EnsureProcessesAlive();
+        }
+
+        private static void EnsureProcessesAlive()
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+            if (!_apiProcess.HasExited && !_monitorProcess.HasExited)
+                return;
+
+            Terminate();
+            throw new InvalidOperationException("HealthMonitor processes failed to start");
         }
 
         private static void DeleteDatabase()

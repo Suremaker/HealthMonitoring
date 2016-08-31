@@ -9,6 +9,7 @@ using HealthMonitoring.Monitors.Core;
 using HealthMonitoring.Monitors.Core.Exchange;
 using HealthMonitoring.Monitors.Core.Registers;
 using HealthMonitoring.Monitors.Core.Samplers;
+using HealthMonitoring.Monitors.SelfHost.Configuration;
 
 namespace HealthMonitoring.Monitors.SelfHost
 {
@@ -48,7 +49,7 @@ namespace HealthMonitoring.Monitors.SelfHost
             builder.RegisterInstance(exchangeClient).AsSelf().AsImplementedInterfaces();
             builder.RegisterInstance(settings.MonitorSettings).AsImplementedInterfaces();
             builder.RegisterInstance(settings.ThrottlingSettings).AsImplementedInterfaces();
-            builder.RegisterInstance(new DataExchangeConfig(1024, 64, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(60)));
+            builder.RegisterInstance(AppSettingsDataExchangeConfigProvider.ReadConfiguration());
 
             builder.Register(c => new ThrottlingSampler(c.Resolve<HealthSampler>(), c.Resolve<IThrottlingSettings>())).AsImplementedInterfaces();
 

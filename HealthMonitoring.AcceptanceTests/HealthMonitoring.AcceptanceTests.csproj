@@ -156,6 +156,8 @@
     <Content Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="HealthMonitoring.Monitors.SelfHost.exe.config" />
+    <None Include="HealthMonitoring.SelfHost.exe.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -173,7 +175,10 @@ xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SelfHost\$(OutDir). $(TargetDir)a
 xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.SelfHost\$(OutDir). $(TargetDir)monitor
 xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.Http\$(OutDir). $(TargetDir)monitor\monitors\HealthMonitoring.Monitors.Http
 xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.Nsb3\$(OutDir). $(TargetDir)monitor\monitors\HealthMonitoring.Monitors.Nsb3
-xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SampleNsbHost\$(OutDir). $(TargetDir)sample</PreBuildEvent>
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SampleNsbHost\$(OutDir). $(TargetDir)sample
+
+xcopy  /Y /I $(ProjectDir)HealthMonitoring.SelfHost.exe.config $(TargetDir)api\
+xcopy  /Y /I $(ProjectDir)HealthMonitoring.Monitors.SelfHost.exe.config $(TargetDir)monitor\</PreBuildEvent>
   </PropertyGroup>
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.99.0\build\net451\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.99.0\build\net451\System.Data.SQLite.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
