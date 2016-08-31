@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading;
@@ -14,22 +13,40 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 {
     public class TestInitalization
     {
-        private static Process _apiProcess;
-        private static Process _monitorProcess;
+        private static Tuple<Thread, AppDomain> _api;
+        private static Tuple<Thread, AppDomain> _monitor;
 
         public static void Initialize()
         {
             DeleteDatabase();
 
-            _apiProcess = Process.Start(new ProcessStartInfo("api\\HealthMonitoring.SelfHost.exe") { WindowStyle = ProcessWindowStyle.Minimized });
-            _monitorProcess = Process.Start(new ProcessStartInfo("monitor\\HealthMonitoring.Monitors.SelfHost.exe") { WindowStyle = ProcessWindowStyle.Minimized });
+            _monitor = StartAssembly("monitor\\HealthMonitoring.Monitors.SelfHost.exe");
+            _api = StartAssembly("api\\HealthMonitoring.SelfHost.exe");
             EnsureProcessesAlive();
+        }
+
+        private static Tuple<Thread, AppDomain> StartAssembly(string exePath)
+        {
+            var setup = new AppDomainSetup
+            {
+                ApplicationBase = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory + "\\" + exePath),
+                ConfigurationFile = Path.GetFileName(exePath) + ".config"
+            };
+            var domain = AppDomain.CreateDomain(exePath, AppDomain.CurrentDomain.Evidence, setup);
+            var thread = new Thread(() => ExecuteAssembly(exePath, domain)) { IsBackground = true };
+            thread.Start();
+            return Tuple.Create(thread, domain);
+        }
+
+        private static int ExecuteAssembly(string exePath, AppDomain domain)
+        {
+            return domain.ExecuteAssembly(exePath);
         }
 
         private static void EnsureProcessesAlive()
         {
-            Thread.Sleep(TimeSpan.FromSeconds(5));
-            if (!_apiProcess.HasExited && !_monitorProcess.HasExited)
+            Thread.Sleep(TimeSpan.FromSeconds(10));
+            if (_api.Item1.IsAlive && _monitor.Item1.IsAlive)
                 return;
 
             Terminate();
@@ -45,13 +62,23 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
         public static void Terminate()
         {
-            _apiProcess.CloseMainWindow();
-            _monitorProcess.CloseMainWindow();
+            KillAppDomain(_api);
+            KillAppDomain(_monitor);
+        }
 
-            if (!_apiProcess.WaitForExit(3000))
-                _apiProcess.Kill();
-            if (!_monitorProcess.WaitForExit(3000))
-                _monitorProcess.Kill();
+        private static void KillAppDomain(Tuple<Thread, AppDomain> process)
+        {
+            try
+            {
+                AppDomain.Unload(process.Item2);
+                process.Item1.Join();
+            }
+            catch { }
+        }
+
+        private static void KillAppDomain(AppDomain domain, Thread thread)
+        {
+
         }
     }
 
