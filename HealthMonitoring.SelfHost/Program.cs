@@ -10,24 +10,24 @@ namespace HealthMonitoring.SelfHost
 {
     public class Program
     {
-        private static readonly ILog Logger = LogManager.GetLogger<Program>();
         public static void Main(params string[] args)
         {
             LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(new NameValueCollection { { "configType", "FILE-WATCH" }, { "configFile", "~/log4net.config" } });
+            var logger = LogManager.GetLogger<Program>();
             var baseAddress = ConfigurationManager.AppSettings["BaseUrl"];
 
             try
             {
-                Logger.Info("Starting service...");
+                logger.Info("Starting service...");
                 using (WebApp.Start<Startup>(baseAddress))
                 {
-                    Logger.Info("Started service...");
+                    logger.Info("Started service...");
                     Thread.Sleep(Timeout.InfiniteTimeSpan);
                 }
             }
             catch (Exception e)
             {
-                Logger.FatalFormat("Service has terminated unexpectedly:\n{0}", e);
+                logger.FatalFormat("Service has terminated unexpectedly.", e);
             }
         }
     }

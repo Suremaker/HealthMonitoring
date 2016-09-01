@@ -11,6 +11,7 @@
     </metadata>
 	<files>
 	<file src="tools\*" target="."/>
+	<file src="tools\api\*" target="."/>
 	<file src="Changelog.txt" target="."/>
 	<file src="LICENSE" target="LICENSE"/>
 	<file src="HealthMonitoring.SelfHost\bin\Release\**\*" target="." exclude="**\*.pdb;**\*.xml"/>

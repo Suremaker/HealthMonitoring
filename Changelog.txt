@@ -1,6 +1,11 @@
+2.2.0.0
+-------
+Separated api host from monitors host, allowing to run monitors closer to production services, while having api installed in less secure, more accessible location.
+
 2.1.0.0
 -------
 Extended Endpoints metadata with tags.
+Added advanced filtering to dashboard and home page.
 
 2.0.3.0
 -------

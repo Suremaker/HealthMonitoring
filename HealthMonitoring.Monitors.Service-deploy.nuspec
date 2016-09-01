@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>HealthMonitoring.Monitors.Service-deploy</id>
+        <version>$version$</version>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <summary>HealthMonitoring Monitors Service (deployment package)</summary>
+        <language>en-GB</language>
+        <authors>Wonga</authors>
+        <description>HealthMonitoring Service</description>
+    </metadata>
+	<files>
+	<file src="tools\*" target="."/>
+	<file src="tools\monitors\*" target="."/>
+	<file src="Changelog.txt" target="."/>
+	<file src="LICENSE" target="LICENSE"/>
+	<file src="HealthMonitoring.Monitors.SelfHost\bin\Release\**\*" target="." exclude="**\*.pdb;**\*.xml"/>
+  </files>
+</package>
+

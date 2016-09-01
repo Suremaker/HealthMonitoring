@@ -4,7 +4,6 @@ using System.Configuration;
 using System.IO;
 using System.Reflection;
 using System.Threading;
-using HealthMonitoring.SelfHost;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -14,20 +13,46 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 {
     public class TestInitalization
     {
-        private static Thread _thread;
+        private static Tuple<Thread, AppDomain> _api;
+        private static Tuple<Thread, AppDomain> _monitor;
 
-        public static void Initialize()
+        public static void Initialize(string assemblyPath)
         {
-            DisableSqlLiteErrorPrinting();
             DeleteDatabase();
 
-            _thread = new Thread(() => Program.Main());
-            _thread.Start();
+            _monitor = StartAssembly(assemblyPath, "monitor\\HealthMonitoring.Monitors.SelfHost.exe");
+            _api = StartAssembly(assemblyPath, "api\\HealthMonitoring.SelfHost.exe");
+            EnsureProcessesAlive();
         }
 
-        private static void DisableSqlLiteErrorPrinting()
+        private static Tuple<Thread, AppDomain> StartAssembly(string assemblyPath, string exeRelativePath)
         {
-            Console.SetError(Console.Out);
+            var exePath = Path.GetDirectoryName(assemblyPath) + "\\" + exeRelativePath;
+
+            var setup = new AppDomainSetup
+            {
+                ApplicationBase = Path.GetDirectoryName(exePath),
+                ConfigurationFile = Path.GetFileName(exePath) + ".config"
+            };
+            var domain = AppDomain.CreateDomain(exeRelativePath, AppDomain.CurrentDomain.Evidence, setup);
+            var thread = new Thread(() => ExecuteAssembly(exePath, domain)) { IsBackground = true };
+            thread.Start();
+            return Tuple.Create(thread, domain);
+        }
+
+        private static int ExecuteAssembly(string exePath, AppDomain domain)
+        {
+            return domain.ExecuteAssembly(exePath);
+        }
+
+        private static void EnsureProcessesAlive()
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(10));
+            if (_api.Item1.IsAlive && _monitor.Item1.IsAlive)
+                return;
+
+            Terminate();
+            throw new InvalidOperationException("HealthMonitor processes failed to start");
         }
 
         private static void DeleteDatabase()
@@ -39,8 +64,18 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
         public static void Terminate()
         {
-            _thread.Interrupt();
-            _thread.Join();
+            KillAppDomain(_api);
+            KillAppDomain(_monitor);
+        }
+
+        private static void KillAppDomain(Tuple<Thread, AppDomain> process)
+        {
+            try
+            {
+                AppDomain.Unload(process.Item2);
+                process.Item1.Join();
+            }
+            catch { }
         }
     }
 
@@ -66,7 +101,7 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
         protected override async void RunTestCases(IEnumerable<IXunitTestCase> testCases, IMessageSink executionMessageSink, ITestFrameworkExecutionOptions executionOptions)
         {
-            TestInitalization.Initialize();
+            TestInitalization.Initialize(TestAssembly.Assembly.AssemblyPath);
             try
             {
                 using (XunitTestAssemblyRunner testAssemblyRunner = new XunitTestAssemblyRunner(TestAssembly, testCases, DiagnosticMessageSink, executionMessageSink, executionOptions))

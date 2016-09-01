@@ -3,8 +3,7 @@ using System.Reflection;
 using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
-using HealthMonitoring.Configuration;
-using HealthMonitoring.Model;
+using HealthMonitoring.Management.Core;
 using HealthMonitoring.Persistence;
 using HealthMonitoring.SelfHost.Filters;
 using Microsoft.Owin.Host.HttpListener;
@@ -62,13 +61,10 @@ namespace HealthMonitoring.SelfHost.Configuration
         {
             var builder = new ContainerBuilder();
             builder.RegisterAssemblyTypes(typeof(Program).Assembly).Where(t => typeof(ApiController).IsAssignableFrom(t)).AsSelf();
-            builder.RegisterAssemblyTypes(typeof(HealthMonitorRegistry).Assembly).AsSelf().AsImplementedInterfaces().SingleInstance();
-            builder.RegisterAssemblyTypes(typeof(SqlEndpointConfigurationStore).Assembly).AsSelf().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterAssemblyTypes(typeof(EndpointRegistry).Assembly).AsSelf().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterAssemblyTypes(typeof(SqlEndpointConfigurationRepository).Assembly).AsSelf().AsImplementedInterfaces().SingleInstance();
 
-            builder.Register(c => new ThrottlingSampler(c.Resolve<HealthSampler>(), c.Resolve<IThrottlingSettings>())).AsImplementedInterfaces();
-            builder.RegisterInstance<IHealthMonitorRegistry>(new HealthMonitorRegistry(MonitorDiscovery.DiscoverAllInCurrentFolder()));
             var container = builder.Build();
-            container.Resolve<EndpointMonitor>();
             config.DependencyResolver = new AutofacWebApiDependencyResolver(container);
         }
 

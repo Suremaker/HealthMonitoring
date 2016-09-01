@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using HealthMonitoring.Management.Core;
 using HealthMonitoring.Model;
 
 namespace HealthMonitoring.SelfHost.Entities
@@ -11,11 +12,11 @@ namespace HealthMonitoring.SelfHost.Entities
         public EndpointDetails() { }
         private EndpointDetails(Endpoint endpoint)
         {
-            Id = endpoint.Id;
-            Name = endpoint.Name;
-            Address = endpoint.Address;
-            MonitorType = endpoint.MonitorType;
-            Group = endpoint.Group;
+            Id = endpoint.Identity.Id;
+            Address = endpoint.Identity.Address;
+            MonitorType = endpoint.Identity.MonitorType;
+            Name = endpoint.Metadata.Name;
+            Group = endpoint.Metadata.Group;
             var health = endpoint.Health;
             LastModifiedTime = endpoint.LastModifiedTime;
             if (health != null)
@@ -30,7 +31,7 @@ namespace HealthMonitoring.SelfHost.Entities
                 Details = new Dictionary<string, string>();
                 Status = EndpointStatus.NotRun;
             }
-            Tags = endpoint.Tags;
+            Tags = endpoint.Metadata.Tags;
         }
 
         public static EndpointDetails FromDomain(Endpoint endpoint)

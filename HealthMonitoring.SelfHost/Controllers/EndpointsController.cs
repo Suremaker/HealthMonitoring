@@ -5,6 +5,9 @@ using System.Net;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Description;
+using HealthMonitoring.Management.Core;
+using HealthMonitoring.Management.Core.Repositories;
+using HealthMonitoring.Model;
 using HealthMonitoring.SelfHost.Entities;
 using Swashbuckle.Swagger.Annotations;
 
@@ -32,13 +35,34 @@ namespace HealthMonitoring.SelfHost.Controllers
             try
             {
                 var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Tags);
-
                 return Created(new Uri(Request.RequestUri, $"/api/endpoints/{id}"), id);
             }
             catch (UnsupportedMonitorException e)
             {
                 return BadRequest(e.Message);
             }
+        }
+
+        [Route("api/endpoints/health")]
+        [ResponseType(typeof(Guid))]
+        [SwaggerResponse(HttpStatusCode.OK)]
+        [SwaggerResponse(HttpStatusCode.BadRequest)]
+        public IHttpActionResult PostEndpointHealth([FromBody]params EndpointHealthUpdate[] healthUpdate)
+        {
+            healthUpdate.ValidateModel();
+
+            foreach (var update in healthUpdate)
+                _endpointRegistry.UpdateHealth(update.EndpointId, update.ToEndpointHealth());
+
+            return Ok();
+        }
+
+        [Route("api/endpoints/identities")]
+        [SwaggerResponse(HttpStatusCode.OK, Type = typeof(EndpointIdentity[]))]
+        [ResponseType(typeof(EndpointIdentity[]))]
+        public EndpointIdentity[] GetEndpointsIdentities()
+        {
+            return _endpointRegistry.Endpoints.Select(e => e.Identity).ToArray();
         }
 
         [Route("api/endpoints/{id}")]

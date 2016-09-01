@@ -43,6 +43,8 @@ namespace HealthMonitoring.Persistence
                     CreateEndpointConfig(conn);
                 if (!DoesTableExists(conn, "EndpointStats"))
                     CreateEndpointStats(conn);
+                if (!DoesTableExists(conn, "HealthMonitorTypes"))
+                    CreateHealthMonitorTypesTable(conn);
             }
         }
 
@@ -64,6 +66,11 @@ create table EndpointConfig (
     Name varchar(1024) not null,
     Tags varchar(4096)
 )");
+        }
+
+        private void CreateHealthMonitorTypesTable(IDbConnection conn)
+        {
+            conn.Execute("create table HealthMonitorTypes(MonitorType varchar(256) primary key)");
         }
 
         private void CreateEndpointStats(IDbConnection conn)
