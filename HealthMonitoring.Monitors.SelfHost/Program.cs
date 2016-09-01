@@ -42,7 +42,7 @@ namespace HealthMonitoring.Monitors.SelfHost
 
         private static EndpointMonitor Configure()
         {
-            var exchangeClient = new HealthMonitorExchangeClient(ConfigurationManager.AppSettings["HealthMonitorUrl"]);
+            var exchangeClient = new HealthMonitorExchangeClient(ConfigurationManager.AppSettings["HealthMonitoringUrl"]);
             var settings = LoadSettings(exchangeClient);
 
             var builder = new ContainerBuilder();
