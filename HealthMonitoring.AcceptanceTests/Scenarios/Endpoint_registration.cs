@@ -82,8 +82,10 @@ I want to be able to register browse and unregister endpoints")]
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),
                 _ => Given_endpoint_with_name_address_group_and_monitor_is_registered("my_name", "http://localhost:3333/status", "my_group", MonitorTypes.HttpJson),
-                _ => When_client_requests_tags_updating_via_url($"api/endpoints/{_identifier}/tags", new [] {"tag1", "tag2"}),
-                _ => Then_status_should_be_returned(HttpStatusCode.OK)
+                _ => When_client_requests_tags_updating_via_url($"api/endpoints/{_identifier}/tags", new[] { "tag1", "tag2" }),
+                _ => Then_status_should_be_returned(HttpStatusCode.OK),
+                _ => When_client_requests_endpoint_details_via_url("/api/endpoints/" + _identifier),
+                _ => Then_the_endpoint_tags_should_be(new[] { "tag1", "tag2" })
                 );
         }
     }

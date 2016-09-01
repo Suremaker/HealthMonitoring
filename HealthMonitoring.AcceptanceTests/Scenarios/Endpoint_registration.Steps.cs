@@ -112,5 +112,23 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         {
             _response = _client.Put(new RestRequest(url).AddJsonBody(tags));
         }
+
+        private void Then_the_endpoint_tags_should_be(string[] tags)
+        {
+            var entity = _response.DeserializeEndpointDetails();
+            AssertTags(tags, entity.Tags);
+        }
+
+        private void AssertTags(string[] existing, string[] expected)
+        {
+            Assert.Equal(existing.Length, expected.Length);
+            existing = existing.OrderBy(x => x).ToArray();
+            expected = expected.OrderBy(x => x).ToArray();
+
+            for (int i = 0; i < expected.Length; i++)
+            {
+                Assert.Equal(expected[i], existing[i]);
+            }
+        }
     }
 }

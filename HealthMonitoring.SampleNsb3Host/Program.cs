@@ -7,7 +7,7 @@ using NServiceBus.Config;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.Installation.Environments;
 
-namespace HealthMonitoring.SampleNsbHost
+namespace HealthMonitoring.SampleNsb3Host
 {
     class Program
     {
@@ -17,7 +17,7 @@ namespace HealthMonitoring.SampleNsbHost
 
             Configure configure = Configure.With(typeof(GetStatusRequest).Assembly, typeof(Handler).Assembly)
             .Log4Net()
-            .DefineEndpointName("HealthMonitoring.SampleNsbHost")
+            .DefineEndpointName("HealthMonitoring.SampleNsb3Host")
             .DefaultBuilder()
             .MsmqTransport()
             .InMemorySagaPersister()
