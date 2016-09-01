@@ -41,6 +41,8 @@ namespace HealthMonitoring.Persistence
             {
                 if (!DoesTableExists(conn, "EndpointConfig"))
                     CreateEndpointConfig(conn);
+                if (!DoesColumnExists(conn, "EndpointConfig", "Tags"))
+                    CreateColumn(conn, "EndpointConfig", "Tags", "varchar(4096)");
                 if (!DoesTableExists(conn, "EndpointStats"))
                     CreateEndpointStats(conn);
             }
@@ -80,6 +82,16 @@ create table EndpointStats (
 create index EndpointStats_EndpointId_idx on EndpointStats(EndpointId);
 create index EndpointStats_CheckTimeUtc_idx on EndpointStats(CheckTimeUtc);
 ");
+        }
+
+        private void CreateColumn(IDbConnection conn, string tableName, string columnName, string columnDefinition)
+        {
+            conn.Execute($"ALTER TABLE {tableName} ADD COLUMN {columnName} {columnDefinition}");
+        }
+
+        private bool DoesColumnExists(IDbConnection conn, string tableName, string columnName)
+        {
+            return conn.Query($"PRAGMA table_info({tableName})").Any(x => x.name == columnName);
         }
     }
 }
