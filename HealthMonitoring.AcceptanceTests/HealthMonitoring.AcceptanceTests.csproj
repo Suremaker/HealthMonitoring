@@ -179,9 +179,10 @@
     <Error Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
   </Target>
   <PropertyGroup>
-    <PreBuildEvent>RD /S /Q $(TargetDir)monitor
+    <PreBuildEvent>RD /S /Q $(TargetDir)monitors
 RD /S /Q $(TargetDir)api
 RD /S /Q $(TargetDir)samples
+
 
 xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SelfHost\$(OutDir). $(TargetDir)api
 
@@ -196,6 +197,12 @@ xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SampleNsb5Host.Msmq\$(OutDir). $(
 xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SampleNsb5Host.Rabbitmq\$(OutDir). $(TargetDir)samples\nsb5rabbitmq
 
 xcopy  /Y /I $(ProjectDir)HealthMonitoring.SelfHost.exe.config $(TargetDir)api\
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.Nsb5.Msmq\$(OutDir). $(TargetDir)monitors\HealthMonitoring.Monitors.Nsb5.Msmq
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.Nsb5.Rabbitmq\$(OutDir). $(TargetDir)monitors\HealthMonitoring.Monitors.Nsb5.Rabbitmq
+
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SampleNsb3Host\$(OutDir). $(TargetDir)samples\nsb3
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SampleNsb5Host.Msmq\$(OutDir). $(TargetDir)samples\nsb5msmq
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SampleNsb5Host.Rabbitmq\$(OutDir). $(TargetDir)samples\nsb5rabbitmq</PreBuildEvent>
 xcopy  /Y /I $(ProjectDir)HealthMonitoring.Monitors.SelfHost.exe.config $(TargetDir)monitor\
 xcopy  /Y /I $(ProjectDir)log4net.config $(TargetDir)api\
 xcopy  /Y /I $(ProjectDir)log4net.config $(TargetDir)monitor\
