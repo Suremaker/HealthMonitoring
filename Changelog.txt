@@ -1,3 +1,8 @@
+2.2.1.0
+-------
+Updated Home page css to remove styles from changed behaviour (filter by status)
+Fixed bug with tag filter navigation
+
 2.2.0.0
 -------
 Separated api host from monitors host, allowing to run monitors closer to production services, while having api installed in less secure, more accessible location.
