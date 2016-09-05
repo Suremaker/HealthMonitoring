@@ -31,7 +31,7 @@
             <p ng-if="endpoints.length==0">No endpoints registered yet</p>
             <div class="stats" ng-if="endpoints.length>0">
                 <div ng-click="onStatusSelected()">
-                    <span class="endpoint-status stats-key"  ng-class="{'selected-status': !filter.Status}">total</span>
+                    <span class="endpoint-status stats-key">total</span>
                     <span class="stats-value">{{endpoints.length}}</span>
                 </div>
                 <div ng-repeat="(key,value) in endpoints | groupBy: 'Status'" ng-click="onStatusSelected(key)">
