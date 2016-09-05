@@ -32,7 +32,7 @@ namespace HealthMonitoring.SampleNsb5Host.Msmq
 
         private static void CreateQueue()
         {
-            var queue = ".\\private$\\HealthMonitoring.SampleNsb5Host";
+            var queue = ".\\private$\\HealthMonitoring.SampleNsb5Host.Msmq";
             if (!MessageQueue.Exists(queue))
                 MessageQueue.Create(queue, true);
         }
@@ -60,7 +60,7 @@ namespace HealthMonitoring.SampleNsb5Host.Msmq
             {
                 return new MessageForwardingInCaseOfFaultConfig
                 {
-                    ErrorQueue = "HealthMonitoring.SampleNsb5Host.error"
+                    ErrorQueue = "HealthMonitoring.SampleNsb5Host.Msmq.error"
                 };
             }
         }

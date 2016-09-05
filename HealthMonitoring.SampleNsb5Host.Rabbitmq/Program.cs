@@ -50,7 +50,7 @@ namespace HealthMonitoring.SampleNsb5Host.Rabbitmq
             {
                 return new MessageForwardingInCaseOfFaultConfig
                 {
-                    ErrorQueue = "HealthMonitoring.SampleNsb5Host.Rabbitmq"
+                    ErrorQueue = "HealthMonitoring.SampleNsb5Host.Rabbitmq.error"
                 };
             }
         }
