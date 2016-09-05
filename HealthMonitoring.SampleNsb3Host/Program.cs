@@ -36,7 +36,7 @@ namespace HealthMonitoring.SampleNsb3Host
 
         private static void CreateQueue()
         {
-            var queue = ".\\private$\\HealthMonitoring.SampleNsbHost";
+            var queue = ".\\private$\\HealthMonitoring.SampleNsb3Host";
             if (!MessageQueue.Exists(queue))
                 MessageQueue.Create(queue, true);
         }
@@ -65,7 +65,7 @@ namespace HealthMonitoring.SampleNsb3Host
         {
             return new MessageForwardingInCaseOfFaultConfig
             {
-                ErrorQueue = "HealthMonitoring.SampleNsbHost.error"
+                ErrorQueue = "HealthMonitoring.SampleNsb3Host.error"
             };
         }
     }
