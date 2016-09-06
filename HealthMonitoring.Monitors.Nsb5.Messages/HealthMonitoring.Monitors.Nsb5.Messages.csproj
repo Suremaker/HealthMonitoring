@@ -47,8 +47,10 @@
     <Compile Include="GetStatusRequest.cs" />
     <Compile Include="GetStatusResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\ManualVersion.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="HealthMonitoring.Monitors.Nsb5.Messages.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
