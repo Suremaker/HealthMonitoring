@@ -26,6 +26,14 @@ Define-Step -Name 'Testing' -Target 'build' -Body {
 	}
 }
 
+Define-Step -Name 'JS Unit-Testing' -Target 'build' -Body {
+    $NpmPath = Resolve-Path ".\nodejs\npm.cmd" 
+    $NodePath = Resolve-Path ".\nodejs\node.cmd"
+    
+    & $NpmPath "install"
+    & $NodePath ".\node_modules\karma\bin\karma" "start"
+}
+
 Define-Step -Name 'Packaging' -Target 'build' -Body {
 	. (require 'psmake.mod.packaging')
 

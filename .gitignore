@@ -11,3 +11,6 @@ reports/
 .vs
 
 monitoring.db
+
+node_modules/
+*.log
