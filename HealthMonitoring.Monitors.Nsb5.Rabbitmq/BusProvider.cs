@@ -3,6 +3,7 @@ using HealthMonitoring.Monitors.Nsb5.Messages;
 using NServiceBus;
 using NServiceBus.Config;
 using NServiceBus.Config.ConfigurationSource;
+using NServiceBus.Logging;
 
 namespace HealthMonitoring.Monitors.Nsb5.Rabbitmq
 {
@@ -20,6 +21,9 @@ namespace HealthMonitoring.Monitors.Nsb5.Rabbitmq
             busConfiguration.EnableInstallers();
             busConfiguration.UsePersistence<InMemoryPersistence>();
             busConfiguration.UseTransport<RabbitMQTransport>().ConnectionStringName("RabbitMqConnectionString");
+
+            var defaultFactory = LogManager.Use<DefaultFactory>();
+            defaultFactory.Level(LogLevel.Warn);
 
             var conventions = busConfiguration.Conventions();
             conventions.DefiningTimeToBeReceivedAs(type => type == typeof(GetStatusRequest) ? timeout : TimeSpan.MaxValue);
