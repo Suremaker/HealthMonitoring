@@ -11,18 +11,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{212FDE
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{37A2A7DB-6E71-4C51-940F-DD23AC4C0929}"
 	ProjectSection(SolutionItems) = preProject
-		nodejs\git.cmd = nodejs\git.cmd
 		HealthMonitoring.Monitors.Http-deploy.nuspec = HealthMonitoring.Monitors.Http-deploy.nuspec
 		HealthMonitoring.Monitors.Nsb3-deploy.nuspec = HealthMonitoring.Monitors.Nsb3-deploy.nuspec
 		HealthMonitoring.Monitors.Nsb5.Msmq-deploy.nuspec = HealthMonitoring.Monitors.Nsb5.Msmq-deploy.nuspec
 		HealthMonitoring.Monitors.Nsb5.Rabbitmq-deploy.nuspec = HealthMonitoring.Monitors.Nsb5.Rabbitmq-deploy.nuspec
 		HealthMonitoring.Service-deploy.nuspec = HealthMonitoring.Service-deploy.nuspec
-		karma.conf.js = karma.conf.js
-		karma.files.js = karma.files.js
 		LICENSE = LICENSE
-		nodejs\node.cmd = nodejs\node.cmd
-		nodejs\npm.cmd = nodejs\npm.cmd
-		package.json = package.json
 		README.md = README.md
 	EndProjectSection
 EndProject
