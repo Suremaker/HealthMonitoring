@@ -1,7 +1,7 @@
-﻿///<reference path="~/HealthMonitoring.SelfHost/Content/Scripts/angular.min.js"/>
-///<reference path="~/HealthMonitoring.SelfHost/Content/Scripts/angular-mocks.js"/>
-///<reference path="~/HealthMonitoring.SelfHost/Content/Scripts/functions.js"/>
-///<reference path="~/HealthMonitoring.SelfHost/Content/Scripts/advanced-filters.js"/>
+﻿///<reference path="~/../HealthMonitoring.SelfHost/Content/Scripts/angular.min.js"/>
+///<reference path="~/Lib/angular-mocks.js"/>
+///<reference path="~/../HealthMonitoring.SelfHost/Content/Scripts/functions.js"/>
+///<reference path="~/../HealthMonitoring.SelfHost/Content/Scripts/advanced-filters.js"/>
 
 describe("advanced.filters test",
     function() {

@@ -29,13 +29,13 @@ module.exports = function(config) {
         reporters: ['progress', 'dots', 'junit', 'coverage', 'html'],
         
         htmlReporter: {
-            outputDir: 'reports',
+            outputDir: '../reports',
             reportName: 'UI_Unit_Tests',
             namedFiles: true
         },
         
         junitReporter: {
-            outputDir: 'reports',
+            outputDir: '../reports',
             outputFile: 'UI_Unit_Tests.xml',
             useBrowserName: false
         },
@@ -43,7 +43,7 @@ module.exports = function(config) {
         preprocessors: karmaFiles.coverageFiles,
 
         coverageReporter: {
-            dir: 'reports/ui-coverage',
+            dir: '../reports/ui-coverage',
             reporters: [
                 // reporters not supporting the `file` property
                 { type: 'html', subdir: 'report-html' },

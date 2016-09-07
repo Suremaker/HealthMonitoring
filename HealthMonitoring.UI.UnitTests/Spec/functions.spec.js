@@ -1,4 +1,4 @@
-﻿///<reference path="~/HealthMonitoring.SelfHost/Content/Scripts/functions.js"/>
+﻿///<reference path="~/../HealthMonitoring.SelfHost/Content/Scripts/functions.js"/>
 
 describe("functions test", function () {
 
@@ -70,6 +70,4 @@ describe("functions test", function () {
             expect(result[1].id).toEqual(2);
         });
     });
-    
-
 });

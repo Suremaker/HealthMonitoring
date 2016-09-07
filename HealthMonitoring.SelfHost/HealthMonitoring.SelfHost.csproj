@@ -196,7 +196,6 @@
     <EmbeddedResource Include="Content\Scripts\advanced-filters.js" />
     <EmbeddedResource Include="Content\Scripts\advanced-directives.js" />
     <EmbeddedResource Include="Content\Templates\wg-multiselect.html" />
-    <Content Include="Content\Scripts\angular-mocks.js" />
     <Content Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

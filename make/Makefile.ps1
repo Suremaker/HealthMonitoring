@@ -27,11 +27,16 @@ Define-Step -Name 'Testing' -Target 'build' -Body {
 }
 
 Define-Step -Name 'JS Unit-Testing' -Target 'build' -Body {
-    $NpmPath = Resolve-Path ".\nodejs\npm.cmd" 
-    $NodePath = Resolve-Path ".\nodejs\node.cmd"
+    $NpmPackagePath = Fetch-Package 'Npm' '3.5.2'
+    $NodePackagePath = Fetch-Package 'Node.js' '0.12.7'
     
-    & $NpmPath "install"
-    & $NodePath ".\node_modules\karma\bin\karma" "start"
+    Copy-Item "$NodePackagePath\node.exe" -destination $NpmPackagePath
+    Copy-Item "$NpmPackagePath\content\.bin\npm.cmd" -destination $NpmPackagePath
+    
+    cd HealthMonitoring.UI.UnitTests 
+    & "$NpmPackagePath\npm.cmd" install
+    & "$NodePackagePath\node.exe" ".\node_modules\karma\bin\karma" start
+    cd ..
 }
 
 Define-Step -Name 'Packaging' -Target 'build' -Body {

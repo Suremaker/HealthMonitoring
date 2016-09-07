@@ -1,6 +1,6 @@
-﻿///<reference path="~/HealthMonitoring.SelfHost/Content/Scripts/angular.min.js"/>
-///<reference path="~/HealthMonitoring.SelfHost/Content/Scripts/angular-mocks.js"/>
-///<reference path="~/HealthMonitoring.SelfHost/Content/Scripts/advanced-directives.js"/>
+﻿///<reference path="~/../HealthMonitoring.SelfHost/Content/Scripts/angular.min.js"/>
+///<reference path="~/Lib/angular-mocks.js"/>
+///<reference path="~/../HealthMonitoring.SelfHost/Content/Scripts/advanced-directives.js"/>
 
 describe("wgMultiselect directive test", function() {
     var rootScope,
