@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
-using System.Messaging;
 using System.Text.RegularExpressions;
 using System.Threading;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Entities;
 using LightBDD;
+using RabbitMQ.Client;
 using RestSharp;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace HealthMonitoring.AcceptanceTests.Scenarios
 {
-    public partial class Nsb_endpoint_monitoring : FeatureFixture, IDisposable
+    public partial class Nsb5_Rabbitmq_endpoint_monitoring : FeatureFixture, IDisposable
     {
         private Guid _identifier;
         private RestClient _client;
@@ -21,23 +22,32 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         private string _endpointName;
         private Process _process;
 
-        public Nsb_endpoint_monitoring(ITestOutputHelper output)
-            : base(output)
+        public Nsb5_Rabbitmq_endpoint_monitoring(ITestOutputHelper output) : base(output)
         {
         }
 
         private void Given_a_healthy_nsb_endpoint()
         {
-            _process = Process.Start(new ProcessStartInfo("samples\\nsb3\\HealthMonitoring.SampleNsb3Host.exe") { WindowStyle = ProcessWindowStyle.Hidden });
-            _endpointName = "HealthMonitoring.SampleNsb3Host@localhost";
+            _process = Process.Start(new ProcessStartInfo("samples\\nsb5rabbitmq\\HealthMonitoring.SampleNsb5Host.Rabbitmq.exe") { WindowStyle = ProcessWindowStyle.Hidden });
+            _endpointName = "HealthMonitoring.SampleNsb5Host.Rabbitmq@localhost";
         }
 
         private void Given_an_endpoint_that_has_not_been_deployed_yet()
         {
-            _endpointName = "some_inexistent@localhost";
-            var queue = ".\\private$\\some_inexistent";
-            if (!MessageQueue.Exists(queue))
-                MessageQueue.Create(queue);
+            _endpointName = "some_inexistent.localhost";
+
+            var connectionFactory = new ConnectionFactory
+            {
+                HostName = "localhost"
+            };
+
+            using (var connection = connectionFactory.CreateConnection())
+            using (var channel = connection.CreateModel())
+            {
+                channel.QueueDeclare(_endpointName, true, false, false, null);
+                channel.ExchangeDeclare(_endpointName, ExchangeType.Fanout, true);
+                channel.QueueBind(_endpointName, _endpointName, string.Empty);
+            }
         }
 
         private void Given_an_unreachable_endpoint()
@@ -52,7 +62,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
 
         private void When_client_registers_the_endpoint()
         {
-            _identifier = _client.RegisterEndpoint(MonitorTypes.Nsb3, _endpointName, "group", "name");
+            _identifier = _client.RegisterEndpoint(MonitorTypes.Nsb5Rabbitmq, _endpointName, "group", "name");
         }
 
         private void Then_monitor_should_start_monitoring_the_endpoint()
@@ -95,8 +105,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         {
             Assert.True(_details.Details.ContainsKey("reason"), "Reason field should be set");
             var reason = _details.Details["reason"];
-            Assert.True(Regex.IsMatch(reason, "^The destination queue 'unreachable@.+' could not be found.+"),
-                $"Reason field is invalid: {reason}");
+            Assert.True(Regex.IsMatch(reason, "^The destination queue 'unreachable' could not be found.+"), $"Reason field is invalid: {reason}");
         }
 
         private void Then_the_endpoint_additional_details_should_be_provided()

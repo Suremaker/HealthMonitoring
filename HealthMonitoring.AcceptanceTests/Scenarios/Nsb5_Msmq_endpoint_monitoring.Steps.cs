@@ -13,7 +13,7 @@ using Xunit.Abstractions;
 
 namespace HealthMonitoring.AcceptanceTests.Scenarios
 {
-    public partial class Nsb_endpoint_monitoring : FeatureFixture, IDisposable
+    public partial class Nsb5_Msmq_endpoint_monitoring : FeatureFixture, IDisposable
     {
         private Guid _identifier;
         private RestClient _client;
@@ -21,15 +21,14 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         private string _endpointName;
         private Process _process;
 
-        public Nsb_endpoint_monitoring(ITestOutputHelper output)
-            : base(output)
+        public Nsb5_Msmq_endpoint_monitoring(ITestOutputHelper output) : base(output)
         {
         }
 
         private void Given_a_healthy_nsb_endpoint()
         {
-            _process = Process.Start(new ProcessStartInfo("samples\\nsb3\\HealthMonitoring.SampleNsb3Host.exe") { WindowStyle = ProcessWindowStyle.Hidden });
-            _endpointName = "HealthMonitoring.SampleNsb3Host@localhost";
+            _process = Process.Start(new ProcessStartInfo("samples\\nsb5msmq\\HealthMonitoring.SampleNsb5Host.Msmq.exe") { WindowStyle = ProcessWindowStyle.Hidden });
+            _endpointName = "HealthMonitoring.SampleNsb5Host.Msmq@localhost";
         }
 
         private void Given_an_endpoint_that_has_not_been_deployed_yet()
@@ -52,7 +51,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
 
         private void When_client_registers_the_endpoint()
         {
-            _identifier = _client.RegisterEndpoint(MonitorTypes.Nsb3, _endpointName, "group", "name");
+            _identifier = _client.RegisterEndpoint(MonitorTypes.Nsb5Msmq, _endpointName, "group", "name");
         }
 
         private void Then_monitor_should_start_monitoring_the_endpoint()
@@ -95,8 +94,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         {
             Assert.True(_details.Details.ContainsKey("reason"), "Reason field should be set");
             var reason = _details.Details["reason"];
-            Assert.True(Regex.IsMatch(reason, "^The destination queue 'unreachable@.+' could not be found.+"),
-                $"Reason field is invalid: {reason}");
+            Assert.True(Regex.IsMatch(reason, "^The destination queue 'unreachable' could not be found.+"), $"Reason field is invalid: {reason}");
         }
 
         private void Then_the_endpoint_additional_details_should_be_provided()

@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		HealthMonitoring.Monitors.Http-deploy.nuspec = HealthMonitoring.Monitors.Http-deploy.nuspec
 		HealthMonitoring.Monitors.Nsb3-deploy.nuspec = HealthMonitoring.Monitors.Nsb3-deploy.nuspec
+		HealthMonitoring.Monitors.Nsb5.Msmq-deploy.nuspec = HealthMonitoring.Monitors.Nsb5.Msmq-deploy.nuspec
+		HealthMonitoring.Monitors.Nsb5.Rabbitmq-deploy.nuspec = HealthMonitoring.Monitors.Nsb5.Rabbitmq-deploy.nuspec
 		HealthMonitoring.Service-deploy.nuspec = HealthMonitoring.Service-deploy.nuspec
 		LICENSE = LICENSE
 		README.md = README.md
@@ -48,7 +50,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.N
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Helpers", "Helpers", "{E92D0044-EBF8-4893-B402-1754AA5B173D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.SampleNsbHost", "HealthMonitoring.SampleNsbHost\HealthMonitoring.SampleNsbHost.csproj", "{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.SampleNsb3Host", "HealthMonitoring.SampleNsb3Host\HealthMonitoring.SampleNsb3Host.csproj", "{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.Nsb5.Msmq", "HealthMonitoring.Monitors.Nsb5.Msmq\HealthMonitoring.Monitors.Nsb5.Msmq.csproj", "{59F2C984-F0A4-402E-ADF3-FB5E1ED46B73}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.Nsb5.Messages", "HealthMonitoring.Monitors.Nsb5.Messages\HealthMonitoring.Monitors.Nsb5.Messages.csproj", "{1B4D7B04-ED24-4E94-9DC0-FBB142CD403E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.SampleNsb5Host.Msmq", "HealthMonitoring.SampleNsb5Host.Msmq\HealthMonitoring.SampleNsb5Host.Msmq.csproj", "{318A5BE2-CC1A-4768-9E80-0245F4374B7A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.SampleNsb5Host.Rabbitmq", "HealthMonitoring.SampleNsb5Host.Rabbitmq\HealthMonitoring.SampleNsb5Host.Rabbitmq.csproj", "{F1D68DFC-6147-4831-8D03-05712A222F29}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.Nsb5.Rabbitmq", "HealthMonitoring.Monitors.Nsb5.Rabbitmq\HealthMonitoring.Monitors.Nsb5.Rabbitmq.csproj", "{77CFC2D9-8306-439A-94B5-2F6C2A0B388C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.SelfHost", "HealthMonitoring.Monitors.SelfHost\HealthMonitoring.Monitors.SelfHost.csproj", "{35E7D788-521C-4944-93F0-7C064B28F9A3}"
 EndProject
@@ -108,6 +120,26 @@ Global
 		{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59F2C984-F0A4-402E-ADF3-FB5E1ED46B73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59F2C984-F0A4-402E-ADF3-FB5E1ED46B73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59F2C984-F0A4-402E-ADF3-FB5E1ED46B73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59F2C984-F0A4-402E-ADF3-FB5E1ED46B73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B4D7B04-ED24-4E94-9DC0-FBB142CD403E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B4D7B04-ED24-4E94-9DC0-FBB142CD403E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B4D7B04-ED24-4E94-9DC0-FBB142CD403E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B4D7B04-ED24-4E94-9DC0-FBB142CD403E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{318A5BE2-CC1A-4768-9E80-0245F4374B7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{318A5BE2-CC1A-4768-9E80-0245F4374B7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{318A5BE2-CC1A-4768-9E80-0245F4374B7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{318A5BE2-CC1A-4768-9E80-0245F4374B7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1D68DFC-6147-4831-8D03-05712A222F29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1D68DFC-6147-4831-8D03-05712A222F29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1D68DFC-6147-4831-8D03-05712A222F29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1D68DFC-6147-4831-8D03-05712A222F29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77CFC2D9-8306-439A-94B5-2F6C2A0B388C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77CFC2D9-8306-439A-94B5-2F6C2A0B388C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77CFC2D9-8306-439A-94B5-2F6C2A0B388C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77CFC2D9-8306-439A-94B5-2F6C2A0B388C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{35E7D788-521C-4944-93F0-7C064B28F9A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{35E7D788-521C-4944-93F0-7C064B28F9A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35E7D788-521C-4944-93F0-7C064B28F9A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -141,6 +173,8 @@ Global
 		{B38787FD-3B64-47B3-82B9-381E34BBDC5F} = {F0A0E7E8-5BFB-483F-84DA-957D5930539B}
 		{F0A0E7E8-5BFB-483F-84DA-957D5930539B} = {11868196-C99E-4959-BE4D-7BEB75B76986}
 		{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05} = {E92D0044-EBF8-4893-B402-1754AA5B173D}
+		{318A5BE2-CC1A-4768-9E80-0245F4374B7A} = {E92D0044-EBF8-4893-B402-1754AA5B173D}
+		{F1D68DFC-6147-4831-8D03-05712A222F29} = {E92D0044-EBF8-4893-B402-1754AA5B173D}
 		{C52D6B95-1626-4FD0-A9A2-7D31F2D091C3} = {11868196-C99E-4959-BE4D-7BEB75B76986}
 		{CB4EB4AD-DCFA-406A-8A06-51A1E31CDA81} = {11868196-C99E-4959-BE4D-7BEB75B76986}
 		{CB424169-E843-4256-81E4-372ACFE07B29} = {11868196-C99E-4959-BE4D-7BEB75B76986}

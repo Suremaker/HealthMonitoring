@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
-using Xunit;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("HealthMonitoring.Monitors.Core.UnitTests")]
+[assembly: AssemblyTitle("HealthMonitoring.SampleNsb3Host")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("HealthMonitoring.Monitors.Core.UnitTests")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyProduct("HealthMonitoring.SampleNsb3Host")]
+[assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +19,7 @@ using Xunit;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("cb4eb4ad-dcfa-406a-8a06-51a1e31cda81")]
+[assembly: Guid("b3287157-a2b2-4ddf-bca3-647490bb8b8a")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -34,4 +33,3 @@ using Xunit;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("2.2.1.0")]
 [assembly: AssemblyFileVersion("2.2.1.0")]
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
