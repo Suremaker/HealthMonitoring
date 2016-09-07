@@ -8,7 +8,7 @@ using NServiceBus;
 
 namespace HealthMonitoring.Monitors.Nsb5.Rabbitmq
 {
-    public class Nsb5Monitor : IHealthMonitor
+    public class Nsb5Monitor : IHealthMonitor, IDisposable
     {
         private static readonly HealthInfo MessageTimeoutResponse = new HealthInfo(HealthStatus.Faulty, new Dictionary<string, string> { { "message", "health check timeout" } });
         private readonly IBus _bus;
@@ -44,7 +44,12 @@ namespace HealthMonitoring.Monitors.Nsb5.Rabbitmq
 
         private static HealthInfo Healthy(GetStatusResponse response)
         {
-            return new HealthInfo(HealthStatus.Healthy,  response.Details);
+            return new HealthInfo(HealthStatus.Healthy, response.Details);
+        }
+
+        public void Dispose()
+        {
+            _bus.Dispose();
         }
     }
 }
