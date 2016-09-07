@@ -63,7 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HealthMonitoring.Management.Core\HealthMonitoring.Management.Core.csproj">
-      <Project>{DDEAC82F-7D78-4962-B180-9711D574AF8D}</Project>
+      <Project>{ddeac82f-7d78-4962-b180-9711d574af8d}</Project>
       <Name>HealthMonitoring.Management.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\HealthMonitoring.Monitors\HealthMonitoring.Monitors.csproj">

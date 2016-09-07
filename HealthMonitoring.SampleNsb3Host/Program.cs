@@ -7,7 +7,7 @@ using NServiceBus.Config;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.Installation.Environments;
 
-namespace HealthMonitoring.SampleNsbHost
+namespace HealthMonitoring.SampleNsb3Host
 {
     class Program
     {
@@ -17,7 +17,7 @@ namespace HealthMonitoring.SampleNsbHost
 
             Configure configure = Configure.With(typeof(GetStatusRequest).Assembly, typeof(Handler).Assembly)
             .Log4Net()
-            .DefineEndpointName("HealthMonitoring.SampleNsbHost")
+            .DefineEndpointName("HealthMonitoring.SampleNsb3Host")
             .DefaultBuilder()
             .MsmqTransport()
             .InMemorySagaPersister()
@@ -36,7 +36,7 @@ namespace HealthMonitoring.SampleNsbHost
 
         private static void CreateQueue()
         {
-            var queue = ".\\private$\\HealthMonitoring.SampleNsbHost";
+            var queue = ".\\private$\\HealthMonitoring.SampleNsb3Host";
             if (!MessageQueue.Exists(queue))
                 MessageQueue.Create(queue, true);
         }
@@ -65,7 +65,7 @@ namespace HealthMonitoring.SampleNsbHost
         {
             return new MessageForwardingInCaseOfFaultConfig
             {
-                ErrorQueue = "HealthMonitoring.SampleNsbHost.error"
+                ErrorQueue = "HealthMonitoring.SampleNsb3Host.error"
             };
         }
     }
