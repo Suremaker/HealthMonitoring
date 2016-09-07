@@ -28,14 +28,14 @@ The Health Monitoring service is self hosted and consists of 2 parts:
 The easiest way to install it is to:
 
 1. install a **HealthMonitoring.Service-deploy** nuget package in target folder for the API/website,
+  *  (optionally) edit **HealthMonitoring.SelfHost.exe.config** to customise API host settings
 2. install a **HealthMonitoring.Monitors.Service-deploy** nuget package in target folder for the monitor process,
-3. make a **monitors** directory in target folder where *HealthMonitoring.Monitors.SelfHost.exe* is,
-4. install one or more **HealthMonitoring.Monitors.XXX-deploy** monitor packages in **monitors** directory,
-5. edit **HealthMonitoring.Monitors.SelfHost.exe.config** and specify proper URL for *HealthMonitoringUrl* setting,
-6. (optionally) edit **HealthMonitoring.Monitors.SelfHost.exe.config** and add monitor specific configuration,
-7. (optionally) edit **HealthMonitoring.SelfHost.exe.config** to customise API host settings,
-8. run **HealthMonitoring.SelfHost.exe** to start a console application for API or run **install_service.cmd** (located in API instalation folder) to register the health monitor API as a **windows service**
-9. run **HealthMonitoring.Monitors.SelfHost.exe** to start a console application for monitors or run **install_service.cmd** (located in monitor instalation folder) to register the health monitor API as a **windows service**
+  * make a **monitors** directory in target folder where *HealthMonitoring.Monitors.SelfHost.exe* is,
+  * install one or more **HealthMonitoring.Monitors.XXX-deploy** monitor packages in **monitors** directory,
+  * edit **HealthMonitoring.Monitors.SelfHost.exe.config** and specify proper URL for *HealthMonitoringUrl* setting (if changed),
+  * (optionally) edit **HealthMonitoring.Monitors.SelfHost.exe.config** and add monitor specific configuration,
+3. run **HealthMonitoring.SelfHost.exe** to start a console application for API or run **install_service.cmd** (located in API instalation folder) to register the health monitor API as a **windows service**
+4. run **HealthMonitoring.Monitors.SelfHost.exe** to start a console application for monitors or run **install_service.cmd** (located in monitor instalation folder) to register the health monitor API as a **windows service**
 
 ### Running
 
