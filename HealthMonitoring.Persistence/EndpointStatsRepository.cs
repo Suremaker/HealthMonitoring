@@ -10,9 +10,9 @@ namespace HealthMonitoring.Persistence
 {
     public class EndpointStatsRepository : IEndpointStatsRepository
     {
-        private readonly SqliteDatabase _db;
+        private readonly MySqlDatabase _db;
 
-        public EndpointStatsRepository(SqliteDatabase db)
+        public EndpointStatsRepository(MySqlDatabase db)
         {
             _db = db;
         }
@@ -22,9 +22,10 @@ namespace HealthMonitoring.Persistence
             using (var conn = _db.OpenConnection())
             using (var tx = conn.BeginTransaction())
             {
+                var id = Guid.NewGuid();
                 conn.Execute(
-                    "insert into EndpointStats (EndpointId, CheckTimeUtc, ResponseTime, Status) values (@endpointId, @checkTimeUtc, @responseTime, @status)",
-                    new { endpointId, stats.CheckTimeUtc, responseTime = stats.ResponseTime.Ticks, stats.Status }, tx);
+                    "insert into EndpointStats (Id, EndpointId, CheckTimeUtc, ResponseTime, Status) values (@id, @endpointId, @checkTimeUtc, @responseTime, @status)",
+                    new { id, endpointId, stats.CheckTimeUtc, responseTime = stats.ResponseTime.Ticks, stats.Status }, tx);
                 tx.Commit();
             }
         }

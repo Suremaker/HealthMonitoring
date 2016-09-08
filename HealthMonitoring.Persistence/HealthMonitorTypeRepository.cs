@@ -7,9 +7,9 @@ namespace HealthMonitoring.Persistence
 {
     public class HealthMonitorTypeRepository : IHealthMonitorTypeRepository
     {
-        private readonly SqliteDatabase _db;
+        private readonly MySqlDatabase _db;
 
-        public HealthMonitorTypeRepository(SqliteDatabase db)
+        public HealthMonitorTypeRepository(MySqlDatabase db)
         {
             _db = db;
         }
@@ -19,7 +19,7 @@ namespace HealthMonitoring.Persistence
             using (var conn = _db.OpenConnection())
             using (var tx = conn.BeginTransaction())
             {
-                conn.Execute("insert or replace into HealthMonitorTypes(MonitorType) values(@monitorType)", new { monitorType });
+                conn.Execute("replace into HealthMonitorTypes(MonitorType) values(@monitorType)", new { monitorType });
                 tx.Commit();
             }
         }

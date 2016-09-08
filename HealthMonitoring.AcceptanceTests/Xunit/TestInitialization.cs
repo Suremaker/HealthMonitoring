@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using MySql.Data.MySqlClient;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -57,9 +59,16 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
         private static void DeleteDatabase()
         {
-            var dbFile = ConfigurationManager.AppSettings["DatabaseFile"];
-            if (File.Exists(dbFile))
-                File.Delete(dbFile);
+            var connectionString = ConfigurationManager.ConnectionStrings["HealthMonitoring"].ConnectionString;
+            var databaseName = ConfigurationManager.AppSettings["DatabaseName"];
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = $"DROP DATABASE IF EXISTS {databaseName}";
+                command.CommandType = CommandType.Text;
+                command.ExecuteNonQuery();
+            }
         }
 
         public static void Terminate()
