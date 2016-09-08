@@ -3,16 +3,21 @@
 This project aims to provide a tool for monitoring health of various components belonging to a bigger eco-system (like SOA or Microservice Architecture).
 
 HealthMonitoring offers a standalone, self-hosted tool that:
-* offers an WEB API for registering endpoints and obtaining health information about them,
+* offers an HTTP API for registering endpoints and obtaining health information about them,
 * monitors (with configurable time periods) registered endpoints,
 * offers a HTML dashboard to display the current status of monitored endpoints,
 * offers an endpoint detailed HTML page to display endpoint details and health history.
 
+### Requirements
+
+The endpoint configuration and statistics are stored in a MySQL database ([http://dev.mysql.com/downloads/mysql](http://dev.mysql.com/downloads/mysql)).
+
 ### Building
 
 To build the project, please open a powershell console in project root folder and execute: ``PS> .\make\make_local.ps1``
-In order to successfuly run all the tests, a following dependencies has to be fulfiled on localhost:
-* [RabbitMq](https://www.rabbitmq.com/download.html) has to be installed.
+
+In order to successfully run all the tests, the following dependencies are required on localhost:
+* [RabbitMq](https://www.rabbitmq.com/download.html)
 
 After a successful build, the root folder would contain built nuget packages (*.nupkg) that can be used to install Health Monitor or to integrate with it.
 
