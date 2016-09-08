@@ -40,13 +40,11 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.SQLite, Version=1.0.99.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SQLite.Core.1.0.99.0\lib\net451\System.Data.SQLite.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointStatsRepository.cs" />
@@ -65,10 +63,6 @@
     <ProjectReference Include="..\HealthMonitoring.Management.Core\HealthMonitoring.Management.Core.csproj">
       <Project>{ddeac82f-7d78-4962-b180-9711d574af8d}</Project>
       <Name>HealthMonitoring.Management.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\HealthMonitoring.Monitors\HealthMonitoring.Monitors.csproj">
-      <Project>{D26577BB-BEA8-4911-8C25-37E268609E3F}</Project>
-      <Name>HealthMonitoring.Monitors</Name>
     </ProjectReference>
     <ProjectReference Include="..\HealthMonitoring\HealthMonitoring.csproj">
       <Project>{B04E2F95-8F59-4B5C-AC93-4688EA6848D8}</Project>

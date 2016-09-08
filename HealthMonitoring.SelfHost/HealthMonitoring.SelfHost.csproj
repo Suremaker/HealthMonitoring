@@ -205,10 +205,6 @@
       <Project>{DDEAC82F-7D78-4962-B180-9711D574AF8D}</Project>
       <Name>HealthMonitoring.Management.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\HealthMonitoring.Monitors\HealthMonitoring.Monitors.csproj">
-      <Project>{D26577BB-BEA8-4911-8C25-37E268609E3F}</Project>
-      <Name>HealthMonitoring.Monitors</Name>
-    </ProjectReference>
     <ProjectReference Include="..\HealthMonitoring.Persistence\HealthMonitoring.Persistence.csproj">
       <Project>{FF304FBD-1BDF-49CD-8E2A-4E20D2083BA0}</Project>
       <Name>HealthMonitoring.Persistence</Name>
