@@ -65,7 +65,7 @@
                     <td>{{formatDuration(e.LastResponseTime)}}</td>
                     <td>{{formatDate(e.LastCheckUtc)}}</td>
                     <td>
-                        <p class="tagsContainer"><span ng-repeat="tag in e.Tags | orderBy: 'toString()'" ng-click="addToTagFilter(tag)" class="endpointTag">{{tag}}</span></p>
+                        <p class="tagsContainer"><span ng-repeat="tag in e.Tags | orderBy: 'toString()'" ng-click="addToTagFilter(tag)" ng-style="tagStyles[tag]" ng-mouseenter="changeTagColour(tag, true)" ng-mouseleave="changeTagColour(tag, false)" class="endpointTag">{{tag}}</span></p>
                     </td>
                 </tr>
             </table>
@@ -85,6 +85,7 @@
             $scope.selectedStatuses = [];
             $scope.inputFilterTag = null;
             $scope.filter = {};
+            $scope.tagStyles = {};
 
             $scope.getConfig = function () {
                 $http.get("/api/config")
@@ -100,6 +101,13 @@
                 $http.get("/api/endpoints")
                     .success(function (response) {
                         $scope.endpoints = response;
+
+                        angular.forEach($scope.endpoints, function (endpoint) {
+                            angular.forEach(endpoint.Tags,
+                                function(tag) {
+                                    $scope.tagStyles[tag] = { background: hashColour(tag, false) };
+                                });
+                        });
                     })
                     .error(function (data, status) {
                         $scope.endpoints = null;
@@ -153,6 +161,10 @@
                 $location.search('filter-tags', tagsToParamString($scope.filterTags));
             };
 
+            $scope.changeTagColour = function (tag, hover) {
+                $scope.tagStyles[tag] = { background: hashColour(tag, hover) };
+            }
+
             $scope.valueComparator = function (a, b) { return a === b; }
 
             initFiltersFromUrl($scope, $location);
@@ -160,6 +172,7 @@
             $scope.parseDuration = parseDuration;
             $scope.formatDate = formatDate;
             $scope.formatDuration = formatDuration;
+            $scope.hashColour = hashColour;
 
             $scope.getConfig();
             $scope.getEndpoints();

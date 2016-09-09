@@ -21,7 +21,7 @@
     <tr><td>Status:</td><td class="status {{details.Status}}">{{details.Status}}</td></tr>
     <tr><td>Last Check:</td><td>{{formatDate(details.LastCheckUtc)}}</td></tr>
     <tr><td>Last Response Time:</td><td>{{formatDuration(details.LastResponseTime)}}</td></tr>
-    <tr><td>Tags:</td><td><p class="tagsContainer"><span ng-repeat="tag in details.Tags" ng-click="tagClick(tag)" class="endpointTag">{{tag}}</span></p></td>
+    <tr><td>Tags:</td><td><p class="tagsContainer"><span ng-repeat="tag in details.Tags" ng-click="tagClick(tag)" ng-style="tagStyles[tag]" ng-mouseenter="changeTagColour(tag, true)" ng-mouseleave="changeTagColour(tag, false)" class="endpointTag">{{tag}}</span></p></td>
     </tr>
 </table>
 <h1>Details</h1>
@@ -57,6 +57,7 @@
     app.controller('ctrl', function ($scope, $http, $location) {
 
         $scope.details = {};
+        $scope.tagStyles = {};
         $scope.stats = {lines:[],paths:{}};
         $scope.graph = { width: 800, height: 400 };
         $scope.statsLoading = false;
@@ -66,6 +67,10 @@
             $http.get("/api/endpoints/" + $location.search().id)
                 .success(function(response) {
                     $scope.details = response;
+
+                    angular.forEach($scope.details.Tags, function (tag) {
+                        $scope.tagStyles[tag] = { background: hashColour(tag, false) };
+                    });
                 })
                 .error(function(data, status) {
                     $scope.details = {};
@@ -76,6 +81,10 @@
             var url = "/#?filter-tags=" + tag;
             window.open(url, '_blank');
         };
+
+        $scope.changeTagColour = function (tag, hover) {
+            $scope.tagStyles[tag] = { background: hashColour(tag, hover) };
+        }
 
         function buildPaths(lines, maxDuration, graphDims) {
 
@@ -151,6 +160,7 @@
         $scope.parseDuration = parseDuration;
         $scope.formatDate = formatDate;
         $scope.formatDuration = formatDuration;
+        $scope.hashColour = hashColour;
 
         $scope.displayHint = function ($evt) {
             var index = Math.floor($evt.offsetX * $scope.stats.lines.length / $scope.graph.width);

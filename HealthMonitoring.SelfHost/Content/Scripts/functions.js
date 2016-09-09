@@ -3,7 +3,7 @@ function parseDuration(timeSpan) {
         return 0;
     }
 
-    var parts = timeSpan.split(".");
+    var parts = timeSpan.split('.');
 
     var ms = 0;
     if (parts.length > 1)
@@ -27,6 +27,29 @@ function formatDate(dateString) {
 function formatDuration(timeSpan) {
     if (timeSpan == null) { return ""; }
     return parseDuration(timeSpan) + " ms";
+}
+
+function hashColour(str, hover) {
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    var colour = '#';
+    for (var i = 0; i < 3; i++) {
+        var value = (hash >> (i * 8)) & 0xFF;
+        if (hover && i === 1) {
+            var offset = 20;
+            if (value > offset) value -= offset;
+            else value += 20;
+        }
+        if (hover && i === 2) {
+            var offset = 8;
+            if (value < 255 - offset) value += offset;
+            else value -= offset;
+        }
+        colour += ('00' + value.toString(16)).substr(-2);
+    }
+    return colour;
 }
 
 String.prototype.replaceAll = function (search, replacement) {
