@@ -12,9 +12,9 @@ namespace HealthMonitoring.Persistence
 {
     public class SqlEndpointConfigurationRepository : IEndpointConfigurationRepository
     {
-        private readonly SqliteDatabase _db;
+        private readonly MySqlDatabase _db;
 
-        public SqlEndpointConfigurationRepository(SqliteDatabase db)
+        public SqlEndpointConfigurationRepository(MySqlDatabase db)
         {
             _db = db;
         }
