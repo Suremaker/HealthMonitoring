@@ -9,6 +9,8 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 {
     public class OutgoingQueueTests
     {
+        private static readonly TimeSpan AcceptableTimeDelta = TimeSpan.FromMilliseconds(300);
+
         [Fact]
         public void Queue_should_override_old_items_if_limit_is_reached()
         {
@@ -66,7 +68,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             watch.Stop();
 
             Assert.Equal(availableItemsCount, items.Length);
-            Assert.True((watch.Elapsed - timeout).Duration() < TimeSpan.FromMilliseconds(100), "Expected full timeout");
+            Assert.True((watch.Elapsed - timeout).Duration() < AcceptableTimeDelta, "Expected full timeout");
         }
 
         [Fact]
@@ -84,7 +86,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             watch.Stop();
 
             Assert.Equal(availableItemsCount, items.Length);
-            Assert.True((watch.Elapsed - timeout).Duration() < TimeSpan.FromMilliseconds(300), "Expected task cancellation");
+            Assert.True((watch.Elapsed - timeout).Duration() < AcceptableTimeDelta, "Expected task cancellation");
         }
 
         [Fact]
