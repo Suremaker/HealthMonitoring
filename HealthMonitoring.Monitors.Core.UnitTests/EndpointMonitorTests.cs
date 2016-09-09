@@ -12,6 +12,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 {
     public class EndpointMonitorTests
     {
+        private static readonly TimeSpan TimeComparisonMargin = TimeSpan.FromMilliseconds(300);
         private readonly TestableHealthMonitor _testableHealthMonitor;
         private readonly MonitorableEndpointRegistry _endpointRegistry;
 
@@ -57,9 +58,9 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         }
 
         [Theory]
-        [InlineData(400, 800, 800, 200)]
-        [InlineData(800, 400, 800, 200)]
-        public void Monitor_should_ping_endpoint_with_regular_intervals(int delayInMs, int intervalInMs, int expectedIntervalInMs, int marginMs)
+        [InlineData(400, 800, 800)]
+        [InlineData(800, 400, 800)]
+        public void Monitor_should_ping_endpoint_with_regular_intervals(int delayInMs, int intervalInMs, int expectedIntervalInMs)
         {
             _endpointRegistry.TryRegister(CreateEndpointIdentity("address"));
             _testableHealthMonitor.Delay = TimeSpan.FromMilliseconds(delayInMs);
@@ -80,10 +81,9 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             {
                 var diff = intervals[i] - intervals[i - 1];
 
-                var margin = TimeSpan.FromMilliseconds(marginMs);
                 var expected = TimeSpan.FromMilliseconds(expectedIntervalInMs);
-                Assert.True((diff - expected).Duration() < margin,
-                    $"Expected interval {expected.TotalMilliseconds}ms ~ {margin.TotalMilliseconds}ms, got {diff.TotalMilliseconds}ms");
+                Assert.True((diff - expected).Duration() < TimeComparisonMargin,
+                    $"Expected interval {expected.TotalMilliseconds}ms ~ {TimeComparisonMargin.TotalMilliseconds}ms, got {diff.TotalMilliseconds}ms");
             }
         }
 
