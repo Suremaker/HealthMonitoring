@@ -9,7 +9,7 @@ services:
 init:
 - ps: |
     Write-Host "Installing RabbitMQ..." -ForegroundColor Cyan
-    $version = '3.6.5'
+    $version = '3.5.4'
     Write-Host "Downloading..."
     $exePath = "$($env:USERPROFILE)\rabbitmq-server-$($version).exe"
     (New-Object Net.WebClient).DownloadFile("http://www.rabbitmq.com/releases/rabbitmq-server/v$($version)/rabbitmq-server-$($version).exe", $exePath)
