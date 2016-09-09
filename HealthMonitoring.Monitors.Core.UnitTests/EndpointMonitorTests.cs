@@ -29,7 +29,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             _endpointRegistry.TryRegister(CreateEndpointIdentity("address2"));
             _testableHealthMonitor.StartWatch();
 
-            var delay = TimeSpan.FromMilliseconds(400);
+            var delay = TimeSpan.FromMilliseconds(800);
 
             var settings = MonitorSettingsHelper.ConfigureSettings(TimeSpan.FromMilliseconds(50));
             using (new EndpointMonitor(_endpointRegistry, new HealthSampler(settings, new Mock<IEndpointHealthUpdateListener>().Object), settings))
@@ -52,8 +52,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             var a3 = _testableHealthMonitor.Calls.Where(c => c.Item1 == "address3").ToArray();
 
             Assert.True(a1.Length > 1, $"Expected more than 1 check of address1, got: {a1.Length}");
-            Assert.True(a1.Length < a2.Length,
-                $"Expected less checks of address1 than address 2, got: address1={a1.Length}, address2={a2.Length}");
+            Assert.True(a1.Length < a2.Length, $"Expected less checks of address1 than address 2, got: address1={a1.Length}, address2={a2.Length}");
             Assert.True(a3.Length > 1, $"Expected more than 1 check of address3, got: {a3.Length}");
         }
 
