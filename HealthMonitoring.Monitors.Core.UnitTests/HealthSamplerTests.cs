@@ -233,12 +233,12 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
                 return new HealthInfo(HealthStatus.Healthy);
             });
 
-            var cancelAfter = TimeSpan.FromMilliseconds(200);
+            var cancelAfter = TimeSpan.FromMilliseconds(400);
             var src = new CancellationTokenSource(cancelAfter);
             var watch = Stopwatch.StartNew();
             await Assert.ThrowsAsync<AggregateException>(() => _sampler.CheckHealthAsync(_endpoint, src.Token));
 
-            AssertResponseTime(cancelAfter, watch.Elapsed, TimeSpan.FromMilliseconds(80));
+            AssertResponseTime(cancelAfter, watch.Elapsed, TimeSpan.FromMilliseconds(200));
         }
 
         [Fact]
@@ -272,7 +272,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 
         private void AssertResponseTime(TimeSpan expectedTime, TimeSpan actualTime)
         {
-            AssertResponseTime(expectedTime, actualTime, TimeSpan.FromMilliseconds(100));
+            AssertResponseTime(expectedTime, actualTime, TimeSpan.FromMilliseconds(200));
         }
 
         private static void AssertResponseTime(TimeSpan expectedTime, TimeSpan actualTime, TimeSpan delta)
