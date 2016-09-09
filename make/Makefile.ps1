@@ -1,6 +1,6 @@
 Define-Step -Name 'Update version info' -Target 'build' -Body {
 	. (require 'psmake.mod.update-version-info')
-	Update-VersionInAssemblyInfo $($Context.Version) 
+	Update-VersionInAssemblyInfo $VERSION
 }
 
 Define-Step -Name 'Building' -Target 'build' -Body {
@@ -31,5 +31,5 @@ Define-Step -Name 'Packaging' -Target 'build' -Body {
 
 	Find-VSProjectsForPackaging | Package-VSProject
 	
-	Find-NuSpecFiles -filter "*-deploy.nuspec" | Package-DeployableNuSpec -Version $($Context.Version)
+	Find-NuSpecFiles -filter "*-deploy.nuspec" | Package-DeployableNuSpec -Version $VERSION
 }

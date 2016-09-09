@@ -1,1 +1,1 @@
-make\make.ps1 -t build -ap Version:3.0.0.0
+make\make.ps1 -t build
