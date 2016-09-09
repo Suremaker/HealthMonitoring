@@ -71,7 +71,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             using (new EndpointMonitor(_endpointRegistry, new HealthSampler(settings, new Mock<IEndpointHealthUpdateListener>().Object), settings))
             {
                 WaitForAnyCall();
-                Thread.Sleep(TimeSpan.FromMilliseconds(expectedIntervalInMs * 5));
+                Thread.Sleep(TimeSpan.FromMilliseconds(expectedIntervalInMs * 4));
             }
 
             var intervals = _testableHealthMonitor.Calls.Select(c => c.Item2).ToArray();
