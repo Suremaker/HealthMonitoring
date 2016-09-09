@@ -34,7 +34,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         {
             SetupDefaultTimeouts();
 
-            var expectedTime = TimeSpan.FromMilliseconds(300);
+            var expectedTime = TimeSpan.FromMilliseconds(600);
             _monitor.ExpectFor(_endpoint.Identity.Address, async token =>
             {
                 await Task.Delay(expectedTime, token);
@@ -44,7 +44,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             var result = _sampler.CheckHealthAsync(_endpoint, new CancellationToken()).Result;
             Assert.Equal(EndpointStatus.Healthy, result.Status);
             AssertResponseTime(expectedTime, result.ResponseTime);
-            AssertCheckTime(result);
+            AssertCheckTime(result, TimeSpan.FromMilliseconds(200));
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         {
             SetupDefaultTimeouts();
 
-            var expectedTime = TimeSpan.FromMilliseconds(300);
+            var expectedTime = TimeSpan.FromMilliseconds(600);
             var exception = new Exception("failure");
             _monitor.ExpectFor(_endpoint.Identity.Address, async token =>
             {
@@ -63,7 +63,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             var result = _sampler.CheckHealthAsync(_endpoint, new CancellationToken()).Result;
             Assert.Equal(EndpointStatus.Faulty, result.Status);
             AssertResponseTime(expectedTime, result.ResponseTime);
-            AssertCheckTime(result);
+            AssertCheckTime(result, TimeSpan.FromMilliseconds(200));
 
             var expectedDetails = new Dictionary<string, string>
             {
@@ -76,7 +76,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         [Fact]
         public void CheckHealthAsync_should_measure_monitor_timeouts()
         {
-            var expectedTime = TimeSpan.FromMilliseconds(300);
+            var expectedTime = TimeSpan.FromMilliseconds(600);
             _settings.Setup(s => s.ShortTimeOut).Returns(expectedTime);
 
             _monitor.ExpectFor(_endpoint.Identity.Address, async token =>
@@ -88,7 +88,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             var result = _sampler.CheckHealthAsync(_endpoint, new CancellationToken()).Result;
             Assert.Equal(EndpointStatus.TimedOut, result.Status);
             AssertResponseTime(expectedTime, result.ResponseTime);
-            AssertCheckTime(result);
+            AssertCheckTime(result, TimeSpan.FromMilliseconds(200));
         }
 
         [Fact]
@@ -121,7 +121,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         [InlineData(HealthStatus.Unhealthy)]
         public void CheckHealthAsync_should_use_long_timeout_for_endpoints_with_faulty_statuses(HealthStatus status)
         {
-            var expectedTime = TimeSpan.FromMilliseconds(300);
+            var expectedTime = TimeSpan.FromMilliseconds(600);
             _settings.Setup(s => s.HealthyResponseTimeLimit).Returns(TimeSpan.FromSeconds(5));
             _settings.Setup(s => s.ShortTimeOut).Returns(TimeSpan.FromMilliseconds(30));
             _settings.Setup(s => s.FailureTimeOut).Returns(expectedTime);
@@ -142,7 +142,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             var result = _sampler.CheckHealthAsync(_endpoint, new CancellationToken()).Result;
             Assert.Equal(EndpointStatus.Faulty, result.Status);
             AssertResponseTime(expectedTime, result.ResponseTime);
-            AssertCheckTime(result);
+            AssertCheckTime(result, TimeSpan.FromMilliseconds(200));
         }
 
         [Theory]
@@ -151,7 +151,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         [InlineData(HealthStatus.Offline)]
         public void CheckHealthAsync_should_use_short_timeout_for_endpoints_with_non_faulty_statuses(HealthStatus status)
         {
-            var expectedTime = TimeSpan.FromMilliseconds(300);
+            var expectedTime = TimeSpan.FromMilliseconds(600);
             _settings.Setup(s => s.ShortTimeOut).Returns(expectedTime);
             _settings.Setup(s => s.HealthyResponseTimeLimit).Returns(TimeSpan.FromSeconds(5));
             _settings.Setup(s => s.FailureTimeOut).Returns(TimeSpan.FromSeconds(1));
@@ -172,7 +172,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             var result = _sampler.CheckHealthAsync(_endpoint, new CancellationToken()).Result;
             Assert.Equal(EndpointStatus.TimedOut, result.Status);
             AssertResponseTime(expectedTime, result.ResponseTime);
-            AssertCheckTime(result);
+            AssertCheckTime(result, TimeSpan.FromMilliseconds(200));
         }
 
         [Theory]
@@ -209,7 +209,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             _settings.Setup(s => s.ShortTimeOut).Returns(TimeSpan.FromSeconds(5));
             _settings.Setup(s => s.HealthyResponseTimeLimit).Returns(TimeSpan.FromMilliseconds(200));
 
-            var expectedTime = TimeSpan.FromMilliseconds(300);
+            var expectedTime = TimeSpan.FromMilliseconds(500);
             _monitor.ExpectFor(_endpoint.Identity.Address, async token =>
             {
                 await Task.Delay(expectedTime, token);
@@ -219,7 +219,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             var result = _sampler.CheckHealthAsync(_endpoint, new CancellationToken()).Result;
             Assert.Equal(EndpointStatus.Unhealthy, result.Status);
             AssertResponseTime(expectedTime, result.ResponseTime);
-            AssertCheckTime(result);
+            AssertCheckTime(result, TimeSpan.FromMilliseconds(200));
         }
 
         [Fact]
@@ -282,10 +282,9 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
                 $"Expected ResponseTime being {expectedTime} ~ {delta.TotalMilliseconds}ms, got: {actualTime}");
         }
 
-        private static void AssertCheckTime(EndpointHealth result)
+        private static void AssertCheckTime(EndpointHealth result, TimeSpan delta)
         {
             var now = DateTime.UtcNow;
-            var delta = TimeSpan.FromMilliseconds(100);
             var dateFormat = "yyyy-MM-dd HH:mm:ss.fff";
             var difference = (now - result.CheckTimeUtc) - result.ResponseTime;
             Assert.True(difference.Duration() < delta,
