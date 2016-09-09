@@ -84,7 +84,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             watch.Stop();
 
             Assert.Equal(availableItemsCount, items.Length);
-            Assert.True((watch.Elapsed - timeout).Duration() < TimeSpan.FromMilliseconds(100), "Expected task cancellation");
+            Assert.True((watch.Elapsed - timeout).Duration() < TimeSpan.FromMilliseconds(300), "Expected task cancellation");
         }
 
         [Fact]
