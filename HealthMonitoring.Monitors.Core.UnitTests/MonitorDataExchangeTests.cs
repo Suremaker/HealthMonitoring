@@ -20,16 +20,15 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         private readonly IHealthMonitorRegistry _monitorRegistry;
         private readonly Mock<IHealthMonitorExchangeClient> _exchangeClient;
         private readonly Mock<IMonitorableEndpointRegistry> _endpointRegistry;
-        private readonly TestableHealthMonitor _healthMonitor;
         private readonly AwaitableFactory _awaitableFactory;
         private static readonly TimeSpan TestMaxWaitTime = TimeSpan.FromSeconds(5);
         private static readonly TimeSpan PostRunDelay = TimeSpan.FromMilliseconds(100);
+        private const string MonitorTypeName = "test";
 
         public MonitorDataExchangeTests()
         {
             _awaitableFactory = new AwaitableFactory();
-            _healthMonitor = new TestableHealthMonitor();
-            _monitorRegistry = new HealthMonitorRegistry(new[] { _healthMonitor });
+            _monitorRegistry = new HealthMonitorRegistry(new[] { Mock.Of<IHealthMonitor>(cfg => cfg.Name == MonitorTypeName) });
             _exchangeClient = new Mock<IHealthMonitorExchangeClient>();
             _endpointRegistry = new Mock<IMonitorableEndpointRegistry>();
         }
@@ -105,8 +104,8 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         {
             SetupDefaultRegisterEndpointsMock();
 
-            var endpointIdentities1 = new[] { new EndpointIdentity(Guid.NewGuid(), _healthMonitor.Name, "address1"), new EndpointIdentity(Guid.NewGuid(), _healthMonitor.Name, "address2") };
-            var endpointIdentities2 = new[] { new EndpointIdentity(Guid.NewGuid(), _healthMonitor.Name, "address1"), new EndpointIdentity(Guid.NewGuid(), _healthMonitor.Name, "address3") };
+            var endpointIdentities1 = new[] { new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address1"), new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address2") };
+            var endpointIdentities2 = new[] { new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address1"), new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address3") };
             var countdown1 = new AsyncCountdown("endpointIdentities1", 1);
             var countdown2 = new AsyncCountdown("endpointIdentities2", 1);
 
@@ -248,7 +247,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 
         private EndpointIdentity[] SetupDefaultEndpointIdentitiesMock(Func<AwaitableBuilder<EndpointIdentity[]>, AwaitableBuilder<EndpointIdentity[]>> mockConfiguration)
         {
-            var endpointIdentities = new[] { new EndpointIdentity(Guid.NewGuid(), _healthMonitor.Name, "address1"), new EndpointIdentity(Guid.NewGuid(), _healthMonitor.Name, "address2") };
+            var endpointIdentities = new[] { new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address1"), new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address2") };
 
             _exchangeClient
                 .Setup(c => c.GetEndpointIdentitiesAsync(It.IsAny<CancellationToken>()))

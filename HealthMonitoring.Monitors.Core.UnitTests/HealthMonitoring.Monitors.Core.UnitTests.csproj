@@ -80,7 +80,6 @@
     <Compile Include="Helpers\MonitorMock.cs" />
     <Compile Include="MonitorableEndpointRegistryTests.cs" />
     <Compile Include="Helpers\MonitorSettingsHelper.cs" />
-    <Compile Include="Helpers\TestableHealthMonitor.cs" />
     <Compile Include="MonitorDataExchangeTests.cs" />
     <Compile Include="MonitorDiscoveryTests.cs" />
     <Compile Include="HealthMonitorRegistryTests.cs" />
