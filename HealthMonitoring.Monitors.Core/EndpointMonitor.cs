@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
 using HealthMonitoring.Configuration;
+using HealthMonitoring.Monitors.Core.Helpers.Time;
 using HealthMonitoring.Monitors.Core.Registers;
 using HealthMonitoring.Monitors.Core.Samplers;
 
@@ -16,6 +17,7 @@ namespace HealthMonitoring.Monitors.Core
     {
         private static readonly ILog Logger = LogManager.GetLogger<EndpointMonitor>();
         private readonly IMonitorSettings _settings;
+        private readonly ITimeCoordinator _timeCoordinator;
         private readonly CancellationTokenSource _cancellation;
         private readonly Thread _monitor;
         private readonly ConcurrentDictionary<MonitorableEndpoint, Task<MonitorableEndpoint>> _tasks = new ConcurrentDictionary<MonitorableEndpoint, Task<MonitorableEndpoint>>();
@@ -25,11 +27,12 @@ namespace HealthMonitoring.Monitors.Core
         private readonly IHealthSampler _sampler;
         private readonly Random _randomizer = new Random();
 
-        public EndpointMonitor(MonitorableEndpointRegistry monitorableEndpointRegistry, IHealthSampler sampler, IMonitorSettings settings)
+        public EndpointMonitor(MonitorableEndpointRegistry monitorableEndpointRegistry, IHealthSampler sampler, IMonitorSettings settings, ITimeCoordinator timeCoordinator)
         {
             _monitorableEndpointRegistry = monitorableEndpointRegistry;
             _sampler = sampler;
             _settings = settings;
+            _timeCoordinator = timeCoordinator;
             _monitorableEndpointRegistry.NewEndpointAdded += HandleNewEndpoint;
             _cancellation = new CancellationTokenSource();
 
@@ -68,6 +71,16 @@ namespace HealthMonitoring.Monitors.Core
                     Thread.Sleep(TimeSpan.FromSeconds(errorCounter));
                 }
             }
+            WaitForAllTasksToFinish();
+        }
+
+        private void WaitForAllTasksToFinish()
+        {
+            try
+            {
+                Task.WaitAll(_tasks.Values.Cast<Task>().ToArray());
+            }
+            catch (AggregateException) { }
         }
 
         private void ProcessTasks()
@@ -93,12 +106,11 @@ namespace HealthMonitoring.Monitors.Core
 
         private async Task<MonitorableEndpoint> CreateTaskFor(MonitorableEndpoint endpoint)
         {
-            await Task.Delay(GetRandomizedDelay());
+            await _timeCoordinator.Delay(GetRandomizedDelay(), _cancellation.Token);
             while (!_cancellation.IsCancellationRequested && !endpoint.IsDisposed)
             {
-                var delay = Task.Delay(_settings.HealthCheckInterval);
-                await endpoint.CheckHealth(_sampler, _cancellation.Token);
-                await delay;
+                var delay = _timeCoordinator.Delay(_settings.HealthCheckInterval, _cancellation.Token);
+                await Task.WhenAll(endpoint.CheckHealth(_sampler, _cancellation.Token),delay);
             }
             return endpoint;
         }

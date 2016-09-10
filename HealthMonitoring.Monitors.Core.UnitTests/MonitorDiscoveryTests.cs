@@ -19,8 +19,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
                 typeof(HttpJsonMonitor), 
                 typeof(TestHealthMonitor), 
                 typeof(TestHealthMonitor2),
-                typeof(TestableHealthMonitor),
-                typeof(MockableMonitor)
+                typeof(TestableHealthMonitor)
             };
 
 

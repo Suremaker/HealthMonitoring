@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +7,7 @@ using Common.Logging;
 using HealthMonitoring.Configuration;
 using HealthMonitoring.Model;
 using HealthMonitoring.Monitors.Core.Helpers;
+using HealthMonitoring.Monitors.Core.Helpers.Time;
 
 namespace HealthMonitoring.Monitors.Core.Samplers
 {
@@ -16,12 +16,14 @@ namespace HealthMonitoring.Monitors.Core.Samplers
         private static readonly ILog Logger = LogManager.GetLogger<HealthSampler>();
         private readonly IMonitorSettings _settings;
         private readonly IEndpointHealthUpdateListener _healthUpdateListener;
+        private readonly ITimeCoordinator _timeCoordinator;
         private static readonly Dictionary<string, string> TimeoutDetails = new Dictionary<string, string> { { "message", "health check timeout" } };
 
-        public HealthSampler(IMonitorSettings settings, IEndpointHealthUpdateListener healthUpdateListener)
+        public HealthSampler(IMonitorSettings settings, IEndpointHealthUpdateListener healthUpdateListener, ITimeCoordinator timeCoordinator)
         {
             _settings = settings;
             _healthUpdateListener = healthUpdateListener;
+            _timeCoordinator = timeCoordinator;
         }
 
         public async Task<EndpointHealth> CheckHealthAsync(MonitorableEndpoint endpoint, CancellationToken cancellationToken)
@@ -35,8 +37,8 @@ namespace HealthMonitoring.Monitors.Core.Samplers
 
         private async Task<EndpointHealth> PerformHealthCheckAsync(CancellationToken cancellationToken, MonitorableEndpoint endpoint)
         {
-            var checkTimeUtc = DateTime.UtcNow;
-            var timer = new Stopwatch();
+            var checkTimeUtc = _timeCoordinator.UtcNow;
+            var timer = _timeCoordinator.CreateStopWatch();
             try
             {
                 using (var timeoutToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
@@ -109,11 +111,11 @@ namespace HealthMonitoring.Monitors.Core.Samplers
         {
             if (RequiresShortTimeout(endpoint))
             {
-                await Task.Delay(_settings.ShortTimeOut, cancellationToken);
+                await _timeCoordinator.Delay(_settings.ShortTimeOut, cancellationToken);
                 return new HealthInfo(HealthStatus.TimedOut, TimeoutDetails);
             }
 
-            await Task.Delay(_settings.FailureTimeOut, cancellationToken);
+            await _timeCoordinator.Delay(_settings.FailureTimeOut, cancellationToken);
             return new HealthInfo(HealthStatus.Faulty, TimeoutDetails);
         }
 

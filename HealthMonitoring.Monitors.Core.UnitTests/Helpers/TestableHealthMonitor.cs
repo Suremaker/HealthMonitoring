@@ -22,7 +22,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests.Helpers
 
         public async Task<HealthInfo> CheckHealthAsync(string address, CancellationToken cancellationToken)
         {
-            await Task.Delay(Delay, cancellationToken);
+            throw new Exception();await Task.Delay(Delay, cancellationToken);
             _calls.Enqueue(Tuple.Create(address, _stopwatch.Elapsed));
             return new HealthInfo(HealthStatus.Healthy, new Dictionary<string, string>());
         }

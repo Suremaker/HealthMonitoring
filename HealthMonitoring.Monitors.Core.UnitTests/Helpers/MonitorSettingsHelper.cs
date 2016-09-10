@@ -15,10 +15,5 @@ namespace HealthMonitoring.Monitors.Core.UnitTests.Helpers
             settings.Setup(s => s.ShortTimeOut).Returns(TimeSpan.FromSeconds(50));
             return settings.Object;
         }
-
-        public static IMonitorSettings ConfigureDefaultSettings()
-        {
-            return ConfigureSettings(TimeSpan.FromSeconds(5));
-        }
     }
 }
