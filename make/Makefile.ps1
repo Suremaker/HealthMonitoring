@@ -12,7 +12,9 @@ Define-Step -Name 'Testing' -Target 'build' -Body {
 	. (require 'psmake.mod.testing')
 	
 	$tests = @()
-	$tests += Define-XUnitTests -GroupName 'Unit tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.UnitTests.dll"
+	$tests += Define-XUnitTests -GroupName 'Management Core Unit tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.Management.Core.UnitTests.dll"
+	$tests += Define-XUnitTests -GroupName 'Api Unit tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.Api.UnitTests.dll"
+	$tests += Define-XUnitTests -GroupName 'Monitors Core Unit tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.Monitors.Core.UnitTests.dll"
 	$tests += Define-XUnitTests -GroupName 'Acceptance tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.AcceptanceTests.dll"
 
 	try {
