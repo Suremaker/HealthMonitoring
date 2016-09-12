@@ -31,7 +31,7 @@ Define-Step -Name 'Testing' -Target 'build' -Body {
 Define-Step -Name 'Packaging' -Target 'build' -Body {
 	. (require 'psmake.mod.packaging')
 
-	Find-VSProjectsForPackaging | Package-VSProject
+	Find-VSProjectsForPackaging | %{ call $Context.NuGetExe pack $_ -Prop Configuration=Release -Prop Platform=AnyCPU -NonInteractive -Output . -IncludeReferencedProjects }
 	
 	Find-NuSpecFiles -filter "*-deploy.nuspec" | Package-DeployableNuSpec -Version $VERSION
 }
