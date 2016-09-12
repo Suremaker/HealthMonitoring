@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Model;
@@ -8,6 +9,7 @@ using HealthMonitoring.Monitors.Core.Exchange;
 using HealthMonitoring.Monitors.Core.Exchange.Client;
 using HealthMonitoring.Monitors.Core.Registers;
 using HealthMonitoring.Monitors.Core.UnitTests.Helpers;
+using HealthMonitoring.Monitors.Core.UnitTests.Helpers.Awaitable;
 using Moq;
 using Xunit;
 
@@ -18,12 +20,15 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         private readonly IHealthMonitorRegistry _monitorRegistry;
         private readonly Mock<IHealthMonitorExchangeClient> _exchangeClient;
         private readonly Mock<IMonitorableEndpointRegistry> _endpointRegistry;
-        private readonly TestableHealthMonitor _healthMonitor;
+        private readonly AwaitableFactory _awaitableFactory;
+        private static readonly TimeSpan TestMaxWaitTime = TimeSpan.FromSeconds(5);
+        private static readonly TimeSpan PostRunDelay = TimeSpan.FromMilliseconds(100);
+        private const string MonitorTypeName = "test";
 
         public MonitorDataExchangeTests()
         {
-            _healthMonitor = new TestableHealthMonitor();
-            _monitorRegistry = new HealthMonitorRegistry(new[] { _healthMonitor });
+            _awaitableFactory = new AwaitableFactory();
+            _monitorRegistry = new HealthMonitorRegistry(new[] { Mock.Of<IHealthMonitor>(cfg => cfg.Name == MonitorTypeName) });
             _exchangeClient = new Mock<IHealthMonitorExchangeClient>();
             _endpointRegistry = new Mock<IMonitorableEndpointRegistry>();
         }
@@ -41,40 +46,42 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         [Fact]
         public async Task Exchange_should_try_upload_supported_monitor_types_on_start_until_they_succeeds()
         {
-            _exchangeClient.SetupSequence(c => c.RegisterMonitorsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-                .Throws<InvalidOperationException>()
-                .Throws<InvalidOperationException>()
-                .Returns(Task.FromResult(0));
+            var countdown = new AsyncCountdown(nameof(IHealthMonitorExchangeClient.RegisterMonitorsAsync), 1);
+
+            SetupExchangeClient(
+                c => c.RegisterMonitorsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()),
+
+                () => { throw new InvalidOperationException(); },
+                () => { throw new InvalidOperationException(); },
+                () => _awaitableFactory.Return().WithCountdown(countdown).RunAsync()
+            );
 
             SetupDefaultEndpointIdentitiesMock();
 
             using (CreateExchange(new DataExchangeConfig(100, 10, TimeSpan.FromMilliseconds(1), TimeSpan.FromSeconds(1))))
-                await Task.Delay(TimeSpan.FromMilliseconds(500));
-
-            _exchangeClient.Verify(c => c.RegisterMonitorsAsync(new[] { _healthMonitor.Name }, It.IsAny<CancellationToken>()));
+                await countdown.WaitAsync(TestMaxWaitTime);
         }
 
         [Fact]
         public async Task Exchange_should_retry_uploading_supported_monitor_types_until_disposal()
         {
-            int calls = 0;
-            _exchangeClient.Setup(c => c.RegisterMonitorsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-                .Returns(() =>
-                {
-                    Interlocked.Increment(ref calls);
-                    throw new InvalidOperationException();
-                });
+            var countdown = new AsyncCountdown(nameof(IHealthMonitorExchangeClient.RegisterMonitorsAsync), 10);
+            var counter = new AsyncCounter();
+
+            _exchangeClient
+                .Setup(c => c.RegisterMonitorsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+                .Returns(() => _awaitableFactory.Throw(new InvalidOperationException()).WithCountdown(countdown).WithCounter(counter).RunAsync());
 
             SetupDefaultEndpointIdentitiesMock();
 
             using (CreateExchange(new DataExchangeConfig(100, 10, TimeSpan.FromMilliseconds(1), TimeSpan.FromSeconds(1))))
-                await Task.Delay(TimeSpan.FromMilliseconds(500));
+                await countdown.WaitAsync(TestMaxWaitTime);
 
-            var capturedCalls = calls;
+            var capturedCalls = counter.Value;
             Assert.True(capturedCalls > 0, "capturedCalls>0");
 
-            await Task.Delay(TimeSpan.FromMilliseconds(500));
-            Assert.Equal(capturedCalls, calls);
+            await Task.Delay(PostRunDelay);
+            Assert.Equal(capturedCalls, counter.Value);
         }
 
         [Fact]
@@ -82,10 +89,12 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         {
             SetupDefaultRegisterEndpointsMock();
 
-            var ids = SetupDefaultEndpointIdentitiesMock();
+            var endpointIdentitiesGetCountdown = new AsyncCountdown(nameof(IHealthMonitorExchangeClient.GetEndpointIdentitiesAsync), 1);
+
+            var ids = SetupDefaultEndpointIdentitiesMock(cfg => cfg.WithCountdown(endpointIdentitiesGetCountdown));
 
             using (CreateExchange())
-                await Task.Delay(TimeSpan.FromMilliseconds(500));
+                await endpointIdentitiesGetCountdown.WaitAsync(TimeSpan.FromSeconds(5));
 
             _endpointRegistry.Verify(r => r.UpdateEndpoints(ids));
         }
@@ -95,44 +104,44 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         {
             SetupDefaultRegisterEndpointsMock();
 
-            var endpointIdentities1 = new[] { new EndpointIdentity(Guid.NewGuid(), _healthMonitor.Name, "address1"), new EndpointIdentity(Guid.NewGuid(), _healthMonitor.Name, "address2") };
-            var endpointIdentities2 = new[] { new EndpointIdentity(Guid.NewGuid(), _healthMonitor.Name, "address1"), new EndpointIdentity(Guid.NewGuid(), _healthMonitor.Name, "address3") };
+            var endpointIdentities1 = new[] { new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address1"), new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address2") };
+            var endpointIdentities2 = new[] { new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address1"), new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address3") };
+            var countdown1 = new AsyncCountdown("endpointIdentities1", 1);
+            var countdown2 = new AsyncCountdown("endpointIdentities2", 1);
 
-            _exchangeClient
-                .SetupSequence(c => c.GetEndpointIdentitiesAsync(It.IsAny<CancellationToken>()))
-                .Throws<InvalidOperationException>()
-                .Returns(Task.FromResult(endpointIdentities1))
-                .Throws<InvalidOperationException>()
-                .Returns(Task.FromResult(endpointIdentities2));
+            SetupExchangeClient(c => c.GetEndpointIdentitiesAsync(It.IsAny<CancellationToken>()),
+
+                () => { throw new InvalidOperationException(); },
+                () => _awaitableFactory.Return(endpointIdentities1).WithCountdown(countdown1).RunAsync(),
+                () => { throw new InvalidOperationException(); },
+                () => _awaitableFactory.Return(endpointIdentities2).WithCountdown(countdown2).RunAsync());
 
             using (CreateExchange(new DataExchangeConfig(100, 10, TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(1))))
-                await Task.Delay(TimeSpan.FromMilliseconds(500));
-
-            _endpointRegistry.Verify(r => r.UpdateEndpoints(endpointIdentities1));
-            _endpointRegistry.Verify(r => r.UpdateEndpoints(endpointIdentities2));
+            {
+                await countdown1.WaitAsync(TestMaxWaitTime);
+                await countdown2.WaitAsync(TestMaxWaitTime);
+            }
         }
 
         [Fact]
         public async Task Exchange_should_try_download_list_of_endpoints_periodically_until_disposal()
         {
+            var countdown = new AsyncCountdown(nameof(IHealthMonitorExchangeClient.RegisterMonitorsAsync), 10);
+            var counter = new AsyncCounter();
+
             SetupDefaultRegisterEndpointsMock();
 
-            int calls = 0;
             _exchangeClient.Setup(c => c.GetEndpointIdentitiesAsync(It.IsAny<CancellationToken>()))
-                .Returns(() =>
-                {
-                    Interlocked.Increment(ref calls);
-                    throw new InvalidOperationException();
-                });
+                .Returns(() => _awaitableFactory.Throw<EndpointIdentity[]>(new InvalidOperationException()).WithCountdown(countdown).WithCounter(counter).RunAsync());
 
             using (CreateExchange(new DataExchangeConfig(100, 10, TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(1))))
-                await Task.Delay(TimeSpan.FromMilliseconds(500));
+                await countdown.WaitAsync(TestMaxWaitTime);
 
-            var capturedCalls = calls;
+            var capturedCalls = counter.Value;
             Assert.True(capturedCalls > 0, "capturedCalls>0");
 
-            await Task.Delay(TimeSpan.FromMilliseconds(500));
-            Assert.Equal(capturedCalls, calls);
+            await Task.Delay(PostRunDelay);
+            Assert.Equal(capturedCalls, counter.Value);
         }
 
         [Fact]
@@ -141,32 +150,30 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             SetupDefaultRegisterEndpointsMock();
             var identity = SetupDefaultEndpointIdentitiesMock().First();
 
+            int bucketCount = 10;
+            int bucketSize = 10;
             var uploads = new List<int>();
-            SetupDefaultHealthUploadMock(x => uploads.Add(x.Length));
 
-            int bucketCount = 4;
+            var countdown = new AsyncCountdown(nameof(IHealthMonitorExchangeClient.UploadHealthAsync), bucketCount);
+            SetupDefaultHealthUploadMock(x => { uploads.Add(x.Length); countdown.Decrement(); });
 
-            var config = new DataExchangeConfig(100, 10, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+            var healths = PrepareEndpointHealths(bucketSize * bucketCount);
 
-            var healths = Enumerable.Range(0, config.ExchangeOutBucketSize * bucketCount)
-                .Select(i => new EndpointHealth(DateTime.Today, TimeSpan.FromMilliseconds(i), EndpointStatus.Healthy))
-                .ToArray();
-
-            using (var ex = CreateExchange(config))
+            using (var ex = CreateExchange(new DataExchangeConfig(bucketSize * bucketCount, bucketSize, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1))))
             {
                 foreach (var health in healths)
                     ex.UpdateHealth(identity.Id, health);
 
-                await Task.Delay(TimeSpan.FromMilliseconds(500));
+                await countdown.WaitAsync(TestMaxWaitTime);
             }
 
-            Assert.Equal(bucketCount, uploads.Count);
-            Assert.Equal(new[] { config.ExchangeOutBucketSize }, uploads.Distinct());
+            Assert.Equal(new[] { bucketSize }, uploads.Distinct());
         }
 
         [Fact]
         public async Task Exchange_should_retry_health_update_send_until_disposal()
         {
+            var countdown = new AsyncCountdown(nameof(IHealthMonitorExchangeClient.UploadHealthAsync), 10);
             SetupDefaultRegisterEndpointsMock();
             var identity = SetupDefaultEndpointIdentitiesMock().First();
 
@@ -174,60 +181,58 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             SetupDefaultHealthUploadMock(x =>
             {
                 Interlocked.Increment(ref calls);
+                countdown.Decrement();
                 if (calls > 1)
                     throw new InvalidOperationException();
             });
 
-            var healths = Enumerable.Range(0, 5)
-                .Select(i => new EndpointHealth(DateTime.Today, TimeSpan.FromMilliseconds(i), EndpointStatus.Healthy))
-                .ToArray();
+            var healths = PrepareEndpointHealths(2);
 
             using (var ex = CreateExchange(new DataExchangeConfig(100, 1, TimeSpan.FromMilliseconds(1), TimeSpan.FromSeconds(1))))
             {
                 foreach (var health in healths)
                     ex.UpdateHealth(identity.Id, health);
-
-                await Task.Delay(TimeSpan.FromMilliseconds(500));
+                await countdown.WaitAsync(TestMaxWaitTime);
             }
 
             var capturedCalls = calls;
             Assert.True(capturedCalls > 0, "capturedCalls>0");
 
-            await Task.Delay(TimeSpan.FromMilliseconds(500));
+            await Task.Delay(PostRunDelay);
             Assert.Equal(capturedCalls, calls);
         }
 
         [Fact]
         public async Task Exchange_should_retry_health_update_send_in_case_of_errors()
         {
+            var count = 10;
+            var countdown = new AsyncCountdown(nameof(IHealthMonitorExchangeClient.UploadHealthAsync), count);
+
             SetupDefaultRegisterEndpointsMock();
             var identity = SetupDefaultEndpointIdentitiesMock().First();
 
-            var uploads = 0;
-            var attempts = 1;
-            SetupDefaultHealthUploadMock(x =>
+            var attempts = 10;
+            SetupDefaultHealthUploadMock(updates =>
             {
                 if (attempts-- > 0)
                     throw new Exception();
-                uploads += x.Length;
+
+                foreach (var update in updates)
+                    countdown.Decrement();
             });
 
-            var count = 10;
+
             var config = new DataExchangeConfig(100, count, TimeSpan.FromMilliseconds(1), TimeSpan.FromSeconds(1));
 
-            var healths = Enumerable.Range(0, count)
-                .Select(i => new EndpointHealth(DateTime.Today, TimeSpan.FromMilliseconds(i), EndpointStatus.Healthy))
-                .ToArray();
+            var healths = PrepareEndpointHealths(count);
 
             using (var ex = CreateExchange(config))
             {
                 foreach (var health in healths)
                     ex.UpdateHealth(identity.Id, health);
 
-                await Task.Delay(TimeSpan.FromMilliseconds(500));
+                await countdown.WaitAsync(TestMaxWaitTime);
             }
-
-            Assert.Equal(count, uploads);
         }
 
         private void SetupDefaultHealthUploadMock(Action<EndpointHealthUpdate[]> action)
@@ -240,20 +245,38 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
                 });
         }
 
-        private EndpointIdentity[] SetupDefaultEndpointIdentitiesMock()
+        private EndpointIdentity[] SetupDefaultEndpointIdentitiesMock(Func<AwaitableBuilder<EndpointIdentity[]>, AwaitableBuilder<EndpointIdentity[]>> mockConfiguration)
         {
-            var endpointIdentities = new[] { new EndpointIdentity(Guid.NewGuid(), _healthMonitor.Name, "address1"), new EndpointIdentity(Guid.NewGuid(), _healthMonitor.Name, "address2") };
+            var endpointIdentities = new[] { new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address1"), new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address2") };
 
             _exchangeClient
                 .Setup(c => c.GetEndpointIdentitiesAsync(It.IsAny<CancellationToken>()))
-                .Returns(() => Task.FromResult(endpointIdentities));
+                .Returns(() => mockConfiguration(_awaitableFactory.Return(endpointIdentities)).RunAsync());
             return endpointIdentities;
+        }
+
+        private EndpointIdentity[] SetupDefaultEndpointIdentitiesMock()
+        {
+            return SetupDefaultEndpointIdentitiesMock(cfg => cfg);
         }
 
         private void SetupDefaultRegisterEndpointsMock()
         {
             _exchangeClient.Setup(c => c.RegisterMonitorsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(0));
+        }
+
+        private void SetupExchangeClient<T>(Expression<Func<IHealthMonitorExchangeClient, T>> clientExpression, params Func<T>[] actions)
+        {
+            var queue = new Queue<Func<T>>(actions);
+            _exchangeClient.Setup(clientExpression).Returns(() => queue.Dequeue().Invoke());
+        }
+
+        private static EndpointHealth[] PrepareEndpointHealths(int count)
+        {
+            return Enumerable.Range(0, count)
+                .Select(i => new EndpointHealth(DateTime.Today, TimeSpan.FromMilliseconds(i), EndpointStatus.Healthy))
+                .ToArray();
         }
     }
 }

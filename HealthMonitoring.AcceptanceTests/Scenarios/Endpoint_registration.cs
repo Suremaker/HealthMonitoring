@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using LightBDD;
 

@@ -9,6 +9,8 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 {
     public class OutgoingQueueTests
     {
+        private static readonly TimeSpan AcceptableTimeDelta = TimeSpan.FromMilliseconds(300);
+
         [Fact]
         public void Queue_should_override_old_items_if_limit_is_reached()
         {
@@ -38,9 +40,9 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         public void Queue_should_return_immediately_a_bucket_if_there_is_enough_elements_to_fill_it()
         {
             var maxCapacity = 1000;
-            int bucketSize = 500;
+            var bucketSize = 500;
             var queue = new OutgoingQueue<int>(maxCapacity);
-            for (int i = 0; i < maxCapacity; i++)
+            for (var i = 0; i < maxCapacity; i++)
                 queue.Enqueue(i);
 
             var watch = Stopwatch.StartNew();
@@ -54,10 +56,10 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         [Fact]
         public void Queue_should_return_available_items_if_timeout_reached()
         {
-            int bucketSize = 500;
+            var bucketSize = 500;
             var queue = new OutgoingQueue<int>(bucketSize + 1);
             var availableItemsCount = bucketSize - 1;
-            for (int i = 0; i < availableItemsCount; i++)
+            for (var i = 0; i < availableItemsCount; i++)
                 queue.Enqueue(i);
 
             var timeout = TimeSpan.FromMilliseconds(500);
@@ -66,25 +68,26 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             watch.Stop();
 
             Assert.Equal(availableItemsCount, items.Length);
-            Assert.True((watch.Elapsed - timeout).Duration() < TimeSpan.FromMilliseconds(100), "Expected full timeout");
+            Assert.True((watch.Elapsed - timeout).Duration() < AcceptableTimeDelta, "Expected full timeout");
         }
 
         [Fact]
         public void Queue_should_return_available_items_if_cancelled()
         {
-            int bucketSize = 500;
+            var bucketSize = 500;
             var queue = new OutgoingQueue<int>(bucketSize + 1);
             var availableItemsCount = bucketSize - 1;
-            for (int i = 0; i < availableItemsCount; i++)
+            for (var i = 0; i < availableItemsCount; i++)
                 queue.Enqueue(i);
 
             var timeout = TimeSpan.FromMilliseconds(500);
             var watch = Stopwatch.StartNew();
-            var items = queue.Dequeue(bucketSize, TimeSpan.FromSeconds(5), new CancellationTokenSource(timeout).Token);
+            var maxWaitTime = TimeSpan.FromSeconds(5);
+            var items = queue.Dequeue(bucketSize, maxWaitTime, new CancellationTokenSource(timeout).Token);
             watch.Stop();
 
             Assert.Equal(availableItemsCount, items.Length);
-            Assert.True((watch.Elapsed - timeout).Duration() < TimeSpan.FromMilliseconds(100), "Expected task cancellation");
+            Assert.True((watch.Elapsed - timeout).Duration() < maxWaitTime, $"Expected task cancellation before {maxWaitTime}");
         }
 
         [Fact]
