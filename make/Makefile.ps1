@@ -27,16 +27,21 @@ Define-Step -Name 'Testing' -Target 'build' -Body {
 }
 
 Define-Step -Name 'JS Unit-Testing' -Target 'build' -Body {
-    $NpmPackagePath = Fetch-Package 'Npm' '3.5.2'
-    $NodePackagePath = Fetch-Package 'Node.js' '0.12.7'
+    $PrevErrorPreference = $ErrorActionPreference
+    $ErrorActionPreference = "silentlycontinue"
     
+    $NpmPackagePath = Fetch-Package 'Npm' '3.5.2' -ErrorAction SilentlyContinue
+    $NodePackagePath = Fetch-Package 'Node.js' '0.12.7' -ErrorAction SilentlyContinue
+        
     Copy-Item "$NodePackagePath\node.exe" -destination $NpmPackagePath
     Copy-Item "$NpmPackagePath\content\.bin\npm.cmd" -destination $NpmPackagePath
-    
+        
     cd HealthMonitoring.UI.UnitTests 
-    & "$NpmPackagePath\npm.cmd" install
+    & "$NpmPackagePath\npm.cmd" install | out-null
     & "$NodePackagePath\node.exe" ".\node_modules\karma\bin\karma" start
     cd ..
+    
+    $ErrorActionPreference = $PrevErrorPreference
 }
 
 Define-Step -Name 'Packaging' -Target 'build' -Body {
