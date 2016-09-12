@@ -4,6 +4,7 @@ using HealthMonitoring.Monitors.Nsb5.Messages;
 using NServiceBus;
 using NServiceBus.Config;
 using NServiceBus.Config.ConfigurationSource;
+using NServiceBus.Logging;
 
 namespace HealthMonitoring.SampleNsb5Host.Rabbitmq
 {
@@ -17,8 +18,10 @@ namespace HealthMonitoring.SampleNsb5Host.Rabbitmq
             busConfiguration.UseSerialization<JsonSerializer>();
             busConfiguration.EnableInstallers();
             busConfiguration.UseTransport<RabbitMQTransport>().ConnectionStringName("RabbitMqConnectionString");
-
             busConfiguration.UsePersistence<InMemoryPersistence>();
+
+            var defaultFactory = LogManager.Use<DefaultFactory>();
+            defaultFactory.Level(LogLevel.Warn);
 
             using (var bus = Bus.Create(busConfiguration).Start())
             {

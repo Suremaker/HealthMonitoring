@@ -1,3 +1,13 @@
+3.0.0.0
+-------
+Change persistence to MySQL
+
+2.3.0.0
+-------
+Added Monitors.Nsb5.Messages
+Added Monitors.Nsb5.Msmq (NSB5 MSMQ integration)
+Added Monitors.Nsb5.RabbitMq (NSB5 RabbitMq integration)
+
 2.2.1.0
 -------
 Updated Home page css to remove styles from changed behaviour (filter by status)

@@ -3,42 +3,59 @@
 This project aims to provide a tool for monitoring health of various components belonging to a bigger eco-system (like SOA or Microservice Architecture).
 
 HealthMonitoring offers a standalone, self-hosted tool that:
-* offers an WEB API for registering components and obtaining health information about them,
-* monitors (with configurable time periods) registered components,
-* offers a HTML dashboard to display the current status of monitored components,
+* offers an HTTP API for registering endpoints and obtaining health information about them,
+* monitors (with configurable time periods) registered endpoints,
+* offers a HTML dashboard to display the current status of monitored endpoints,
 * offers an endpoint detailed HTML page to display endpoint details and health history.
+
+### Requirements
+
+The endpoint configuration and statistics are stored in a MySQL database ([http://dev.mysql.com/downloads/mysql](http://dev.mysql.com/downloads/mysql)).
 
 ### Building
 
 To build the project, please open a powershell console in project root folder and execute: ``PS> .\make\make_local.ps1``
-After a successful build, the root folder would contain built nuget packages (*.nupkg)
+
+In order to successfully run all the tests, the following dependencies are required on localhost:
+* [RabbitMq](https://www.rabbitmq.com/download.html)
+
+After a successful build, the root folder would contain built nuget packages (*.nupkg) that can be used to install Health Monitor or to integrate with it.
 
 ### Installation
 
-The Health Monitoring service is self hosted. 
-The [HealthMonitoring.SelfHost](https://github.com/wongatech/HealthMonitoring/tree/master/HealthMonitoring.SelfHost) project is a console application that offers all the functionality.
+The Health Monitoring service is self hosted and consists of 2 parts:
+* the [HealthMonitoring.SelfHost](https://github.com/wongatech/HealthMonitoring/tree/master/HealthMonitoring.SelfHost) project is a console application that is responsible for:
+  * providing management API,
+  * providing HTML UI (web pages),
+  * persisting Health Monitor data,
+* the [HealthMonitoring.Monitors.SelfHost](https://github.com/wongatech/HealthMonitoring/tree/master/HealthMonitoring.Monitors.SelfHost) project is a console application that is responsible for running monitors.
 
 The easiest way to install it is to:
 
-1. install a **HealthMonitoring.Service-deploy** nuget package in target folder,
-2. make a **monitors** directory in target folder (where *HealthMonitoring.SelfHost.exe* is),
-3. install one or more **HealthMonitoring.Monitors.XXX-deploy** monitor packages in **monitors** directory,
-4. (optionally) edit **HealthMonitoring.SelfHost.exe.config** to customise host settings, 
-5. run **HealthMonitoring.SelfHost.exe** to start a console application or run **install_service.cmd** to register the health monitor as a **windows service**
+1. install a **HealthMonitoring.Service-deploy** nuget package in target folder for the API/website,
+  *  (optionally) edit **HealthMonitoring.SelfHost.exe.config** to customise API host settings
+2. install a **HealthMonitoring.Monitors.Service-deploy** nuget package in target folder for the monitor process,
+  * make a **monitors** directory in target folder where *HealthMonitoring.Monitors.SelfHost.exe* is,
+  * install one or more **HealthMonitoring.Monitors.XXX-deploy** monitor packages in **monitors** directory,
+  * edit **HealthMonitoring.Monitors.SelfHost.exe.config** and specify proper URL for *HealthMonitoringUrl* setting (if changed),
+  * (optionally) edit **HealthMonitoring.Monitors.SelfHost.exe.config** and add monitor specific configuration,
+3. run **HealthMonitoring.SelfHost.exe** to start a console application for API or run **install_service.cmd** (located in API instalation folder) to register the health monitor API as a **windows service**
+4. run **HealthMonitoring.Monitors.SelfHost.exe** to start a console application for monitors or run **install_service.cmd** (located in monitor instalation folder) to register the health monitor API as a **windows service**
 
 ### Running
 
 If health monitor is installed with default settings and it is running, it's home page would be available at [http://localhost:9000/](http://localhost:9000/) address.
-It will provide urls to:
+It will display home page of the Health Monitor as well as provide urls to:
 * API documentation (with ability to execute API commands),
-* to the dashboard.
+* to the dashboard,
+* to project site (this page).
  
-#### Registering a new component
+#### Registering a new endpoint
 
-The component registration has to be done via WEB API and it could be done via API documentation page ([http://localhost:9000/swagger/ui/index](http://localhost:9000/swagger/ui/index))
+The endpoint registration has to be done via WEB API and it can be done via API documentation page ([http://localhost:9000/swagger/ui/index](http://localhost:9000/swagger/ui/index)) or any tool (like powershell command, or curl) that allows to make HTTP requests.
 
-A ``POST /api/endpoints/register`` method is doing registration.
-Below there is an example request body to register a monitoring for http://google.com
+A ``POST /api/endpoints/register`` operation allows to do that.
+Below, there is an example request body to register a monitoring for http://google.com
 
 ```json
 {
@@ -49,7 +66,7 @@ Below there is an example request body to register a monitoring for http://googl
 }
 ```
 
-Please note that **MonitorType** value has to be one of supported monitors (they are installed as plugins).
+Please note that **MonitorType** value has to be one of supported monitors (they are installed as plugins), so in this scenario the **HealthMonitoring.Monitors.Http** monitor plugin has to be installed.
 To list the currently supported monitors, please use ``GET /api/monitors``
 
 ### Contributing

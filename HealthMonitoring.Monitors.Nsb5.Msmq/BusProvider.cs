@@ -4,6 +4,7 @@ using HealthMonitoring.Monitors.Nsb5.Messages;
 using NServiceBus;
 using NServiceBus.Config;
 using NServiceBus.Config.ConfigurationSource;
+using NServiceBus.Logging;
 
 namespace HealthMonitoring.Monitors.Nsb5.Msmq
 {
@@ -36,6 +37,9 @@ namespace HealthMonitoring.Monitors.Nsb5.Msmq
             busConfiguration.UseSerialization<JsonSerializer>();
             busConfiguration.EnableInstallers();
             busConfiguration.UsePersistence<InMemoryPersistence>();
+
+            var defaultFactory = LogManager.Use<DefaultFactory>();
+            defaultFactory.Level(LogLevel.Warn);
 
             var conventions = busConfiguration.Conventions();
             conventions.DefiningTimeToBeReceivedAs(type => type == typeof(GetStatusRequest) ? timeout : TimeSpan.MaxValue);

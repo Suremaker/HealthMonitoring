@@ -25,7 +25,7 @@ namespace HealthMonitoring.Monitors.SelfHost
             try
             {
                 _logger.Info("Starting service...");
-                using (Configure())
+                using (StartHost())
                 {
                     _logger.Info("Started service...");
                     Thread.Sleep(Timeout.InfiniteTimeSpan);
@@ -40,7 +40,7 @@ namespace HealthMonitoring.Monitors.SelfHost
             return 0;
         }
 
-        private static EndpointMonitor Configure()
+        private static IContainer StartHost()
         {
             var exchangeClient = new HealthMonitorExchangeClient(ConfigurationManager.AppSettings["HealthMonitoringUrl"]);
             var settings = LoadSettings(exchangeClient);
@@ -59,7 +59,8 @@ namespace HealthMonitoring.Monitors.SelfHost
             builder.RegisterType<MonitorDataExchange>().AsSelf().AsImplementedInterfaces().SingleInstance();
 
             var container = builder.Build();
-            return container.Resolve<EndpointMonitor>();
+            container.Resolve<EndpointMonitor>();
+            return container;
         }
 
         private static HealthMonitorSettings LoadSettings(IHealthMonitorExchangeClient exchangeClient)
