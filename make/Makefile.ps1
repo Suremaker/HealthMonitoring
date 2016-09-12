@@ -1,6 +1,6 @@
 Define-Step -Name 'Update version info' -Target 'build' -Body {
 	. (require 'psmake.mod.update-version-info')
-	Update-VersionInAssemblyInfo $($Context.Version) 
+	Update-VersionInAssemblyInfo $VERSION
 }
 
 Define-Step -Name 'Building' -Target 'build' -Body {
@@ -12,7 +12,9 @@ Define-Step -Name 'Testing' -Target 'build' -Body {
 	. (require 'psmake.mod.testing')
 	
 	$tests = @()
-	$tests += Define-XUnitTests -GroupName 'Unit tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.UnitTests.dll"
+	$tests += Define-XUnitTests -GroupName 'Management Core Unit tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.Management.Core.UnitTests.dll"
+	$tests += Define-XUnitTests -GroupName 'Api Unit tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.Api.UnitTests.dll"
+	$tests += Define-XUnitTests -GroupName 'Monitors Core Unit tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.Monitors.Core.UnitTests.dll"
 	$tests += Define-XUnitTests -GroupName 'Acceptance tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.AcceptanceTests.dll"
 
 	try {
@@ -29,7 +31,7 @@ Define-Step -Name 'Testing' -Target 'build' -Body {
 Define-Step -Name 'Packaging' -Target 'build' -Body {
 	. (require 'psmake.mod.packaging')
 
-	Find-VSProjectsForPackaging | Package-VSProject
+	Find-VSProjectsForPackaging | %{ call $Context.NuGetExe pack $_ -Prop Configuration=Release -Prop Platform=AnyCPU -NonInteractive -Output . -IncludeReferencedProjects }
 	
-	Find-NuSpecFiles -filter "*-deploy.nuspec" | Package-DeployableNuSpec -Version $($Context.Version)
+	Find-NuSpecFiles -filter "*-deploy.nuspec" | Package-DeployableNuSpec -Version $VERSION
 }

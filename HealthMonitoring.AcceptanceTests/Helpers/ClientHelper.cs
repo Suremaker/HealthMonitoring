@@ -16,7 +16,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
         public static RestClient Build()
         {
             var client = new RestClient(GetBaseUrl());
-            
+
             Wait.Until(
                 Timeouts.Default,
                 () => client.Get(new RestRequest("/api/monitors")).StatusCode,

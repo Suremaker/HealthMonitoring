@@ -15,7 +15,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
     public class ThrottlingSamplerTests
     {
         [Fact]
-        public void Sampler_should_throttle_calls()
+        public async Task Sampler_should_throttle_calls()
         {
             var monitorType = "test";
             var throttling = 2;
@@ -34,16 +34,17 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
                 .ToArray();
             var allFinishedTask = Task.WhenAll(tasks);
 
-            Assert.False(allFinishedTask.Wait(250), "No tasks should finish yet");
+            await Task.Delay(250);
+            Assert.False(allFinishedTask.IsCompleted, "No tasks should finish yet");
             sampler.Verify(s => s.CheckHealthAsync(endpoint, It.IsAny<CancellationToken>()), Times.Exactly(throttling));
 
             manualReset.Set();
-            allFinishedTask.Wait();
+            await allFinishedTask;
             sampler.Verify(s => s.CheckHealthAsync(endpoint, It.IsAny<CancellationToken>()), Times.Exactly(total));
         }
 
         [Fact]
-        public void Sampler_should_not_throttle_calls_if_throttling_is_not_specified()
+        public async Task Sampler_should_not_throttle_calls_if_throttling_is_not_specified()
         {
             var monitorType = "test";
             var total = 3;
@@ -65,7 +66,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             sampler.Verify(s => s.CheckHealthAsync(endpoint, It.IsAny<CancellationToken>()), Times.Exactly(total));
 
             manualReset.Set();
-            allFinishedTask.Wait();
+            await allFinishedTask;
         }
 
         private static MonitorableEndpoint SetupEndpoint(string monitorType)

@@ -15,12 +15,10 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         {
             var expected = new[]
             {
-                typeof(HttpMonitor), 
-                typeof(HttpJsonMonitor), 
-                typeof(TestHealthMonitor), 
-                typeof(TestHealthMonitor2),
-                typeof(TestableHealthMonitor),
-                typeof(MockableMonitor)
+                typeof(HttpMonitor),
+                typeof(HttpJsonMonitor),
+                typeof(TestHealthMonitor),
+                typeof(TestHealthMonitor2)
             };
 
 

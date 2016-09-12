@@ -3,9 +3,14 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.IO;
+using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading;
+using HealthMonitoring.AcceptanceTests.Helpers;
 using MySql.Data.MySqlClient;
+using Newtonsoft.Json;
+using RestSharp;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -49,7 +54,12 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
         private static void EnsureProcessesAlive()
         {
-            Thread.Sleep(TimeSpan.FromSeconds(10));
+            Wait.Until(
+                TimeSpan.FromSeconds(30),
+                () => ClientHelper.Build().Get(new RestRequest("/api/monitors")),
+                resp => resp.StatusCode == HttpStatusCode.OK && JsonConvert.DeserializeObject<string[]>(resp.Content).Any(),
+                "Services did not initialized properly");
+
             if (_api.Item1.IsAlive && _monitor.Item1.IsAlive)
                 return;
 

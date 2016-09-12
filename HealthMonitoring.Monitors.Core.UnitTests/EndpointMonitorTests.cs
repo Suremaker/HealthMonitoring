@@ -1,10 +1,13 @@
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using HealthMonitoring.Model;
+using HealthMonitoring.Monitors.Core.Helpers.Time;
 using HealthMonitoring.Monitors.Core.Registers;
 using HealthMonitoring.Monitors.Core.Samplers;
 using HealthMonitoring.Monitors.Core.UnitTests.Helpers;
+using HealthMonitoring.Monitors.Core.UnitTests.Helpers.Awaitable;
 using Moq;
 using Xunit;
 
@@ -12,95 +15,104 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 {
     public class EndpointMonitorTests
     {
-        private readonly TestableHealthMonitor _testableHealthMonitor;
         private readonly MonitorableEndpointRegistry _endpointRegistry;
+        private readonly Mock<ITimeCoordinator> _mockTimeCoordinator;
+        private readonly AwaitableFactory _awaitableFactory = new AwaitableFactory();
+        private readonly Mock<IHealthMonitor> _mockHealthMonitor = new Mock<IHealthMonitor>();
+        private static readonly TimeSpan TestMaxWaitTime = TimeSpan.FromSeconds(5);
 
         public EndpointMonitorTests()
         {
-            _testableHealthMonitor = new TestableHealthMonitor();
-            _endpointRegistry = new MonitorableEndpointRegistry(new HealthMonitorRegistry(new[] { _testableHealthMonitor }));
+            _mockTimeCoordinator = new Mock<ITimeCoordinator>();
+            _mockTimeCoordinator.Setup(c => c.Delay(It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>())).Returns(async () => await Task.Yield());
+
+            _mockHealthMonitor.Setup(cfg => cfg.Name).Returns("test");
+            _endpointRegistry = new MonitorableEndpointRegistry(new HealthMonitorRegistry(new[] { _mockHealthMonitor.Object }));
         }
 
         [Fact]
-        public void Monitor_should_start_checking_the_health_of_endpoints_until_disposed()
+        public async Task Monitor_should_start_checking_the_health_of_endpoints_until_disposed()
         {
+            var endpoint1Countdown = new AsyncCountdown("endpoint1", 2);
+            var endpoint2Countdown = new AsyncCountdown("endpoint2", 1);
+            var endpoint3Countdown = new AsyncCountdown("endpoint3", 2);
+            var counters = new[] { new AsyncCounter(), new AsyncCounter(), new AsyncCounter() };
+
+            _mockHealthMonitor.Setup(cfg => cfg.CheckHealthAsync("address1", It.IsAny<CancellationToken>())).Returns(() => _awaitableFactory.Return(new HealthInfo(HealthStatus.Healthy)).WithCountdown(endpoint1Countdown).WithCounter(counters[0]).RunAsync());
+            _mockHealthMonitor.Setup(cfg => cfg.CheckHealthAsync("address2", It.IsAny<CancellationToken>())).Returns(() => _awaitableFactory.Return(new HealthInfo(HealthStatus.Healthy)).WithCountdown(endpoint2Countdown).WithCounter(counters[1]).RunAsync());
+            _mockHealthMonitor.Setup(cfg => cfg.CheckHealthAsync("address3", It.IsAny<CancellationToken>())).Returns(() => _awaitableFactory.Return(new HealthInfo(HealthStatus.Healthy)).WithCountdown(endpoint3Countdown).WithCounter(counters[2]).RunAsync());
+
             var endpoint1 = _endpointRegistry.TryRegister(CreateEndpointIdentity("address1"));
             _endpointRegistry.TryRegister(CreateEndpointIdentity("address2"));
-            _testableHealthMonitor.StartWatch();
 
-            var delay = TimeSpan.FromMilliseconds(400);
-
-            var settings = MonitorSettingsHelper.ConfigureSettings(TimeSpan.FromMilliseconds(50));
-            using (new EndpointMonitor(_endpointRegistry, new HealthSampler(settings, new Mock<IEndpointHealthUpdateListener>().Object), settings))
+            using (CreateEndpointMonitor(TimeSpan.FromMilliseconds(50)))
             {
-                WaitForAnyCall();
-
+                await endpoint1Countdown.WaitAsync(TestMaxWaitTime);
                 _endpointRegistry.TryRegister(CreateEndpointIdentity("address3"));
-                Thread.Sleep(delay);
+                await endpoint3Countdown.WaitAsync(TestMaxWaitTime);
                 _endpointRegistry.TryUnregister(endpoint1.Identity);
-                Thread.Sleep(delay);
+                await endpoint2Countdown.ResetTo(50).WaitAsync(TestMaxWaitTime);
             }
-            var afterStop = _testableHealthMonitor.Calls.Count();
-            Thread.Sleep(delay);
-            var afterDelay = _testableHealthMonitor.Calls.Count();
+            var afterStop = counters.Sum(c => c.Value);
+            await Task.Delay(200);
+            var afterDelay = counters.Sum(c => c.Value);
 
             Assert.Equal(afterStop, afterDelay);
 
-            var a1 = _testableHealthMonitor.Calls.Where(c => c.Item1 == "address1").ToArray();
-            var a2 = _testableHealthMonitor.Calls.Where(c => c.Item1 == "address2").ToArray();
-            var a3 = _testableHealthMonitor.Calls.Where(c => c.Item1 == "address3").ToArray();
-
-            Assert.True(a1.Length > 1, $"Expected more than 1 check of address1, got: {a1.Length}");
-            Assert.True(a1.Length < a2.Length,
-                $"Expected less checks of address1 than address 2, got: address1={a1.Length}, address2={a2.Length}");
-            Assert.True(a3.Length > 1, $"Expected more than 1 check of address3, got: {a3.Length}");
+            Assert.True(counters[0].Value > 1, $"Expected more than 1 check of address1, got: {counters[0].Value}");
+            Assert.True(counters[0].Value < counters[1].Value, $"Expected less checks of address1 than address 2, got: address1={counters[0].Value}, address2={counters[1].Value}");
+            Assert.True(counters[2].Value > 1, $"Expected more than 1 check of address3, got: {counters[2].Value}");
         }
 
-        [Theory]
-        [InlineData(100, 300, 300)]
-        [InlineData(400, 300, 400)]
-        public void Monitor_should_ping_endpoint_with_regular_intervals(int delayInMs, int intervalInMs, int expectedIntervalInMs)
+        [Fact]
+        public async Task Monitor_should_check_endpoint_health_with_regular_intervals()
         {
+            var interval = TimeSpan.FromMilliseconds(200);
+            var healthCounter = new AsyncCountdown("health", 1);
+            var delayCounter = new AsyncCountdown("delay", 1);
+
+            _mockHealthMonitor.Setup(cfg => cfg.CheckHealthAsync("address", It.IsAny<CancellationToken>())).Returns(() => _awaitableFactory.Return(new HealthInfo(HealthStatus.Healthy)).WithTimeline("health").WithCountdown(healthCounter).RunAsync());
+            _mockTimeCoordinator.Setup(cfg => cfg.Delay(interval, It.IsAny<CancellationToken>())).Returns(() => _awaitableFactory.Return().WithDelay(interval).WithTimeline("delay").WithCountdown(delayCounter).RunAsync());
+
             _endpointRegistry.TryRegister(CreateEndpointIdentity("address"));
-            _testableHealthMonitor.Delay = TimeSpan.FromMilliseconds(delayInMs);
-            _testableHealthMonitor.StartWatch();
-            var interval = TimeSpan.FromMilliseconds(intervalInMs);
+            using (CreateEndpointMonitor(interval))
+                await Task.WhenAll(healthCounter.WaitAsync(TestMaxWaitTime), delayCounter.WaitAsync(TestMaxWaitTime));
 
-            var settings = MonitorSettingsHelper.ConfigureSettings(interval);
+            var results = _awaitableFactory.GetTimeline();
+            Assert.True(results.Length > 1, "results.Length>1");
+            var delayTask = results[0];
+            var healthTask = results[1];
 
-            using (new EndpointMonitor(_endpointRegistry, new HealthSampler(settings, new Mock<IEndpointHealthUpdateListener>().Object), settings))
+            Assert.Equal(delayTask.Tag, "delay");
+            Assert.Equal(healthTask.Tag, "health");
+
+            AssertTimeOrder(delayTask.Started, healthTask.Started, healthTask.Finished, delayTask.Finished);
+        }
+
+        private EndpointMonitor CreateEndpointMonitor(TimeSpan checkInterval)
+        {
+            var settings = MonitorSettingsHelper.ConfigureSettings(checkInterval);
+            return new EndpointMonitor(_endpointRegistry, new MockSampler(), settings, _mockTimeCoordinator.Object);
+        }
+
+        class MockSampler : IHealthSampler
+        {
+            public async Task<EndpointHealth> CheckHealthAsync(MonitorableEndpoint endpoint, CancellationToken cancellationToken)
             {
-                WaitForAnyCall();
-                Thread.Sleep(TimeSpan.FromMilliseconds(expectedIntervalInMs * 5));
-            }
-
-            var intervals = _testableHealthMonitor.Calls.Select(c => c.Item2).ToArray();
-            Assert.True(intervals.Length > 1, "There should be more than 1 calls");
-            for (int i = 1; i < intervals.Length; ++i)
-            {
-                var diff = intervals[i] - intervals[i - 1];
-
-                var margin = TimeSpan.FromMilliseconds(50);
-                var expected = TimeSpan.FromMilliseconds(expectedIntervalInMs);
-                Assert.True((diff - expected).Duration() < margin,
-                    $"Expected interval {expected.TotalMilliseconds}ms ~ {margin.TotalMilliseconds}ms, got {diff.TotalMilliseconds}ms");
+                await endpoint.Monitor.CheckHealthAsync(endpoint.Identity.Address, cancellationToken);
+                return new EndpointHealth(DateTime.MinValue, TimeSpan.Zero, EndpointStatus.Healthy);
             }
         }
 
-        private void WaitForAnyCall()
+        private void AssertTimeOrder(params TimeSpan[] times)
         {
-            for (int i = 0; i < 10; ++i)
-            {
-                if (!_testableHealthMonitor.Calls.Any())
-                    Thread.Sleep(500);
-                else
-                    return;
-            }
+            for (var i = 1; i < times.Length; ++i)
+                Assert.True(times[i] > times[i - 1], $"Expected [{i}] {times[i]} > [{i - 1}] {times[i - 1]}");
         }
 
         private EndpointIdentity CreateEndpointIdentity(string address)
         {
-            return new EndpointIdentity(Guid.NewGuid(), _testableHealthMonitor.Name, address);
+            return new EndpointIdentity(Guid.NewGuid(), _mockHealthMonitor.Object.Name, address);
         }
     }
 }
