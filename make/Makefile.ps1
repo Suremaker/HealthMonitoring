@@ -12,9 +12,7 @@ Define-Step -Name 'Testing' -Target 'build' -Body {
 	. (require 'psmake.mod.testing')
 	
 	$tests = @()
-	$tests += Define-XUnitTests -GroupName 'Management Core Unit tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.Management.Core.UnitTests.dll"
-	$tests += Define-XUnitTests -GroupName 'Api Unit tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.Api.UnitTests.dll"
-	$tests += Define-XUnitTests -GroupName 'Monitors Core Unit tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.Monitors.Core.UnitTests.dll"
+	$tests += Define-XUnitTests -GroupName 'Unit tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.UnitTests.dll"
 	$tests += Define-XUnitTests -GroupName 'Acceptance tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.AcceptanceTests.dll"
 
 	try {
@@ -44,7 +42,7 @@ Define-Step -Name 'JS Unit-Testing' -Target 'build' -Body {
 Define-Step -Name 'Packaging' -Target 'build' -Body {
 	. (require 'psmake.mod.packaging')
 
-	Find-VSProjectsForPackaging | %{ call $Context.NuGetExe pack $_ -Prop Configuration=Release -Prop Platform=AnyCPU -NonInteractive -Output . -IncludeReferencedProjects }
+	Find-VSProjectsForPackaging | Package-VSProject
 	
 	Find-NuSpecFiles -filter "*-deploy.nuspec" | Package-DeployableNuSpec -Version $VERSION
 }
