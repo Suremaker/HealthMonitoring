@@ -71,6 +71,30 @@ Below, there is an example request body to register a monitoring for http://goog
 Please note that **MonitorType** value has to be one of supported monitors (they are installed as plugins), so in this scenario the **HealthMonitoring.Monitors.Http** monitor plugin has to be installed.
 To list the currently supported monitors, please use ``GET /api/monitors``
 
+### Running Tests
+
+#### Jasmine Unit Tests
+[Jasmine](http://jasmine.github.io/) based tests are located in **%project-root%/HealthMonitoring.UI.UnitTests/** project.
+You can run them in several ways:
+
+##### If you have [Resharper](https://www.jetbrains.com/resharper/):
+1. In VisualStudio open  **Resharper tab > Options > Tools > Unit Testing**.
+2. Select browser you want and save changes.
+3. Run jasmine tests from UnitTest Explorer (Ctrl+Alt+U) and observe results in browser.
+
+##### Second approach is to use [karma](https://karma-runner.github.io/1.0/index.html) runner:
+1. Install [NodeJS](https://nodejs.org/en/) server (also by default will be installed npm and modified PATH variable).
+2. In cmd or powershell go to **%project-root%/HealthMonitoring.UI.UnitTests**.
+3. Execute command: ``` npm install --save-dev ```
+4. Execute command: ``` karma start ```
+
+Results of tests will be stored to **%project-root%/reports/UI_Unit_Tests.**_xml|html_ 
+and coverage report to **%project-root%/reports/ui-coverage/**.
+
+(You can override reports dirs in **%project-root%/HealthMonitoring.UI.UnitTests/karma.conf.js** )
+
+At last you can simply call ``PS> .\make\make_local.ps1``. It will run all tests in project and save results to **%project-root%/reports/**.
+
 ### Contributing
 
 Any kind of contribution is welcome :)
