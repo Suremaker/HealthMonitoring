@@ -7,10 +7,11 @@
     <ProjectGuid>{516DF11D-AC0F-4DCA-95AA-763BFA87B983}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HealthMonitoring.UI.UnitTests</RootNamespace>
-    <AssemblyName>HealthMonitoring.UI.UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <RootNamespace>HealthMonitoring.UI.Tests</RootNamespace>
+    <AssemblyName>HealthMonitoring.UI.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

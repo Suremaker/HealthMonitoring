@@ -79,7 +79,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Api.UnitTests", "HealthMonitoring.Api.UnitTests\HealthMonitoring.Api.UnitTests.csproj", "{CB424169-E843-4256-81E4-372ACFE07B29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.UI.UnitTests", "HealthMonitoring.UI.UnitTests\HealthMonitoring.UI.UnitTests.csproj", "{516DF11D-AC0F-4DCA-95AA-763BFA87B983}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.UI.Tests", "HealthMonitoring.UI.Tests\HealthMonitoring.UI.Tests.csproj", "{516DF11D-AC0F-4DCA-95AA-763BFA87B983}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -72,7 +72,7 @@ module.exports = function(config) {
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ['ChromeNoSandbox', 'IE'],
+        browsers: ['ChromeNoSandbox'],
 
         // fix for Chrome v52
         customLaunchers: {
