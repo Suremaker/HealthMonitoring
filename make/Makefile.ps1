@@ -38,7 +38,7 @@ Define-Step -Name 'JS Unit-Testing' -Target 'build' -Body {
         
     cd HealthMonitoring.UI.Tests 
     & "$NpmPackagePath\npm.cmd" install | out-null
-    & "$NodePackagePath\node.exe" ".\node_modules\karma\bin\karma" start
+    call "$NodePackagePath\node.exe" ".\node_modules\karma\bin\karma" start
     cd ..
     
     $ErrorActionPreference = $PrevErrorPreference
