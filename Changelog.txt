@@ -1,3 +1,7 @@
+3.1.0.0
+-------
+Deterministic tag colours
+
 3.0.0.0
 -------
 Change persistence to MySQL
