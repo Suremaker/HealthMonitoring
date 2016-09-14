@@ -29,7 +29,7 @@ function formatDuration(timeSpan) {
     return parseDuration(timeSpan) + " ms";
 }
 
-function hashColour(str, hover) {
+function hashColour(str, skew) {
     var hash = 0;
     for (var i = 0; i < str.length; i++) {
         hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -37,12 +37,12 @@ function hashColour(str, hover) {
     var colour = '#';
     for (var i = 0; i < 3; i++) {
         var value = (hash >> (i * 8)) & 0xFF;
-        if (hover && i === 1) {
+        if (skew && i === 1) {
             var offset = 20;
             if (value > offset) value -= offset;
             else value += 20;
         }
-        if (hover && i === 2) {
+        if (skew && i === 2) {
             var offset = 8;
             if (value < 255 - offset) value += offset;
             else value -= offset;

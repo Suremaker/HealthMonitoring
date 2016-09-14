@@ -70,4 +70,47 @@ describe("functions test", function () {
             expect(result[1].id).toEqual(2);
         });
     });
+
+    describe("hashColour", function () {
+
+        it("hashColour should produce hex colour", function () {
+
+            var values = ["tag1", "tag2", "tag3"];
+
+            values.forEach(function (value) {
+
+                var result = hashColour(value, false);
+
+                expect(result).toMatch(/#[[0-9a-f]{6}/i);
+            });
+        });
+
+        it("hashColour should produce same colour for same value", function () {
+
+            var value = "tag1";
+
+            var hash1 = hashColour(value, false);
+            var hash2 = hashColour(value, false);
+
+            expect(hash1).toEqual(hash2);
+        });
+
+        it("hashColour with skew should produce slightly different colour ", function () {
+
+            var onePercentDifference = parseInt('ffffff', 16) / 100;
+            
+            var values = ["tag1", "tag2", "tag3"];
+
+            values.forEach(function(value) {
+
+                var hash = hashColour(value, false);
+                var skewedHash = hashColour(value, true);
+
+                var hashDecimal = parseInt(hash.substring(1), 16);
+                var skewedHashDecimal = parseInt(skewedHash.substring(1), 16);
+
+                expect(Math.abs(hashDecimal - skewedHashDecimal)).toBeLessThan(onePercentDifference);
+            });
+        });
+    });
 });
