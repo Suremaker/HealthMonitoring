@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace HealthMonitoring.Model
 {
     public class EndpointMetadata
@@ -6,7 +8,7 @@ namespace HealthMonitoring.Model
         {
             Name = name;
             Group = group;
-            Tags = tags ?? new string[0];
+            Tags = tags?.Distinct().ToArray() ?? new string[0];
         }
 
         public string Name { get; private set; }
