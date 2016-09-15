@@ -55,6 +55,8 @@
         app.controller('ctrl', ['$scope', '$http', '$location', function ($scope, $http, $location) {
             var groupClassNames = {};
             var groupNodeSizer = new GroupNodeSizer(3.0);
+            var endpointFrequency = getEndpointUpdatingFrequency($location);
+            var configFrequency = getConfigUpdatingFrequency($location);
 
             $scope.filter = {};
             $scope.tagsFilter = "";
@@ -89,8 +91,8 @@
 
             $scope.getConfig();
             $scope.update();
-            setInterval($scope.update, 1000);
-            setInterval($scope.getConfig, 20000);
+            setInterval($scope.update, endpointFrequency);
+            setInterval($scope.getConfig, configFrequency);
 
             $scope.getEndpointClassName = function (endpointGroup) {
                 if (!groupClassNames[endpointGroup]) {
@@ -155,6 +157,15 @@
                 $location.search('group-view', $scope.endpointGrouping?true:null);
             }
         }]);
+
+        function getEndpointUpdatingFrequency(location) {
+            var freq = location.search()["endpoint-frequency"];
+            return parseInt(freq) || 1000;
+        }
+        function getConfigUpdatingFrequency(location) {
+            var freq = location.search()["config-frequency"];
+            return parseInt(freq) || 20000;
+        }
 
         function updateEndpointsInPlace(endpoints, newEndpoints) {
             var newDict = {};
