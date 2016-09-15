@@ -41,7 +41,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             _restEndpoint = MockWebEndpointFactory.CreateNew();
             _restEndpoint.SetupStatusPlainResponse(HttpStatusCode.OK, "hello world!");
             _identifier = _client.RegisterEndpoint(MonitorTypes.Http, _restEndpoint.StatusAddress, "test", "test");
-            Thread.Sleep((int) (Timeouts.HealthCheckInterval.TotalMilliseconds * 3));
+            Thread.Sleep((int) (Timeouts.HealthCheckInterval.TotalMilliseconds * 10));
         }
 
         private void When_client_requests_endpoint_statistics_via_url(string url)
