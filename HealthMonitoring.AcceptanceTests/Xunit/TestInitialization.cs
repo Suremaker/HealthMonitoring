@@ -85,6 +85,7 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
         {
             KillAppDomain(_api);
             KillAppDomain(_monitor);
+            DeleteDatabase();
         }
 
         private static void KillAppDomain(Tuple<Thread, AppDomain> process)
