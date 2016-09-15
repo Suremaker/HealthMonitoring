@@ -48,7 +48,7 @@
             <div class="selected-filters-container">
                 <p class="tagsContainer">
                     <span ng-if="filterTags.length" class="endpoint-status stats-key">Selected Tags</span>
-                    <span ng-repeat="tag in filterTags | orderBy: 'toString()'" ng-click="removeFromTagFilter(tag)" class="endpointTag">{{tag}}</span>
+                    <span ng-repeat="tag in filterTags | orderBy: 'toString()'" ng-click="removeFromTagFilter(tag)" ng-style="filterTagStyles[tag]" ng-mouseenter="changeFilterTagColour(tag, true)" ng-mouseleave="changeFilterTagColour(tag, false)" class="endpointTag">{{tag}}</span>
                 </p>
             </div>
         </article>
@@ -65,7 +65,7 @@
                     <td>{{formatDuration(e.LastResponseTime)}}</td>
                     <td>{{formatDate(e.LastCheckUtc)}}</td>
                     <td>
-                        <p class="tagsContainer"><span ng-repeat="tag in e.Tags | orderBy: 'toString()'" ng-click="addToTagFilter(tag)" ng-style="tagStyles[tag]" ng-mouseenter="changeTagColour(tag, true)" ng-mouseleave="changeTagColour(tag, false)" class="endpointTag">{{tag}}</span></p>
+                        <p class="tagsContainer"><span ng-repeat="tag in e.Tags | orderBy: 'toString()'" ng-click="addToTagFilter(tag)" ng-style="endpointTagStyles[e.Id][tag]" ng-mouseenter="changeTagColour(e.Id, tag, true)" ng-mouseleave="changeTagColour(e.Id, tag, false)" class="endpointTag">{{tag}}</span></p>
                     </td>
                 </tr>
             </table>
@@ -81,11 +81,12 @@
         app.controller('ctrl', function ($scope, $http, $location) {
             $scope.config = null;
             $scope.alerts = [];
+            $scope.filterTagStyles = {};
             $scope.filterTags = [];
             $scope.selectedStatuses = [];
             $scope.inputFilterTag = null;
             $scope.filter = {};
-            $scope.tagStyles = {};
+            $scope.endpointTagStyles = {};
 
             $scope.getConfig = function () {
                 $http.get("/api/config")
@@ -98,16 +99,20 @@
             }
             $scope.getEndpoints = function () {
 
+                var setEndpointTagStyles = function () {
+                    angular.forEach($scope.endpoints, function (endpoint) {
+                        $scope.endpointTagStyles[endpoint.Id] = {};
+                        angular.forEach(endpoint.Tags,
+                            function (tag) {
+                                $scope.endpointTagStyles[endpoint.Id][tag] = { background: hashColour(tag, false) };
+                            });
+                    });
+                };
+
                 $http.get("/api/endpoints")
                     .success(function (response) {
                         $scope.endpoints = response;
-
-                        angular.forEach($scope.endpoints, function (endpoint) {
-                            angular.forEach(endpoint.Tags,
-                                function(tag) {
-                                    $scope.tagStyles[tag] = { background: hashColour(tag, false) };
-                                });
-                        });
+                        setEndpointTagStyles();
                     })
                     .error(function (data, status) {
                         $scope.endpoints = null;
@@ -149,20 +154,26 @@
                 if ($scope.filterTags.indexOf(tag) === -1)
                     $scope.filterTags.push(tag);
                 $scope.updateLocationTagParams();
+                setFilterTagStyles($scope);
             }
 
             $scope.removeFromTagFilter = function (tag) {
                 var index = $scope.filterTags.indexOf(tag);
                 $scope.filterTags.splice(index, 1);
                 $scope.updateLocationTagParams();
+                setFilterTagStyles($scope);
             }
 
             $scope.updateLocationTagParams = function () {
                 $location.search('filter-tags', tagsToParamString($scope.filterTags));
             };
 
-            $scope.changeTagColour = function (tag, hover) {
-                $scope.tagStyles[tag] = { background: hashColour(tag, hover) };
+            $scope.changeFilterTagColour = function (tag, hover) {
+                $scope.filterTagStyles[tag] = { background: hashColour(tag, hover) };
+            }
+
+            $scope.changeTagColour = function (endpointId, tag, hover) {
+                $scope.endpointTagStyles[endpointId][tag] = { background: hashColour(tag, hover) };
             }
 
             $scope.valueComparator = function (a, b) { return a === b; }
@@ -172,13 +183,19 @@
             $scope.parseDuration = parseDuration;
             $scope.formatDate = formatDate;
             $scope.formatDuration = formatDuration;
-            $scope.hashColour = hashColour;
 
             $scope.getConfig();
             $scope.getEndpoints();
+
             setInterval($scope.getEndpoints, 5000);
             setInterval($scope.getConfig, 20000);
         });
+
+        function setFilterTagStyles(scope) {
+            angular.forEach(scope.filterTags, function (tag) {
+                scope.filterTagStyles[tag] = { background: hashColour(tag, false) };
+            });
+        }
 
         function initFiltersFromUrl(scope, location) {
             var searchParams = location.search()["filter-tags"];
@@ -191,7 +208,9 @@
                 angular.forEach(statusFilter.split(';'), function (status) {
                     scope.onStatusSelected(status);
                 });
-            }                
+            }
+
+            setFilterTagStyles(scope);
         }
 
         function tagsToParamString(tags) {
