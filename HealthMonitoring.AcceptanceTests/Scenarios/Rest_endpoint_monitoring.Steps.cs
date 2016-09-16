@@ -48,11 +48,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
 
         private void Then_monitor_should_start_monitoring_the_endpoint()
         {
-            Wait.Until(
-                Timeouts.Default,
-                () => _client.GetEndpointDetails(_identifier),
-                e => e.LastResponseTime.GetValueOrDefault() > TimeSpan.Zero,
-                "Endpoint monitoring did not started");
+            _client.EnsureMonitoringStarted(_identifier);
         }
 
         private void When_client_requests_endpoint_details()
@@ -83,11 +79,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
 
         private void Then_monitor_should_observe_endpoint_status_being_STATUS(EndpointStatus status)
         {
-            Wait.Until(
-                Timeouts.Default,
-                () => _client.GetEndpointDetails(_identifier),
-                e => e.Status == status,
-                "Endpoint status did not changed");
+            _client.EnsureStatusChanged(_identifier, status);
         }
 
         private void Then_the_endpoint_additional_details_should_be_not_available()

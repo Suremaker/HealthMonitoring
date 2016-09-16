@@ -1,3 +1,7 @@
+3.2.0.0
+-------
+Extended GET /api/endpoints with filters
+
 3.1.1.0
 -------
 Different deterministic colour for filter tags

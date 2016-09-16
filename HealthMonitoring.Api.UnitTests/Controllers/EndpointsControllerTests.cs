@@ -174,6 +174,50 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
                 AssertEndpoint(endpoint, results.SingleOrDefault(r => r.Id == endpoint.Identity.Id));
         }
 
+        [Theory]
+        [InlineData("healthy,faulty", null, null, null, "11111111-1111-1111-1111-111111111111,33333333-3333-3333-3333-333333333333")]
+        [InlineData(null, "t1", null, null, "11111111-1111-1111-1111-111111111111,33333333-3333-3333-3333-333333333333")]
+        [InlineData(null, "t1,t3", null, null, "33333333-3333-3333-3333-333333333333")]
+        [InlineData(null, null, "group2", null, "22222222-2222-2222-2222-222222222222,33333333-3333-3333-3333-333333333333")]
+        [InlineData(null, null, "g*up*", null, "11111111-1111-1111-1111-111111111111,22222222-2222-2222-2222-222222222222,33333333-3333-3333-3333-333333333333")]
+        [InlineData(null, null, "g*up?", null, "22222222-2222-2222-2222-222222222222,33333333-3333-3333-3333-333333333333")]
+        [InlineData(null, null, "gro", null, null)]
+        [InlineData(null, null, null, "ealthy", "11111111-1111-1111-1111-111111111111,22222222-2222-2222-2222-222222222222")]
+        [InlineData(null, null, null, "ddress", "11111111-1111-1111-1111-111111111111,22222222-2222-2222-2222-222222222222,33333333-3333-3333-3333-333333333333")]
+        [InlineData(null, null, null, "ad*ss*", "11111111-1111-1111-1111-111111111111,22222222-2222-2222-2222-222222222222,33333333-3333-3333-3333-333333333333")]
+        [InlineData(null, null, null, "name", "22222222-2222-2222-2222-222222222222,33333333-3333-3333-3333-333333333333")]
+        [InlineData(null, null, null, "Type1", "11111111-1111-1111-1111-111111111111,22222222-2222-2222-2222-222222222222")]
+        [InlineData(null, null, null, "gr*2", "22222222-2222-2222-2222-222222222222,33333333-3333-3333-3333-333333333333")]
+        [InlineData("healthy,faulty", "t1,t2", "group*", "nam", "11111111-1111-1111-1111-111111111111,33333333-3333-3333-3333-333333333333")]
+        public void GetEndpoint_should_return_filtered_endpoints(string filterStatus, string filterTags, string filterGroup, string filterText, string expectedEndpointIds)
+        {
+            var endpoints = new[]
+            {
+                new Endpoint(
+                    new EndpointIdentity(Guid.Parse("11111111-1111-1111-1111-111111111111"), "monitorType1", "address1"),
+                    new EndpointMetadata("nam", "group11", new[] { "t1", "t2" }))
+                    .UpdateHealth(new EndpointHealth(DateTime.MinValue, TimeSpan.Zero, EndpointStatus.Healthy)),
+
+                new Endpoint(
+                    new EndpointIdentity(Guid.Parse("22222222-2222-2222-2222-222222222222"), "monitorType1", "address2"),
+                    new EndpointMetadata( "name2", "group2", new[] { "t2", "t3" }))
+                    .UpdateHealth(new EndpointHealth(DateTime.MinValue, TimeSpan.Zero, EndpointStatus.Unhealthy)),
+
+                new Endpoint(
+                    new EndpointIdentity(Guid.Parse("33333333-3333-3333-3333-333333333333"), "monitorType2", "address123"),
+                    new EndpointMetadata( "name3", "group2", new[] { "t1", "t2", "t3" }))
+                    .UpdateHealth(new EndpointHealth(DateTime.MinValue, TimeSpan.Zero, EndpointStatus.Faulty))
+            };
+            _endpointRegistry.Setup(r => r.Endpoints).Returns(endpoints);
+            var results = _controller.GetEndpoints(filterStatus?.Split(','), filterTags?.Split(','), filterGroup, filterText).ToArray();
+
+            var expected = expectedEndpointIds?.Split(',') ?? new string[0];
+
+            Assert.Equal(
+                expected.OrderBy(e => e).ToArray(),
+                results.Select(r => r.Id.ToString()).OrderBy(e => e).ToArray());
+        }
+
         [Fact]
         public void GetEndpointStats_should_return_all_stats()
         {
