@@ -3,23 +3,32 @@ using System.Linq;
 using System.Net;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Entities;
+using HealthMonitoring.AcceptanceTests.Helpers.Http;
 using LightBDD;
 using Newtonsoft.Json;
 using RestSharp;
 using Xunit;
 using Xunit.Abstractions;
+using System.Collections.Generic;
 
 namespace HealthMonitoring.AcceptanceTests.Scenarios
 {
-    public partial class Endpoint_registration : FeatureFixture
+    public partial class Endpoint_registration : FeatureFixture, IDisposable
     {
         private RestClient _client;
         private IRestResponse _response;
         private Guid _identifier;
+        private readonly List<MockWebEndpoint> _endpoints = new List<MockWebEndpoint>();
 
         public Endpoint_registration(ITestOutputHelper output)
             : base(output)
         {
+        }
+
+        public void Dispose()
+        {
+            foreach (var endpoint in _endpoints)
+                endpoint.Dispose();
         }
 
         private void Given_a_monitor_api_client()
@@ -27,7 +36,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             _client = ClientHelper.Build();
         }
 
-        private void When_client_requests_endpoint_registration_via_url_with_name_address_group_and_monitor(string url, string name, string address, string @group, string monitor)
+        private void When_client_requests_endpoint_registration_via_url_with_name_address_group_and_monitor(string url, string name, string address, string group, string monitor)
         {
             _response = _client.Post(new RestRequest(url).AddJsonBody(new { group, monitorType = monitor, name, address }));
         }
@@ -129,6 +138,67 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             {
                 Assert.Equal(expected[i], existing[i]);
             }
+        }
+
+        private void Given_a_healthy_endpoint_with_name_group_and_tags(string name, string group, [FormatCollection] string[] tags)
+        {
+            SetupHttpEndpoint(HttpStatusCode.OK, name, group, tags, EndpointStatus.Healthy);
+        }
+
+        private void Given_a_faulty_endpoint_with_name_group_and_tags(string name, string group, [FormatCollection] string[] tags)
+        {
+            SetupHttpEndpoint(HttpStatusCode.InternalServerError, name, group, tags, EndpointStatus.Faulty);
+        }
+
+        private void Given_a_offline_endpoint_with_name_group_and_tags(string name, string group, [FormatCollection] string[] tags)
+        {
+            SetupHttpEndpoint(HttpStatusCode.ServiceUnavailable, name, group, tags, EndpointStatus.Offline);
+        }
+
+        private void SetupHttpEndpoint(HttpStatusCode httpStatusCode, string name, string group, string[] tags, EndpointStatus expectedStatus)
+        {
+            var endpoint = MockWebEndpointFactory.CreateNew();
+            _endpoints.Add(endpoint);
+
+            endpoint.SetupStatusResponse(httpStatusCode);
+            var identifier = _client.RegisterEndpoint(MonitorTypes.Http, endpoint.StatusAddress, group, name, tags);
+            _client.EnsureStatusChanged(identifier, expectedStatus);
+        }
+
+        private void When_client_requests_all_endpoints_details_via_url_and_group_filter_GROUPFILTER(string url, string groupFilter)
+        {
+            _response = _client.Get(new RestRequest(url).AddQueryParameter("filterGroup", groupFilter));
+        }
+
+        private void When_client_requests_all_endpoints_details_via_url_and_group_filter_GROUPFILTER_as_well_as_tag_filter_TAGFILTER(string url, string groupFilter, [FormatCollection] string[] tagFilter)
+        {
+            var request = new RestRequest(url).AddQueryParameter("filterGroup", groupFilter);
+            foreach (var tag in tagFilter)
+                request.AddQueryParameter("filterTags", tag);
+
+            _response = _client.Get(request);
+        }
+
+        private void When_client_requests_all_endpoints_details_via_url_and_group_filter_GROUPFILTER_as_well_as_status_filter_STATUSFILTER(string url, string groupFilter, [FormatCollection]EndpointStatus[] statusFilter)
+        {
+            var request = new RestRequest(url).AddQueryParameter("filterGroup", groupFilter);
+            foreach (var status in statusFilter)
+                request.AddQueryParameter("filterStatus", status.ToString());
+
+            _response = _client.Get(request);
+        }
+
+        private void When_client_requests_all_endpoints_details_via_url_and_group_filter_GROUPFILTER_as_well_as_text_filter_TEXTFILTER(string url, string groupFilter, string textFilter)
+        {
+            _response = _client.Get(new RestRequest(url).AddQueryParameter("filterGroup", groupFilter).AddQueryParameter("filterText", textFilter));
+        }
+
+        private void Then_returned_endpoint_list_should_contain_endpoints([FormatCollection]params string[] endpoints)
+        {
+            _response.VerifyValidStatus(HttpStatusCode.OK);
+            var actual = JsonConvert.DeserializeObject<EndpointEntity[]>(_response.Content).Select(e => e.Name).OrderBy(n => n).ToArray();
+            var expected = endpoints.OrderBy(e => e).ToArray();
+            Assert.Equal(expected, actual);
         }
     }
 }

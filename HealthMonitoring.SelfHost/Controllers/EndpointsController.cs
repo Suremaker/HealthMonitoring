@@ -9,6 +9,7 @@ using HealthMonitoring.Management.Core;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
 using HealthMonitoring.SelfHost.Entities;
+using HealthMonitoring.SelfHost.Filters;
 using Swashbuckle.Swagger.Annotations;
 
 namespace HealthMonitoring.SelfHost.Controllers
@@ -100,9 +101,14 @@ namespace HealthMonitoring.SelfHost.Controllers
         [Route("api/endpoints")]
         [SwaggerResponse(HttpStatusCode.OK, Type = typeof(EndpointDetails[]))]
         [ResponseType(typeof(EndpointDetails[]))]
-        public IEnumerable<EndpointDetails> GetEndpoints()
+        public IEnumerable<EndpointDetails> GetEndpoints([FromUri]string[] filterStatus = null, [FromUri]string[] filterTags = null, string filterGroup = null, string filterText = null)
         {
-            return _endpointRegistry.Endpoints.Select(EndpointDetails.FromDomain);
+            var filter = new EndpointFilter()
+                .WithGroup(filterGroup)
+                .WithStatus(filterStatus)
+                .WithTags(filterTags)
+                .WithText(filterText);
+            return _endpointRegistry.Endpoints.Select(EndpointDetails.FromDomain).Where(filter.DoesMatch);
         }
 
         [Route("api/endpoints/{id}/tags")]
