@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using LightBDD;
 
@@ -50,6 +51,36 @@ I want to be able to register browse and unregister endpoints")]
                 _ => When_client_requests_all_endpoints_details_via_url("/api/endpoints"),
                 _ => Then_returned_endpoint_list_should_include_endpoint_with_name_address_group_and_monitor("my_name1", "http://localhost:3031/status", "my_group", MonitorTypes.HttpJson),
                 _ => Then_returned_endpoint_list_should_include_endpoint_with_name_address_group_and_monitor("my_name2", "http://localhost:3032/status", "my_group", MonitorTypes.HttpJson));
+        }
+
+        [Scenario]
+        public void Filtering_endpoints()
+        {
+            var groupBase = nameof(Filtering_endpoints);
+            var group1 = groupBase + "_g1";
+            var group2 = groupBase + "_g2";
+
+            Runner.RunScenario(
+                _ => Given_a_monitor_api_client(),
+                _ => Given_a_healthy_endpoint_with_name_group_and_tags("my_name1", group1, new[] { "tag1" }),
+                _ => Given_a_faulty_endpoint_with_name_group_and_tags("my_name2", group1, new[] { "tag1", "tag2" }),
+                _ => Given_a_offline_endpoint_with_name_group_and_tags("other_name", group2, new[] { "tag1", "tag2", "tag3" }),
+
+                _ => When_client_requests_all_endpoints_details_via_url_and_group_filter_GROUPFILTER("/api/endpoints", group1),
+                _ => Then_returned_endpoint_list_should_contain_endpoints("my_name1", "my_name2"),
+
+                _ => When_client_requests_all_endpoints_details_via_url_and_group_filter_GROUPFILTER("/api/endpoints", groupBase + "*"),
+                _ => Then_returned_endpoint_list_should_contain_endpoints("my_name1", "my_name2", "other_name"),
+
+                _ => When_client_requests_all_endpoints_details_via_url_and_group_filter_GROUPFILTER_as_well_as_tag_filter_TAGFILTER("/api/endpoints", groupBase + "*", new[] { "tag1", "tag2" }),
+                _ => Then_returned_endpoint_list_should_contain_endpoints("my_name2", "other_name"),
+
+                _ => When_client_requests_all_endpoints_details_via_url_and_group_filter_GROUPFILTER_as_well_as_status_filter_STATUSFILTER("/api/endpoints", groupBase + "*", new[] { EndpointStatus.Offline, EndpointStatus.Faulty }),
+                _ => Then_returned_endpoint_list_should_contain_endpoints("my_name2", "other_name"),
+
+                _ => When_client_requests_all_endpoints_details_via_url_and_group_filter_GROUPFILTER_as_well_as_text_filter_TEXTFILTER("/api/endpoints", groupBase + "*", "lt*y"),
+                _ => Then_returned_endpoint_list_should_contain_endpoints("my_name1", "my_name2")
+                );
         }
 
         [Scenario]

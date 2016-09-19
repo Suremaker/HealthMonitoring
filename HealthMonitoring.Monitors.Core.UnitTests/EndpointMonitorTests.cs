@@ -36,11 +36,15 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             var endpoint1Countdown = new AsyncCountdown("endpoint1", 2);
             var endpoint2Countdown = new AsyncCountdown("endpoint2", 1);
             var endpoint3Countdown = new AsyncCountdown("endpoint3", 2);
-            var counters = new[] { new AsyncCounter(), new AsyncCounter(), new AsyncCounter() };
 
-            _mockHealthMonitor.Setup(cfg => cfg.CheckHealthAsync("address1", It.IsAny<CancellationToken>())).Returns(() => _awaitableFactory.Return(new HealthInfo(HealthStatus.Healthy)).WithCountdown(endpoint1Countdown).WithCounter(counters[0]).RunAsync());
-            _mockHealthMonitor.Setup(cfg => cfg.CheckHealthAsync("address2", It.IsAny<CancellationToken>())).Returns(() => _awaitableFactory.Return(new HealthInfo(HealthStatus.Healthy)).WithCountdown(endpoint2Countdown).WithCounter(counters[1]).RunAsync());
-            _mockHealthMonitor.Setup(cfg => cfg.CheckHealthAsync("address3", It.IsAny<CancellationToken>())).Returns(() => _awaitableFactory.Return(new HealthInfo(HealthStatus.Healthy)).WithCountdown(endpoint3Countdown).WithCounter(counters[2]).RunAsync());
+            var counters = new[] { new AsyncCounter(), new AsyncCounter(), new AsyncCounter() };
+            var healthCheck1 = _awaitableFactory.Return(new HealthInfo(HealthStatus.Healthy)).WithCountdown(endpoint1Countdown).WithCounter(counters[0]);
+            var healthCheck2 = _awaitableFactory.Return(new HealthInfo(HealthStatus.Healthy)).WithCountdown(endpoint2Countdown).WithCounter(counters[1]);
+            var healthCheck3 = _awaitableFactory.Return(new HealthInfo(HealthStatus.Healthy)).WithCountdown(endpoint3Countdown).WithCounter(counters[2]);
+
+            _mockHealthMonitor.Setup(cfg => cfg.CheckHealthAsync("address1", It.IsAny<CancellationToken>())).Returns(healthCheck1.RunAsync);
+            _mockHealthMonitor.Setup(cfg => cfg.CheckHealthAsync("address2", It.IsAny<CancellationToken>())).Returns(healthCheck2.RunAsync);
+            _mockHealthMonitor.Setup(cfg => cfg.CheckHealthAsync("address3", It.IsAny<CancellationToken>())).Returns(healthCheck3.RunAsync);
 
             var endpoint1 = _endpointRegistry.TryRegister(CreateEndpointIdentity("address1"));
             _endpointRegistry.TryRegister(CreateEndpointIdentity("address2"));
@@ -48,20 +52,22 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             using (CreateEndpointMonitor(TimeSpan.FromMilliseconds(50)))
             {
                 await endpoint1Countdown.WaitAsync(TestMaxWaitTime);
+                await endpoint2Countdown.WaitAsync(TestMaxWaitTime);
+
                 _endpointRegistry.TryRegister(CreateEndpointIdentity("address3"));
                 await endpoint3Countdown.WaitAsync(TestMaxWaitTime);
+
                 _endpointRegistry.TryUnregister(endpoint1.Identity);
-                await endpoint2Countdown.ResetTo(50).WaitAsync(TestMaxWaitTime);
+                // ensure that endpoint 2 still is running, and give time for endpoint 1 to shutdown
+                await endpoint2Countdown.ResetTo(10).WaitAsync(TestMaxWaitTime);
+
+                // ensure that endpoint 1 calls does not change, while endpoint 2 still runs
+                await AssertValueDidNotChangedAfterOperationAsync(
+                    () => counters[0].Value, 
+                    () => endpoint2Countdown.ResetTo(10).WaitAsync(TestMaxWaitTime));
             }
-            var afterStop = counters.Sum(c => c.Value);
-            await Task.Delay(200);
-            var afterDelay = counters.Sum(c => c.Value);
 
-            Assert.Equal(afterStop, afterDelay);
-
-            Assert.True(counters[0].Value > 1, $"Expected more than 1 check of address1, got: {counters[0].Value}");
-            Assert.True(counters[0].Value < counters[1].Value, $"Expected less checks of address1 than address 2, got: address1={counters[0].Value}, address2={counters[1].Value}");
-            Assert.True(counters[2].Value > 1, $"Expected more than 1 check of address3, got: {counters[2].Value}");
+            await AssertValueDidNotChangedAfterOperationAsync(() => counters.Sum(c => c.Value), () => Task.Delay(200));
         }
 
         [Fact]
@@ -113,6 +119,14 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         private EndpointIdentity CreateEndpointIdentity(string address)
         {
             return new EndpointIdentity(Guid.NewGuid(), _mockHealthMonitor.Object.Name, address);
+        }
+
+        private static async Task AssertValueDidNotChangedAfterOperationAsync<T>(Func<T> valueToCheck, Func<Task> operation)
+        {
+            var before = valueToCheck.Invoke();
+            await operation.Invoke();
+            var after = valueToCheck.Invoke();
+            Assert.Equal(before, after);
         }
     }
 }
