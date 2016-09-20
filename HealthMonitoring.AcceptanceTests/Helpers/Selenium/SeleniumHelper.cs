@@ -2,10 +2,13 @@
 
 namespace HealthMonitoring.AcceptanceTests.Helpers.Selenium
 {
-    public static class SeleniumHelper
+    static class SeleniumHelper
     {
         public static string[] TestTags =  { "app", "web", "api" };
-        public static string[] TestGroups =  { "first-group", "second-group", "third-group" };
+        public static string[] TestGroups = { "first-group", "second-group", "third-group" };
+
+        // only one endpoint should contain these tags
+        public static string[] UniqueTags = {"unique_for_home_page", "tags4568885"};
 
         public static void RegisterTestEndpoints(this RestClient client)
         {
@@ -17,8 +20,9 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Selenium
             client.RegisterEndpoint(MonitorTypes.Http, "http://localhost:8094", TestGroups[2], "5", TestTags);
             client.RegisterEndpoint(MonitorTypes.Http, "http://localhost:8095", TestGroups[2], "6");
             // healthy endpoints
-            client.RegisterEndpoint(MonitorTypes.Http, SeleniumConfiguration.ProjectUrl, TestGroups[0], "7");
-            client.RegisterEndpoint(MonitorTypes.Http, SeleniumConfiguration.BaseUrl, TestGroups[1], "8-valid", TestTags);
+            client.RegisterEndpoint(MonitorTypes.Http, SeleniumConfiguration.ProjectUrl, TestGroups[0], "project page");
+            client.RegisterEndpoint(MonitorTypes.Http, SeleniumConfiguration.BaseUrl, TestGroups[1], "self", TestTags);
+            client.RegisterEndpoint(MonitorTypes.Http, "http://localhost", TestGroups[1], "localhost", UniqueTags);
         }
     }
 }

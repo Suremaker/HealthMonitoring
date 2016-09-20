@@ -197,6 +197,7 @@
             var freq = location.search()["endpoint-frequency"];
             return parseInt(freq) || 5000;
         }
+
         function getConfigUpdatingFrequency(location) {
             var freq = location.search()["config-frequency"];
             return parseInt(freq) || 20000;
