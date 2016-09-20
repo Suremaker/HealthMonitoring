@@ -83,7 +83,6 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
         public static void Terminate()
         {
-            DeleteDatabase();
             KillAppDomain(_api);
             KillAppDomain(_monitor);
         }

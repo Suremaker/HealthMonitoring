@@ -40,25 +40,25 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             _driver.LoadUrl(_dashboardUrl);
         }
 
-        public void When_user_clicked_on_home_link()
+        public void When_user_clicks_on_home_link()
         {
             var homeLink = _driver.FindElement(By.XPath("//header//table//*//h1/a"));
             homeLink.Click();
         }
 
-        public void Then_home_page_is_opened()
+        public void Then_home_page_should_open()
         {
             string errorMsg = $"actual: {_driver.Url} | expected: {SeleniumConfiguration.BaseUrl}";
             Assert.True(_driver.Url == SeleniumConfiguration.BaseUrl, errorMsg);
         }
 
-        public void When_user_clicked_on_status_select()
+        public void When_user_clicks_on_status_multiselect_element()
         {
             var statusMultiselect = _driver.FindElement(By.XPath("//header//*//div[@class='wg-selectBox']"));
             statusMultiselect.Click();
         }
 
-        public void And_user_selected_healthy_and_faulty_statuses()
+        public void When_user_selects_healthy_and_faulty_statuses()
         {
             var healthyCheckbox = _driver.FindElement(By.XPath("//*[@id='wg-selected-healthy']"));
             var faultyCheckbox = _driver.FindElement(By.XPath("//*[@id='wg-selected-faulty']"));
@@ -72,7 +72,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             CheckFilteredStatuses(_faulty, _healthy);
         }
 
-        public void And_filter_should_be_displayed_in_page_url()
+        public void Then_filter_should_be_displayed_in_page_url()
         {
             var expectedUrl = $"{_dashboardUrl}&filter-status=healthy;faulty";
 
@@ -84,12 +84,12 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             _dashboardUrl = $"{_dashboardUrl}&filter-status=healthy;faulty";
         }
 
-        public void And_load_page()
+        public void When_user_loads_page_with_filter_in_url()
         {
             _driver.LoadUrl(_dashboardUrl);
         }
 
-        public void When_user_clicked_on_group_view_checkbox()
+        public void When_user_clicks_on_group_view_checkbox()
         {
             var groupViewCheckBox = _driver.FindElement(By.Id("endpointGrouping"));
 
@@ -98,13 +98,12 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         public void Then_endpoints_are_grouped()
         {
-            // Verify if all groups are distinct
             var groupNames = GetAllGroupNames();
             Assert.True(groupNames.OrderBy(m => m)
                 .SequenceEqual(groupNames.Distinct().OrderBy(m => m)));
         }
 
-        public void And_all_endpoints_in_subgroup_have_the_same_group()
+        public void Then_all_endpoints_in_subgroup_should_have_the_same_group()
         {
             var groups = GetAllGroupElements();
 
@@ -124,7 +123,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             _driver.LoadUrl(_dashboardUrl);
         }
 
-        public void Then_are_shown_endpoints_with_group_that_satisfy_filter()
+        public void Then_should_be_displayed_endpoints_with_groupes_that_satisfy_filter()
         {
             var groupNames = GetAllGroupNames();
             Assert.True(groupNames.All(m => m == SeleniumHelper.TestGroups[0]));
@@ -137,7 +136,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             groupInput.SendKeys(_groupFilter);
         }
 
-        public void And_group_filter_is_appended_to_url()
+        public void Then_group_filter_should_be_appended_to_url()
         {
             var expectedUrl = $"{_dashboardUrl}&filter-group={_groupFilter}";
             bool urlsAreEqual = string.Equals(_driver.Url, expectedUrl, StringComparison.CurrentCultureIgnoreCase);

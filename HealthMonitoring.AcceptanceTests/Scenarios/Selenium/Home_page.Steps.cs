@@ -39,7 +39,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             Assert.Equal(_driver.Title, _title);
         }
 
-        public void When_user_clicked_on_dashboad_page_link()
+        public void When_user_clicks_on_dashboad_page_link()
         {
             var dashboardLink = _driver.FindElement(By.LinkText("Dashboard"));
             dashboardLink.Click();
@@ -51,7 +51,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             Assert.True(string.Equals(_driver.Url, expectedUrl, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        public void When_user_clicked_on_swagger_page_link()
+        public void When_user_clicks_on_swagger_page_link()
         {
             var swaggerLink = _driver.FindElement(By.LinkText("API swagger docs"));
             swaggerLink.Click();
@@ -63,7 +63,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             Assert.True(string.Equals(_driver.Url, expectedUrl, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        public void When_user_clicked_on_project_page_link()
+        public void When_user_clicks_on_project_page_link()
         {
             var projectLink = _driver.FindElement(By.LinkText("Project site"));
             projectLink.Click();
@@ -74,11 +74,9 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             Assert.True(string.Equals(_driver.Url, SeleniumConfiguration.ProjectUrl, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        public void When_user_clicked_on_status_button()
+        public void When_user_clicks_on_status_button()
         {
             var statusElements = GetAllStatusElements();
-
-            // statusElements[0] -> 'Total', so click on next
             statusElements[1].Click();
         }
 
@@ -91,7 +89,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             
         }
 
-        public void And_should_be_shown_selected_status()
+        public void Then_should_be_shown_selected_status()
         {
             var statusElements = GetAllStatusElements();
             var selectedStatus = GetSelectedStatusElements().First();
@@ -99,7 +97,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             Assert.True(string.Equals(selectedStatus.Text, statusElements[1].Text, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        public void And_status_filter_should_be_appended_to_url()
+        public void Then_status_filter_should_be_appended_to_url()
         {
             var selectedStatus = GetSelectedStatusElements().First();
             var expectedUrl = $"{_homeUrl}&filter-status={selectedStatus.Text}";
@@ -107,7 +105,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             Assert.True(string.Equals(_driver.Url, expectedUrl, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        public void When_user_clicked_on_endpoints_tag()
+        public void When_user_clicks_on_endpoint_tags()
         {
             _selectedTags = new List<string>();
             var allTags = GetAllTags();
@@ -132,21 +130,21 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             Assert.True(_selectedTags.All(tag => filteredTags.Count(el => el.Text == tag) == filteredEndpointsCount));
         }
 
-        public void And_should_be_shown_selected_tags()
+        public void Then_should_be_shown_which_tags_are_selected()
         {
             var selectedTagElements = GetSelectedTags();
 
             Assert.True(selectedTagElements.All(m => _selectedTags.Any(tag => tag == m.Text)));
         }
 
-        public void And_tag_filter_should_be_appended_to_url()
+        public void Then_tag_filter_should_be_appended_to_url()
         {
             string exptectedUrl = $"{_homeUrl}&filter-tags={string.Join(";", _selectedTags)};";
 
             Assert.True(string.Equals(exptectedUrl, _driver.Url, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        public void When_user_navigates_to_home_page_with_filters()
+        public void When_user_navigates_to_home_page_with_filters_in_url()
         {
             var tag = SeleniumHelper.TestTags[0];
             var url = $"{_homeUrl}&filter-status=faulty;healthy&filter-tags={tag}";
@@ -167,12 +165,6 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             Assert.True(areStatusesCorrect);
             Assert.True(filteredTags.Count(m => m.Text == tag) == filteredStatuses.Count);
             Assert.True(selectedTags.Any(m => string.Equals(m.Text, tag)));
-        }
-
-        public void Wait_endpoints_are_rendered()
-        {
-            var endpointsSelector = By.XPath(_filteredStatusElements);
-            _driver.WaitElementsAreRendered(endpointsSelector);
         }
 
         private List<IWebElement> GetAllTags()

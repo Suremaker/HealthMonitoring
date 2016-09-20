@@ -49,7 +49,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             _driver.LoadUrl(_homePageUrl);
         }
 
-        public void When_user_clicked_on_endpoint_name()
+        public void When_user_clicks_on_endpoint_name()
         {
             var detailsLink = _driver.FindElements(By.XPath(_endpointLinksOfTagRowsOnHomePage)).First();
             _endpointName = detailsLink.Text;
@@ -59,7 +59,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             _driver.LoadUrl(detailsLink.GetAttribute("href"));
         }
 
-        public void Then_name_and_group_should_be_the_same_as_on_home_page()
+        public void Then_name_and_group_and_tags_should_be_the_same_as_on_home_page()
         {
             var groupOnPage = GetEndpointGroupOnDetailsPage().Text;
             var nameOnPage = GetEndpointNameOnDetailsPage().Text;
@@ -70,7 +70,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             Assert.True(_edpointTags.OrderBy(m => m).SequenceEqual(tagsOnPage.OrderBy(t => t)));
         }
 
-        public void And_elements_are_rendered()
+        public void When_elements_on_details_page_are_rendered()
         {
             var nameSelector = By.XPath(_endpointNameOnDetailsPage);
             _driver.WaitElementIsRendered(nameSelector);
@@ -80,24 +80,24 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             _driver.WaitElementsAreRendered(tagSelector);
         }
 
-        public IWebElement GetEndpointNameOnDetailsPage()
+        private IWebElement GetEndpointNameOnDetailsPage()
         {
             return _driver.FindElement(By.XPath(_endpointNameOnDetailsPage));
         }
 
-        public IWebElement GetEndpointGroupOnDetailsPage()
+        private IWebElement GetEndpointGroupOnDetailsPage()
         {
             return _driver.FindElement(By.XPath(_endpointGroupOnDetailsPage));
         }
 
-        public List<string> GetTagsOfFirstEndpointOnHomePage()
+        private List<string> GetTagsOfFirstEndpointOnHomePage()
         {
             return _driver.FindElements(By.XPath(_endpointTagsOnHomePage))
                 .Select(m => m.Text)
                 .ToList();
         }
 
-        public List<string> GetTagsOnDetailsPage()
+        private List<string> GetTagsOnDetailsPage()
         {
             return _driver.FindElements(By.XPath(_endpointTagsDetailsPage))
                 .Select(m => m.Text)
