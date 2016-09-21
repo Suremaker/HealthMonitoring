@@ -13,7 +13,8 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <NuGetPackageImportStamp>80a6f59e</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -91,6 +92,10 @@
       <HintPath>..\packages\Microsoft.AspNet.WebApi.SelfHost.5.2.3\lib\net45\System.Web.Http.SelfHost.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="WebDriver, Version=2.53.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.WebDriver.2.53.1\lib\net40\WebDriver.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <HintPath>..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
       <Private>True</Private>
@@ -110,7 +115,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\CusomAssertions.cs" />
     <Compile Include="Helpers\Entities\EndpointHealthStats.cs" />
+    <Compile Include="Helpers\Selenium\DriverToTest.cs" />
+    <Compile Include="Helpers\Selenium\SeleniumHelper.cs" />
+    <Compile Include="Helpers\Selenium\SeleniumConfiguration.cs" />
+    <Compile Include="Helpers\Selenium\WebDriverExtensions.cs" />
     <Compile Include="Scenarios\Endpoint_registration.cs" />
     <Compile Include="Scenarios\Endpoint_registration.Steps.cs">
       <DependentUpon>Endpoint_registration.cs</DependentUpon>
@@ -149,6 +159,18 @@
     <Compile Include="Scenarios\Rest_endpoint_monitoring.cs" />
     <Compile Include="Scenarios\Rest_endpoint_monitoring.Steps.cs">
       <DependentUpon>Rest_endpoint_monitoring.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Scenarios\Selenium\Dashboard_page.cs" />
+    <Compile Include="Scenarios\Selenium\Dashboard_page.Steps.cs">
+      <DependentUpon>Dashboard_page.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Scenarios\Selenium\Details_page.cs" />
+    <Compile Include="Scenarios\Selenium\Details_page.Steps.cs">
+      <DependentUpon>Details_page.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Scenarios\Selenium\Home_page.cs" />
+    <Compile Include="Scenarios\Selenium\Home_page.Steps.cs">
+      <DependentUpon>Home_page.cs</DependentUpon>
     </Compile>
     <Compile Include="Scenarios\Swagger_documentation.cs" />
     <Compile Include="Scenarios\Swagger_documentation.Steps.cs">
@@ -206,7 +228,11 @@ xcopy  /Y /I $(ProjectDir)log4net.config $(TargetDir)monitor\
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Selenium.WebDriver.ChromeDriver.2.23.0.1\build\Selenium.WebDriver.ChromeDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.ChromeDriver.2.23.0.1\build\Selenium.WebDriver.ChromeDriver.targets'))" />
+    <Error Condition="!Exists('..\packages\Selenium.WebDriver.IEDriver.2.53.1.1\build\Selenium.WebDriver.IEDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.IEDriver.2.53.1.1\build\Selenium.WebDriver.IEDriver.targets'))" />
   </Target>
+  <Import Project="..\packages\Selenium.WebDriver.ChromeDriver.2.23.0.1\build\Selenium.WebDriver.ChromeDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.ChromeDriver.2.23.0.1\build\Selenium.WebDriver.ChromeDriver.targets')" />
+  <Import Project="..\packages\Selenium.WebDriver.IEDriver.2.53.1.1\build\Selenium.WebDriver.IEDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.IEDriver.2.53.1.1\build\Selenium.WebDriver.IEDriver.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -88,6 +88,9 @@
             $scope.filter = {};
             $scope.endpointTagStyles = {};
 
+            var endpointFrequency = getEndpointUpdatingFrequency($location);
+            var configFrequency = getConfigUpdatingFrequency($location);
+
             $scope.getConfig = function () {
                 $http.get("/api/config")
                     .success(function (response) {
@@ -186,10 +189,19 @@
 
             $scope.getConfig();
             $scope.getEndpoints();
-
-            setInterval($scope.getEndpoints, 5000);
-            setInterval($scope.getConfig, 20000);
+            setInterval($scope.getEndpoints, endpointFrequency);
+            setInterval($scope.getConfig, configFrequency);
         });
+
+        function getEndpointUpdatingFrequency(location) {
+            var freq = location.search()["endpoint-frequency"];
+            return parseInt(freq) || 5000;
+        }
+
+        function getConfigUpdatingFrequency(location) {
+            var freq = location.search()["config-frequency"];
+            return parseInt(freq) || 20000;
+        }
 
         function setFilterTagStyles(scope) {
             angular.forEach(scope.filterTags, function (tag) {
