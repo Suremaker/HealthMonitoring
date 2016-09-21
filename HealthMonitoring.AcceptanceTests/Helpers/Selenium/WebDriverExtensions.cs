@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using OpenQA.Selenium;
 
@@ -6,33 +7,73 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Selenium
 {
     public static class WebDriverExtensions
     {
-        private static int _waitSeconds = 5;
-
-        public static void WaitElementIsRendered(this IWebDriver driver, By selector)
+        public static IWebElement WaitElementIsRendered(this IWebDriver driver, By selector)
         {
-            Wait.Until(Timeouts.Default,
-                () => driver.FindElement(selector),
-                element => element.Displayed,
+            return Wait.Until(Timeouts.Default,
+                () => FindElement(driver, selector),
+                element => element != null,
                 $"Element with selector:{selector} could not be rendered");
         }
 
-        public static void WaitElementsAreRendered(this IWebDriver driver, By selector)
+        public static string WaitTextIsRendered(this IWebDriver driver, By elementSelector)
         {
-            Wait.Until(Timeouts.Default,
-                () => driver.FindElements(selector),
-                elements => elements.Any(),
+            return Wait.Until(Timeouts.Default,
+                () => FindElement(driver, elementSelector)?.Text,
+                text => !string.IsNullOrEmpty(text),
+                $"Element with selector:{elementSelector} could not be rendered");
+        }
+
+        public static IEnumerable<IWebElement> WaitElementsAreRendered(this IWebDriver driver, By selector, Func<IWebElement, bool> condition = null)
+        {
+            condition = condition ?? (el => true);
+             
+            return Wait.Until(Timeouts.Default,
+                () => FindElements(driver, selector)?.Where(condition),
+                elements => elements != null && elements.Any(),
                 $"Elements with selector:{selector} could not be rendered");
         }
 
         public static void LoadUrl(this IWebDriver driver, string url)
         {
             driver.Navigate().GoToUrl(url);
-            driver.Sleep(_waitSeconds);
         }
 
-        public static void Sleep(this IWebDriver driver, int seconds)
+        public static string WaitUntilPageIsChanged(this IWebDriver driver, string initialUrl)
         {
-            driver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(seconds));
+            return Wait.Until(
+                Timeouts.Default,
+                () => driver.Url,
+                url => !string.Equals(url, initialUrl),
+                $"Page url: {initialUrl} did not change!");
+        }
+
+        public static void RetryTimeout(this IWebDriver driver, TimeSpan period)
+        {
+            driver.Manage().Timeouts().ImplicitlyWait(period);
+        }
+
+        private static IWebElement FindElement(IWebDriver driver, By selector)
+        {
+            try
+            {
+                return driver.FindElement(selector);
+            }
+            catch (NoSuchElementException)
+            {
+                return null;
+            }
+        }
+
+        private static IEnumerable<IWebElement> FindElements(IWebDriver driver, By selector)
+        {
+            try
+            {
+                return driver.FindElements(selector);
+            }
+            catch (NoSuchElementException)
+            {
+                return null;
+            }
         }
     }
 }

@@ -15,7 +15,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
     {
         private const string _title = "Health Monitoring";
         private const string _filteredStatusElements = "//table[contains(@class,'endpoints')]//tr//td[3]";
-
+        
         private readonly IWebDriver _driver;
         private readonly RestClient _client;
         private readonly string _homeUrl;
@@ -24,8 +24,9 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public Home_page(ITestOutputHelper output) : base(output)
         {
             _client = ClientHelper.Build();
-            _driver = SeleniumConfiguration.GetWebDriver();
             _client.RegisterTestEndpoints();
+            _driver = SeleniumConfiguration.GetWebDriver();
+            _driver.RetryTimeout(Timeouts.Default);
             _homeUrl = $"{SeleniumConfiguration.BaseUrl}?endpoint-frequency=1000000&config-frequency=1000000";
         }
 
@@ -36,42 +37,55 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         public void Then_page_should_contain_title()
         {
-            Assert.Equal(_driver.Title, _title);
+            string actualTitle = Wait.Until(
+                Timeouts.Default,
+                () => _driver.Title,
+                t => !string.IsNullOrEmpty(t),
+                "Page does not contain title!");
+
+            CustomAssertions.EqualNotStrict(actualTitle, _title);
         }
 
         public void When_user_clicks_on_dashboad_page_link()
         {
-            var dashboardLink = _driver.FindElement(By.LinkText("Dashboard"));
+            var dashboardLink = _driver.WaitElementIsRendered(By.LinkText("Dashboard"));
             dashboardLink.Click();
         }
 
         public void Then_dashboard_page_should_be_opened()
         {
             string expectedUrl = $"{SeleniumConfiguration.BaseUrl}dashboard";
-            Assert.True(string.Equals(_driver.Url, expectedUrl, StringComparison.CurrentCultureIgnoreCase));
+            string actualUrl = _driver.WaitUntilPageIsChanged(_homeUrl);
+
+            CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
 
         public void When_user_clicks_on_swagger_page_link()
         {
-            var swaggerLink = _driver.FindElement(By.LinkText("API swagger docs"));
+            var swaggerLink = _driver.WaitElementIsRendered(By.LinkText("API swagger docs"));
             swaggerLink.Click();
         }
 
         public void Then_swagger_page_should_be_opened()
         {
             string expectedUrl = $"{SeleniumConfiguration.BaseUrl}swagger/ui/index";
-            Assert.True(string.Equals(_driver.Url, expectedUrl, StringComparison.CurrentCultureIgnoreCase));
+            string actualUrl = _driver.WaitUntilPageIsChanged(_homeUrl);
+
+            CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
 
         public void When_user_clicks_on_project_page_link()
         {
-            var projectLink = _driver.FindElement(By.LinkText("Project site"));
+            var projectLink = _driver.WaitElementIsRendered(By.LinkText("Project site"));
             projectLink.Click();
         }
 
         public void Then_project_page_should_be_opened()
         {
-            Assert.True(string.Equals(_driver.Url, SeleniumConfiguration.ProjectUrl, StringComparison.CurrentCultureIgnoreCase));
+            string expectedUrl = SeleniumConfiguration.ProjectUrl;
+            string actualUrl = _driver.WaitUntilPageIsChanged(_homeUrl);
+
+            CustomAssertions.EqualNotStrict(expectedUrl, actualUrl);
         }
 
         public void When_user_clicks_on_status_button()
@@ -86,7 +100,6 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             var filteredStatuses = GetFilteredStatusElements();
 
             Assert.True(filteredStatuses.All(m => string.Equals(m.Text, selectedStatus.Text, StringComparison.CurrentCultureIgnoreCase)));
-            
         }
 
         public void Then_should_be_shown_selected_status()
@@ -94,28 +107,30 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             var statusElements = GetAllStatusElements();
             var selectedStatus = GetSelectedStatusElements().First();
 
-            Assert.True(string.Equals(selectedStatus.Text, statusElements[1].Text, StringComparison.CurrentCultureIgnoreCase));
+            CustomAssertions.EqualNotStrict(selectedStatus.Text, statusElements[1].Text);
         }
 
         public void Then_status_filter_should_be_appended_to_url()
         {
             var selectedStatus = GetSelectedStatusElements().First();
             var expectedUrl = $"{_homeUrl}&filter-status={selectedStatus.Text}";
+            var actualUrl = _driver.WaitUntilPageIsChanged(_homeUrl);
 
-            Assert.True(string.Equals(_driver.Url, expectedUrl, StringComparison.CurrentCultureIgnoreCase));
+            CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
 
         public void When_user_clicks_on_endpoint_tags()
         {
             _selectedTags = new List<string>();
+
             var allTags = GetAllTags();
-            var firstTag = allTags.First(m => !string.IsNullOrEmpty(m.Text));
+            var firstTag = allTags.First();
 
             firstTag.Click();
             _selectedTags.Add(firstTag.Text);
 
             allTags = GetAllTags();
-            var secondTag = allTags.First(m => !string.IsNullOrEmpty(m.Text) && m.Text != _selectedTags.First());
+            var secondTag = allTags.First(m => m.Text != _selectedTags.First());
 
             secondTag.Click();
 
@@ -140,8 +155,9 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_tag_filter_should_be_appended_to_url()
         {
             string exptectedUrl = $"{_homeUrl}&filter-tags={string.Join(";", _selectedTags)};";
+            string actualUrl = _driver.WaitUntilPageIsChanged(_homeUrl);
 
-            Assert.True(string.Equals(exptectedUrl, _driver.Url, StringComparison.CurrentCultureIgnoreCase));
+            CustomAssertions.EqualNotStrict(exptectedUrl, actualUrl);
         }
 
         public void When_user_navigates_to_home_page_with_filters_in_url()
@@ -169,38 +185,35 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         private List<IWebElement> GetAllTags()
         {
-            return _driver.FindElements(By.XPath("//table[contains(@class,'endpoints')]//*//span[contains(@class,'endpointTag')]"))
-                .ToList();
+            var selector = By.XPath("//table[contains(@class,'endpoints')]//*//span[contains(@class,'endpointTag')]");
+            return _driver.WaitElementsAreRendered(selector, elem => !string.IsNullOrEmpty(elem.Text)).ToList();
         }
 
         private List<IWebElement> GetSelectedTags()
         {
-            return _driver.FindElements(By.XPath("//div[contains(@class, 'selected-filters-container')]//*//span[contains(@class, 'endpointTag')]"))
-                .ToList();
+            var selector = By.XPath("//div[contains(@class, 'selected-filters-container')]//*//span[contains(@class, 'endpointTag')]");
+            return _driver.WaitElementsAreRendered(selector).ToList();
         }
 
         private List<IWebElement> GetFilteredTags()
         {
-            return _driver.FindElements(By.XPath("//table[contains(@class,'endpoints')]//tr//td[6]//span"))
-                .ToList();
+            return _driver.WaitElementsAreRendered(By.XPath("//table[contains(@class,'endpoints')]//tr//td[6]//span")).ToList();
         }
 
         private List<IWebElement> GetSelectedStatusElements()
         {
-            return _driver.FindElements(By.XPath("//div[contains(@class,'selected-filters-container')]//span[not(contains(@class, 'stats-key'))]"))
-                .ToList();
+            var selector = By.XPath("//div[contains(@class,'selected-filters-container')]//span[not(contains(@class, 'stats-key'))]");
+            return _driver.WaitElementsAreRendered(selector).ToList();
         }
 
         private List<IWebElement> GetAllStatusElements()
         {
-            return _driver.FindElements(By.XPath("//*[contains(@class, 'endpoint-status')]"))
-                .ToList();
+            return _driver.WaitElementsAreRendered(By.XPath("//*[contains(@class, 'endpoint-status')]")).ToList();
         }
         
         private List<IWebElement> GetFilteredStatusElements()
         {
-            return _driver.FindElements(By.XPath(_filteredStatusElements))
-                .ToList();
+            return _driver.WaitElementsAreRendered(By.XPath(_filteredStatusElements)).ToList();
         }
 
         public void Dispose()

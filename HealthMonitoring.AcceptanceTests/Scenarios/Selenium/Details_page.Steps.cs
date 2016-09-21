@@ -36,8 +36,9 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public Details_page(ITestOutputHelper output) : base(output)
         {
             _client = ClientHelper.Build();
-            _driver = SeleniumConfiguration.GetWebDriver();
             _client.RegisterTestEndpoints();
+            _driver = SeleniumConfiguration.GetWebDriver();
+            _driver.RetryTimeout(Timeouts.Default);
 
             _endpointLinksOfTagRowsOnHomePage = $"{_rowsWithTags}//td[2]//a";
             _endpointGroupsOfTagRowsOnHomePage = $"{_rowsWithTags}//td[1]";
@@ -59,40 +60,38 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             _driver.LoadUrl(detailsLink.GetAttribute("href"));
         }
 
-        public void Then_name_and_group_and_tags_should_be_the_same_as_on_home_page()
+        public void Then_name_should_be_the_same_as_on_home_page()
         {
-            var groupOnPage = GetEndpointGroupOnDetailsPage().Text;
-            var nameOnPage = GetEndpointNameOnDetailsPage().Text;
-            var tagsOnPage = GetTagsOnDetailsPage();
+            _driver.WaitUntilPageIsChanged(_homePageUrl);
+            string nameOnPage = GetEndpointNameOnDetailsPage();
+            CustomAssertions.EqualNotStrict(_endpointName, nameOnPage);
+        }
 
-            Assert.True(string.Equals(_endpointGroup, groupOnPage, StringComparison.CurrentCultureIgnoreCase));
-            Assert.True(string.Equals(_endpointName, nameOnPage, StringComparison.CurrentCultureIgnoreCase));
+        public void Then_group_should_be_the_same_as_on_home_page()
+        {
+            string groupOnPage = GetEndpointGroupOnDetailsPage();
+            CustomAssertions.EqualNotStrict(_endpointGroup, groupOnPage);
+        }
+
+        public void Then_tags_should_be_the_same_as_on_home_page()
+        {
+            var tagsOnPage = GetTagsOnDetailsPage();
             Assert.True(_edpointTags.OrderBy(m => m).SequenceEqual(tagsOnPage.OrderBy(t => t)));
         }
 
-        public void When_elements_on_details_page_are_rendered()
+        private string GetEndpointNameOnDetailsPage()
         {
-            var nameSelector = By.XPath(_endpointNameOnDetailsPage);
-            _driver.WaitElementIsRendered(nameSelector);
-            var groupSelector = By.XPath(_endpointGroupOnDetailsPage);
-            _driver.WaitElementIsRendered(groupSelector);
-            var tagSelector = By.XPath(_endpointTagsDetailsPage);
-            _driver.WaitElementsAreRendered(tagSelector);
+            return _driver.WaitTextIsRendered(By.XPath(_endpointNameOnDetailsPage));
         }
 
-        private IWebElement GetEndpointNameOnDetailsPage()
+        private string GetEndpointGroupOnDetailsPage()
         {
-            return _driver.FindElement(By.XPath(_endpointNameOnDetailsPage));
-        }
-
-        private IWebElement GetEndpointGroupOnDetailsPage()
-        {
-            return _driver.FindElement(By.XPath(_endpointGroupOnDetailsPage));
+            return _driver.WaitTextIsRendered(By.XPath(_endpointGroupOnDetailsPage));
         }
 
         private List<string> GetTagsOfFirstEndpointOnHomePage()
         {
-            return _driver.FindElements(By.XPath(_endpointTagsOnHomePage))
+            return _driver.WaitElementsAreRendered(By.XPath(_endpointTagsOnHomePage))
                 .Select(m => m.Text)
                 .ToList();
         }

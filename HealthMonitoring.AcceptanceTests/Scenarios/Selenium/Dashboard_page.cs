@@ -23,7 +23,6 @@ I want to open dashboard page")]
         {
             Runner.RunScenario(
                 _ => Given_dashboard_page(),
-                _ => Given_rendered_endpoint_tiles(),
                 _ => When_user_clicks_on_status_multiselect_element(),
                 _ => When_user_selects_healthy_and_faulty_statuses(),
                 _ => Then_only_healthy_and_faulty_endpoints_should_be_displayed(),
@@ -46,7 +45,6 @@ I want to open dashboard page")]
         {
             Runner.RunScenario(
                 _ => Given_dashboard_page(),
-                _ => Given_rendered_endpoint_tiles(),
                 _ => When_user_clicks_on_group_view_checkbox(),
                 _ => Then_endpoints_are_grouped(),
                 _ => Then_all_endpoints_in_subgroup_should_have_the_same_group()

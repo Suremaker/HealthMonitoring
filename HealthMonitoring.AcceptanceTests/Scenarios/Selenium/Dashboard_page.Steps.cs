@@ -30,9 +30,10 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         {
             _dashboardUrl = $"{SeleniumConfiguration.BaseUrl}dashboard?endpoint-frequency=1000000&config-frequency=1000000";
             _groupFilter = $"{SeleniumHelper.TestGroups[0].Replace("group", "*")}";
-            _driver = SeleniumConfiguration.GetWebDriver();
             _client = ClientHelper.Build();
             _client.RegisterTestEndpoints();
+            _driver = SeleniumConfiguration.GetWebDriver();
+            _driver.RetryTimeout(Timeouts.Default);
         }
 
         public void Given_dashboard_page()
@@ -42,26 +43,27 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         public void When_user_clicks_on_home_link()
         {
-            var homeLink = _driver.FindElement(By.XPath("//header//table//*//h1/a"));
+            var homeLink = _driver.WaitElementIsRendered(By.XPath("//header//table//*//h1/a"));
             homeLink.Click();
         }
 
         public void Then_home_page_should_open()
         {
-            string errorMsg = $"actual: {_driver.Url} | expected: {SeleniumConfiguration.BaseUrl}";
-            Assert.True(_driver.Url == SeleniumConfiguration.BaseUrl, errorMsg);
+            string actualUrl = _driver.WaitUntilPageIsChanged(_dashboardUrl);
+
+            CustomAssertions.EqualNotStrict(actualUrl, SeleniumConfiguration.BaseUrl);
         }
 
         public void When_user_clicks_on_status_multiselect_element()
         {
-            var statusMultiselect = _driver.FindElement(By.XPath("//header//*//div[@class='wg-selectBox']"));
+            var statusMultiselect = _driver.WaitElementIsRendered(By.XPath("//header//*//div[@class='wg-selectBox']"));
             statusMultiselect.Click();
         }
 
         public void When_user_selects_healthy_and_faulty_statuses()
         {
-            var healthyCheckbox = _driver.FindElement(By.XPath("//*[@id='wg-selected-healthy']"));
-            var faultyCheckbox = _driver.FindElement(By.XPath("//*[@id='wg-selected-faulty']"));
+            var healthyCheckbox = _driver.WaitElementIsRendered(By.XPath("//*[@id='wg-selected-healthy']"));
+            var faultyCheckbox = _driver.WaitElementIsRendered(By.XPath("//*[@id='wg-selected-faulty']"));
 
             healthyCheckbox.Click();
             faultyCheckbox.Click();
@@ -75,8 +77,9 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_filter_should_be_displayed_in_page_url()
         {
             var expectedUrl = $"{_dashboardUrl}&filter-status=healthy;faulty";
+            var actualUrl = _driver.WaitUntilPageIsChanged(_dashboardUrl);
 
-            Assert.True(_driver.Url == expectedUrl, $"actual: {_driver.Url} | expected: {expectedUrl}");
+            CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
 
         public void Given_healthy_and_faulty_statuses_in_url_filter()
@@ -91,7 +94,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         public void When_user_clicks_on_group_view_checkbox()
         {
-            var groupViewCheckBox = _driver.FindElement(By.Id("endpointGrouping"));
+            var groupViewCheckBox = _driver.WaitElementIsRendered(By.Id("endpointGrouping"));
 
             groupViewCheckBox.Click();
         }
@@ -139,14 +142,9 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_group_filter_should_be_appended_to_url()
         {
             var expectedUrl = $"{_dashboardUrl}&filter-group={_groupFilter}";
-            bool urlsAreEqual = string.Equals(_driver.Url, expectedUrl, StringComparison.CurrentCultureIgnoreCase);
-            Assert.True(urlsAreEqual, $"actual: {_driver.Url} | expected: {expectedUrl}");
-        }
+            var actualUrl = _driver.WaitUntilPageIsChanged(_dashboardUrl);
 
-        public void Given_rendered_endpoint_tiles()
-        {
-            var selector = By.XPath(_endpointTilesSelector);
-            _driver.WaitElementsAreRendered(selector);
+            CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
 
         private void CheckFilteredStatuses(params string[] statuses)
@@ -161,26 +159,26 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         private List<string> GetFilteredStatuses()
         {
-            return _driver.FindElements(By.XPath(_endpointTilesSelector))
+            return _driver.WaitElementsAreRendered(By.XPath(_endpointTilesSelector))
                 .Select(m => m.GetAttribute("data-status"))
                 .ToList();
         }
 
         private List<IWebElement> GetAllGroupElements()
         {
-            return _driver.FindElements(By.XPath(_endpointTilesSelector))
+            return _driver.WaitElementsAreRendered(By.XPath(_endpointTilesSelector))
                 .ToList();
         }
 
         private List<string> GetAllGroupNames()
         {
-            return _driver.FindElements(By.XPath(_endpointGroupNamesSelector))
+            return _driver.WaitElementsAreRendered(By.XPath(_endpointGroupNamesSelector))
                 .Select(m => m.Text).ToList();
         }
 
         private IWebElement GetGroupInput()
         {
-            return _driver.FindElement(By.XPath(_groupInputSelector));
+            return _driver.WaitElementIsRendered(By.XPath(_groupInputSelector));
         }
 
         public void Dispose()

@@ -14,8 +14,9 @@ I want to open details page")]
             Runner.RunScenario(
                 _ => Given_home_page(),
                 _ => When_user_clicks_on_endpoint_name(),
-                _ => When_elements_on_details_page_are_rendered(),
-                _ => Then_name_and_group_and_tags_should_be_the_same_as_on_home_page()
+                _ => Then_name_should_be_the_same_as_on_home_page(),
+                _ => Then_group_should_be_the_same_as_on_home_page(),
+                _ => Then_tags_should_be_the_same_as_on_home_page()
                 );
 
         }
