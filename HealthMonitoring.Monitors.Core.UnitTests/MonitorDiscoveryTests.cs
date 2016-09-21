@@ -22,7 +22,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             };
 
 
-            var monitors = MonitorDiscovery.DiscoverAll(
+            var monitors = PluginDiscovery<IHealthMonitor>.DiscoverAll(
                 typeof(HttpMonitor).Assembly.Location,
                 typeof(TestHealthMonitor).Assembly.Location);
             CollectionAssert.AreEquivalent(expected, monitors.Select(p => p.GetType()));
@@ -34,7 +34,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             var expected = new[] { typeof(HttpMonitor), typeof(HttpJsonMonitor) };
 
 
-            var monitors = MonitorDiscovery.DiscoverAll(
+            var monitors = PluginDiscovery<IHealthMonitor>.DiscoverAll(
                 "some_inexistent_assembly.dll",
                 typeof(HttpMonitor).Assembly.Location);
 
@@ -46,7 +46,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         {
             var expected = new[] { typeof(HttpMonitor), typeof(HttpJsonMonitor) };
 
-            var monitors = MonitorDiscovery.DiscoverAll(
+            var monitors = PluginDiscovery<IHealthMonitor>.DiscoverAll(
                 typeof(BrokenMonitor).Assembly.Location,
                 typeof(HttpMonitor).Assembly.Location);
 
@@ -58,7 +58,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         {
             var expected = new[] { typeof(HttpMonitor), typeof(HttpJsonMonitor) };
 
-            var monitors = MonitorDiscovery.DiscoverAll(
+            var monitors = PluginDiscovery<IHealthMonitor>.DiscoverAll(
                 typeof(HttpMonitor).Assembly.Location,
                 typeof(HttpMonitor).Assembly.Location
                 );

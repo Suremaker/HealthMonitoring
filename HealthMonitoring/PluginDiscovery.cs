@@ -5,32 +5,32 @@ using System.Linq;
 using System.Reflection;
 using Common.Logging;
 
-namespace HealthMonitoring.Monitors.Core
+namespace HealthMonitoring
 {
-    public static class MonitorDiscovery
+    public static class PluginDiscovery<T>
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(MonitorDiscovery));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(PluginDiscovery<T>));
 
-        public static IEnumerable<IHealthMonitor> DiscoverAllInCurrentFolder()
+        public static IEnumerable<T> DiscoverAllInCurrentFolder(string searchPattern)
         {
             var entryAssembly = Assembly.GetEntryAssembly();
             var location = (entryAssembly != null) ? Path.GetDirectoryName(entryAssembly.Location) : ".";
-            var assemblies = Directory.EnumerateFiles(location, "*.Monitors.*.dll", SearchOption.AllDirectories).ToArray();
+            var assemblies = Directory.EnumerateFiles(location, searchPattern, SearchOption.AllDirectories).ToArray();
             return DiscoverAll(assemblies);
         }
 
-        public static IHealthMonitor[] DiscoverAll(params string[] assemblyNames)
+        public static T[] DiscoverAll(params string[] assemblyNames)
         {
             return assemblyNames
                 .Select(LoadAssembly)
                 .Distinct()
                 .Where(a => a != null)
                 .SelectMany(a => a.GetTypes())
-                .Where(t => t.IsClass && !t.IsAbstract && typeof(IHealthMonitor).IsAssignableFrom(t))
+                .Where(t => t.IsClass && !t.IsAbstract && typeof(T).IsAssignableFrom(t))
                 .Distinct()
                 .Select(CreateInstance)
                 .Where(p => p != null)
-                .Cast<IHealthMonitor>()
+                .Cast<T>()
                 .ToArray();
         }
 

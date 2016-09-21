@@ -11,13 +11,13 @@ namespace HealthMonitoring.Management.Core
     {
         private readonly IHealthMonitorTypeRegistry _healthMonitorTypeRegistry;
         private readonly IEndpointConfigurationRepository _endpointConfigurationRepository;
-        private readonly IEndpointStatsRepository _statsRepository;
+        private readonly IEndpointStatsPersistCoordinator _statsRepository;
         private readonly ConcurrentDictionary<string, Endpoint> _endpoints = new ConcurrentDictionary<string, Endpoint>();
         private readonly ConcurrentDictionary<Guid, Endpoint> _endpointsByGuid = new ConcurrentDictionary<Guid, Endpoint>();
 
         public IEnumerable<Endpoint> Endpoints { get { return _endpoints.Select(p => p.Value); } }
 
-        public EndpointRegistry(IHealthMonitorTypeRegistry healthMonitorTypeRegistry, IEndpointConfigurationRepository endpointConfigurationRepository, IEndpointStatsRepository statsRepository)
+        public EndpointRegistry(IHealthMonitorTypeRegistry healthMonitorTypeRegistry, IEndpointConfigurationRepository endpointConfigurationRepository, IEndpointStatsPersistCoordinator statsRepository)
         {
             _healthMonitorTypeRegistry = healthMonitorTypeRegistry;
             _endpointConfigurationRepository = endpointConfigurationRepository;

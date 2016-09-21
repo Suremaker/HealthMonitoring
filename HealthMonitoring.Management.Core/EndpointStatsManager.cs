@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Threading;
 using Common.Logging;
 using HealthMonitoring.Configuration;
-using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
 
 namespace HealthMonitoring.Management.Core
@@ -11,13 +10,13 @@ namespace HealthMonitoring.Management.Core
     public class EndpointStatsManager : IEndpointStatsManager, IDisposable
     {
         private static readonly ILog _logger = LogManager.GetLogger<EndpointStatsManager>();
-        private readonly IEndpointStatsRepository _repository;
+        private readonly IEndpointStatsPersistCoordinator _repository;
         private readonly IMonitorSettings _settings;
         private readonly Thread _cleanerThread;
         private readonly Thread _writerThread;
         private readonly BlockingCollection<Tuple<Guid, EndpointHealth>> _statsQueue = new BlockingCollection<Tuple<Guid, EndpointHealth>>();
 
-        public EndpointStatsManager(IEndpointStatsRepository repository, IMonitorSettings settings)
+        public EndpointStatsManager(IEndpointStatsPersistCoordinator repository, IMonitorSettings settings)
         {
             _repository = repository;
             _settings = settings;

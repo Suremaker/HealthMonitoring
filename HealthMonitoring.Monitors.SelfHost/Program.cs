@@ -54,7 +54,7 @@ namespace HealthMonitoring.Monitors.SelfHost
 
             builder.Register(c => new ThrottlingSampler(c.Resolve<HealthSampler>(), c.Resolve<IThrottlingSettings>())).AsImplementedInterfaces();
 
-            builder.RegisterInstance<IHealthMonitorRegistry>(new HealthMonitorRegistry(MonitorDiscovery.DiscoverAllInCurrentFolder()));
+            builder.RegisterInstance<IHealthMonitorRegistry>(new HealthMonitorRegistry(PluginDiscovery<IHealthMonitor>.DiscoverAllInCurrentFolder("*.Monitors.*.dll")));
             builder.RegisterType<EndpointMonitor>().AsSelf().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<MonitorDataExchange>().AsSelf().AsImplementedInterfaces().SingleInstance();
 

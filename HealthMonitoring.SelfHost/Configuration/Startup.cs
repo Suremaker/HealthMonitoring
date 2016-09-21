@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
+using HealthMonitoring.Forwarders;
 using HealthMonitoring.Management.Core;
 using HealthMonitoring.Persistence;
 using HealthMonitoring.SelfHost.Filters;
@@ -63,6 +64,12 @@ namespace HealthMonitoring.SelfHost.Configuration
             builder.RegisterAssemblyTypes(typeof(Program).Assembly).Where(t => typeof(ApiController).IsAssignableFrom(t)).AsSelf();
             builder.RegisterAssemblyTypes(typeof(EndpointRegistry).Assembly).AsSelf().AsImplementedInterfaces().SingleInstance();
             builder.RegisterAssemblyTypes(typeof(SqlEndpointConfigurationRepository).Assembly).AsSelf().AsImplementedInterfaces().SingleInstance();
+
+            builder.RegisterInstance<IEndpointStatsPersistCoordinator>(
+                new EndpointStatsPersistCoordinator(
+                    new EndpointStatsRepository(new MySqlDatabase()),
+                    PluginDiscovery<IEndpointMetricsForwarder>.DiscoverAllInCurrentFolder("*.Forwarders.*.dll"))
+            );
 
             var container = builder.Build();
             config.DependencyResolver = new AutofacWebApiDependencyResolver(container);

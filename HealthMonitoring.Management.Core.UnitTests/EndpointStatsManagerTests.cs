@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using HealthMonitoring.Configuration;
-using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
 using Moq;
 using Xunit;
@@ -13,7 +12,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         [Fact]
         public void RecordEndpointStatistics_should_save_statistics()
         {
-            var repository = new Mock<IEndpointStatsRepository>();
+            var repository = new Mock<IEndpointStatsPersistCoordinator>();
             var monitorSettings = new Mock<IMonitorSettings>();
 
             var endpointHealth = new EndpointHealth(DateTime.UtcNow, TimeSpan.Zero, EndpointStatus.Offline);
@@ -27,7 +26,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         [Fact]
         public void Manager_should_delete_old_stats()
         {
-            var repository = new Mock<IEndpointStatsRepository>();
+            var repository = new Mock<IEndpointStatsPersistCoordinator>();
             var monitorSettings = new Mock<IMonitorSettings>();
             var age = TimeSpan.FromHours(1);
             var delta = TimeSpan.FromSeconds(5);

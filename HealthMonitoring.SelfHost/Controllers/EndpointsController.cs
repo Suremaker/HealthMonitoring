@@ -18,9 +18,9 @@ namespace HealthMonitoring.SelfHost.Controllers
     public class EndpointsController : ApiController
     {
         private readonly IEndpointRegistry _endpointRegistry;
-        private readonly IEndpointStatsRepository _endpointStatsRepository;
+        private readonly IEndpointStatsPersistCoordinator _endpointStatsRepository;
 
-        public EndpointsController(IEndpointRegistry endpointRegistry, IEndpointStatsRepository endpointStatsRepository)
+        public EndpointsController(IEndpointRegistry endpointRegistry, IEndpointStatsPersistCoordinator endpointStatsRepository)
         {
             _endpointRegistry = endpointRegistry;
             _endpointStatsRepository = endpointStatsRepository;

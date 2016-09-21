@@ -13,13 +13,13 @@ namespace HealthMonitoring.Management.Core.UnitTests
         private readonly EndpointRegistry _registry;
         private readonly Mock<IHealthMonitorTypeRegistry> _healthMonitorTypeRegistry;
         private readonly Mock<IEndpointConfigurationRepository> _configurationStore;
-        private readonly Mock<IEndpointStatsRepository> _statsRepository;
+        private readonly Mock<IEndpointStatsPersistCoordinator> _statsRepository;
 
         public EndpointRegistryTests()
         {
             _healthMonitorTypeRegistry = new Mock<IHealthMonitorTypeRegistry>();
             _configurationStore = new Mock<IEndpointConfigurationRepository>();
-            _statsRepository = new Mock<IEndpointStatsRepository>();
+            _statsRepository = new Mock<IEndpointStatsPersistCoordinator>();
             _registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object);
         }
 
