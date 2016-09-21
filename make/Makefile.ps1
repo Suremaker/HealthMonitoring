@@ -16,7 +16,7 @@ Define-Step -Name 'Testing' -Target 'build' -Body {
 	$tests += Define-XUnitTests -GroupName 'Acceptance tests' -XUnitVersion '2.1.0' -TestAssembly "*\bin\Release\*.AcceptanceTests.dll"
 
 	try {
-		$tests | Run-Tests -EraseReportDirectory -Cover -CodeFilter '+[HealthMonitoring*]* -[*Tests*]*' -TestFilter '*Tests.dll' | Generate-CoverageSummary | Check-AcceptableCoverage -AcceptableCoverage 90
+		$tests | Run-Tests -EraseReportDirectory -Cover -CodeFilter '+[HealthMonitoring*]* -[*Tests*]* -[*Forwarders*]*' -TestFilter '*Tests.dll' | Generate-CoverageSummary | Check-AcceptableCoverage -AcceptableCoverage 90
 	}
 	finally{
 		if(Test-Path HealthMonitoring.AcceptanceTests\bin\Release\Reports)
