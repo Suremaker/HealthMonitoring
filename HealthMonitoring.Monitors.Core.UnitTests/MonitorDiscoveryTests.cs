@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using HealthMonitoring.Hosting;
 using HealthMonitoring.Monitors.Broken;
 using HealthMonitoring.Monitors.Core.UnitTests.Helpers;
 using HealthMonitoring.Monitors.Http;

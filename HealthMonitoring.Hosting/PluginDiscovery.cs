@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Common.Logging;
 
-namespace HealthMonitoring
+namespace HealthMonitoring.Hosting
 {
     public static class PluginDiscovery<T>
     {
@@ -38,12 +38,12 @@ namespace HealthMonitoring
         {
             try
             {
-                Logger.InfoFormat("Instantiating monitors: {0}", type);
+                Logger.InfoFormat("Instantiating plugins: {0}", type);
                 return Activator.CreateInstance(type);
             }
             catch (Exception e)
             {
-                Logger.ErrorFormat("Unable to instantiate monitor: {0}\n{1}", type, e);
+                Logger.ErrorFormat("Unable to instantiate plugin: {0}\n{1}", type, e);
                 return null;
             }
         }
@@ -52,7 +52,7 @@ namespace HealthMonitoring
         {
             try
             {
-                Logger.InfoFormat("Loading monitors from: {0}", path);
+                Logger.InfoFormat("Loading plugins from: {0}", path);
                 return Assembly.LoadFrom(path);
             }
             catch (Exception e)

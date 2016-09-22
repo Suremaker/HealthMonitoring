@@ -4,7 +4,9 @@ using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
 using HealthMonitoring.Forwarders;
+using HealthMonitoring.Hosting;
 using HealthMonitoring.Management.Core;
+using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Persistence;
 using HealthMonitoring.SelfHost.Filters;
 using Microsoft.Owin.Host.HttpListener;
@@ -54,7 +56,6 @@ namespace HealthMonitoring.SelfHost.Configuration
                 {
                     c.DisableValidator();
                     c.CustomAsset("index", typeof(Startup).Assembly, "HealthMonitoring.SelfHost.Content.Swagger.swagger.html");
-
                 });
         }
 
@@ -65,11 +66,15 @@ namespace HealthMonitoring.SelfHost.Configuration
             builder.RegisterAssemblyTypes(typeof(EndpointRegistry).Assembly).AsSelf().AsImplementedInterfaces().SingleInstance();
             builder.RegisterAssemblyTypes(typeof(SqlEndpointConfigurationRepository).Assembly).AsSelf().AsImplementedInterfaces().SingleInstance();
 
-            builder.RegisterInstance<IEndpointStatsPersistCoordinator>(
-                new EndpointStatsPersistCoordinator(
-                    new EndpointStatsRepository(new MySqlDatabase()),
-                    PluginDiscovery<IEndpointMetricsForwarder>.DiscoverAllInCurrentFolder("*.Forwarders.*.dll"))
-            );
+            builder.RegisterInstance<IEndpointMetricsForwarderCoordinator>(
+                new EndpointMetricsForwarderCoordinator(PluginDiscovery<IEndpointMetricsForwarder>.DiscoverAllInCurrentFolder("*.Forwarders.*.dll")));
+
+            builder.RegisterInstance<IEndpointStatsRepository>(new EndpointStatsRepository(new MySqlDatabase()))
+                .OnActivated(a =>
+            {
+                var coordinator = a.Context.Resolve<IEndpointMetricsForwarderCoordinator>();
+                a.Instance.EndpointStatisticsInserted += coordinator.HandleMetricsForwarding;
+            });
 
             var container = builder.Build();
             config.DependencyResolver = new AutofacWebApiDependencyResolver(container);

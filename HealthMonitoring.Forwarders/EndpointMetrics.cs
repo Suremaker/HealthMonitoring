@@ -8,7 +8,6 @@ namespace HealthMonitoring.Forwarders
         public long ResponseTimeTicks { get; private set; }
         public string Status { get; private set; }
 
-
         public EndpointMetrics(DateTime checkTimeUtc, long responseTimeTicks, string status)
         {
             CheckTimeUtc = checkTimeUtc;

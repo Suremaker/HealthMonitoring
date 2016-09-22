@@ -5,6 +5,7 @@ using Autofac;
 using Common.Logging;
 using Common.Logging.Configuration;
 using HealthMonitoring.Configuration;
+using HealthMonitoring.Hosting;
 using HealthMonitoring.Monitors.Core;
 using HealthMonitoring.Monitors.Core.Exchange;
 using HealthMonitoring.Monitors.Core.Exchange.Client;

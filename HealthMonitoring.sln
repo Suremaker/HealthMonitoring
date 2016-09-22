@@ -83,7 +83,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.UI.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Forwarders", "HealthMonitoring.Forwarders\HealthMonitoring.Forwarders.csproj", "{4F5BD95D-ADAB-48C0-9BAA-3D28D7C4A78F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Forwarders.Influxdb", "HealthMonitoring.Forwarders.Influxdb\HealthMonitoring.Forwarders.Influxdb.csproj", "{16A552E7-FB23-4E9D-9F7C-D93BF94E048A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Hosting", "HealthMonitoring.Hosting\HealthMonitoring.Hosting.csproj", "{06421081-E614-4C38-88E4-DFF85C5B7A5D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -183,10 +183,10 @@ Global
 		{4F5BD95D-ADAB-48C0-9BAA-3D28D7C4A78F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F5BD95D-ADAB-48C0-9BAA-3D28D7C4A78F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F5BD95D-ADAB-48C0-9BAA-3D28D7C4A78F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{16A552E7-FB23-4E9D-9F7C-D93BF94E048A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{16A552E7-FB23-4E9D-9F7C-D93BF94E048A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{16A552E7-FB23-4E9D-9F7C-D93BF94E048A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{16A552E7-FB23-4E9D-9F7C-D93BF94E048A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06421081-E614-4C38-88E4-DFF85C5B7A5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06421081-E614-4C38-88E4-DFF85C5B7A5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06421081-E614-4C38-88E4-DFF85C5B7A5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06421081-E614-4C38-88E4-DFF85C5B7A5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

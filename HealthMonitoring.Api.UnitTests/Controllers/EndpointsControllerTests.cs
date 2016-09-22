@@ -18,11 +18,11 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
     {
         private readonly EndpointsController _controller;
         private readonly Mock<IEndpointRegistry> _endpointRegistry;
-        private readonly Mock<IEndpointStatsPersistCoordinator> _statsRepository;
+        private readonly Mock<IEndpointStatsRepository> _statsRepository;
         public EndpointsControllerTests()
         {
             _endpointRegistry = new Mock<IEndpointRegistry>();
-            _statsRepository = new Mock<IEndpointStatsPersistCoordinator>();
+            _statsRepository = new Mock<IEndpointStatsRepository>();
             _controller = new EndpointsController(_endpointRegistry.Object, _statsRepository.Object);
         }
 
