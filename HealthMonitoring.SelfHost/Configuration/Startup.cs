@@ -69,12 +69,12 @@ namespace HealthMonitoring.SelfHost.Configuration
             builder.RegisterInstance<IEndpointMetricsForwarderCoordinator>(
                 new EndpointMetricsForwarderCoordinator(PluginDiscovery<IEndpointMetricsForwarder>.DiscoverAllInCurrentFolder("*.Forwarders.*.dll")));
 
-            builder.RegisterInstance<IEndpointStatsRepository>(new EndpointStatsRepository(new MySqlDatabase()))
-                .OnActivated(a =>
+            builder.Register(ctx =>
             {
-                var coordinator = a.Context.Resolve<IEndpointMetricsForwarderCoordinator>();
-                a.Instance.EndpointStatisticsInserted += coordinator.HandleMetricsForwarding;
-            });
+                var repo = new EndpointStatsRepository(new MySqlDatabase());
+                repo.EndpointStatisticsInserted += ctx.Resolve<IEndpointMetricsForwarderCoordinator>().HandleMetricsForwarding;
+                return repo;
+            }).AsImplementedInterfaces().SingleInstance();
 
             var container = builder.Build();
             config.DependencyResolver = new AutofacWebApiDependencyResolver(container);
