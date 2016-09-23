@@ -1,3 +1,7 @@
+3.2.1.0
+-------
+Endpoint metrics forwarding
+
 3.2.0.0
 -------
 Extended GET /api/endpoints with filters
