@@ -5,32 +5,32 @@ using System.Linq;
 using System.Reflection;
 using Common.Logging;
 
-namespace HealthMonitoring.Monitors.Core
+namespace HealthMonitoring.Hosting
 {
-    public static class MonitorDiscovery
+    public static class PluginDiscovery<T>
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(MonitorDiscovery));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(PluginDiscovery<T>));
 
-        public static IEnumerable<IHealthMonitor> DiscoverAllInCurrentFolder()
+        public static IEnumerable<T> DiscoverAllInCurrentFolder(string searchPattern)
         {
             var entryAssembly = Assembly.GetEntryAssembly();
             var location = (entryAssembly != null) ? Path.GetDirectoryName(entryAssembly.Location) : ".";
-            var assemblies = Directory.EnumerateFiles(location, "*.Monitors.*.dll", SearchOption.AllDirectories).ToArray();
+            var assemblies = Directory.EnumerateFiles(location, searchPattern, SearchOption.AllDirectories).ToArray();
             return DiscoverAll(assemblies);
         }
 
-        public static IHealthMonitor[] DiscoverAll(params string[] assemblyNames)
+        public static T[] DiscoverAll(params string[] assemblyNames)
         {
             return assemblyNames
                 .Select(LoadAssembly)
                 .Distinct()
                 .Where(a => a != null)
                 .SelectMany(a => a.GetTypes())
-                .Where(t => t.IsClass && !t.IsAbstract && typeof(IHealthMonitor).IsAssignableFrom(t))
+                .Where(t => t.IsClass && !t.IsAbstract && typeof(T).IsAssignableFrom(t))
                 .Distinct()
                 .Select(CreateInstance)
                 .Where(p => p != null)
-                .Cast<IHealthMonitor>()
+                .Cast<T>()
                 .ToArray();
         }
 
@@ -38,12 +38,12 @@ namespace HealthMonitoring.Monitors.Core
         {
             try
             {
-                Logger.InfoFormat("Instantiating monitors: {0}", type);
+                Logger.InfoFormat("Instantiating plugins: {0}", type);
                 return Activator.CreateInstance(type);
             }
             catch (Exception e)
             {
-                Logger.ErrorFormat("Unable to instantiate monitor: {0}\n{1}", type, e);
+                Logger.ErrorFormat("Unable to instantiate plugin: {0}\n{1}", type, e);
                 return null;
             }
         }
@@ -52,7 +52,7 @@ namespace HealthMonitoring.Monitors.Core
         {
             try
             {
-                Logger.InfoFormat("Loading monitors from: {0}", path);
+                Logger.InfoFormat("Loading plugins from: {0}", path);
                 return Assembly.LoadFrom(path);
             }
             catch (Exception e)

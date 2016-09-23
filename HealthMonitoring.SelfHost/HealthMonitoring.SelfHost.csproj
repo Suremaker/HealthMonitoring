@@ -203,6 +203,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HealthMonitoring.Forwarders\HealthMonitoring.Forwarders.csproj">
+      <Project>{4F5BD95D-ADAB-48C0-9BAA-3D28D7C4A78F}</Project>
+      <Name>HealthMonitoring.Forwarders</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HealthMonitoring.Hosting\HealthMonitoring.Hosting.csproj">
+      <Project>{06421081-E614-4C38-88E4-DFF85C5B7A5D}</Project>
+      <Name>HealthMonitoring.Hosting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HealthMonitoring.Management.Core\HealthMonitoring.Management.Core.csproj">
       <Project>{DDEAC82F-7D78-4962-B180-9711D574AF8D}</Project>
       <Name>HealthMonitoring.Management.Core</Name>

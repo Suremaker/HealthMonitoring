@@ -3,7 +3,10 @@ using System.Reflection;
 using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
+using HealthMonitoring.Forwarders;
+using HealthMonitoring.Hosting;
 using HealthMonitoring.Management.Core;
+using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Persistence;
 using HealthMonitoring.SelfHost.Filters;
 using Microsoft.Owin.Host.HttpListener;
@@ -53,7 +56,6 @@ namespace HealthMonitoring.SelfHost.Configuration
                 {
                     c.DisableValidator();
                     c.CustomAsset("index", typeof(Startup).Assembly, "HealthMonitoring.SelfHost.Content.Swagger.swagger.html");
-
                 });
         }
 
@@ -63,6 +65,16 @@ namespace HealthMonitoring.SelfHost.Configuration
             builder.RegisterAssemblyTypes(typeof(Program).Assembly).Where(t => typeof(ApiController).IsAssignableFrom(t)).AsSelf();
             builder.RegisterAssemblyTypes(typeof(EndpointRegistry).Assembly).AsSelf().AsImplementedInterfaces().SingleInstance();
             builder.RegisterAssemblyTypes(typeof(SqlEndpointConfigurationRepository).Assembly).AsSelf().AsImplementedInterfaces().SingleInstance();
+
+            builder.RegisterInstance<IEndpointMetricsForwarderCoordinator>(
+                new EndpointMetricsForwarderCoordinator(PluginDiscovery<IEndpointMetricsForwarder>.DiscoverAllInCurrentFolder("*.Forwarders.*.dll")));
+
+            builder.Register(ctx =>
+            {
+                var repo = new EndpointStatsRepository(new MySqlDatabase());
+                repo.EndpointStatisticsInserted += ctx.Resolve<IEndpointMetricsForwarderCoordinator>().HandleMetricsForwarding;
+                return repo;
+            }).AsImplementedInterfaces().SingleInstance();
 
             var container = builder.Build();
             config.DependencyResolver = new AutofacWebApiDependencyResolver(container);

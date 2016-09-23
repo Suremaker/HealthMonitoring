@@ -5,6 +5,7 @@ using Autofac;
 using Common.Logging;
 using Common.Logging.Configuration;
 using HealthMonitoring.Configuration;
+using HealthMonitoring.Hosting;
 using HealthMonitoring.Monitors.Core;
 using HealthMonitoring.Monitors.Core.Exchange;
 using HealthMonitoring.Monitors.Core.Exchange.Client;
@@ -54,7 +55,7 @@ namespace HealthMonitoring.Monitors.SelfHost
 
             builder.Register(c => new ThrottlingSampler(c.Resolve<HealthSampler>(), c.Resolve<IThrottlingSettings>())).AsImplementedInterfaces();
 
-            builder.RegisterInstance<IHealthMonitorRegistry>(new HealthMonitorRegistry(MonitorDiscovery.DiscoverAllInCurrentFolder()));
+            builder.RegisterInstance<IHealthMonitorRegistry>(new HealthMonitorRegistry(PluginDiscovery<IHealthMonitor>.DiscoverAllInCurrentFolder("*.Monitors.*.dll")));
             builder.RegisterType<EndpointMonitor>().AsSelf().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<MonitorDataExchange>().AsSelf().AsImplementedInterfaces().SingleInstance();
 

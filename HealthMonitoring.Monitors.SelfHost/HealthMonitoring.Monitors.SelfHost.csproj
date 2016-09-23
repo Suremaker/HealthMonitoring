@@ -78,6 +78,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HealthMonitoring.Hosting\HealthMonitoring.Hosting.csproj">
+      <Project>{06421081-E614-4C38-88E4-DFF85C5B7A5D}</Project>
+      <Name>HealthMonitoring.Hosting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HealthMonitoring.Monitors.Core\HealthMonitoring.Monitors.Core.csproj">
       <Project>{5656bbbd-1bf3-4160-bf1b-0eecc3ac97fa}</Project>
       <Name>HealthMonitoring.Monitors.Core</Name>
