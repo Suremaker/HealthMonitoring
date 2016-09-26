@@ -38,13 +38,13 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Selenium
             driver.Navigate().GoToUrl(url);
         }
 
-        public static string WaitUntilPageIsChanged(this IWebDriver driver, string initialUrl)
+        public static string WaitUntilPageIsChanged(this IWebDriver driver, string expectedUrl)
         {
             return Wait.Until(
                 Timeouts.Default,
                 () => driver.Url,
-                url => !string.Equals(url, initialUrl),
-                $"Page url: {initialUrl} did not change!");
+                url => string.Equals(url, expectedUrl, StringComparison.CurrentCultureIgnoreCase),
+                $"Page with url {expectedUrl} did not loaded!");
         }
 
         public static void RetryTimeout(this IWebDriver driver, TimeSpan period)

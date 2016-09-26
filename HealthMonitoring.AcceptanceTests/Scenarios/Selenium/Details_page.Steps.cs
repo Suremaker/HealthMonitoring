@@ -30,6 +30,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         private string _endpointName;
         private string _endpointGroup;
         private List<string> _edpointTags;
+        private string _detailsPageUrl;
         private readonly string _homePageUrl = $"{SeleniumConfiguration.BaseUrl}?endpoint-frequency=1000000&config-frequency=1000000";
         #endregion
 
@@ -57,12 +58,14 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             _endpointGroup = _driver.FindElements(By.XPath(_endpointGroupsOfTagRowsOnHomePage)).First().Text;
             _edpointTags = GetTagsOfFirstEndpointOnHomePage();
 
-            _driver.LoadUrl(detailsLink.GetAttribute("href"));
+            _detailsPageUrl = detailsLink.GetAttribute("href");
+            _driver.LoadUrl(_detailsPageUrl);
         }
 
         public void Then_name_should_be_the_same_as_on_home_page()
         {
-            _driver.WaitUntilPageIsChanged(_homePageUrl);
+            _driver.WaitUntilPageIsChanged(_detailsPageUrl);
+
             string nameOnPage = GetEndpointNameOnDetailsPage();
             CustomAssertions.EqualNotStrict(_endpointName, nameOnPage);
         }

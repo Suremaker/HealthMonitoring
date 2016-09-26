@@ -55,7 +55,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_dashboard_page_should_be_opened()
         {
             string expectedUrl = $"{SeleniumConfiguration.BaseUrl}dashboard";
-            string actualUrl = _driver.WaitUntilPageIsChanged(_homeUrl);
+            string actualUrl = _driver.WaitUntilPageIsChanged(expectedUrl);
 
             CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
@@ -69,7 +69,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_swagger_page_should_be_opened()
         {
             string expectedUrl = $"{SeleniumConfiguration.BaseUrl}swagger/ui/index";
-            string actualUrl = _driver.WaitUntilPageIsChanged(_homeUrl);
+            string actualUrl = _driver.WaitUntilPageIsChanged(expectedUrl);
 
             CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
@@ -83,7 +83,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_project_page_should_be_opened()
         {
             string expectedUrl = SeleniumConfiguration.ProjectUrl;
-            string actualUrl = _driver.WaitUntilPageIsChanged(_homeUrl);
+            string actualUrl = _driver.WaitUntilPageIsChanged(expectedUrl);
 
             CustomAssertions.EqualNotStrict(expectedUrl, actualUrl);
         }
@@ -114,7 +114,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         {
             var selectedStatus = GetSelectedStatusElements().First();
             var expectedUrl = $"{_homeUrl}&filter-status={selectedStatus.Text}";
-            var actualUrl = _driver.WaitUntilPageIsChanged(_homeUrl);
+            var actualUrl = _driver.WaitUntilPageIsChanged(expectedUrl);
 
             CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
@@ -126,15 +126,15 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             var allTags = GetAllTags();
             var firstTag = allTags.First();
 
-            firstTag.Click();
             _selectedTags.Add(firstTag.Text);
+            firstTag.Click();
 
             allTags = GetAllTags();
+
             var secondTag = allTags.First(m => m.Text != _selectedTags.First());
+            _selectedTags.Add(secondTag.Text);
 
             secondTag.Click();
-
-            _selectedTags.Add(secondTag.Text);
         }
 
         public void Then_only_endpoints_with_chosen_tags_should_be_shown()
@@ -155,7 +155,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_tag_filter_should_be_appended_to_url()
         {
             string exptectedUrl = $"{_homeUrl}&filter-tags={string.Join(";", _selectedTags)};";
-            string actualUrl = _driver.WaitUntilPageIsChanged(_homeUrl);
+            string actualUrl = _driver.WaitUntilPageIsChanged(exptectedUrl);
 
             CustomAssertions.EqualNotStrict(exptectedUrl, actualUrl);
         }
