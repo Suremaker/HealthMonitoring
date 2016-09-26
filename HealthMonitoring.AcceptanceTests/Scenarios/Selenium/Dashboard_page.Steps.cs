@@ -22,6 +22,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         private readonly string _groupFilter;
 
         private const string _endpointTilesSelector = "//div[contains(@class,'board')]//a";
+        private const string _firstGroupLink = "//div[contains(@class,'board')]//a[1]";
         private const string _endpointGroupNamesSelector = "//div[contains(@class,'board')]//a/div[1]";
         private const string _groupInputSelector = "/html/body/header/table/tbody/tr/td[3]/input[3]";
         #endregion
@@ -34,11 +35,18 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             _client.RegisterTestEndpoints();
             _driver = SeleniumConfiguration.GetWebDriver();
             _driver.RetryTimeout(Timeouts.Default);
+            _driver.Manage().Window.Maximize();
         }
 
         public void Given_dashboard_page()
         {
             _driver.LoadUrl(_dashboardUrl);
+        }
+
+        public void Given_endpoints_are_visible()
+        {
+            _driver.WaitElementsAreRendered(By.XPath(_endpointTilesSelector), 
+                                            el => el.Enabled && el.Displayed);
         }
 
         public void When_user_clicks_on_home_link()
@@ -49,7 +57,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         public void Then_home_page_should_open()
         {
-            string actualUrl = _driver.WaitUntilPageIsChanged(_dashboardUrl);
+            string actualUrl = _driver.WaitUntilPageIsChanged(SeleniumConfiguration.BaseUrl);
 
             CustomAssertions.EqualNotStrict(actualUrl, SeleniumConfiguration.BaseUrl);
         }
@@ -77,7 +85,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_filter_should_be_displayed_in_page_url()
         {
             var expectedUrl = $"{_dashboardUrl}&filter-status=healthy;faulty";
-            var actualUrl = _driver.WaitUntilPageIsChanged(_dashboardUrl);
+            var actualUrl = _driver.WaitUntilPageIsChanged(expectedUrl);
 
             CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
@@ -108,9 +116,9 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         public void Then_all_endpoints_in_subgroup_should_have_the_same_group()
         {
-            var groups = GetAllGroupElements();
+            var group = GetFirstGroupElement();
 
-            _driver.LoadUrl(groups[0].GetAttribute("href"));
+            _driver.LoadUrl(group.GetAttribute("href"));
 
             var groupNames = GetAllGroupNames();
             Assert.True(groupNames.All(m => m == groupNames[0]));
@@ -142,7 +150,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_group_filter_should_be_appended_to_url()
         {
             var expectedUrl = $"{_dashboardUrl}&filter-group={_groupFilter}";
-            var actualUrl = _driver.WaitUntilPageIsChanged(_dashboardUrl);
+            var actualUrl = _driver.WaitUntilPageIsChanged(expectedUrl);
 
             CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
@@ -157,6 +165,12 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             Assert.True(selectedCorrectStatuses);
         }
 
+        private List<IWebElement> GetEndpointTiles()
+        {
+            return _driver.WaitElementsAreRendered(By.XPath(_endpointTilesSelector))
+                .ToList();
+        }
+
         private List<string> GetFilteredStatuses()
         {
             return _driver.WaitElementsAreRendered(By.XPath(_endpointTilesSelector))
@@ -164,10 +178,9 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
                 .ToList();
         }
 
-        private List<IWebElement> GetAllGroupElements()
+        private IWebElement GetFirstGroupElement()
         {
-            return _driver.WaitElementsAreRendered(By.XPath(_endpointTilesSelector))
-                .ToList();
+            return _driver.WaitElementIsRendered(By.XPath(_firstGroupLink));
         }
 
         private List<string> GetAllGroupNames()
