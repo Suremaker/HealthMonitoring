@@ -20,7 +20,7 @@ namespace HealthMonitoring.SelfHost.Configuration
         public void Configuration(IAppBuilder appBuilder)
         {
             var config = new HttpConfiguration();
-            ConfigureServices(config);
+            ConfigureHandlers(config);
             ConfigureSerializers(config);
             ConfigureRoutes(config);
             ConfigureSwagger(config);
@@ -29,9 +29,10 @@ namespace HealthMonitoring.SelfHost.Configuration
             appBuilder.UseWebApi(config);
         }
 
-        private static void ConfigureServices(HttpConfiguration config)
+        private static void ConfigureHandlers(HttpConfiguration config)
         {
             config.Services.Replace(typeof(IExceptionHandler), new GlobalExceptionHandler());
+            config.MessageHandlers.Add(new MessageLoggingHandler());
         }
 
         private static void ConfigureSerializers(HttpConfiguration config)
