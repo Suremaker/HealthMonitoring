@@ -1,12 +1,10 @@
-﻿using System.Net.Http.Headers;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
 using HealthMonitoring.Forwarders;
 using HealthMonitoring.Hosting;
 using HealthMonitoring.Management.Core;
-using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Persistence;
 using HealthMonitoring.SelfHost.Filters;
 using Microsoft.Owin.Host.HttpListener;
