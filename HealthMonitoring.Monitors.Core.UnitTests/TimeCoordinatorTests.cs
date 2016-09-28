@@ -23,10 +23,10 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             //real measurement
             var expected = Stopwatch.StartNew();
             watch.Start();
-            await Task.Delay(200);
+            await Task.Delay(500);
             watch.Stop();
             expected.Stop();
-            Assert.True((expected.Elapsed - watch.Elapsed).Duration() < TimeSpan.FromMilliseconds(100), "(expected.Elapsed - watch.Elapsed) < TimeSpan.FromMilliseconds(100)");
+            Assert.True((expected.Elapsed - watch.Elapsed).Duration() < TimeSpan.FromMilliseconds(300), "(expected.Elapsed - watch.Elapsed) < TimeSpan.FromMilliseconds(100)");
 
             //after stop
             var afterStop = watch.Elapsed;
@@ -43,7 +43,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         [Fact]
         public void UtcNow_should_return_proper_time()
         {
-            Assert.True((DateTime.UtcNow - _coordinator.UtcNow).Duration() < TimeSpan.FromMilliseconds(100));
+            Assert.True((DateTime.UtcNow - _coordinator.UtcNow).Duration() < TimeSpan.FromSeconds(1));
         }
 
         [Fact]
@@ -58,7 +58,6 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         [Fact]
         public async Task Delay_should_be_cancellable()
         {
-
             await Assert.ThrowsAsync<TaskCanceledException>(() => _coordinator.Delay(TimeSpan.FromSeconds(5), new CancellationTokenSource(TimeSpan.FromMilliseconds(100)).Token));
         }
     }
