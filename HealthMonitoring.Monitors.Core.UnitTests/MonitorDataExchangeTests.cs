@@ -8,7 +8,6 @@ using HealthMonitoring.Model;
 using HealthMonitoring.Monitors.Core.Exchange;
 using HealthMonitoring.Monitors.Core.Exchange.Client;
 using HealthMonitoring.Monitors.Core.Registers;
-using HealthMonitoring.Monitors.Core.UnitTests.Helpers;
 using HealthMonitoring.Monitors.Core.UnitTests.Helpers.Awaitable;
 using Moq;
 using Xunit;
