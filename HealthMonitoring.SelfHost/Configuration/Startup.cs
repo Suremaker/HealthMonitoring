@@ -32,7 +32,7 @@ namespace HealthMonitoring.SelfHost.Configuration
         private static void ConfigureSerializers(HttpConfiguration config)
         {
             config.Formatters.JsonFormatter.SerializerSettings.Converters.Add(new StringEnumConverter { CamelCaseText = true });
-            config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
+            config.Formatters.Add(new TextMediaTypeFormatter());
         }
 
         private static void ConfigureRoutes(HttpConfiguration config)
