@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Headers;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.ExceptionHandling;
 using Autofac;
@@ -7,7 +6,6 @@ using Autofac.Integration.WebApi;
 using HealthMonitoring.Forwarders;
 using HealthMonitoring.Hosting;
 using HealthMonitoring.Management.Core;
-using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Persistence;
 using HealthMonitoring.SelfHost.Handlers;
 using Microsoft.Owin.Host.HttpListener;
@@ -39,7 +37,7 @@ namespace HealthMonitoring.SelfHost.Configuration
         private static void ConfigureSerializers(HttpConfiguration config)
         {
             config.Formatters.JsonFormatter.SerializerSettings.Converters.Add(new StringEnumConverter { CamelCaseText = true });
-            config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
+            config.Formatters.Add(new TextMediaTypeFormatter());
         }
 
         private static void ConfigureRoutes(HttpConfiguration config)

@@ -138,6 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\Startup.cs" />
+    <Compile Include="Configuration\TextMediaTypeFormatter.cs" />
     <Compile Include="Controllers\ConfigController.cs" />
     <Compile Include="Controllers\EndpointsController.cs" />
     <Compile Include="Controllers\MonitorsController.cs" />
