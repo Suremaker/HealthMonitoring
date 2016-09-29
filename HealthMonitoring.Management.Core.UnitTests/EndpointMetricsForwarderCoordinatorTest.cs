@@ -28,7 +28,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         {
             var coordinator = new EndpointMetricsForwarderCoordinator(new[] { _forwarder.Object });
 
-            coordinator.HandleMetricsForwarding(_endpoint);
+            coordinator.HandleMetricsForwarding(_endpoint.Identity, _endpoint.Metadata, _endpoint.Health);
 
             _forwarder.Verify(x => x.ForwardEndpointMetrics(
                 It.Is<EndpointDetails>(
@@ -49,7 +49,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         {
             var coordinator = new EndpointMetricsForwarderCoordinator(new[] { _forwarder.Object, _duplicateForwarder.Object });
 
-            coordinator.HandleMetricsForwarding(_endpoint);
+            coordinator.HandleMetricsForwarding(_endpoint.Identity, _endpoint.Metadata, _endpoint.Health);
 
             _forwarder.Verify(x => x.ForwardEndpointMetrics(
                 It.IsAny<EndpointDetails>(),

@@ -83,7 +83,7 @@ namespace HealthMonitoring.Management.Core
                 return;
             endpoint.UpdateHealth(health);
             _statsRepository.InsertEndpointStatistics(endpointId, health);
-            _metricsForwarderCoordinator.HandleMetricsForwarding(endpoint);
+            _metricsForwarderCoordinator.HandleMetricsForwarding(endpoint.Identity, endpoint.Metadata, health);
         }
     }
 }

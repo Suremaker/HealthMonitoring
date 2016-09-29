@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Common.Logging;
 using HealthMonitoring.Forwarders;
+using HealthMonitoring.Model;
 
 namespace HealthMonitoring.Management.Core
 {
@@ -22,23 +23,16 @@ namespace HealthMonitoring.Management.Core
             }
         }
 
-        public void HandleMetricsForwarding(Endpoint endpoint)
+        public void HandleMetricsForwarding(EndpointIdentity identity, EndpointMetadata metadata, EndpointHealth health)
         {
+            var ed = new EndpointDetails(identity.Id, metadata.Group, metadata.Name, identity.Address, identity.MonitorType);
+            var em = new EndpointMetrics(health.CheckTimeUtc, health.ResponseTime.Milliseconds, health.Status.ToString());
+
             foreach (var f in _forwarders)
             {
-                Logger.InfoFormat("Forwarding metrics using {0} forwarder, for endpoint id {1}", f.Key, endpoint.Identity.Id);
+                Logger.InfoFormat("Forwarding metrics using {0} forwarder, for endpoint id {1}", f.Key, identity.Id);
 
-                f.Value.ForwardEndpointMetrics(
-                    new EndpointDetails(
-                        endpoint.Identity.Id,
-                        endpoint.Metadata.Group,
-                        endpoint.Metadata.Name,
-                        endpoint.Identity.Address,
-                        endpoint.Identity.MonitorType),
-                    new EndpointMetrics(
-                        endpoint.Health.CheckTimeUtc,
-                        endpoint.Health.ResponseTime.Milliseconds,
-                        endpoint.Health.Status.ToString()));
+                f.Value.ForwardEndpointMetrics(ed, em);
             }
         }
     }
