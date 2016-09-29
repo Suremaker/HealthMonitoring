@@ -5,7 +5,6 @@ using System.Net;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Description;
-using Common.Logging;
 using HealthMonitoring.Management.Core;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
