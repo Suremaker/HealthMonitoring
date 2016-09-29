@@ -13,6 +13,7 @@ I want to open dashboard page")]
         {
             Runner.RunScenario(
                 _ => Given_dashboard_page(),
+                _ => Given_endpoints_are_visible(),
                 _ => When_user_clicks_on_home_link(),
                 _ => Then_home_page_should_open()
                 );
@@ -23,6 +24,7 @@ I want to open dashboard page")]
         {
             Runner.RunScenario(
                 _ => Given_dashboard_page(),
+                _ => Given_endpoints_are_visible(),
                 _ => When_user_clicks_on_status_multiselect_element(),
                 _ => When_user_selects_healthy_and_faulty_statuses(),
                 _ => Then_only_healthy_and_faulty_endpoints_should_be_displayed(),
@@ -45,6 +47,7 @@ I want to open dashboard page")]
         {
             Runner.RunScenario(
                 _ => Given_dashboard_page(),
+                _ => Given_endpoints_are_visible(),
                 _ => When_user_clicks_on_group_view_checkbox(),
                 _ => Then_endpoints_are_grouped(),
                 _ => Then_all_endpoints_in_subgroup_should_have_the_same_group()
@@ -66,6 +69,7 @@ I want to open dashboard page")]
         {
             Runner.RunScenario(
                  _ => Given_dashboard_page(),
+                 _ => Given_endpoints_are_visible(),
                  _ => When_user_writes_group_into_input(),
                  _ => Then_should_be_displayed_endpoints_with_groupes_that_satisfy_filter(),
                  _ => Then_group_filter_should_be_appended_to_url()

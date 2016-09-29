@@ -159,12 +159,14 @@
         }]);
 
         function getEndpointUpdatingFrequency(location) {
-            var freq = location.search()["endpoint-frequency"];
-            return parseInt(freq) || 1000;
+            var param = location.search()["endpoint-frequency"];
+            var freq = parseInt(param);
+            return freq > 1000 ? freq : 1000;
         }
         function getConfigUpdatingFrequency(location) {
-            var freq = location.search()["config-frequency"];
-            return parseInt(freq) || 20000;
+            var param = location.search()["config-frequency"];
+            var freq = parseInt(param);
+            return freq >= 5000 ? freq : 20000;
         }
 
         function updateEndpointsInPlace(endpoints, newEndpoints) {

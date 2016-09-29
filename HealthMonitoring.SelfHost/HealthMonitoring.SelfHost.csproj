@@ -150,7 +150,9 @@
     <Compile Include="Entities\EndpointRegistration.cs" />
     <Compile Include="Entities\EntityValidator.cs" />
     <Compile Include="Filters\EndpointFilter.cs" />
-    <Compile Include="Filters\ExceptionFilter.cs" />
+    <Compile Include="Handlers\GlobalExceptionHandler.cs" />
+    <Compile Include="Handlers\MessageHandler.cs" />
+    <Compile Include="Handlers\MessageLoggingHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

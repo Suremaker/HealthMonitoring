@@ -30,6 +30,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         private string _endpointName;
         private string _endpointGroup;
         private List<string> _edpointTags;
+        private string _detailsPageUrl;
         private readonly string _homePageUrl = $"{SeleniumConfiguration.BaseUrl}?endpoint-frequency=1000000&config-frequency=1000000";
         #endregion
 
@@ -39,6 +40,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             _client.RegisterTestEndpoints();
             _driver = SeleniumConfiguration.GetWebDriver();
             _driver.RetryTimeout(Timeouts.Default);
+            _driver.Manage().Window.Maximize();
 
             _endpointLinksOfTagRowsOnHomePage = $"{_rowsWithTags}//td[2]//a";
             _endpointGroupsOfTagRowsOnHomePage = $"{_rowsWithTags}//td[1]";
@@ -52,17 +54,19 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         public void When_user_clicks_on_endpoint_name()
         {
-            var detailsLink = _driver.FindElements(By.XPath(_endpointLinksOfTagRowsOnHomePage)).First();
+            var detailsLink = _driver.WaitElementsAreRendered(By.XPath(_endpointLinksOfTagRowsOnHomePage)).First();
             _endpointName = detailsLink.Text;
-            _endpointGroup = _driver.FindElements(By.XPath(_endpointGroupsOfTagRowsOnHomePage)).First().Text;
+            _endpointGroup = _driver.WaitElementsAreRendered(By.XPath(_endpointGroupsOfTagRowsOnHomePage)).First().Text;
             _edpointTags = GetTagsOfFirstEndpointOnHomePage();
 
-            _driver.LoadUrl(detailsLink.GetAttribute("href"));
+            _detailsPageUrl = detailsLink.GetAttribute("href");
+            _driver.LoadUrl(_detailsPageUrl);
         }
 
         public void Then_name_should_be_the_same_as_on_home_page()
         {
-            _driver.WaitUntilPageIsChanged(_homePageUrl);
+            _driver.WaitUntilPageIsChanged(_detailsPageUrl);
+
             string nameOnPage = GetEndpointNameOnDetailsPage();
             CustomAssertions.EqualNotStrict(_endpointName, nameOnPage);
         }

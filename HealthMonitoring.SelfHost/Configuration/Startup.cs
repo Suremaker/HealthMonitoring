@@ -1,12 +1,13 @@
 ﻿using System.Reflection;
 using System.Web.Http;
+using System.Web.Http.ExceptionHandling;
 using Autofac;
 using Autofac.Integration.WebApi;
 using HealthMonitoring.Forwarders;
 using HealthMonitoring.Hosting;
 using HealthMonitoring.Management.Core;
 using HealthMonitoring.Persistence;
-using HealthMonitoring.SelfHost.Filters;
+using HealthMonitoring.SelfHost.Handlers;
 using Microsoft.Owin.Host.HttpListener;
 using Newtonsoft.Json.Converters;
 using Owin;
@@ -19,12 +20,19 @@ namespace HealthMonitoring.SelfHost.Configuration
         public void Configuration(IAppBuilder appBuilder)
         {
             var config = new HttpConfiguration();
+            ConfigureHandlers(config);
             ConfigureSerializers(config);
             ConfigureRoutes(config);
             ConfigureSwagger(config);
             ConfigureDependencies(config);
             config.EnableCors();
             appBuilder.UseWebApi(config);
+        }
+
+        private static void ConfigureHandlers(HttpConfiguration config)
+        {
+            config.Services.Replace(typeof(IExceptionHandler), new GlobalExceptionHandler());
+            config.MessageHandlers.Add(new MessageLoggingHandler());
         }
 
         private static void ConfigureSerializers(HttpConfiguration config)
@@ -37,7 +45,6 @@ namespace HealthMonitoring.SelfHost.Configuration
         {
             config.MapHttpAttributeRoutes();
             config.Routes.MapHttpRoute("Swagger", "api", null, null, new RedirectHandler(SwaggerDocsConfig.DefaultRootUrlResolver, "swagger/ui/index"));
-            config.Filters.Add(new ExceptionFilter());
         }
 
         private static void ConfigureSwagger(HttpConfiguration config)

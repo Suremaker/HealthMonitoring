@@ -95,6 +95,7 @@ namespace HealthMonitoring.SelfHost.Controllers
         {
             if (_endpointRegistry.TryUnregisterById(id))
                 return Ok();
+
             return NotFound();
         }
 
@@ -124,6 +125,7 @@ namespace HealthMonitoring.SelfHost.Controllers
 
                 if (_endpointRegistry.TryUpdateEndpointTags(id, tags))
                     return Ok();
+
                 return NotFound();
             }
             catch (ArgumentException e)
