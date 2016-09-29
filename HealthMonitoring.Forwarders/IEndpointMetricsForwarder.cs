@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace HealthMonitoring.Forwarders
+﻿namespace HealthMonitoring.Forwarders
 {
     public interface IEndpointMetricsForwarder
     {
-        void ForwardEndpointMetrics(Guid endpointId, EndpointMetrics metrics);
+        void ForwardEndpointMetrics(EndpointDetails details , EndpointMetrics metrics);
     }
 }

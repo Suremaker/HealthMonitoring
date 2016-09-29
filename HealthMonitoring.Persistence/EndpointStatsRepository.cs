@@ -11,7 +11,6 @@ namespace HealthMonitoring.Persistence
     public class EndpointStatsRepository : IEndpointStatsRepository
     {
         private readonly MySqlDatabase _db;
-        public event EndpointStatisticInsertedEventhandler EndpointStatisticsInserted;
 
         public EndpointStatsRepository(MySqlDatabase db)
         {
@@ -29,8 +28,6 @@ namespace HealthMonitoring.Persistence
                     new { id, endpointId, stats.CheckTimeUtc, responseTime = stats.ResponseTime.Ticks, stats.Status }, tx);
                 tx.Commit();
             }
-
-            EndpointStatisticsInserted?.Invoke(endpointId, stats);
         }
 
         public IEnumerable<EndpointStats> GetStatistics(Guid id, int limitDays)
