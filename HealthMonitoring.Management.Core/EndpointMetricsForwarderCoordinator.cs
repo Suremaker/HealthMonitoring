@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Common.Logging;
 using HealthMonitoring.Forwarders;
-using HealthMonitoring.Model;
 
 namespace HealthMonitoring.Management.Core
 {
@@ -23,13 +21,24 @@ namespace HealthMonitoring.Management.Core
                     Logger.WarnFormat("Forwarder with type {0} already exists and it is not going to be registered", type);
             }
         }
-        
-        public void HandleMetricsForwarding(Guid endpointId, EndpointHealth stats)
+
+        public void HandleMetricsForwarding(Endpoint endpoint)
         {
             foreach (var f in _forwarders)
             {
-                Logger.InfoFormat("Forwarding metrics using {0} forwarder", f.Key);
-                f.Value.ForwardEndpointMetrics(endpointId, new EndpointMetrics(stats.CheckTimeUtc, stats.ResponseTime.Ticks, stats.Status.ToString()));
+                Logger.InfoFormat("Forwarding metrics using {0} forwarder, for endpoint id {1}", f.Key, endpoint.Identity.Id);
+
+                f.Value.ForwardEndpointMetrics(
+                    new EndpointDetails(
+                        endpoint.Identity.Id,
+                        endpoint.Metadata.Group,
+                        endpoint.Metadata.Name,
+                        endpoint.Identity.Address,
+                        endpoint.Identity.MonitorType),
+                    new EndpointMetrics(
+                        endpoint.Health.CheckTimeUtc,
+                        endpoint.Health.ResponseTime.Milliseconds,
+                        endpoint.Health.Status.ToString()));
             }
         }
     }

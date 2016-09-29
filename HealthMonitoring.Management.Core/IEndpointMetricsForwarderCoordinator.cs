@@ -5,6 +5,6 @@ namespace HealthMonitoring.Management.Core
 {
     public interface IEndpointMetricsForwarderCoordinator
     {
-        void HandleMetricsForwarding(Guid endpointId, EndpointHealth stats);
+        void HandleMetricsForwarding(Endpoint endpoint);
     }
 }

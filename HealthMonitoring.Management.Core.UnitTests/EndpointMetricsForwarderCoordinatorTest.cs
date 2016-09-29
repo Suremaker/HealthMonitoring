@@ -8,36 +8,56 @@ namespace HealthMonitoring.Management.Core.UnitTests
 {
     public class EndpointMetricsForwarderCoordinatorTest
     {
+        private readonly Endpoint _endpoint;
+        private readonly Mock<IEndpointMetricsForwarder> _forwarder;
+        private readonly Mock<IEndpointMetricsForwarder> _duplicateForwarder;
+
+        public EndpointMetricsForwarderCoordinatorTest()
+        {
+            var endpointId = Guid.NewGuid();
+            var health = new EndpointHealth(DateTime.UtcNow, TimeSpan.FromSeconds(1), EndpointStatus.Healthy);
+            _endpoint = new Endpoint(new EndpointIdentity(endpointId, "type", "Address"), new EndpointMetadata("Name", "Group", null));
+            _endpoint.UpdateHealth(health);
+
+            _forwarder = new Mock<IEndpointMetricsForwarder>();
+            _duplicateForwarder = new Mock<IEndpointMetricsForwarder>();
+        }
+
         [Fact]
         public void EndpointMetricsForwarderCoordinator_should_forward_metrics()
         {
-            var forwarderMock = new Mock<IEndpointMetricsForwarder>();
+            var coordinator = new EndpointMetricsForwarderCoordinator(new[] { _forwarder.Object });
 
-            var endpointId = Guid.NewGuid();
-            var health = new EndpointHealth(DateTime.UtcNow, TimeSpan.FromSeconds(1), EndpointStatus.Healthy);
+            coordinator.HandleMetricsForwarding(_endpoint);
 
-            var coordinator = new EndpointMetricsForwarderCoordinator(new[] { forwarderMock.Object});
-
-            coordinator.HandleMetricsForwarding(endpointId, health);
-
-            forwarderMock.Verify(x => x.ForwardEndpointMetrics(
-                It.Is<Guid>(g => g.Equals(endpointId)), 
-                It.Is<EndpointMetrics>(m => m.CheckTimeUtc == health.CheckTimeUtc && m.ResponseTimeTicks == health.ResponseTime.Ticks && m.Status == health.Status.ToString())),
+            _forwarder.Verify(x => x.ForwardEndpointMetrics(
+                It.Is<EndpointDetails>(
+                    g => g.EndpointId.Equals(_endpoint.Identity.Id) &&
+                    g.Address.Equals(_endpoint.Identity.Address) &&
+                    g.Group.Equals(_endpoint.Metadata.Group) &&
+                    g.Name.Equals(_endpoint.Metadata.Name) &&
+                    g.MonitorType.Equals(_endpoint.Identity.MonitorType)),
+                It.Is<EndpointMetrics>(
+                    m => m.CheckTimeUtc.Equals(_endpoint.Health.CheckTimeUtc) && 
+                    m.ResponseTimeMilliseconds.Equals(_endpoint.Health.ResponseTime.Milliseconds) &&
+                    m.Status.Equals(_endpoint.Health.Status.ToString()))),
                 Times.Once);
         }
 
         [Fact]
-        public void EndpointMetricsForwarderCoordinator_shouldnt_have_duplicates_in_forwarders_list()
+        public void EndpointMetricsForwarderCoordinator_should_not_have_duplicates_in_forwarders_list()
         {
-            var forwarderMock1 = new Mock<IEndpointMetricsForwarder>();
-            var forwarderMock2 = new Mock<IEndpointMetricsForwarder>();
+            var coordinator = new EndpointMetricsForwarderCoordinator(new[] { _forwarder.Object, _duplicateForwarder.Object });
 
-            var coordinator = new EndpointMetricsForwarderCoordinator(new[] { forwarderMock1.Object, forwarderMock2.Object });
+            coordinator.HandleMetricsForwarding(_endpoint);
 
-            coordinator.HandleMetricsForwarding(Guid.NewGuid(), new EndpointHealth(DateTime.UtcNow, TimeSpan.FromSeconds(1), EndpointStatus.Healthy));
+            _forwarder.Verify(x => x.ForwardEndpointMetrics(
+                It.IsAny<EndpointDetails>(),
+                It.IsAny<EndpointMetrics>()), Times.Once);
 
-            forwarderMock1.Verify(x => x.ForwardEndpointMetrics(It.IsAny<Guid>(), It.IsAny<EndpointMetrics>()), Times.Once);
-            forwarderMock2.Verify(x => x.ForwardEndpointMetrics(It.IsAny<Guid>(), It.IsAny<EndpointMetrics>()), Times.Never);
+            _duplicateForwarder.Verify(x => x.ForwardEndpointMetrics(
+                It.IsAny<EndpointDetails>(),
+                It.IsAny<EndpointMetrics>()), Times.Never);
         }
     }
 }
