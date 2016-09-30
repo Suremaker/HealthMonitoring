@@ -114,7 +114,7 @@ namespace HealthMonitoring.TaskManagement
             if (!_tasks.TryRemove(item, out value))
                 return;
 
-            Logger.Debug($"Finished processing {typeof(T)}: {item}");
+            Logger.Info($"Finished processing {typeof(T)}: {item}");
             FinishedTaskFor?.Invoke(item);
         }
 

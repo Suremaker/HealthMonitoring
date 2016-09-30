@@ -25,10 +25,17 @@ namespace HealthMonitoring.Persistence
             {
                 var tags = endpoint.Metadata.Tags.ToDbString();
 
-                if (conn.Execute($"update EndpointConfig set MonitorType=@MonitorType, Address=@Address, GroupName=@Group, Name=@Name{(tags != null ? ", Tags=@tags" : "")} where Id=@Id",
-                       new { endpoint.Identity.MonitorType, endpoint.Identity.Address, endpoint.Metadata.Group, endpoint.Metadata.Name, tags, endpoint.Identity.Id }, tx) == 0)
-                    conn.Execute("insert into EndpointConfig (MonitorType, Address, GroupName, Name, Id, Tags) values(@MonitorType,@Address,@Group,@Name,@Id,@Tags)",
-                       new { endpoint.Identity.MonitorType, endpoint.Identity.Address, endpoint.Metadata.Group, endpoint.Metadata.Name, endpoint.Identity.Id, tags }, tx);
+                conn.Execute(
+                    $"replace into EndpointConfig(MonitorType, Address, GroupName, Name, Id{(tags != null ? ", Tags" : "")}) values(@MonitorType,@Address,@Group,@Name,@Id{(tags != null ? ",@Tags" : "")})",
+                    new
+                    {
+                        endpoint.Identity.MonitorType,
+                        endpoint.Identity.Address,
+                        endpoint.Metadata.Group,
+                        endpoint.Metadata.Name,
+                        endpoint.Identity.Id,
+                        tags
+                    }, tx);
 
                 tx.Commit();
             }
