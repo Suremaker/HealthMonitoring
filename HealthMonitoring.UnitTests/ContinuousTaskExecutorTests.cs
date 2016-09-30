@@ -32,7 +32,7 @@ namespace HealthMonitoring.UnitTests
                 Assert.True(executor.TryRegisterTaskFor(task2Name, (item, token) => StartTaskAsync(countdown2, counter2, token)));
                 await countdown2.WaitAsync(_testTimeout);
 
-                //still works
+                // check that task 1 still works
                 await countdown1.ResetTo(10).WaitAsync(_testTimeout);
             }
 
@@ -89,7 +89,7 @@ namespace HealthMonitoring.UnitTests
         {
             var task1Name = "task1";
             var task2Name = "task2";
-            var countdown = new AsyncCountdown(task1Name, 10);
+            var countdown1 = new AsyncCountdown(task1Name, 10);
             var task2Finished = new SemaphoreSlim(0);
 
             using (var executor = ContinuousTaskExecutor<string>.StartExecutor())
@@ -99,15 +99,15 @@ namespace HealthMonitoring.UnitTests
                     if (item == task2Name) task2Finished.Release();
                 };
 
-                Assert.True(executor.TryRegisterTaskFor(task1Name, (item, token) => StartTaskAsync(token, b => b.WithCountdown(countdown))));
-                await countdown.WaitAsync(_testTimeout);
+                Assert.True(executor.TryRegisterTaskFor(task1Name, (item, token) => StartTaskAsync(token, b => b.WithCountdown(countdown1))));
+                await countdown1.WaitAsync(_testTimeout);
 
                 Assert.True(executor.TryRegisterTaskFor(task2Name, (item, token) => Task.Delay(25, token)));
 
                 await task2Finished.WaitAsync(_testTimeout);
 
-                //still works
-                await countdown.ResetTo(10).WaitAsync(_testTimeout);
+                // check that task 1 still works
+                await countdown1.ResetTo(10).WaitAsync(_testTimeout);
             }
         }
 
@@ -132,7 +132,7 @@ namespace HealthMonitoring.UnitTests
                 Assert.True(executor.TryRegisterTaskFor(task2Name, (item, token) => { throw new InvalidOperationException(); }));
                 await task2Finished.WaitAsync(_testTimeout);
 
-                //still works
+                // check that task 1 still works
                 await countdown1.ResetTo(10).WaitAsync(_testTimeout);
             }
         }

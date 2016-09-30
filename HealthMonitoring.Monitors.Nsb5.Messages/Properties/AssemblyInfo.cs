@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Wonga")]
 [assembly: AssemblyProduct("HealthMonitoring.Monitors.Nsb5.Messages")]
-[assembly: AssemblyCopyright("Copyright © Wonga 2016")]
+[assembly: AssemblyCopyright("Copyright © Wonga")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
