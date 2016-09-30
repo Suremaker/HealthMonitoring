@@ -11,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 {
-    public partial class Dashboard_page : FeatureFixture, IDisposable
+    public partial class Dashboard_page : FeatureFixture, IClassFixture<WebDriverContext>
     {
         #region private vars
         private readonly RestClient _client;
@@ -27,15 +27,13 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         private const string _groupInputSelector = "/html/body/header/table/tbody/tr/td[3]/input[3]";
         #endregion
 
-        public Dashboard_page(ITestOutputHelper output) : base(output)
+        public Dashboard_page(ITestOutputHelper output, WebDriverContext webDriverContext) : base(output)
         {
             _dashboardUrl = $"{SeleniumConfiguration.BaseUrl}dashboard?endpoint-frequency=1000000&config-frequency=1000000";
             _groupFilter = $"{SeleniumHelper.TestGroups[0].Replace("group", "*")}";
             _client = ClientHelper.Build();
             _client.RegisterTestEndpoints();
-            _driver = SeleniumConfiguration.GetWebDriver();
-            _driver.RetryTimeout(Timeouts.Default);
-            _driver.Manage().Window.Maximize();
+            _driver = webDriverContext.Driver;
         }
 
         public void Given_dashboard_page()
@@ -192,11 +190,6 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         private IWebElement GetGroupInput()
         {
             return _driver.WaitElementIsRendered(By.XPath(_groupInputSelector));
-        }
-
-        public void Dispose()
-        {
-            _driver?.Quit();
         }
     }
 }

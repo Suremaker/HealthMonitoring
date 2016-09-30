@@ -6,6 +6,7 @@ using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Description;
 using HealthMonitoring.Management.Core;
+using HealthMonitoring.Management.Core.Registers;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
 using HealthMonitoring.SelfHost.Entities;

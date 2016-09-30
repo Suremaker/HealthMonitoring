@@ -2,9 +2,9 @@
 using System.Linq;
 using Xunit;
 
-namespace HealthMonitoring.Monitors.Core.UnitTests.Helpers
+namespace HealthMonitoring.TestUtils
 {
-    internal static class CollectionAssert
+    public static class CollectionAssert
     {
         public static void AreEquivalent<T>(IEnumerable<T> expected, IEnumerable<T> actual)
         {

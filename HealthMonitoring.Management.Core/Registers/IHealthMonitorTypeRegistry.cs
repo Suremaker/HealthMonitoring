@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace HealthMonitoring.Management.Core
+namespace HealthMonitoring.Management.Core.Registers
 {
     public interface IHealthMonitorTypeRegistry
     {

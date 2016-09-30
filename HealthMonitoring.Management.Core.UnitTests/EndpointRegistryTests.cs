@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using HealthMonitoring.Management.Core.Registers;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
 using Moq;
@@ -197,6 +198,31 @@ namespace HealthMonitoring.Management.Core.UnitTests
             var id = Guid.NewGuid();
             _registry.UpdateHealth(id, health);
             _statsRepository.Verify(r => r.InsertEndpointStatistics(id, health), Times.Never);
+        }
+
+        [Fact]
+        public void RegisterOrUpdate_should_trigger_EndpointAdded_event()
+        {
+            SetupMonitors("monitor");
+            Endpoint captured = null;
+
+            _registry.EndpointAdded += e => { captured = e; };
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new string[0]);
+            Assert.NotNull(captured);
+            Assert.Same(captured, _registry.GetById(id));
+        }
+
+        [Fact]
+        public void RegisterOrUpdate_should_not_trigger_EndpointAdded_event_if_endpoint_already_exists()
+        {
+            SetupMonitors("monitor");
+            _registry.RegisterOrUpdate("monitor", "address", "group", "name", new string[0]);
+
+            Endpoint captured = null;
+            _registry.EndpointAdded += e => { captured = e; };
+            _registry.RegisterOrUpdate("monitor", "address", "group", "name", new string[0]);
+
+            Assert.Null(captured);
         }
 
         private void SetupMonitors(params string[] monitorTypes)

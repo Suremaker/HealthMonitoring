@@ -172,6 +172,7 @@
     <Compile Include="Scenarios\Selenium\Home_page.Steps.cs">
       <DependentUpon>Home_page.cs</DependentUpon>
     </Compile>
+    <Compile Include="Scenarios\Selenium\WebDriverContext.cs" />
     <Compile Include="Scenarios\Swagger_documentation.cs" />
     <Compile Include="Scenarios\Swagger_documentation.Steps.cs">
       <DependentUpon>Swagger_documentation.cs</DependentUpon>

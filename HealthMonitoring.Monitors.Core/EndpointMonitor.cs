@@ -1,118 +1,74 @@
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
 using HealthMonitoring.Configuration;
-using HealthMonitoring.Monitors.Core.Helpers.Time;
 using HealthMonitoring.Monitors.Core.Registers;
 using HealthMonitoring.Monitors.Core.Samplers;
+using HealthMonitoring.TaskManagement;
+using HealthMonitoring.TimeManagement;
 
 namespace HealthMonitoring.Monitors.Core
 {
     public class EndpointMonitor : IDisposable
     {
+        private const int MaxErrorDelayInSeconds = 120;
         private static readonly ILog Logger = LogManager.GetLogger<EndpointMonitor>();
         private readonly IMonitorSettings _settings;
         private readonly ITimeCoordinator _timeCoordinator;
-        private readonly CancellationTokenSource _cancellation;
-        private readonly Thread _monitor;
-        private readonly ConcurrentDictionary<MonitorableEndpoint, Task<MonitorableEndpoint>> _tasks = new ConcurrentDictionary<MonitorableEndpoint, Task<MonitorableEndpoint>>();
-        private readonly ManualResetEventSlim _onNewTask = new ManualResetEventSlim();
-        private Task<MonitorableEndpoint> _onNewEndpoint;
-        private readonly MonitorableEndpointRegistry _monitorableEndpointRegistry;
+        private readonly IMonitorableEndpointRegistry _monitorableEndpointRegistry;
         private readonly IHealthSampler _sampler;
         private readonly Random _randomizer = new Random();
+        private readonly IContinuousTaskExecutor<MonitorableEndpoint> _executor;
 
-        public EndpointMonitor(MonitorableEndpointRegistry monitorableEndpointRegistry, IHealthSampler sampler, IMonitorSettings settings, ITimeCoordinator timeCoordinator)
+        public EndpointMonitor(IMonitorableEndpointRegistry monitorableEndpointRegistry, IHealthSampler sampler, IMonitorSettings settings, ITimeCoordinator timeCoordinator, IContinuousTaskExecutor<MonitorableEndpoint> executor)
         {
             _monitorableEndpointRegistry = monitorableEndpointRegistry;
             _sampler = sampler;
             _settings = settings;
             _timeCoordinator = timeCoordinator;
+            _executor = executor;
+
             _monitorableEndpointRegistry.NewEndpointAdded += HandleNewEndpoint;
-            _cancellation = new CancellationTokenSource();
 
             foreach (var endpoint in _monitorableEndpointRegistry.Endpoints)
-                _tasks.AddOrUpdate(endpoint, CreateTaskFor, (e, currentTask) => currentTask);
-
-            _monitor = new Thread(Start) { Name = "Monitor" };
-            _monitor.Start();
+                _executor.TryRegisterTaskFor(endpoint, MonitorEndpointAsync);
         }
 
-        private void Start()
+        private async Task MonitorEndpointAsync(MonitorableEndpoint endpoint, CancellationToken cancellationToken)
         {
             int errorCounter = 0;
-            while (!_cancellation.IsCancellationRequested)
+
+            await _timeCoordinator.Delay(GetRandomizedDelay(), cancellationToken);
+            while (!cancellationToken.IsCancellationRequested && !endpoint.IsDisposed)
             {
                 try
                 {
-                    ProcessTasks();
+                    var delay = _timeCoordinator.Delay(_settings.HealthCheckInterval, cancellationToken);
+                    await Task.WhenAll(endpoint.CheckHealth(_sampler, cancellationToken), delay);
                     errorCounter = 0;
                 }
                 catch (OperationCanceledException)
                 {
                 }
-                catch (AggregateException e)
+                catch (AggregateException e) when (e.Flatten().InnerExceptions.All(ex => ex is OperationCanceledException))
                 {
-                    if (e.Flatten().InnerExceptions.FirstOrDefault() is OperationCanceledException)
-                        continue;
-                    ++errorCounter;
-                    Logger.ErrorFormat("Monitoring error ({0} occurrence): {1}", errorCounter, e.ToString());
-                    Thread.Sleep(TimeSpan.FromSeconds(errorCounter));
                 }
                 catch (Exception e)
                 {
-                    ++errorCounter;
+                    errorCounter = Math.Min(errorCounter + 1, MaxErrorDelayInSeconds);
                     Logger.ErrorFormat("Monitoring error ({0} occurrence): {1}", errorCounter, e.ToString());
-                    Thread.Sleep(TimeSpan.FromSeconds(errorCounter));
+                    await _timeCoordinator.Delay(TimeSpan.FromSeconds(errorCounter), cancellationToken);
                 }
             }
-            WaitForAllTasksToFinish();
-        }
-
-        private void WaitForAllTasksToFinish()
-        {
-            try
-            {
-                Task.WaitAll(_tasks.Values.Cast<Task>().ToArray());
-            }
-            catch (AggregateException) { }
-        }
-
-        private void ProcessTasks()
-        {
-            var task = Task.WhenAny(GetTasks());
-            task.Wait(_cancellation.Token);
-            Task<MonitorableEndpoint> endpoint;
-            if (task.Result.Result != null)
-                _tasks.TryRemove(task.Result.Result, out endpoint);
-        }
-
-        private IEnumerable<Task<MonitorableEndpoint>> GetTasks()
-        {
-            return _tasks.Values.Concat(Enumerable.Repeat(GetWaitForNewEndpointTask(), 1));
         }
 
         public void Dispose()
         {
             _monitorableEndpointRegistry.NewEndpointAdded -= HandleNewEndpoint;
-            _cancellation.Cancel();
-            _monitor.Join();
-        }
-
-        private async Task<MonitorableEndpoint> CreateTaskFor(MonitorableEndpoint endpoint)
-        {
-            await _timeCoordinator.Delay(GetRandomizedDelay(), _cancellation.Token);
-            while (!_cancellation.IsCancellationRequested && !endpoint.IsDisposed)
-            {
-                var delay = _timeCoordinator.Delay(_settings.HealthCheckInterval, _cancellation.Token);
-                await Task.WhenAll(endpoint.CheckHealth(_sampler, _cancellation.Token),delay);
-            }
-            return endpoint;
+            _executor.Dispose();
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
@@ -124,23 +80,8 @@ namespace HealthMonitoring.Monitors.Core
 
         private void HandleNewEndpoint(MonitorableEndpoint endpoint)
         {
-            if (_tasks.TryAdd(endpoint, CreateTaskFor(endpoint)))
-                _onNewTask.Set();
+            _executor.TryRegisterTaskFor(endpoint, MonitorEndpointAsync);
         }
 
-        private Task<MonitorableEndpoint> GetWaitForNewEndpointTask()
-        {
-            if (_onNewEndpoint != null && !_onNewEndpoint.IsCompleted)
-                return _onNewEndpoint;
-
-            return _onNewEndpoint = Task.Run(() => WaitForNewEndpoint());
-        }
-
-        private MonitorableEndpoint WaitForNewEndpoint()
-        {
-            _onNewTask.Wait(_cancellation.Token);
-            _onNewTask.Reset();
-            return null;
-        }
     }
 }

@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace HealthMonitoring.Monitors.Core.Helpers.Time
+namespace HealthMonitoring.TimeManagement
 {
     public class TimeCoordinator : ITimeCoordinator
     {

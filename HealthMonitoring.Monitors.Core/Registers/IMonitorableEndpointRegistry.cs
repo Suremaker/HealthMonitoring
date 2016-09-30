@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using HealthMonitoring.Model;
 
 namespace HealthMonitoring.Monitors.Core.Registers
@@ -9,5 +10,6 @@ namespace HealthMonitoring.Monitors.Core.Registers
         void UpdateEndpoints(params EndpointIdentity[] identities);
         MonitorableEndpoint TryRegister(EndpointIdentity identity);
         bool TryUnregister(EndpointIdentity identity);
+        IEnumerable<MonitorableEndpoint> Endpoints { get; }
     }
 }

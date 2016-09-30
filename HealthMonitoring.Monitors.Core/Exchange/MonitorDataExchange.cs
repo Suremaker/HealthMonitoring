@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using Common.Logging;
 using HealthMonitoring.Model;
 using HealthMonitoring.Monitors.Core.Exchange.Client;
-using HealthMonitoring.Monitors.Core.Helpers;
 using HealthMonitoring.Monitors.Core.Registers;
+using HealthMonitoring.Queueing;
 
 namespace HealthMonitoring.Monitors.Core.Exchange
 {

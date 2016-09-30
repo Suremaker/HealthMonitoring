@@ -6,6 +6,7 @@ using Autofac.Integration.WebApi;
 using HealthMonitoring.Forwarders;
 using HealthMonitoring.Hosting;
 using HealthMonitoring.Management.Core;
+using HealthMonitoring.Management.Core.Registers;
 using HealthMonitoring.Persistence;
 using HealthMonitoring.SelfHost.Handlers;
 using Microsoft.Owin.Host.HttpListener;

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Web.Http.Results;
 using HealthMonitoring.Management.Core;
+using HealthMonitoring.Management.Core.Registers;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
 using HealthMonitoring.SelfHost.Controllers;

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
-namespace HealthMonitoring.Monitors.Core.Helpers
+namespace HealthMonitoring.Queueing
 {
     public class OutgoingQueue<T>
     {

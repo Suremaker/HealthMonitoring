@@ -5,7 +5,7 @@ using System.Linq;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
 
-namespace HealthMonitoring.Management.Core
+namespace HealthMonitoring.Management.Core.Registers
 {
     public class EndpointRegistry : IEndpointRegistry
     {
@@ -40,6 +40,9 @@ namespace HealthMonitoring.Management.Core
             var endpoint = _endpoints.AddOrUpdate(newIdentifier.GetNaturalKey(), new Endpoint(newIdentifier, new EndpointMetadata(name, group, tags)), (k, e) => e.UpdateMetadata(group, name, tags));
             _endpointsByGuid[endpoint.Identity.Id] = endpoint;
             _endpointConfigurationRepository.SaveEndpoint(endpoint);
+
+            if (endpoint.Identity == newIdentifier)
+                EndpointAdded?.Invoke(endpoint);
             return endpoint.Identity.Id;
         }
 
@@ -85,5 +88,7 @@ namespace HealthMonitoring.Management.Core
             _statsRepository.InsertEndpointStatistics(endpointId, health);
             _metricsForwarderCoordinator.HandleMetricsForwarding(endpoint.Identity, endpoint.Metadata, health);
         }
+
+        public event Action<Endpoint> EndpointAdded;
     }
 }

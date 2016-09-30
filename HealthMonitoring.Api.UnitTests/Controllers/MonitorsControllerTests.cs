@@ -1,5 +1,5 @@
 ﻿using System.Web.Http.Results;
-using HealthMonitoring.Management.Core;
+using HealthMonitoring.Management.Core.Registers;
 using HealthMonitoring.SelfHost.Controllers;
 using Moq;
 using Xunit;

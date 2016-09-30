@@ -2,10 +2,10 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using HealthMonitoring.Monitors.Core.Helpers.Time;
+using HealthMonitoring.TimeManagement;
 using Xunit;
 
-namespace HealthMonitoring.Monitors.Core.UnitTests
+namespace HealthMonitoring.UnitTests
 {
     public class TimeCoordinatorTests
     {

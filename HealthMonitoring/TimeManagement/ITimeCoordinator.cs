@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace HealthMonitoring.Monitors.Core.Helpers.Time
+namespace HealthMonitoring.TimeManagement
 {
     public interface ITimeCoordinator
     {

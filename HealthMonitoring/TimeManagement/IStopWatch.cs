@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HealthMonitoring.Monitors.Core.Helpers.Time
+namespace HealthMonitoring.TimeManagement
 {
     public interface IStopwatch
     {

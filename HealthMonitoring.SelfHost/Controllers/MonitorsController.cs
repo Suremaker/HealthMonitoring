@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Web.Http;
-using HealthMonitoring.Management.Core;
+using HealthMonitoring.Management.Core.Registers;
 using Swashbuckle.Swagger.Annotations;
 
 namespace HealthMonitoring.SelfHost.Controllers
