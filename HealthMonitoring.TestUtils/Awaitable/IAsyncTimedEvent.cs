@@ -1,6 +1,6 @@
 using System;
 
-namespace HealthMonitoring.Monitors.Core.UnitTests.Helpers.Awaitable
+namespace HealthMonitoring.TestUtils.Awaitable
 {
     public interface IAsyncTimedEvent
     {

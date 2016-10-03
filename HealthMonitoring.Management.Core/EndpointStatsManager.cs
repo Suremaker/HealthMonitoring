@@ -81,7 +81,7 @@ namespace HealthMonitoring.Management.Core
             try
             {
                 var date = DateTime.UtcNow.Subtract(_settings.StatsHistoryMaxAge);
-                _logger.DebugFormat("Deleting older stats than {0}", date);
+                _logger.InfoFormat("Deleting older stats than {0}", date);
                 _repository.DeleteStatisticsOlderThan(date);
             }
             catch (Exception e)

@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace HealthMonitoring.Monitors.Core.UnitTests.Helpers.Awaitable
+namespace HealthMonitoring.TestUtils.Awaitable
 {
     public class TimeLineProvider
     {

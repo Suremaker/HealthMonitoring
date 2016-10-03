@@ -1,13 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Model;
-using HealthMonitoring.Monitors.Core.Helpers.Time;
 using HealthMonitoring.Monitors.Core.Registers;
 using HealthMonitoring.Monitors.Core.Samplers;
 using HealthMonitoring.Monitors.Core.UnitTests.Helpers;
-using HealthMonitoring.Monitors.Core.UnitTests.Helpers.Awaitable;
+using HealthMonitoring.TaskManagement;
+using HealthMonitoring.TestUtils.Awaitable;
+using HealthMonitoring.TimeManagement;
 using Moq;
 using Xunit;
 
@@ -15,90 +18,203 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 {
     public class EndpointMonitorTests
     {
+        private const string MonitorType = "test";
         private readonly MonitorableEndpointRegistry _endpointRegistry;
         private readonly Mock<ITimeCoordinator> _mockTimeCoordinator;
         private readonly AwaitableFactory _awaitableFactory = new AwaitableFactory();
         private readonly Mock<IHealthMonitor> _mockHealthMonitor = new Mock<IHealthMonitor>();
         private static readonly TimeSpan TestMaxWaitTime = TimeSpan.FromSeconds(5);
+        private readonly Mock<IContinuousTaskExecutor<MonitorableEndpoint>> _mockExecutor;
+        private static readonly TimeSpan TestHealthCheckInterval = TimeSpan.FromMilliseconds(157);
 
         public EndpointMonitorTests()
         {
             _mockTimeCoordinator = new Mock<ITimeCoordinator>();
-            _mockTimeCoordinator.Setup(c => c.Delay(It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>())).Returns(async () => await Task.Yield());
 
-            _mockHealthMonitor.Setup(cfg => cfg.Name).Returns("test");
+            _mockHealthMonitor.Setup(cfg => cfg.Name).Returns(MonitorType);
             _endpointRegistry = new MonitorableEndpointRegistry(new HealthMonitorRegistry(new[] { _mockHealthMonitor.Object }));
+
+            _mockExecutor = new Mock<IContinuousTaskExecutor<MonitorableEndpoint>>();
         }
 
         [Fact]
-        public async Task Monitor_should_start_checking_the_health_of_endpoints_until_disposed()
+        public void Monitor_should_add_all_known_endpoints_on_startup()
         {
-            var endpoint1Countdown = new AsyncCountdown("endpoint1", 2);
-            var endpoint2Countdown = new AsyncCountdown("endpoint2", 1);
-            var endpoint3Countdown = new AsyncCountdown("endpoint3", 2);
+            var endpoints = Enumerable.Range(0, 10).Select(i => AddNewEndpointToRegistry()).ToArray();
 
-            var counters = new[] { new AsyncCounter(), new AsyncCounter(), new AsyncCounter() };
-            var healthCheck1 = _awaitableFactory.Return(new HealthInfo(HealthStatus.Healthy)).WithCountdown(endpoint1Countdown).WithCounter(counters[0]);
-            var healthCheck2 = _awaitableFactory.Return(new HealthInfo(HealthStatus.Healthy)).WithCountdown(endpoint2Countdown).WithCounter(counters[1]);
-            var healthCheck3 = _awaitableFactory.Return(new HealthInfo(HealthStatus.Healthy)).WithCountdown(endpoint3Countdown).WithCounter(counters[2]);
+            using (CreateEndpointMonitor()) { }
 
-            _mockHealthMonitor.Setup(cfg => cfg.CheckHealthAsync("address1", It.IsAny<CancellationToken>())).Returns(healthCheck1.RunAsync);
-            _mockHealthMonitor.Setup(cfg => cfg.CheckHealthAsync("address2", It.IsAny<CancellationToken>())).Returns(healthCheck2.RunAsync);
-            _mockHealthMonitor.Setup(cfg => cfg.CheckHealthAsync("address3", It.IsAny<CancellationToken>())).Returns(healthCheck3.RunAsync);
+            foreach (var endpoint in endpoints)
+                VerifyTaskWasRegisteredForEndpointInMonitor(endpoint, Times.Once);
+        }
 
-            var endpoint1 = _endpointRegistry.TryRegister(CreateEndpointIdentity("address1"));
-            _endpointRegistry.TryRegister(CreateEndpointIdentity("address2"));
-
-            using (CreateEndpointMonitor(TimeSpan.FromMilliseconds(50)))
+        [Fact]
+        public void Monitor_should_register_task_for_endpoints_added_during_runtime_but_not_after_it_is_disposed()
+        {
+            using (CreateEndpointMonitor())
             {
-                await endpoint1Countdown.WaitAsync(TestMaxWaitTime);
-                await endpoint2Countdown.WaitAsync(TestMaxWaitTime);
-
-                _endpointRegistry.TryRegister(CreateEndpointIdentity("address3"));
-                await endpoint3Countdown.WaitAsync(TestMaxWaitTime);
-
-                _endpointRegistry.TryUnregister(endpoint1.Identity);
-                // ensure that endpoint 2 still is running, and give time for endpoint 1 to shutdown
-                await endpoint2Countdown.ResetTo(10).WaitAsync(TestMaxWaitTime);
-
-                // ensure that endpoint 1 calls does not change, while endpoint 2 still runs
-                await AssertValueDidNotChangedAfterOperationAsync(
-                    () => counters[0].Value, 
-                    () => endpoint2Countdown.ResetTo(10).WaitAsync(TestMaxWaitTime));
+                VerifyTaskWasRegisteredForEndpointInMonitor(AddNewEndpointToRegistry(), Times.Once);
             }
 
-            await AssertValueDidNotChangedAfterOperationAsync(() => counters.Sum(c => c.Value), () => Task.Delay(200));
+            VerifyTaskWasRegisteredForEndpointInMonitor(AddNewEndpointToRegistry(), Times.Never);
         }
 
         [Fact]
-        public async Task Monitor_should_check_endpoint_health_with_regular_intervals()
+        public void Monitor_should_dispose_task_executor_on_its_disposal()
         {
-            var interval = TimeSpan.FromMilliseconds(200);
-            var healthCounter = new AsyncCountdown("health", 1);
-            var delayCounter = new AsyncCountdown("delay", 1);
-
-            _mockHealthMonitor.Setup(cfg => cfg.CheckHealthAsync("address", It.IsAny<CancellationToken>())).Returns(() => _awaitableFactory.Return(new HealthInfo(HealthStatus.Healthy)).WithTimeline("health").WithCountdown(healthCounter).RunAsync());
-            _mockTimeCoordinator.Setup(cfg => cfg.Delay(interval, It.IsAny<CancellationToken>())).Returns(() => _awaitableFactory.Return().WithDelay(interval).WithTimeline("delay").WithCountdown(delayCounter).RunAsync());
-
-            _endpointRegistry.TryRegister(CreateEndpointIdentity("address"));
-            using (CreateEndpointMonitor(interval))
-                await Task.WhenAll(healthCounter.WaitAsync(TestMaxWaitTime), delayCounter.WaitAsync(TestMaxWaitTime));
-
-            var results = _awaitableFactory.GetTimeline();
-            Assert.True(results.Length > 1, "results.Length>1");
-            var delayTask = results[0];
-            var healthTask = results[1];
-
-            Assert.Equal(delayTask.Tag, "delay");
-            Assert.Equal(healthTask.Tag, "health");
-
-            AssertTimeOrder(delayTask.Started, healthTask.Started, healthTask.Finished, delayTask.Finished);
+            var monitor = CreateEndpointMonitor();
+            _mockExecutor.Verify(e => e.Dispose(), Times.Never);
+            monitor.Dispose();
+            _mockExecutor.Verify(e => e.Dispose(), Times.Once);
         }
 
-        private EndpointMonitor CreateEndpointMonitor(TimeSpan checkInterval)
+        [Fact]
+        public async Task The_endpoint_monitoring_should_start_from_randomized_delay_in_order_to_distribute_montior_load_then_check_health_in_regular_intervals()
         {
-            var settings = MonitorSettingsHelper.ConfigureSettings(checkInterval);
-            return new EndpointMonitor(_endpointRegistry, new MockSampler(), settings, _mockTimeCoordinator.Object);
+            var noOfHealthChecks = 3;
+
+            var expectedEventTimeline = new List<string> { "randomDelay_start", "randomDelay_finish" };
+            for (int i = 0; i < noOfHealthChecks; ++i)
+                expectedEventTimeline.AddRange(new[] { "checkInterval_start", "healthCheck_start", "check_finish", "check_finish" });
+
+            var endpoint = AddNewEndpointToRegistry();
+            var capturedTaskFactory = CaptureMonitorTask(endpoint);
+
+            using (var cancellationTokenSource = new CancellationTokenSource())
+            {
+                SetupDelayTaskOnTimeLine("randomDelay", requestedDelay => requestedDelay < TestHealthCheckInterval, cancellationTokenSource.Token);
+                SetupDelayTaskOnTimeLine("checkInterval", requestedDelay => requestedDelay == TestHealthCheckInterval, cancellationTokenSource.Token);
+                SetupEndpointMonitorOnTimeLineToRunNTimes(endpoint, "healthCheck", noOfHealthChecks, cancellationTokenSource.Token);
+
+                await capturedTaskFactory.Invoke(endpoint, cancellationTokenSource.Token);
+            }
+
+            var actualEventTimeline = _awaitableFactory.GetOrderedTimelineEvents()
+                .Select(eventName => (eventName == "healthCheck_finish" || eventName == "checkInterval_finish") ? "check_finish" : eventName)
+                .ToArray();
+
+            Assert.True(expectedEventTimeline.SequenceEqual(actualEventTimeline), $"Expected:\n{string.Join(",", expectedEventTimeline)}\nGot:\n{string.Join(",", actualEventTimeline)}");
+        }
+
+        [Fact]
+        public async Task The_endpoint_health_check_task_should_be_cancellable()
+        {
+            var endpoint = AddNewEndpointToRegistry();
+            var capturedTaskFactory = CaptureMonitorTask(endpoint);
+
+            var delayNotCancelled = false;
+            var healthCheckNotCancelled = false;
+
+            using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(500)))
+            {
+                var cancellationToken = cancellationTokenSource.Token;
+                _mockTimeCoordinator.Setup(c => c.Delay(It.Is<TimeSpan>(ts => ts < TestMaxWaitTime), cancellationToken))
+                    .Returns(() => Task.FromResult(0));
+
+                _mockTimeCoordinator
+                    .Setup(c => c.Delay(TestHealthCheckInterval, cancellationToken))
+                    .Returns(async (TimeSpan delay, CancellationToken token) =>
+                    {
+                        await Task.Delay(TestMaxWaitTime, token);
+                        delayNotCancelled = true;
+                    });
+
+                _mockHealthMonitor.Setup(m => m.CheckHealthAsync(endpoint.Identity.Address, cancellationToken)).Returns(
+                    async (string address, CancellationToken token) =>
+                    {
+                        await Task.Delay(TestMaxWaitTime, token);
+                        healthCheckNotCancelled = true;
+                        endpoint.Dispose();
+                        return new HealthInfo(HealthStatus.Healthy);
+                    });
+
+                await capturedTaskFactory.Invoke(endpoint, cancellationToken);
+            }
+            Assert.False(delayNotCancelled, "delayNotCancelled");
+            Assert.False(healthCheckNotCancelled, "healthCheckNotCancelled");
+        }
+
+        [Fact]
+        public async Task The_endpoint_health_check_should_delay_next_check_execution_after_exception_but_then_retry()
+        {
+            var endpoint = AddNewEndpointToRegistry();
+            var capturedTaskFactory = CaptureMonitorTask(endpoint);
+
+            const int totalHealthCheckRuns = 4;
+
+            using (var cancellationTokenSource = new CancellationTokenSource())
+            {
+                var cancellationToken = cancellationTokenSource.Token;
+                _mockTimeCoordinator.Setup(c => c.Delay(It.IsAny<TimeSpan>(), cancellationToken))
+                    .Returns(() => Task.FromResult(0));
+
+                int healthCheckRuns = 0;
+                _mockHealthMonitor.Setup(m => m.CheckHealthAsync(endpoint.Identity.Address, cancellationToken))
+                    .Returns(() =>
+                    {
+                        if (healthCheckRuns++ < totalHealthCheckRuns)
+                            throw new Exception("some exception");
+                        endpoint.Dispose();
+                        return Task.FromResult(new HealthInfo(HealthStatus.Healthy));
+                    });
+
+                await capturedTaskFactory.Invoke(endpoint, cancellationToken);
+
+                for (int i = 1; i <= totalHealthCheckRuns; ++i)
+                    _mockTimeCoordinator.Verify(c => c.Delay(TimeSpan.FromSeconds(i), cancellationToken), Times.Once());
+            }
+        }
+
+        private void SetupEndpointMonitorOnTimeLineToRunNTimes(MonitorableEndpoint endpoint, string eventName, int noOfHealthChecks, CancellationToken cancellationToken)
+        {
+            int repeats = 0;
+
+            _mockHealthMonitor.Setup(m => m.CheckHealthAsync(endpoint.Identity.Address, cancellationToken))
+                .Returns(() => _awaitableFactory.Execute(() =>
+                {
+                    if (++repeats >= noOfHealthChecks)
+                        endpoint.Dispose();
+                    return new HealthInfo(HealthStatus.Healthy);
+                })
+                .WithTimeline(eventName).RunAsync());
+        }
+
+        private void SetupDelayTaskOnTimeLine(string eventName, Expression<Func<TimeSpan, bool>> delayExpression, CancellationToken cancellationToken)
+        {
+            _mockTimeCoordinator.Setup(c => c.Delay(It.Is(delayExpression), cancellationToken))
+                .Returns(() => _awaitableFactory.Return().WithDelay(TimeSpan.FromMilliseconds(100)).WithTimeline(eventName).RunAsync());
+        }
+
+        private MonitorableEndpoint AddNewEndpointToRegistry()
+        {
+            var id = Guid.NewGuid();
+            return _endpointRegistry.TryRegister(new EndpointIdentity(id, MonitorType, "address" + id));
+        }
+
+        private void VerifyTaskWasRegisteredForEndpointInMonitor(MonitorableEndpoint endpoint, Func<Times> times)
+        {
+            _mockExecutor.Verify(e => e.TryRegisterTaskFor(endpoint, It.IsAny<Func<MonitorableEndpoint, CancellationToken, Task>>()), times);
+        }
+
+        private EndpointMonitor CreateEndpointMonitor()
+        {
+            var settings = MonitorSettingsHelper.ConfigureSettings(TestHealthCheckInterval);
+            return new EndpointMonitor(_endpointRegistry, new MockSampler(), settings, _mockTimeCoordinator.Object, _mockExecutor.Object);
+        }
+
+        private Func<MonitorableEndpoint, CancellationToken, Task> CaptureMonitorTask(MonitorableEndpoint endpoint)
+        {
+            Func<MonitorableEndpoint, CancellationToken, Task> capturedTaskFactory = null;
+            _mockExecutor.Setup(e => e.TryRegisterTaskFor(endpoint, It.IsAny<Func<MonitorableEndpoint, CancellationToken, Task>>()))
+                .Returns((MonitorableEndpoint e, Func<MonitorableEndpoint, CancellationToken, Task> taskFactory) =>
+                {
+                    capturedTaskFactory = taskFactory;
+                    return true;
+                });
+
+            using (CreateEndpointMonitor()) { }
+            Assert.True(capturedTaskFactory != null, "It should capture monitor task");
+            return capturedTaskFactory;
         }
 
         class MockSampler : IHealthSampler
@@ -108,25 +224,6 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
                 await endpoint.Monitor.CheckHealthAsync(endpoint.Identity.Address, cancellationToken);
                 return new EndpointHealth(DateTime.MinValue, TimeSpan.Zero, EndpointStatus.Healthy);
             }
-        }
-
-        private void AssertTimeOrder(params TimeSpan[] times)
-        {
-            for (var i = 1; i < times.Length; ++i)
-                Assert.True(times[i] > times[i - 1], $"Expected [{i}] {times[i]} > [{i - 1}] {times[i - 1]}");
-        }
-
-        private EndpointIdentity CreateEndpointIdentity(string address)
-        {
-            return new EndpointIdentity(Guid.NewGuid(), _mockHealthMonitor.Object.Name, address);
-        }
-
-        private static async Task AssertValueDidNotChangedAfterOperationAsync<T>(Func<T> valueToCheck, Func<Task> operation)
-        {
-            var before = valueToCheck.Invoke();
-            await operation.Invoke();
-            var after = valueToCheck.Invoke();
-            Assert.Equal(before, after);
         }
     }
 }

@@ -7,7 +7,7 @@ using Common.Logging;
 using HealthMonitoring.Configuration;
 using HealthMonitoring.Model;
 using HealthMonitoring.Monitors.Core.Helpers;
-using HealthMonitoring.Monitors.Core.Helpers.Time;
+using HealthMonitoring.TimeManagement;
 
 namespace HealthMonitoring.Monitors.Core.Samplers
 {

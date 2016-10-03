@@ -3,8 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Hosting;
 using HealthMonitoring.Monitors.Broken;
-using HealthMonitoring.Monitors.Core.UnitTests.Helpers;
 using HealthMonitoring.Monitors.Http;
+using HealthMonitoring.TestUtils;
 using Xunit;
 
 namespace HealthMonitoring.Monitors.Core.UnitTests

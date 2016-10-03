@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Selenium;
 using LightBDD;
@@ -12,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 {
-    public partial class Home_page : FeatureFixture, IDisposable
+    public partial class Home_page : FeatureFixture, IClassFixture<WebDriverContext>
     {
         private const string _title = "Health Monitoring";
         private const string _filteredStatusElements = "//table[contains(@class,'endpoints')]//tr//td[3]";
@@ -23,13 +22,11 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         private readonly string _homeUrl;
         private readonly List<string> _selectedTags = new List<string>();
 
-        public Home_page(ITestOutputHelper output) : base(output)
+        public Home_page(ITestOutputHelper output, WebDriverContext webDriverContext) : base(output)
         {
             _client = ClientHelper.Build();
             _client.RegisterTestEndpoints();
-            _driver = SeleniumConfiguration.GetWebDriver();
-            _driver.RetryTimeout(Timeouts.Default);
-            _driver.Manage().Window.Maximize();
+            _driver = webDriverContext.Driver;
             _homeUrl = $"{SeleniumConfiguration.BaseUrl}?endpoint-frequency=1000000&config-frequency=1000000";
         }
 
@@ -133,8 +130,6 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             var firstTag = GetAllTags().First();
             _selectedTags.Add(firstTag.Text);
             firstTag.Click();
-
-            Thread.Sleep(3000);
         }
 
         public void When_user_clicks_on_second_tag()
@@ -142,8 +137,6 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             var secondTag = GetAllTags().First(m => m.Text != _selectedTags.First());
             _selectedTags.Add(secondTag.Text);
             secondTag.Click();
-
-            Thread.Sleep(3000);
         }
 
         public void Then_only_endpoints_with_chosen_tags_should_be_shown()
@@ -223,11 +216,6 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         private List<IWebElement> GetFilteredStatusElements()
         {
             return _driver.WaitElementsAreRendered(By.XPath(_filteredStatusElements)).ToList();
-        }
-
-        public void Dispose()
-        {
-            _driver?.Quit();
         }
     }
 }

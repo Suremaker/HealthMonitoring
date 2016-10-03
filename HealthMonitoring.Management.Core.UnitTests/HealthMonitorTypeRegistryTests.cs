@@ -1,4 +1,5 @@
 using System.Linq;
+using HealthMonitoring.Management.Core.Registers;
 using HealthMonitoring.Management.Core.Repositories;
 using Moq;
 using Xunit;

@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace HealthMonitoring.Monitors.Core.UnitTests.Helpers.Awaitable
+namespace HealthMonitoring.TestUtils.Awaitable
 {
     public class AwaitableBuilder<T>
     {

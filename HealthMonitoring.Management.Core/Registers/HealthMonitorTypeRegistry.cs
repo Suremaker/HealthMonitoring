@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HealthMonitoring.Management.Core.Repositories;
 
-namespace HealthMonitoring.Management.Core
+namespace HealthMonitoring.Management.Core.Registers
 {
     public class HealthMonitorTypeRegistry : IHealthMonitorTypeRegistry
     {

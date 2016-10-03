@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Selenium;
@@ -11,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 {
-    public partial class Details_page : FeatureFixture, IDisposable
+    public partial class Details_page : FeatureFixture, IClassFixture<WebDriverContext>
     {
         #region Private vars
 
@@ -34,13 +33,11 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         private readonly string _homePageUrl = $"{SeleniumConfiguration.BaseUrl}?endpoint-frequency=1000000&config-frequency=1000000";
         #endregion
 
-        public Details_page(ITestOutputHelper output) : base(output)
+        public Details_page(ITestOutputHelper output, WebDriverContext webDriverContext) : base(output)
         {
             _client = ClientHelper.Build();
             _client.RegisterTestEndpoints();
-            _driver = SeleniumConfiguration.GetWebDriver();
-            _driver.RetryTimeout(Timeouts.Default);
-            _driver.Manage().Window.Maximize();
+            _driver = webDriverContext.Driver;
 
             _endpointLinksOfTagRowsOnHomePage = $"{_rowsWithTags}//td[2]//a";
             _endpointGroupsOfTagRowsOnHomePage = $"{_rowsWithTags}//td[1]";
@@ -105,11 +102,6 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             return _driver.FindElements(By.XPath(_endpointTagsDetailsPage))
                 .Select(m => m.Text)
                 .ToList();
-        }
-
-        public void Dispose()
-        {
-            _driver?.Quit();
         }
     }
 }

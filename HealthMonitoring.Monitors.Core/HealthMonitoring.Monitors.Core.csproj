@@ -62,10 +62,6 @@
     <Compile Include="Exchange\Client\Entities\MonitorSettingsModel.cs" />
     <Compile Include="Exchange\DataExchangeConfig.cs" />
     <Compile Include="Exchange\MonitorDataExchange.cs" />
-    <Compile Include="Helpers\OutgoingQueue.cs" />
-    <Compile Include="Helpers\Time\IStopWatch.cs" />
-    <Compile Include="Helpers\Time\ITimeCoordinator.cs" />
-    <Compile Include="Helpers\Time\TimeCoordinator.cs" />
     <Compile Include="IEndpointHealthUpdateListener.cs" />
     <Compile Include="Registers\EndpointRegistry.cs" />
     <Compile Include="Registers\HealthMonitorRegistry.cs" />

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Concurrent;
-using HealthMonitoring.Monitors.Core.Helpers.Time;
+using HealthMonitoring.TimeManagement;
 
-namespace HealthMonitoring.Monitors.Core.UnitTests.Helpers.Awaitable
+namespace HealthMonitoring.TestUtils.Awaitable
 {
     public class MockStopwatch : IStopwatch, IAsyncTimedEvent
     {

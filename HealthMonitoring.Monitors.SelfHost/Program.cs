@@ -12,6 +12,8 @@ using HealthMonitoring.Monitors.Core.Exchange.Client;
 using HealthMonitoring.Monitors.Core.Registers;
 using HealthMonitoring.Monitors.Core.Samplers;
 using HealthMonitoring.Monitors.SelfHost.Configuration;
+using HealthMonitoring.TaskManagement;
+using HealthMonitoring.TimeManagement;
 
 namespace HealthMonitoring.Monitors.SelfHost
 {
@@ -47,6 +49,8 @@ namespace HealthMonitoring.Monitors.SelfHost
             var settings = LoadSettings(exchangeClient);
 
             var builder = new ContainerBuilder();
+            builder.Register(ctx => ContinuousTaskExecutor<MonitorableEndpoint>.StartExecutor()).AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<TimeCoordinator>().AsSelf().AsImplementedInterfaces();
             builder.RegisterAssemblyTypes(typeof(HealthMonitorRegistry).Assembly).AsSelf().AsImplementedInterfaces().SingleInstance();
             builder.RegisterInstance(exchangeClient).AsSelf().AsImplementedInterfaces();
             builder.RegisterInstance(settings.MonitorSettings).AsImplementedInterfaces();

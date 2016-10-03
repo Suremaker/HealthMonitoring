@@ -5,9 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Configuration;
 using HealthMonitoring.Model;
-using HealthMonitoring.Monitors.Core.Helpers.Time;
 using HealthMonitoring.Monitors.Core.Samplers;
-using HealthMonitoring.Monitors.Core.UnitTests.Helpers.Awaitable;
+using HealthMonitoring.TestUtils.Awaitable;
+using HealthMonitoring.TimeManagement;
 using Moq;
 using Xunit;
 

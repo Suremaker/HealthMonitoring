@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("HealthMonitoring.AcceptanceTests")]
-[assembly: AssemblyCopyright("")]
+[assembly: AssemblyCopyright("Copyright © Wonga")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]

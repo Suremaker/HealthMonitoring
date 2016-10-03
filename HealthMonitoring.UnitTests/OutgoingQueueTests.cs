@@ -2,10 +2,10 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using HealthMonitoring.Monitors.Core.Helpers;
+using HealthMonitoring.Queueing;
 using Xunit;
 
-namespace HealthMonitoring.Monitors.Core.UnitTests
+namespace HealthMonitoring.UnitTests
 {
     public class OutgoingQueueTests
     {

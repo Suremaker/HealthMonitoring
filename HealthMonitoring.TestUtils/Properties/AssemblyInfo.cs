@@ -1,15 +1,15 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("HealthMonitoring.Management.Core.UnitTests")]
+[assembly: AssemblyTitle("HealthMonitoring.TestUtils")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("HealthMonitoring.Management.Core.UnitTests")]
+[assembly: AssemblyProduct("HealthMonitoring.TestUtils")]
 [assembly: AssemblyCopyright("Copyright © Wonga")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-[assembly: Guid("c52d6b95-1626-4fd0-a9a2-7d31f2d091c3")]
-[assembly: AssemblyVersion("3.2.0.0")]
-[assembly: AssemblyFileVersion("3.2.0.0")]
+[assembly: Guid("88551f10-599d-48c4-974f-4ae7f66f6ddc")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
