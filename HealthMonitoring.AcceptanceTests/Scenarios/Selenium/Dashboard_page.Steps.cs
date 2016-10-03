@@ -161,13 +161,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
                 );
 
             Assert.True(selectedCorrectStatuses);
-        }
-
-        private List<IWebElement> GetEndpointTiles()
-        {
-            return _driver.WaitElementsAreRendered(By.XPath(_endpointTilesSelector))
-                .ToList();
-        }
+        }		
 
         private List<string> GetFilteredStatuses()
         {
