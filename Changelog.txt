@@ -1,6 +1,9 @@
 3.2.1.0
 -------
-Endpoint metrics forwarding
+Added HealthMonitoring.Forwarders allowing endpoint metrics forwarding
+Added more detailed logging to API
+Corrected deadlock race condition in SqlEndpointConfigurationRepository
+Reworked algorithm for endpoint monitoring to properly recover from communication issues
 
 3.2.0.0
 -------
