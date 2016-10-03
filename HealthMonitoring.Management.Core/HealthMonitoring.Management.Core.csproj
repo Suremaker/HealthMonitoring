@@ -47,17 +47,17 @@
     <Compile Include="Configuration\AppSettingsMonitorSettings.cs" />
     <Compile Include="Configuration\AppSettingsThrottlingSettings.cs" />
     <Compile Include="EndpointMetricsForwarderCoordinator.cs" />
-    <Compile Include="HealthMonitorTypeRegistry.cs" />
+    <Compile Include="Registers\HealthMonitorTypeRegistry.cs" />
     <Compile Include="Repositories\IEndpointConfigurationRepository.cs" />
     <Compile Include="Endpoint.cs" />
-    <Compile Include="EndpointRegistry.cs" />
+    <Compile Include="Registers\EndpointRegistry.cs" />
     <Compile Include="EndpointStatsManager.cs" />
-    <Compile Include="IEndpointRegistry.cs" />
+    <Compile Include="Registers\IEndpointRegistry.cs" />
     <Compile Include="IEndpointStatsManager.cs" />
     <Compile Include="IEndpointMetricsForwarderCoordinator.cs" />
     <Compile Include="Repositories\IEndpointStatsRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IHealthMonitorTypeRegistry.cs" />
+    <Compile Include="Registers\IHealthMonitorTypeRegistry.cs" />
     <Compile Include="Repositories\IHealthMonitorTypeRepository.cs" />
     <Compile Include="UnsupportedMonitorException.cs" />
   </ItemGroup>
@@ -74,6 +74,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

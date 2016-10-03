@@ -13,6 +13,7 @@ I want to open home page")]
         {
             Runner.RunScenario(
                 _ => Given_home_page(),
+                _ => Given_endpoints_are_visible(),
                 _ => Then_page_should_contain_title()
                 );
         }
@@ -22,6 +23,7 @@ I want to open home page")]
         {
             Runner.RunScenario(
                 _ => Given_home_page(),
+                _ => Given_endpoints_are_visible(),
                 _ => When_user_clicks_on_dashboad_page_link(),
                 _ => Then_dashboard_page_should_be_opened()
                 );
@@ -32,6 +34,7 @@ I want to open home page")]
         {
             Runner.RunScenario(
                 _ => Given_home_page(),
+                _ => Given_endpoints_are_visible(),
                 _ => When_user_clicks_on_swagger_page_link(),
                 _ => Then_swagger_page_should_be_opened()
                 );
@@ -42,6 +45,7 @@ I want to open home page")]
         {
             Runner.RunScenario(
                 _ => Given_home_page(),
+                _ => Given_endpoints_are_visible(),
                 _ => When_user_clicks_on_project_page_link(),
                 _ => Then_project_page_should_be_opened()
                 );
@@ -52,6 +56,7 @@ I want to open home page")]
         {
             Runner.RunScenario(
                 _ => Given_home_page(),
+                _ => Given_endpoints_are_visible(),
                 _ => When_user_clicks_on_status_button(),
                 _ => Then_only_endpoints_with_chosen_status_should_be_shown(),
                 _ => Then_should_be_shown_selected_status(),
@@ -64,7 +69,9 @@ I want to open home page")]
         {
             Runner.RunScenario(
                 _ => Given_home_page(),
-                _ => When_user_clicks_on_endpoint_tags(),
+                _ => Given_endpoints_are_visible(),
+                _ => When_user_clicks_on_first_tag(),
+                _ => When_user_clicks_on_second_tag(),
                 _ => Then_only_endpoints_with_chosen_tags_should_be_shown(),
                 _ => Then_should_be_shown_which_tags_are_selected(),
                 _ => Then_tag_filter_should_be_appended_to_url()

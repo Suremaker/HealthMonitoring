@@ -40,6 +40,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             _client.RegisterTestEndpoints();
             _driver = SeleniumConfiguration.GetWebDriver();
             _driver.RetryTimeout(Timeouts.Default);
+            _driver.Manage().Window.Maximize();
 
             _endpointLinksOfTagRowsOnHomePage = $"{_rowsWithTags}//td[2]//a";
             _endpointGroupsOfTagRowsOnHomePage = $"{_rowsWithTags}//td[1]";
@@ -53,9 +54,9 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         public void When_user_clicks_on_endpoint_name()
         {
-            var detailsLink = _driver.FindElements(By.XPath(_endpointLinksOfTagRowsOnHomePage)).First();
+            var detailsLink = _driver.WaitElementsAreRendered(By.XPath(_endpointLinksOfTagRowsOnHomePage)).First();
             _endpointName = detailsLink.Text;
-            _endpointGroup = _driver.FindElements(By.XPath(_endpointGroupsOfTagRowsOnHomePage)).First().Text;
+            _endpointGroup = _driver.WaitElementsAreRendered(By.XPath(_endpointGroupsOfTagRowsOnHomePage)).First().Text;
             _edpointTags = GetTagsOfFirstEndpointOnHomePage();
 
             _detailsPageUrl = detailsLink.GetAttribute("href");

@@ -81,6 +81,8 @@
     <Compile Include="Controllers\EndpointsControllerTests.cs" />
     <Compile Include="Controllers\MonitorsControllerTests.cs" />
     <Compile Include="Controllers\StaticControllerTests.cs" />
+    <Compile Include="Formatters\TextMediaTypeFormatterTests.cs" />
+    <Compile Include="Handlers\MessageLoggingHandlerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

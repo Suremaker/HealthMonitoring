@@ -35,11 +35,18 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             _client.RegisterTestEndpoints();
             _driver = SeleniumConfiguration.GetWebDriver();
             _driver.RetryTimeout(Timeouts.Default);
+            _driver.Manage().Window.Maximize();
         }
 
         public void Given_dashboard_page()
         {
             _driver.LoadUrl(_dashboardUrl);
+        }
+
+        public void Given_endpoints_are_visible()
+        {
+            _driver.WaitElementsAreRendered(By.XPath(_endpointTilesSelector), 
+                                            el => el.Enabled && el.Displayed);
         }
 
         public void When_user_clicks_on_home_link()

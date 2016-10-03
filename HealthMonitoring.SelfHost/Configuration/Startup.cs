@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Headers;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.ExceptionHandling;
 using Autofac;
@@ -7,7 +6,6 @@ using Autofac.Integration.WebApi;
 using HealthMonitoring.Forwarders;
 using HealthMonitoring.Hosting;
 using HealthMonitoring.Management.Core;
-using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Persistence;
 using HealthMonitoring.SelfHost.Handlers;
 using Microsoft.Owin.Host.HttpListener;
@@ -22,7 +20,7 @@ namespace HealthMonitoring.SelfHost.Configuration
         public void Configuration(IAppBuilder appBuilder)
         {
             var config = new HttpConfiguration();
-            ConfigureServices(config);
+            ConfigureHandlers(config);
             ConfigureSerializers(config);
             ConfigureRoutes(config);
             ConfigureSwagger(config);
@@ -31,15 +29,16 @@ namespace HealthMonitoring.SelfHost.Configuration
             appBuilder.UseWebApi(config);
         }
 
-        private static void ConfigureServices(HttpConfiguration config)
+        private static void ConfigureHandlers(HttpConfiguration config)
         {
             config.Services.Replace(typeof(IExceptionHandler), new GlobalExceptionHandler());
+            config.MessageHandlers.Add(new MessageLoggingHandler());
         }
 
         private static void ConfigureSerializers(HttpConfiguration config)
         {
             config.Formatters.JsonFormatter.SerializerSettings.Converters.Add(new StringEnumConverter { CamelCaseText = true });
-            config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
+            config.Formatters.Add(new TextMediaTypeFormatter());
         }
 
         private static void ConfigureRoutes(HttpConfiguration config)
@@ -74,13 +73,6 @@ namespace HealthMonitoring.SelfHost.Configuration
 
             builder.RegisterInstance<IEndpointMetricsForwarderCoordinator>(
                 new EndpointMetricsForwarderCoordinator(PluginDiscovery<IEndpointMetricsForwarder>.DiscoverAllInCurrentFolder("*.Forwarders.*.dll")));
-
-            builder.Register(ctx =>
-            {
-                var repo = new EndpointStatsRepository(new MySqlDatabase());
-                repo.EndpointStatisticsInserted += ctx.Resolve<IEndpointMetricsForwarderCoordinator>().HandleMetricsForwarding;
-                return repo;
-            }).AsImplementedInterfaces().SingleInstance();
 
             var container = builder.Build();
             config.DependencyResolver = new AutofacWebApiDependencyResolver(container);

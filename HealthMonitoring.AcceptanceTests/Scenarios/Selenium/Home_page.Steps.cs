@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Selenium;
 using LightBDD;
@@ -15,11 +16,12 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
     {
         private const string _title = "Health Monitoring";
         private const string _filteredStatusElements = "//table[contains(@class,'endpoints')]//tr//td[3]";
-        
+        private const string _endpointsGroupsSelector = "//*[@id='main']/article[2]/table/tbody/tr/td[1]";
+
         private readonly IWebDriver _driver;
         private readonly RestClient _client;
         private readonly string _homeUrl;
-        private List<string> _selectedTags;
+        private readonly List<string> _selectedTags = new List<string>();
 
         public Home_page(ITestOutputHelper output) : base(output)
         {
@@ -27,12 +29,19 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             _client.RegisterTestEndpoints();
             _driver = SeleniumConfiguration.GetWebDriver();
             _driver.RetryTimeout(Timeouts.Default);
+            _driver.Manage().Window.Maximize();
             _homeUrl = $"{SeleniumConfiguration.BaseUrl}?endpoint-frequency=1000000&config-frequency=1000000";
         }
 
         public void Given_home_page()
         {
             _driver.LoadUrl(_homeUrl);
+        }
+
+        public void Given_endpoints_are_visible()
+        {
+            _driver.WaitElementsAreRendered(By.XPath(_endpointsGroupsSelector),
+                group => group.Displayed && group.Enabled);
         }
 
         public void Then_page_should_contain_title()
@@ -119,22 +128,21 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
 
-        public void When_user_clicks_on_endpoint_tags()
+        public void When_user_clicks_on_first_tag()
         {
-            _selectedTags = new List<string>();
-
-            var allTags = GetAllTags();
-            var firstTag = allTags.First();
-
+            var firstTag = GetAllTags().First();
             _selectedTags.Add(firstTag.Text);
             firstTag.Click();
 
-            allTags = GetAllTags();
+            Thread.Sleep(3000);
+        }
 
-            var secondTag = allTags.First(m => m.Text != _selectedTags.First());
+        public void When_user_clicks_on_second_tag()
+        {
+            var secondTag = GetAllTags().First(m => m.Text != _selectedTags.First());
             _selectedTags.Add(secondTag.Text);
-
             secondTag.Click();
+            Thread.Sleep(3000);
         }
 
         public void Then_only_endpoints_with_chosen_tags_should_be_shown()

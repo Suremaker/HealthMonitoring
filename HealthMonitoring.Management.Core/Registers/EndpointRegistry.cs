@@ -12,16 +12,18 @@ namespace HealthMonitoring.Management.Core
         private readonly IHealthMonitorTypeRegistry _healthMonitorTypeRegistry;
         private readonly IEndpointConfigurationRepository _endpointConfigurationRepository;
         private readonly IEndpointStatsRepository _statsRepository;
+        private readonly IEndpointMetricsForwarderCoordinator _metricsForwarderCoordinator;
         private readonly ConcurrentDictionary<string, Endpoint> _endpoints = new ConcurrentDictionary<string, Endpoint>();
         private readonly ConcurrentDictionary<Guid, Endpoint> _endpointsByGuid = new ConcurrentDictionary<Guid, Endpoint>();
 
         public IEnumerable<Endpoint> Endpoints { get { return _endpoints.Select(p => p.Value); } }
 
-        public EndpointRegistry(IHealthMonitorTypeRegistry healthMonitorTypeRegistry, IEndpointConfigurationRepository endpointConfigurationRepository, IEndpointStatsRepository statsRepository)
+        public EndpointRegistry(IHealthMonitorTypeRegistry healthMonitorTypeRegistry, IEndpointConfigurationRepository endpointConfigurationRepository, IEndpointStatsRepository statsRepository, IEndpointMetricsForwarderCoordinator coordinator)
         {
             _healthMonitorTypeRegistry = healthMonitorTypeRegistry;
             _endpointConfigurationRepository = endpointConfigurationRepository;
             _statsRepository = statsRepository;
+            _metricsForwarderCoordinator = coordinator;
 
             foreach (var endpoint in _endpointConfigurationRepository.LoadEndpoints())
             {
@@ -81,6 +83,7 @@ namespace HealthMonitoring.Management.Core
                 return;
             endpoint.UpdateHealth(health);
             _statsRepository.InsertEndpointStatistics(endpointId, health);
+            _metricsForwarderCoordinator.HandleMetricsForwarding(endpoint.Identity, endpoint.Metadata, health);
         }
     }
 }

@@ -5,7 +5,6 @@ using System.Net;
 using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Description;
-using Common.Logging;
 using HealthMonitoring.Management.Core;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
@@ -20,7 +19,6 @@ namespace HealthMonitoring.SelfHost.Controllers
     {
         private readonly IEndpointRegistry _endpointRegistry;
         private readonly IEndpointStatsRepository _endpointStatsRepository;
-        private static readonly ILog Logger = LogManager.GetLogger<EndpointsController>();
 
         public EndpointsController(IEndpointRegistry endpointRegistry, IEndpointStatsRepository endpointStatsRepository)
         {
@@ -38,7 +36,6 @@ namespace HealthMonitoring.SelfHost.Controllers
             try
             {
                 var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Tags);
-                Logger.InfoFormat("Registered new endpoint with id: {0}, address: {1}", id, endpoint.Address);
                 return Created(new Uri(Request.RequestUri, $"/api/endpoints/{id}"), id);
             }
             catch (UnsupportedMonitorException e)
@@ -99,7 +96,6 @@ namespace HealthMonitoring.SelfHost.Controllers
             if (_endpointRegistry.TryUnregisterById(id))
                 return Ok();
 
-            Logger.InfoFormat("Endpoint with id: {0} could not be deleted", id);
             return NotFound();
         }
 
@@ -123,7 +119,6 @@ namespace HealthMonitoring.SelfHost.Controllers
         [ResponseType(typeof(EndpointDetails))]
         public IHttpActionResult PutUpdateEndpointTags(Guid id, [FromBody]string[] tags)
         {
-            Logger.InfoFormat("New tags: [{0}] for endpoint with id: {1}", string.Join(",", tags), id);
             try
             {
                 tags.CheckForUnallowedSymbols();
@@ -131,7 +126,6 @@ namespace HealthMonitoring.SelfHost.Controllers
                 if (_endpointRegistry.TryUpdateEndpointTags(id, tags))
                     return Ok();
 
-                Logger.InfoFormat("Tags could not be applied to endpoint with id: {0}", id);
                 return NotFound();
             }
             catch (ArgumentException e)

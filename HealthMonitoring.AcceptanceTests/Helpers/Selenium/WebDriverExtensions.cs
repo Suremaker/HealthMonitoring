@@ -11,7 +11,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Selenium
         {
             return Wait.Until(Timeouts.Default,
                 () => FindElement(driver, selector),
-                element => element != null,
+                element => element != null && element.Displayed,
                 $"Element with selector:{selector} could not be rendered");
         }
 
