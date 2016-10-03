@@ -142,6 +142,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             var secondTag = GetAllTags().First(m => m.Text != _selectedTags.First());
             _selectedTags.Add(secondTag.Text);
             secondTag.Click();
+
             Thread.Sleep(3000);
         }
 

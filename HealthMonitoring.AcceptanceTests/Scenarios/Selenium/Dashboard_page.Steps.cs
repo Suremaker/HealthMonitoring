@@ -163,7 +163,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
                 );
 
             Assert.True(selectedCorrectStatuses);
-        }
+        }		
 
         private List<string> GetFilteredStatuses()
         {
