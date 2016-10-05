@@ -16,6 +16,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         private readonly Mock<IEndpointConfigurationRepository> _configurationStore;
         private readonly Mock<IEndpointStatsRepository> _statsRepository;
         private readonly Mock<IEndpointMetricsForwarderCoordinator> _forwarderCoordinator;
+        private readonly Mock<IEndpointStatsManager> _statsManager;
 
         public EndpointRegistryTests()
         {
@@ -23,7 +24,8 @@ namespace HealthMonitoring.Management.Core.UnitTests
             _configurationStore = new Mock<IEndpointConfigurationRepository>();
             _statsRepository = new Mock<IEndpointStatsRepository>();
             _forwarderCoordinator = new Mock<IEndpointMetricsForwarderCoordinator>();
-            _registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _forwarderCoordinator.Object);
+            _statsManager = new Mock<IEndpointStatsManager>();
+            _registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _forwarderCoordinator.Object, _statsManager.Object);
         }
 
         [Fact]
@@ -32,7 +34,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
             var endpoint = new Endpoint(new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }));
             _configurationStore.Setup(s => s.LoadEndpoints()).Returns(new[] { endpoint });
 
-            var registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _forwarderCoordinator.Object);
+            var registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _forwarderCoordinator.Object, _statsManager.Object);
 
             Assert.Same(endpoint, registry.GetById(endpoint.Identity.Id));
         }
@@ -187,7 +189,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
             var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", null);
             var health = new EndpointHealth(DateTime.UtcNow, TimeSpan.Zero, EndpointStatus.Healthy);
             _registry.UpdateHealth(id, health);
-            _statsRepository.Verify(r => r.InsertEndpointStatistics(id, health));
+            _statsManager.Verify(r => r.RecordEndpointStatistics(id, health));
             Assert.Same(_registry.GetById(id).Health, health);
         }
 
