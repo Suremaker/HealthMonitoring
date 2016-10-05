@@ -47,6 +47,7 @@
     <Compile Include="Configuration\AppSettingsMonitorSettings.cs" />
     <Compile Include="Configuration\AppSettingsThrottlingSettings.cs" />
     <Compile Include="EndpointMetricsForwarderCoordinator.cs" />
+    <Compile Include="EndpointUpdateFrequencyGuard.cs" />
     <Compile Include="Registers\HealthMonitorTypeRegistry.cs" />
     <Compile Include="Repositories\IEndpointConfigurationRepository.cs" />
     <Compile Include="Endpoint.cs" />

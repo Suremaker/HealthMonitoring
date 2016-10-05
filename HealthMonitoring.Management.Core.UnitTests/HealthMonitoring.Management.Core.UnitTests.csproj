@@ -68,6 +68,7 @@
     <Compile Include="EndpointStatsManagerTests.cs" />
     <Compile Include="EndpointTests.cs" />
     <Compile Include="EndpointMetricsForwarderCoordinatorTest.cs" />
+    <Compile Include="EndpointUpdateFrequencyGuardTests.cs" />
     <Compile Include="HealthMonitorTypeRegistryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -82,6 +83,10 @@
     <ProjectReference Include="..\HealthMonitoring.Management.Core\HealthMonitoring.Management.Core.csproj">
       <Project>{DDEAC82F-7D78-4962-B180-9711D574AF8D}</Project>
       <Name>HealthMonitoring.Management.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HealthMonitoring.TestUtils\HealthMonitoring.TestUtils.csproj">
+      <Project>{88551F10-599D-48C4-974F-4AE7F66F6DDC}</Project>
+      <Name>HealthMonitoring.TestUtils</Name>
     </ProjectReference>
     <ProjectReference Include="..\HealthMonitoring\HealthMonitoring.csproj">
       <Project>{B04E2F95-8F59-4B5C-AC93-4688EA6848D8}</Project>
