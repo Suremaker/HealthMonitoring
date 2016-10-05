@@ -1,18 +1,21 @@
 using System;
 using HealthMonitoring.Model;
+using HealthMonitoring.TimeManagement;
 
 namespace HealthMonitoring.Management.Core
 {
     public class Endpoint : IDisposable
     {
+        private readonly ITimeCoordinator _timeCoordinator;
         public EndpointIdentity Identity { get; }
         public EndpointMetadata Metadata { get; private set; }
         public bool IsDisposed { get; private set; }
         public EndpointHealth Health { get; private set; }
-        public DateTimeOffset LastModifiedTime { get; private set; }
+        public DateTimeOffset LastModifiedTimeUtc { get; private set; }
 
-        public Endpoint(EndpointIdentity identity, EndpointMetadata metadata)
+        public Endpoint(ITimeCoordinator timeCoordinator, EndpointIdentity identity, EndpointMetadata metadata)
         {
+            _timeCoordinator = timeCoordinator;
             Identity = identity;
             Metadata = metadata;
             UpdateLastModifiedTime();
@@ -27,7 +30,7 @@ namespace HealthMonitoring.Management.Core
 
         private void UpdateLastModifiedTime()
         {
-            LastModifiedTime = DateTimeOffset.UtcNow;
+            LastModifiedTimeUtc = _timeCoordinator.UtcNow;
         }
 
         public Endpoint UpdateMetadata(string group, string name, string[] tags)

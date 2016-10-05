@@ -4,6 +4,7 @@ using System.Threading;
 using HealthMonitoring.Management.Core.Registers;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
+using HealthMonitoring.TimeManagement;
 using Moq;
 using Xunit;
 
@@ -16,6 +17,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         private readonly Mock<IEndpointConfigurationRepository> _configurationStore;
         private readonly Mock<IEndpointStatsRepository> _statsRepository;
         private readonly Mock<IEndpointMetricsForwarderCoordinator> _forwarderCoordinator;
+        private readonly Mock<ITimeCoordinator> _timeCoordinator = new Mock<ITimeCoordinator>();
 
         public EndpointRegistryTests()
         {
@@ -23,16 +25,16 @@ namespace HealthMonitoring.Management.Core.UnitTests
             _configurationStore = new Mock<IEndpointConfigurationRepository>();
             _statsRepository = new Mock<IEndpointStatsRepository>();
             _forwarderCoordinator = new Mock<IEndpointMetricsForwarderCoordinator>();
-            _registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _forwarderCoordinator.Object);
+            _registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _forwarderCoordinator.Object, _timeCoordinator.Object);
         }
 
         [Fact]
         public void EndpointRegistry_should_load_endpoints_from_repository()
         {
-            var endpoint = new Endpoint(new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }));
+            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }));
             _configurationStore.Setup(s => s.LoadEndpoints()).Returns(new[] { endpoint });
 
-            var registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _forwarderCoordinator.Object);
+            var registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _forwarderCoordinator.Object, _timeCoordinator.Object);
 
             Assert.Same(endpoint, registry.GetById(endpoint.Identity.Id));
         }
@@ -41,6 +43,9 @@ namespace HealthMonitoring.Management.Core.UnitTests
         public void RegisterOrUpdate_should_register_new_endpoint_which_should_be_retrievable_later_by_GetById()
         {
             SetupMonitors("monitor");
+
+            var expectedLastModifiedTime = DateTime.UtcNow;
+            _timeCoordinator.Setup(c => c.UtcNow).Returns(expectedLastModifiedTime);
 
             var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1" });
             Assert.NotEqual(Guid.Empty, id);
@@ -54,7 +59,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
             Assert.Equal("group", endpoint.Metadata.Group);
             Assert.Equal(id, endpoint.Identity.Id);
             Assert.Equal("t1", endpoint.Metadata.Tags[0]);
-            Assert.True(endpoint.LastModifiedTime > DateTime.UtcNow.AddSeconds(-1), "LastModifiedTime should be updated");
+            Assert.Equal(expectedLastModifiedTime, endpoint.LastModifiedTimeUtc);
         }
 
         [Fact]
@@ -119,10 +124,18 @@ namespace HealthMonitoring.Management.Core.UnitTests
         public void RegisterOrUpdate_should_update_existing_endpoint_and_return_same_id()
         {
             SetupMonitors("monitor");
-            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" });
-            var lastModifiedTime = _registry.GetById(id).LastModifiedTime;
 
-            Thread.Sleep(100);
+            var updateTime1 = DateTime.UtcNow;
+            var updateTime2 = DateTime.UtcNow.AddMinutes(1);
+            _timeCoordinator.Setup(c => c.UtcNow)
+                .Returns(updateTime1);
+
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" });
+            Assert.Equal(updateTime1, _registry.GetById(id).LastModifiedTimeUtc);
+
+            _timeCoordinator.Setup(c => c.UtcNow)
+                .Returns(updateTime2);
+
             var id2 = _registry.RegisterOrUpdate("monitor", "ADDRESS", "group2", "name2", new[] { "t1", "t2" });
 
             Assert.Equal(id, id2);
@@ -133,7 +146,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
             Assert.Equal("address", endpoint.Identity.Address);
             Assert.Equal("name2", endpoint.Metadata.Name);
             Assert.Equal("group2", endpoint.Metadata.Group);
-            Assert.True(_registry.GetById(id2).LastModifiedTime > lastModifiedTime, "LastModifiedTime should be updated");
+            Assert.Equal(updateTime2, endpoint.LastModifiedTimeUtc);
         }
 
         [Fact]

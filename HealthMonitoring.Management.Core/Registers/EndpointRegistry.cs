@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
+using HealthMonitoring.TimeManagement;
 
 namespace HealthMonitoring.Management.Core.Registers
 {
@@ -13,17 +14,19 @@ namespace HealthMonitoring.Management.Core.Registers
         private readonly IEndpointConfigurationRepository _endpointConfigurationRepository;
         private readonly IEndpointStatsRepository _statsRepository;
         private readonly IEndpointMetricsForwarderCoordinator _metricsForwarderCoordinator;
+        private readonly ITimeCoordinator _timeCoordinator;
         private readonly ConcurrentDictionary<string, Endpoint> _endpoints = new ConcurrentDictionary<string, Endpoint>();
         private readonly ConcurrentDictionary<Guid, Endpoint> _endpointsByGuid = new ConcurrentDictionary<Guid, Endpoint>();
 
         public IEnumerable<Endpoint> Endpoints { get { return _endpoints.Select(p => p.Value); } }
 
-        public EndpointRegistry(IHealthMonitorTypeRegistry healthMonitorTypeRegistry, IEndpointConfigurationRepository endpointConfigurationRepository, IEndpointStatsRepository statsRepository, IEndpointMetricsForwarderCoordinator coordinator)
+        public EndpointRegistry(IHealthMonitorTypeRegistry healthMonitorTypeRegistry, IEndpointConfigurationRepository endpointConfigurationRepository, IEndpointStatsRepository statsRepository, IEndpointMetricsForwarderCoordinator coordinator, ITimeCoordinator timeCoordinator)
         {
             _healthMonitorTypeRegistry = healthMonitorTypeRegistry;
             _endpointConfigurationRepository = endpointConfigurationRepository;
             _statsRepository = statsRepository;
             _metricsForwarderCoordinator = coordinator;
+            _timeCoordinator = timeCoordinator;
 
             foreach (var endpoint in _endpointConfigurationRepository.LoadEndpoints())
             {
@@ -37,7 +40,7 @@ namespace HealthMonitoring.Management.Core.Registers
             if (!_healthMonitorTypeRegistry.GetMonitorTypes().Contains(monitorType))
                 throw new UnsupportedMonitorException(monitorType);
             var newIdentifier = new EndpointIdentity(Guid.NewGuid(), monitorType, address);
-            var endpoint = _endpoints.AddOrUpdate(newIdentifier.GetNaturalKey(), new Endpoint(newIdentifier, new EndpointMetadata(name, group, tags)), (k, e) => e.UpdateMetadata(group, name, tags));
+            var endpoint = _endpoints.AddOrUpdate(newIdentifier.GetNaturalKey(), new Endpoint(_timeCoordinator, newIdentifier, new EndpointMetadata(name, group, tags)), (k, e) => e.UpdateMetadata(group, name, tags));
             _endpointsByGuid[endpoint.Identity.Id] = endpoint;
             _endpointConfigurationRepository.SaveEndpoint(endpoint);
 

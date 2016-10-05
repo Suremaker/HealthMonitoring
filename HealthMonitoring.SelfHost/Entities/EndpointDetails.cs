@@ -18,7 +18,7 @@ namespace HealthMonitoring.SelfHost.Entities
             Name = endpoint.Metadata.Name;
             Group = endpoint.Metadata.Group;
             var health = endpoint.Health;
-            LastModifiedTime = endpoint.LastModifiedTime;
+            LastModifiedTime = endpoint.LastModifiedTimeUtc;
             if (health != null)
             {
                 Status = health.Status;
