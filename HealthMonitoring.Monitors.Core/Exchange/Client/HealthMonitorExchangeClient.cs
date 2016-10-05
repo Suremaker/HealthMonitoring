@@ -50,7 +50,7 @@ namespace HealthMonitoring.Monitors.Core.Exchange.Client
             return new HealthMonitorSettings(model.Monitor, new ThrottlingSettings(model.Throttling));
         }
 
-        private static HttpClient CreateClient()
+        protected virtual HttpClient CreateClient()
         {
             return new HttpClient();
         }

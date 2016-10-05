@@ -41,7 +41,7 @@ namespace HealthMonitoring.Management.Core
 
         private async Task MonitorEndpointUpdatesAsync(Endpoint endpoint, CancellationToken cancellationToken)
         {
-            while (!endpoint.IsDisposed)
+            while (!endpoint.IsDisposed && !cancellationToken.IsCancellationRequested)
             {
                 if (WasEndpointUpdateMissed(endpoint))
                     ReportEndpointTimeout(endpoint);
@@ -52,14 +52,18 @@ namespace HealthMonitoring.Management.Core
 
         private void ReportEndpointTimeout(Endpoint endpoint)
         {
-            var health = new EndpointHealth(_timeCoordinator.UtcNow, TimeSpan.Zero, EndpointStatus.TimedOut,
-                new Dictionary<string, string>
-                {
-                    {"reason", "Endpoint health was not updated within specified period of time."}
-                });
+            try
+            {
+                var health = new EndpointHealth(_timeCoordinator.UtcNow, TimeSpan.Zero, EndpointStatus.TimedOut,
+                    new Dictionary<string, string> { { "reason", "Endpoint health was not updated within specified period of time." } });
 
-            _endpointRegistry.UpdateHealth(endpoint.Identity.Id, health);
-            _logger.Warn($"Endpoint Id={endpoint.Identity.Id} health was not updated within specified period of time.");
+                _endpointRegistry.UpdateHealth(endpoint.Identity.Id, health);
+                _logger.Warn($"Endpoint Id={endpoint.Identity.Id} health was not updated within specified period of time.");
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"Unable to update endpoint Id={endpoint.Identity.Id} health.", e);
+            }
         }
 
         private TimeSpan GetEndpointUpdateCheckDelay(Endpoint endpoint)
@@ -75,7 +79,7 @@ namespace HealthMonitoring.Management.Core
 
         private bool WasEndpointUpdateMissed(Endpoint endpoint)
         {
-            return _timeCoordinator.UtcNow - GetEndpointLastCheckUtc(endpoint) > _maxEndpointDelay;
+            return _timeCoordinator.UtcNow - GetEndpointLastCheckUtc(endpoint) >= _maxEndpointDelay;
         }
 
         private TimeSpan GetEndpointMaxUpdateDelay()
