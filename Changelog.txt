@@ -1,3 +1,7 @@
+3.3.0.0
+-------
+Added a feature to API process to TimeOut endpoints if their health have not been updated for specified time controlled by new HealthUpdateInactivityTimeLimit setting (to flag Monitor->API communication issues and future push method)
+
 3.2.1.0
 -------
 Added HealthMonitoring.Forwarders allowing endpoint metrics forwarding
