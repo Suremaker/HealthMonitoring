@@ -49,9 +49,8 @@ namespace HealthMonitoring.Monitors.Core.Exchange
                     if (bucket.Length > 0)
                         await UploadChangesAsync(bucket);
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException) when (_cancellation.IsCancellationRequested)
                 {
-                    return;
                 }
                 catch (Exception e)
                 {
@@ -70,7 +69,7 @@ namespace HealthMonitoring.Monitors.Core.Exchange
                     await _exchangeClient.UploadHealthAsync(bucket, _cancellation.Token);
                     return;
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException) when (_cancellation.IsCancellationRequested)
                 {
                     throw;
                 }
@@ -91,7 +90,7 @@ namespace HealthMonitoring.Monitors.Core.Exchange
                 {
                     _monitorableEndpointRegistry.UpdateEndpoints(await _exchangeClient.GetEndpointIdentitiesAsync(_cancellation.Token));
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException) when (_cancellation.IsCancellationRequested)
                 {
                     return;
                 }
@@ -113,7 +112,7 @@ namespace HealthMonitoring.Monitors.Core.Exchange
                     await _exchangeClient.RegisterMonitorsAsync(_registry.MonitorTypes, _cancellation.Token);
                     return;
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException) when (_cancellation.IsCancellationRequested)
                 {
                 }
                 catch (Exception e)

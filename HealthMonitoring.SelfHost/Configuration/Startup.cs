@@ -74,7 +74,7 @@ namespace HealthMonitoring.SelfHost.Configuration
             builder.RegisterAssemblyTypes(typeof(EndpointStatsManager).Assembly).AsSelf().AsImplementedInterfaces().SingleInstance();
 
             builder.RegisterInstance<IEndpointMetricsForwarderCoordinator>(new EndpointMetricsForwarderCoordinator(PluginDiscovery<IEndpointMetricsForwarder>.DiscoverAllInCurrentFolder("*.Forwarders.*.dll")));
-            builder.Register(ctx => ContinuousTaskExecutor<Endpoint>.StartExecutor()).AsImplementedInterfaces().SingleInstance();
+            builder.Register(ctx => ContinuousTaskExecutor<Endpoint>.StartExecutor(ctx.Resolve<ITimeCoordinator>())).AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<TimeCoordinator>().AsImplementedInterfaces().SingleInstance();
             var container = builder.Build();
 

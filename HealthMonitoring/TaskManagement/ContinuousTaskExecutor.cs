@@ -6,20 +6,23 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
+using HealthMonitoring.TimeManagement;
 
 namespace HealthMonitoring.TaskManagement
 {
     public class ContinuousTaskExecutor<T> : IContinuousTaskExecutor<T>
     {
+        private readonly ITimeCoordinator _timeCoordinator;
         private static readonly ILog Logger = LogManager.GetLogger<ContinuousTaskExecutor<T>>();
         private readonly ConcurrentDictionary<T, LazilyCreatedTask> _tasks = new ConcurrentDictionary<T, LazilyCreatedTask>();
         private readonly ManualResetEventSlim _onNewTask = new ManualResetEventSlim();
         private Task _onNewItem;
         private readonly Thread _executionThread;
         private readonly CancellationTokenSource _cancellation = new CancellationTokenSource();
+        private readonly int MaxErrorDelayInSecs = 60;
 
         public event Action<T> FinishedTaskFor;
-        public static ContinuousTaskExecutor<T> StartExecutor() { return new ContinuousTaskExecutor<T>(); }
+        public static ContinuousTaskExecutor<T> StartExecutor(ITimeCoordinator timeCoordinator) { return new ContinuousTaskExecutor<T>(timeCoordinator); }
 
         public bool TryRegisterTaskFor(T item, Func<T, CancellationToken, Task> continuousTaskFactory)
         {
@@ -37,8 +40,9 @@ namespace HealthMonitoring.TaskManagement
             _cancellation.Dispose();
         }
 
-        private ContinuousTaskExecutor()
+        private ContinuousTaskExecutor(ITimeCoordinator timeCoordinator)
         {
+            _timeCoordinator = timeCoordinator;
             _executionThread = new Thread(Execute) { Name = typeof(T).Name + " TaskExecutor" };
             _executionThread.Start();
         }
@@ -53,27 +57,36 @@ namespace HealthMonitoring.TaskManagement
                     ProcessTasks();
                     errorCounter = 0;
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException) when (_cancellation.IsCancellationRequested)
                 {
                 }
-                catch (AggregateException e) when (e.Flatten().InnerExceptions.All(ex => ex is OperationCanceledException))
+                catch (AggregateException e) when (_cancellation.IsCancellationRequested && e.Flatten().InnerExceptions.All(ex => ex is OperationCanceledException))
                 {
                 }
                 catch (Exception e)
                 {
                     ++errorCounter;
                     Logger.Fatal("Unexpected exception occurred.", e);
-                    Thread.Sleep(TimeSpan.FromSeconds(errorCounter));
+                    SafeDelay(TimeSpan.FromSeconds(Math.Min(errorCounter, MaxErrorDelayInSecs)));
                 }
             }
             WaitForAllTasksToFinish();
+        }
+
+        private void SafeDelay(TimeSpan delay)
+        {
+            try
+            {
+                _timeCoordinator.Delay(delay, _cancellation.Token).Wait();
+            }
+            catch { }
         }
 
         private void WaitForAllTasksToFinish()
         {
             try
             {
-                Task.WaitAll(_tasks.Values.Select(l => l.Task).Cast<Task>().ToArray());
+                Task.WaitAll(_tasks.Values.Select(l => l.Task).ToArray());
             }
             catch (AggregateException) { }
         }
@@ -94,10 +107,10 @@ namespace HealthMonitoring.TaskManagement
             {
                 await continousTaskFactory.Invoke(item, _cancellation.Token);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) when (_cancellation.IsCancellationRequested)
             {
             }
-            catch (AggregateException e) when (e.Flatten().InnerException is OperationCanceledException)
+            catch (AggregateException e) when (_cancellation.IsCancellationRequested && e.Flatten().InnerException is OperationCanceledException)
             {
             }
             catch (Exception e)

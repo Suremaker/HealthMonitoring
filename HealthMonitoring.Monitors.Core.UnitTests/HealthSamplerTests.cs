@@ -270,35 +270,41 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             Assert.True(delayToken.IsCancellationRequested, "delayToken.IsCancellationRequested");
         }
 
-        [Fact]
-        public async Task CheckHealthAsync_should_interpret_monitor_async_exceptions()
+        [Theory]
+        [InlineData(typeof(Exception))]
+        [InlineData(typeof(TaskCanceledException))]
+        [InlineData(typeof(OperationCanceledException))]
+        public async Task CheckHealthAsync_should_interpret_monitor_async_exceptions(Type exceptionType)
         {
             SetupDefaultDelay();
             SetupStopWatch("watch", TimeSpan.Zero);
             SetupMonitor(async token =>
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(50), token);
-                throw new InvalidOperationException("reason");
+                throw (Exception)Activator.CreateInstance(exceptionType, "reason");
             });
 
             var health = await _sampler.CheckHealthAsync(_endpoint, CancellationToken.None);
             Assert.Equal(EndpointStatus.Faulty, health.Status);
-            Assert.Contains("InvalidOperationException: reason", health.Details["exception"]);
+            Assert.Contains($"{exceptionType.Name}: reason", health.Details["exception"]);
         }
 
-        [Fact]
-        public async Task CheckHealthAsync_should_interpret_monitor_exceptions()
+        [Theory]
+        [InlineData(typeof(Exception))]
+        [InlineData(typeof(TaskCanceledException))]
+        [InlineData(typeof(OperationCanceledException))]
+        public async Task CheckHealthAsync_should_interpret_monitor_exceptions(Type exceptionType)
         {
             SetupDefaultDelay();
             SetupStopWatch("watch", TimeSpan.Zero);
             SetupMonitor(token =>
             {
-                throw new InvalidOperationException("reason");
+                throw (Exception)Activator.CreateInstance(exceptionType, "reason");
             });
 
             var health = await _sampler.CheckHealthAsync(_endpoint, CancellationToken.None);
             Assert.Equal(EndpointStatus.Faulty, health.Status);
-            Assert.Contains("InvalidOperationException: reason", health.Details["exception"]);
+            Assert.Contains($"{exceptionType.Name}: reason", health.Details["exception"]);
         }
         private void SetupDefaultTimeouts(Mock<IMonitorSettings> settings)
         {
