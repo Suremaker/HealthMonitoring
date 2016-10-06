@@ -10,6 +10,7 @@ using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
 using HealthMonitoring.SelfHost.Controllers;
 using HealthMonitoring.SelfHost.Entities;
+using HealthMonitoring.TimeManagement;
 using Moq;
 using Xunit;
 
@@ -20,11 +21,15 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         private readonly EndpointsController _controller;
         private readonly Mock<IEndpointRegistry> _endpointRegistry;
         private readonly Mock<IEndpointStatsRepository> _statsRepository;
+        private readonly DateTime _utcNow = DateTime.UtcNow;
+
         public EndpointsControllerTests()
         {
             _endpointRegistry = new Mock<IEndpointRegistry>();
             _statsRepository = new Mock<IEndpointStatsRepository>();
-            _controller = new EndpointsController(_endpointRegistry.Object, _statsRepository.Object);
+            var timeCoordinator = new Mock<ITimeCoordinator>();
+            timeCoordinator.Setup(c => c.UtcNow).Returns(_utcNow);
+            _controller = new EndpointsController(_endpointRegistry.Object, _statsRepository.Object, timeCoordinator.Object);
         }
 
         [Theory]
@@ -114,7 +119,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         public void GetEndpoint_should_return_endpoint_information()
         {
             Guid id = Guid.NewGuid();
-            var endpoint = new Endpoint(new EndpointIdentity(id, "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }));
+            var endpoint = new Endpoint(Mock.Of<ITimeCoordinator>(), new EndpointIdentity(id, "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }));
             _endpointRegistry.Setup(r => r.GetById(id)).Returns(endpoint);
 
             var result = _controller.GetEndpoint(id) as OkNegotiatedContentResult<EndpointDetails>;
@@ -124,7 +129,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
             Assert.Equal(null, result.Content.LastCheckUtc);
             Assert.Equal(null, result.Content.LastResponseTime);
             Assert.Equal(new Dictionary<string, string>(), result.Content.Details);
-            Assert.Equal(endpoint.LastModifiedTime, result.Content.LastModifiedTime);
+            Assert.Equal(endpoint.LastModifiedTimeUtc, result.Content.LastModifiedTime);
         }
 
         [Theory]
@@ -135,8 +140,8 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         {
             var id = Guid.NewGuid();
 
-            var endpoint = new Endpoint(new EndpointIdentity(id, "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }));
-            var endpointHealth = new EndpointHealth(DateTime.UtcNow, TimeSpan.FromSeconds(5), status, new Dictionary<string, string> { { "abc", "def" } });
+            var endpoint = new Endpoint(Mock.Of<ITimeCoordinator>(), new EndpointIdentity(id, "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }));
+            var endpointHealth = new EndpointHealth(_utcNow, TimeSpan.FromSeconds(5), status, new Dictionary<string, string> { { "abc", "def" } });
 
             endpoint.UpdateHealth(endpointHealth);
             _endpointRegistry.Setup(r => r.GetById(id)).Returns(endpoint);
@@ -165,8 +170,8 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         {
             var endpoints = new[]
             {
-                new Endpoint(new EndpointIdentity(Guid.NewGuid(),"a", "b"),new EndpointMetadata("c", "d", new[] { "t1", "t2" })),
-                new Endpoint(new EndpointIdentity(Guid.NewGuid(), "e", "f"),new EndpointMetadata( "g", "h", new[] { "t1", "t2" }))
+                new Endpoint(Mock.Of<ITimeCoordinator>(),new EndpointIdentity(Guid.NewGuid(),"a", "b"),new EndpointMetadata("c", "d", new[] { "t1", "t2" })),
+                new Endpoint(Mock.Of<ITimeCoordinator>(),new EndpointIdentity(Guid.NewGuid(), "e", "f"),new EndpointMetadata( "g", "h", new[] { "t1", "t2" }))
             };
             _endpointRegistry.Setup(r => r.Endpoints).Returns(endpoints);
             var results = _controller.GetEndpoints().ToArray();
@@ -194,17 +199,17 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         {
             var endpoints = new[]
             {
-                new Endpoint(
+                new Endpoint(Mock.Of<ITimeCoordinator>(),
                     new EndpointIdentity(Guid.Parse("11111111-1111-1111-1111-111111111111"), "monitorType1", "address1"),
                     new EndpointMetadata("nam", "group11", new[] { "t1", "t2" }))
                     .UpdateHealth(new EndpointHealth(DateTime.MinValue, TimeSpan.Zero, EndpointStatus.Healthy)),
 
-                new Endpoint(
+                new Endpoint(Mock.Of<ITimeCoordinator>(),
                     new EndpointIdentity(Guid.Parse("22222222-2222-2222-2222-222222222222"), "monitorType1", "address2"),
                     new EndpointMetadata( "name2", "group2", new[] { "t2", "t3" }))
                     .UpdateHealth(new EndpointHealth(DateTime.MinValue, TimeSpan.Zero, EndpointStatus.Unhealthy)),
 
-                new Endpoint(
+                new Endpoint(Mock.Of<ITimeCoordinator>(),
                     new EndpointIdentity(Guid.Parse("33333333-3333-3333-3333-333333333333"), "monitorType2", "address123"),
                     new EndpointMetadata( "name3", "group2", new[] { "t1", "t2", "t3" }))
                     .UpdateHealth(new EndpointHealth(DateTime.MinValue, TimeSpan.Zero, EndpointStatus.Faulty))
@@ -225,8 +230,8 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
             var endpointId = Guid.NewGuid();
             var endpointStatses = new[]
             {
-                new EndpointStats(DateTime.UtcNow, EndpointStatus.Healthy, TimeSpan.FromSeconds(4)),
-                new EndpointStats(DateTime.UtcNow.AddMilliseconds(100), EndpointStatus.Faulty, TimeSpan.FromMilliseconds(250))
+                new EndpointStats(_utcNow, EndpointStatus.Healthy, TimeSpan.FromSeconds(4)),
+                new EndpointStats(_utcNow.AddMilliseconds(100), EndpointStatus.Faulty, TimeSpan.FromMilliseconds(250))
             };
             var limitDays = 5;
             _statsRepository.Setup(r => r.GetStatistics(endpointId, limitDays)).Returns(endpointStatses);
@@ -249,9 +254,9 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         {
             var endpoints = new[]
             {
-                new Endpoint(new EndpointIdentity(Guid.NewGuid(), "monitor1", "address1"), new EndpointMetadata("name", "group",new string[0])),
-                new Endpoint(new EndpointIdentity(Guid.NewGuid(), "monitor2", "address2"), new EndpointMetadata("name", "group",new string[0])),
-                new Endpoint(new EndpointIdentity(Guid.NewGuid(), "monitor3", "address3"), new EndpointMetadata("name", "group",new string[0]))
+                new Endpoint(Mock.Of<ITimeCoordinator>(),new EndpointIdentity(Guid.NewGuid(), "monitor1", "address1"), new EndpointMetadata("name", "group",new string[0])),
+                new Endpoint(Mock.Of<ITimeCoordinator>(),new EndpointIdentity(Guid.NewGuid(), "monitor2", "address2"), new EndpointMetadata("name", "group",new string[0])),
+                new Endpoint(Mock.Of<ITimeCoordinator>(),new EndpointIdentity(Guid.NewGuid(), "monitor3", "address3"), new EndpointMetadata("name", "group",new string[0]))
             };
             _endpointRegistry.Setup(r => r.Endpoints).Returns(endpoints);
             var actual = _controller.GetEndpointsIdentities();
@@ -259,12 +264,37 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         }
 
         [Fact]
+        public void PostEndpointsHealth_should_update_endpoints_health_and_adjust_check_time_with_clientServer_time_difference()
+        {
+            var update1 = new EndpointHealthUpdate { EndpointId = Guid.NewGuid(), CheckTimeUtc = _utcNow, Status = EndpointStatus.Offline, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
+            var update2 = new EndpointHealthUpdate { EndpointId = Guid.NewGuid(), CheckTimeUtc = _utcNow, Status = EndpointStatus.Healthy, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
+            var timeDifference = TimeSpan.FromMinutes(5);
+
+            var updates = new[] { update1, update2 };
+            var expected = updates
+                .Select(u => new EndpointHealthUpdate
+                {
+                    CheckTimeUtc = u.CheckTimeUtc - timeDifference,
+                    Details = u.Details,
+                    EndpointId = u.EndpointId,
+                    ResponseTime = u.ResponseTime,
+                    Status = u.Status
+                })
+                .ToArray();
+
+            Assert.IsType<OkResult>(_controller.PostEndpointHealth(_utcNow + timeDifference, update1, update2));
+
+            foreach (var expectedEndpoint in expected)
+                _endpointRegistry.Verify(r => r.UpdateHealth(expectedEndpoint.EndpointId, It.Is<EndpointHealth>(h => AssertHealth(h, expectedEndpoint))));
+        }
+
+        [Fact]
         public void PostEndpointsHealth_should_update_endpoints_health()
         {
-            var update1 = new EndpointHealthUpdate { EndpointId = Guid.NewGuid(), CheckTimeUtc = DateTime.UtcNow, Status = EndpointStatus.Offline, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
-            var update2 = new EndpointHealthUpdate { EndpointId = Guid.NewGuid(), CheckTimeUtc = DateTime.UtcNow, Status = EndpointStatus.Healthy, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
+            var update1 = new EndpointHealthUpdate { EndpointId = Guid.NewGuid(), CheckTimeUtc = _utcNow, Status = EndpointStatus.Offline, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
+            var update2 = new EndpointHealthUpdate { EndpointId = Guid.NewGuid(), CheckTimeUtc = _utcNow, Status = EndpointStatus.Healthy, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
 
-            Assert.IsType<OkResult>(_controller.PostEndpointHealth(update1, update2));
+            Assert.IsType<OkResult>(_controller.PostEndpointHealth(null, update1, update2));
 
             _endpointRegistry.Verify(r => r.UpdateHealth(update1.EndpointId, It.Is<EndpointHealth>(h => AssertHealth(h, update1))));
             _endpointRegistry.Verify(r => r.UpdateHealth(update2.EndpointId, It.Is<EndpointHealth>(h => AssertHealth(h, update2))));

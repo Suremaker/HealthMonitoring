@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -7,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Model;
 using HealthMonitoring.Monitors.Core.Exchange.Client.Entities;
+using HealthMonitoring.TimeManagement;
 using Newtonsoft.Json;
 
 namespace HealthMonitoring.Monitors.Core.Exchange.Client
@@ -14,13 +16,15 @@ namespace HealthMonitoring.Monitors.Core.Exchange.Client
     public class HealthMonitorExchangeClient : IHealthMonitorExchangeClient
     {
         private readonly string _healthMonBaseUrl;
+        private readonly ITimeCoordinator _timeCoordinator;
 
-        public HealthMonitorExchangeClient(string healthMonBaseUrl)
+        public HealthMonitorExchangeClient(string healthMonBaseUrl, ITimeCoordinator timeCoordinator)
         {
             if (string.IsNullOrWhiteSpace(healthMonBaseUrl))
                 throw new ArgumentNullException(nameof(healthMonBaseUrl));
 
             _healthMonBaseUrl = healthMonBaseUrl;
+            _timeCoordinator = timeCoordinator;
         }
 
         public Task RegisterMonitorsAsync(IEnumerable<string> monitorTypes, CancellationToken token)
@@ -36,7 +40,7 @@ namespace HealthMonitoring.Monitors.Core.Exchange.Client
 
         public Task UploadHealthAsync(EndpointHealthUpdate[] updates, CancellationToken token)
         {
-            return PostAsync("/api/endpoints/health", updates.Select(u => new { EndpointId = u.EndpointId, Status = u.Health.Status, CheckTimeUtc = u.Health.CheckTimeUtc, ResponseTime = u.Health.ResponseTime, Details = u.Health.Details }), token);
+            return PostAsync("/api/endpoints/health?clientCurrentTime=" + _timeCoordinator.UtcNow.ToString("u", CultureInfo.InvariantCulture), updates.Select(u => new { EndpointId = u.EndpointId, Status = u.Health.Status, CheckTimeUtc = u.Health.CheckTimeUtc, ResponseTime = u.Health.ResponseTime, Details = u.Health.Details }), token);
         }
 
         public async Task<HealthMonitorSettings> LoadSettingsAsync(CancellationToken token)
@@ -46,7 +50,7 @@ namespace HealthMonitoring.Monitors.Core.Exchange.Client
             return new HealthMonitorSettings(model.Monitor, new ThrottlingSettings(model.Throttling));
         }
 
-        private static HttpClient CreateClient()
+        protected virtual HttpClient CreateClient()
         {
             return new HttpClient();
         }

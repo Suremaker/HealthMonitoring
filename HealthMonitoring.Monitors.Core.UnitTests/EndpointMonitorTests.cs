@@ -134,8 +134,11 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             Assert.False(healthCheckNotCancelled, "healthCheckNotCancelled");
         }
 
-        [Fact]
-        public async Task The_endpoint_health_check_should_delay_next_check_execution_after_exception_but_then_retry()
+        [Theory]
+        [InlineData(typeof(Exception))]
+        [InlineData(typeof(TaskCanceledException))]
+        [InlineData(typeof(OperationCanceledException))]
+        public async Task The_endpoint_health_check_should_delay_next_check_execution_after_exception_but_then_retry(Type exceptionType)
         {
             var endpoint = AddNewEndpointToRegistry();
             var capturedTaskFactory = CaptureMonitorTask(endpoint);
@@ -153,7 +156,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
                     .Returns(() =>
                     {
                         if (healthCheckRuns++ < totalHealthCheckRuns)
-                            throw new Exception("some exception");
+                            throw (Exception)Activator.CreateInstance(exceptionType);
                         endpoint.Dispose();
                         return Task.FromResult(new HealthInfo(HealthStatus.Healthy));
                     });

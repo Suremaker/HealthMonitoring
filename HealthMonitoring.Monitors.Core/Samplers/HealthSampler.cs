@@ -39,34 +39,53 @@ namespace HealthMonitoring.Monitors.Core.Samplers
         {
             var checkTimeUtc = _timeCoordinator.UtcNow;
             var timer = _timeCoordinator.CreateStopWatch();
-            try
+            using (var timeoutToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
-                using (var timeoutToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+                try
                 {
                     timer.Start();
                     var timeoutTask = ConfigureTimeoutTaskAsync(endpoint, cancellationToken);
-                    var healthTask = endpoint.Monitor.CheckHealthAsync(endpoint.Identity.Address, timeoutToken.Token);
+                    var healthTask = PerformHealthCheckAsync(endpoint, timeoutToken);
                     var healthResult = await Task.WhenAny(healthTask, timeoutTask);
                     timer.Stop();
 
                     await CancelHealthTaskIfNeededAsync(healthTask, timeoutToken);
 
                     return FromResult(checkTimeUtc, timer.Elapsed, healthResult.Result);
+
+                }
+                catch (OperationCanceledException) when (timeoutToken.IsCancellationRequested)
+                {
+                    throw;
+                }
+                catch (AggregateException e) when (timeoutToken.IsCancellationRequested && e.Flatten().InnerExceptions.All(ex => ex is OperationCanceledException))
+                {
+                    throw;
+                }
+                catch (AggregateException e)
+                {
+                    return FromException(checkTimeUtc, timer.Elapsed, e.Flatten().InnerExceptions.First());
+                }
+                catch (Exception e)
+                {
+                    return FromException(checkTimeUtc, timer.Elapsed, e);
                 }
             }
-            catch (OperationCanceledException)
+        }
+
+        private static async Task<HealthInfo> PerformHealthCheckAsync(MonitorableEndpoint endpoint, CancellationTokenSource timeoutToken)
+        {
+            try
+            {
+                return await endpoint.Monitor.CheckHealthAsync(endpoint.Identity.Address, timeoutToken.Token);
+            }
+            catch (OperationCanceledException) when (timeoutToken.IsCancellationRequested)
             {
                 throw;
             }
-            catch (AggregateException e)
-            {
-                if (e.InnerExceptions.First() is OperationCanceledException)
-                    throw;
-                return FromException(checkTimeUtc, timer.Elapsed, e.InnerExceptions.First());
-            }
             catch (Exception e)
             {
-                return FromException(checkTimeUtc, timer.Elapsed, e);
+                throw new AggregateException("Health check failed", e);
             }
         }
 

@@ -11,6 +11,7 @@ using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
 using HealthMonitoring.SelfHost.Entities;
 using HealthMonitoring.SelfHost.Filters;
+using HealthMonitoring.TimeManagement;
 using Swashbuckle.Swagger.Annotations;
 
 namespace HealthMonitoring.SelfHost.Controllers
@@ -20,11 +21,13 @@ namespace HealthMonitoring.SelfHost.Controllers
     {
         private readonly IEndpointRegistry _endpointRegistry;
         private readonly IEndpointStatsRepository _endpointStatsRepository;
+        private readonly ITimeCoordinator _timeCoordinator;
 
-        public EndpointsController(IEndpointRegistry endpointRegistry, IEndpointStatsRepository endpointStatsRepository)
+        public EndpointsController(IEndpointRegistry endpointRegistry, IEndpointStatsRepository endpointStatsRepository, ITimeCoordinator timeCoordinator)
         {
             _endpointRegistry = endpointRegistry;
             _endpointStatsRepository = endpointStatsRepository;
+            _timeCoordinator = timeCoordinator;
         }
 
         [Route("api/endpoints/register")]
@@ -49,14 +52,23 @@ namespace HealthMonitoring.SelfHost.Controllers
         [ResponseType(typeof(Guid))]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
-        public IHttpActionResult PostEndpointHealth([FromBody]params EndpointHealthUpdate[] healthUpdate)
+        public IHttpActionResult PostEndpointHealth(DateTimeOffset? clientCurrentTime = null, [FromBody]params EndpointHealthUpdate[] healthUpdate)
         {
             healthUpdate.ValidateModel();
 
+            var clockDifference = GetServerToClientTimeDifference(clientCurrentTime);
+
             foreach (var update in healthUpdate)
-                _endpointRegistry.UpdateHealth(update.EndpointId, update.ToEndpointHealth());
+                _endpointRegistry.UpdateHealth(update.EndpointId, update.ToEndpointHealth(clockDifference));
 
             return Ok();
+        }
+
+        private TimeSpan GetServerToClientTimeDifference(DateTimeOffset? clientCurrentTime)
+        {
+            var serverCurrentTime = (DateTimeOffset)_timeCoordinator.UtcNow;
+            var clientTime = (clientCurrentTime ?? serverCurrentTime).ToUniversalTime();
+            return serverCurrentTime - clientTime;
         }
 
         [Route("api/endpoints/identities")]

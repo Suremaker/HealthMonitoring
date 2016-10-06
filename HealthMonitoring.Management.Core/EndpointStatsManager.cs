@@ -5,6 +5,7 @@ using Common.Logging;
 using HealthMonitoring.Configuration;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
+using HealthMonitoring.TimeManagement;
 
 namespace HealthMonitoring.Management.Core
 {
@@ -13,14 +14,16 @@ namespace HealthMonitoring.Management.Core
         private static readonly ILog _logger = LogManager.GetLogger<EndpointStatsManager>();
         private readonly IEndpointStatsRepository _repository;
         private readonly IMonitorSettings _settings;
+        private readonly ITimeCoordinator _timeCoordinator;
         private readonly Thread _cleanerThread;
         private readonly Thread _writerThread;
         private readonly BlockingCollection<Tuple<Guid, EndpointHealth>> _statsQueue = new BlockingCollection<Tuple<Guid, EndpointHealth>>();
 
-        public EndpointStatsManager(IEndpointStatsRepository repository, IMonitorSettings settings)
+        public EndpointStatsManager(IEndpointStatsRepository repository, IMonitorSettings settings, ITimeCoordinator timeCoordinator)
         {
             _repository = repository;
             _settings = settings;
+            _timeCoordinator = timeCoordinator;
             _cleanerThread = new Thread(Clean) { Name = "StatsCleaner" };
             _cleanerThread.Start();
             _writerThread = new Thread(WriteStats) { Name = "StatsWriter" };
@@ -80,7 +83,7 @@ namespace HealthMonitoring.Management.Core
         {
             try
             {
-                var date = DateTime.UtcNow.Subtract(_settings.StatsHistoryMaxAge);
+                var date = _timeCoordinator.UtcNow.Subtract(_settings.StatsHistoryMaxAge);
                 _logger.InfoFormat("Deleting older stats than {0}", date);
                 _repository.DeleteStatisticsOlderThan(date);
             }

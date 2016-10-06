@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using HealthMonitoring.TaskManagement;
 using HealthMonitoring.TestUtils;
 using HealthMonitoring.TestUtils.Awaitable;
+using HealthMonitoring.TimeManagement;
+using Moq;
 using Xunit;
 
 namespace HealthMonitoring.UnitTests
@@ -24,7 +26,7 @@ namespace HealthMonitoring.UnitTests
             var countdown2 = new AsyncCountdown(task2Name, 10);
             var counter2 = new AsyncCounter();
 
-            using (var executor = ContinuousTaskExecutor<string>.StartExecutor())
+            using (var executor = ContinuousTaskExecutor<string>.StartExecutor(Mock.Of<ITimeCoordinator>()))
             {
                 Assert.True(executor.TryRegisterTaskFor(task1Name, (item, token) => StartTaskAsync(countdown1, counter1, token)));
                 await countdown1.WaitAsync(_testTimeout);
@@ -49,7 +51,7 @@ namespace HealthMonitoring.UnitTests
         {
             var taskName = "abc";
             var secondTaskStarted = false;
-            using (var executor = ContinuousTaskExecutor<string>.StartExecutor())
+            using (var executor = ContinuousTaskExecutor<string>.StartExecutor(Mock.Of<ITimeCoordinator>()))
             {
                 Assert.True(executor.TryRegisterTaskFor(taskName, (item, token) => StartTaskAsync(token)));
                 Assert.False(executor.TryRegisterTaskFor(taskName, (item, token) =>
@@ -69,7 +71,7 @@ namespace HealthMonitoring.UnitTests
 
             var taskFinished = new SemaphoreSlim(0);
 
-            using (var executor = ContinuousTaskExecutor<string>.StartExecutor())
+            using (var executor = ContinuousTaskExecutor<string>.StartExecutor(Mock.Of<ITimeCoordinator>()))
             {
                 executor.FinishedTaskFor += item =>
                 {
@@ -92,7 +94,7 @@ namespace HealthMonitoring.UnitTests
             var countdown1 = new AsyncCountdown(task1Name, 10);
             var task2Finished = new SemaphoreSlim(0);
 
-            using (var executor = ContinuousTaskExecutor<string>.StartExecutor())
+            using (var executor = ContinuousTaskExecutor<string>.StartExecutor(Mock.Of<ITimeCoordinator>()))
             {
                 executor.FinishedTaskFor += item =>
                 {
@@ -119,7 +121,7 @@ namespace HealthMonitoring.UnitTests
             var countdown1 = new AsyncCountdown(task1Name, 10);
             var task2Finished = new SemaphoreSlim(0);
 
-            using (var executor = ContinuousTaskExecutor<string>.StartExecutor())
+            using (var executor = ContinuousTaskExecutor<string>.StartExecutor(Mock.Of<ITimeCoordinator>()))
             {
                 executor.FinishedTaskFor += item =>
                 {
@@ -149,7 +151,7 @@ namespace HealthMonitoring.UnitTests
             var completed = new ConcurrentQueue<string>();
 
 
-            using (var executor = ContinuousTaskExecutor<string>.StartExecutor())
+            using (var executor = ContinuousTaskExecutor<string>.StartExecutor(Mock.Of<ITimeCoordinator>()))
             {
                 executor.FinishedTaskFor += item => completed.Enqueue(item);
 
@@ -174,6 +176,30 @@ namespace HealthMonitoring.UnitTests
 
             CollectionAssert.AreEquivalent(new[] { task1, task2 }, completed);
         }
+
+        [Fact]
+        public async Task Executor_should_immediately_break_the_loop_on_cancelation()
+        {
+            var timeCoordinator = new Mock<ITimeCoordinator>();
+            var countdown = new AsyncCountdown("task", 1);
+            var taskNotCancelled = false;
+
+            using (var executor = ContinuousTaskExecutor<string>.StartExecutor(timeCoordinator.Object))
+            {
+                executor.TryRegisterTaskFor("task", async (item, token) =>
+                {
+                    countdown.Decrement();
+                    await Task.Delay(_testTimeout, token);
+                    taskNotCancelled = true;
+                });
+
+                await countdown.WaitAsync(_testTimeout);
+            }
+
+            Assert.False(taskNotCancelled, "Task was not cancelled");
+            timeCoordinator.Verify(c => c.Delay(It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()), Times.Never, "Executor should not trigger any delay");
+        }
+
 
         private Task StartTaskAsync(CancellationToken token)
         {

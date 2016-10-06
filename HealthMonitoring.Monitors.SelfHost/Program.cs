@@ -45,12 +45,13 @@ namespace HealthMonitoring.Monitors.SelfHost
 
         private static IContainer StartHost()
         {
-            var exchangeClient = new HealthMonitorExchangeClient(ConfigurationManager.AppSettings["HealthMonitoringUrl"]);
+            var timeCoordinator = new TimeCoordinator();
+            var exchangeClient = new HealthMonitorExchangeClient(ConfigurationManager.AppSettings["HealthMonitoringUrl"], timeCoordinator);
             var settings = LoadSettings(exchangeClient);
 
             var builder = new ContainerBuilder();
-            builder.Register(ctx => ContinuousTaskExecutor<MonitorableEndpoint>.StartExecutor()).AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<TimeCoordinator>().AsSelf().AsImplementedInterfaces();
+            builder.Register(ctx => ContinuousTaskExecutor<MonitorableEndpoint>.StartExecutor(ctx.Resolve<ITimeCoordinator>())).AsImplementedInterfaces().SingleInstance();
+            builder.RegisterInstance(timeCoordinator).AsSelf().AsImplementedInterfaces();
             builder.RegisterAssemblyTypes(typeof(HealthMonitorRegistry).Assembly).AsSelf().AsImplementedInterfaces().SingleInstance();
             builder.RegisterInstance(exchangeClient).AsSelf().AsImplementedInterfaces();
             builder.RegisterInstance(settings.MonitorSettings).AsImplementedInterfaces();

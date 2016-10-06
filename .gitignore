@@ -9,6 +9,7 @@ make/psmake.*
 reports/
 *.nupkg
 .vs
+*.orig
 
 monitoring.db
 

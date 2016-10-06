@@ -50,10 +50,10 @@ namespace HealthMonitoring.Monitors.Core
                     await Task.WhenAll(endpoint.CheckHealth(_sampler, cancellationToken), delay);
                     errorCounter = 0;
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
                 }
-                catch (AggregateException e) when (e.Flatten().InnerExceptions.All(ex => ex is OperationCanceledException))
+                catch (AggregateException e) when (cancellationToken.IsCancellationRequested && e.Flatten().InnerExceptions.All(ex => ex is OperationCanceledException))
                 {
                 }
                 catch (Exception e)

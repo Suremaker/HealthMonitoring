@@ -18,9 +18,9 @@ namespace HealthMonitoring.SelfHost.Entities
         [Required]
         public Dictionary<string, string> Details { get; set; }
 
-        public EndpointHealth ToEndpointHealth()
+        public EndpointHealth ToEndpointHealth(TimeSpan serverToClientClockDifference)
         {
-            return new EndpointHealth(CheckTimeUtc, ResponseTime, Status, Details);
+            return new EndpointHealth(CheckTimeUtc + serverToClientClockDifference, ResponseTime, Status, Details);
         }
     }
 }
