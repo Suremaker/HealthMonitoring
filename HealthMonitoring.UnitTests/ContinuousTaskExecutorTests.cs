@@ -150,7 +150,6 @@ namespace HealthMonitoring.UnitTests
             var task2Ran = new AsyncCountdown(task2, 1);
             var completed = new ConcurrentQueue<string>();
 
-
             using (var executor = ContinuousTaskExecutor<string>.StartExecutor(Mock.Of<ITimeCoordinator>()))
             {
                 executor.FinishedTaskFor += item => completed.Enqueue(item);
