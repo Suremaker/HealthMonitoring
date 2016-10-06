@@ -17,7 +17,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         private readonly Mock<IEndpointConfigurationRepository> _configurationStore;
         private readonly Mock<IEndpointStatsRepository> _statsRepository;
         private readonly Mock<IEndpointMetricsForwarderCoordinator> _forwarderCoordinator;
-        private readonly Mock<IEndpointStatsManager> _statsManager;
+        private readonly Mock<IEndpointStatsManager> _statsManager = new Mock<IEndpointStatsManager>();
         private readonly Mock<ITimeCoordinator> _timeCoordinator = new Mock<ITimeCoordinator>();
 
         public EndpointRegistryTests()
