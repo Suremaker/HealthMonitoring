@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
@@ -8,7 +9,6 @@ using HealthMonitoring.Model;
 using HealthMonitoring.Monitors.Core.Exchange.Client;
 using HealthMonitoring.TimeManagement;
 using Moq;
-using RichardSzalay.MockHttp;
 using Xunit;
 
 namespace HealthMonitoring.Monitors.Core.UnitTests
@@ -19,7 +19,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         {
             private readonly HttpMessageHandler _handler;
 
-            public TestableHealthMonitorExchangeClient(HttpMessageHandler handler, ITimeCoordinator timeCoordinator) : base("http://mock/", timeCoordinator)
+            public TestableHealthMonitorExchangeClient(HttpMessageHandler handler, ITimeCoordinator timeCoordinator) : base("http://mock", timeCoordinator)
             {
                 _handler = handler;
             }
@@ -27,6 +27,30 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             protected override HttpClient CreateClient()
             {
                 return new HttpClient(_handler);
+            }
+        }
+
+        class MockHttpMessageHandler : HttpMessageHandler
+        {
+            private readonly List<Tuple<Func<HttpRequestMessage, bool>, Func<HttpRequestMessage, HttpResponseMessage>>> _handlers = new List<Tuple<Func<HttpRequestMessage, bool>, Func<HttpRequestMessage, HttpResponseMessage>>>();
+
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                foreach (var handler in _handlers)
+                {
+                    if (handler.Item1(request))
+                        return Task.FromResult(handler.Item2(request));
+                }
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+            }
+
+            public void Setup(Func<HttpRequestMessage, bool> predicate, Func<HttpRequestMessage, HttpResponseMessage> action)
+            {
+                _handlers.Add(Tuple.Create(predicate, action));
+            }
+            public void Setup(string url, Func<HttpRequestMessage, HttpResponseMessage> action)
+            {
+                Setup(req => req.RequestUri.ToString().Equals(url, StringComparison.OrdinalIgnoreCase), action);
             }
         }
 
@@ -39,8 +63,9 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             mockTimeCoordinator.Setup(c => c.UtcNow).Returns(currentTimeUtc);
             var client = new TestableHealthMonitorExchangeClient(mockHttp, mockTimeCoordinator.Object);
 
-            mockHttp.Expect($"*/api/endpoints/health?clientCurrentTime={currentTimeUtc.ToString("u", CultureInfo.InvariantCulture)}")
-                .Respond(HttpStatusCode.OK);
+            mockHttp.Setup(
+                $"http://mock/api/endpoints/health?clientCurrentTime={currentTimeUtc.ToString("u", CultureInfo.InvariantCulture)}", 
+                req => new HttpResponseMessage(HttpStatusCode.OK));
 
             try
             {
