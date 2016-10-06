@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Hosting;
@@ -74,7 +75,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 
         public Task<HealthInfo> CheckHealthAsync(string address, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 
@@ -84,7 +85,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 
         public Task<HealthInfo> CheckHealthAsync(string address, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

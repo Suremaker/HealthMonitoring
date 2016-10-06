@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using HealthMonitoring.AcceptanceTests.Helpers;
@@ -9,7 +10,6 @@ using Newtonsoft.Json;
 using RestSharp;
 using Xunit;
 using Xunit.Abstractions;
-using System.Collections.Generic;
 
 namespace HealthMonitoring.AcceptanceTests.Scenarios
 {

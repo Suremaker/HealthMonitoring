@@ -2,9 +2,9 @@
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Text;
+using HealthMonitoring.SelfHost.Configuration;
 using Moq;
 using Xunit;
-using HealthMonitoring.SelfHost.Configuration;
 
 namespace HealthMonitoring.Api.UnitTests.Formatters
 {

@@ -4,6 +4,7 @@ using System.Threading;
 using Autofac;
 using Common.Logging;
 using Common.Logging.Configuration;
+using Common.Logging.Log4Net;
 using HealthMonitoring.Configuration;
 using HealthMonitoring.Hosting;
 using HealthMonitoring.Monitors.Core;
@@ -23,7 +24,7 @@ namespace HealthMonitoring.Monitors.SelfHost
 
         public static int Main()
         {
-            LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(new NameValueCollection { { "configType", "FILE-WATCH" }, { "configFile", "~/log4net.config" } });
+            LogManager.Adapter = new Log4NetLoggerFactoryAdapter(new NameValueCollection { { "configType", "FILE-WATCH" }, { "configFile", "~/log4net.config" } });
             _logger = LogManager.GetLogger<Program>();
             try
             {

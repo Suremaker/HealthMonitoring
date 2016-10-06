@@ -1,8 +1,8 @@
-using System.Collections.Generic;
-using HealthMonitoring.Configuration;
 using System;
-using HealthMonitoring.Model;
+using System.Collections.Generic;
 using System.Linq;
+using HealthMonitoring.Configuration;
+using HealthMonitoring.Model;
 
 namespace HealthMonitoring.SelfHost.Entities
 {

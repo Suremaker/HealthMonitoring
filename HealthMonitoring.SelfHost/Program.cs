@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Threading;
 using Common.Logging;
 using Common.Logging.Configuration;
+using Common.Logging.Log4Net;
 using HealthMonitoring.SelfHost.Configuration;
 using Microsoft.Owin.Hosting;
 
@@ -12,7 +13,7 @@ namespace HealthMonitoring.SelfHost
     {
         public static void Main(params string[] args)
         {
-            LogManager.Adapter = new Common.Logging.Log4Net.Log4NetLoggerFactoryAdapter(new NameValueCollection { { "configType", "FILE-WATCH" }, { "configFile", "~/log4net.config" } });
+            LogManager.Adapter = new Log4NetLoggerFactoryAdapter(new NameValueCollection { { "configType", "FILE-WATCH" }, { "configFile", "~/log4net.config" } });
             var logger = LogManager.GetLogger<Program>();
             var baseAddress = ConfigurationManager.AppSettings["BaseUrl"];
 
