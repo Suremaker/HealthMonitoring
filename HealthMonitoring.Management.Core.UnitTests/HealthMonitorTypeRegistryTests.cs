@@ -16,12 +16,20 @@ namespace HealthMonitoring.Management.Core.UnitTests
         }
 
         [Fact]
+        public void Registry_should_register_push_monitor_type_during_construction_and_return_it()
+        {
+            var registry = new HealthMonitorTypeRegistry(_repository.Object);
+            _repository.Verify(r => r.SaveMonitorType(HealthMonitorTypeRegistry.PushMonitorType), Times.Once);
+            Assert.Equal(new[] { "push" }, registry.GetMonitorTypes().ToArray());
+        }
+
+        [Fact]
         public void GetMonitorTypes_should_return_all_currently_registered_monitors()
         {
             _repository.Setup(r => r.LoadMonitorTypes()).Returns(new[] { "abc", "def" });
             var registry = new HealthMonitorTypeRegistry(_repository.Object);
             registry.RegisterMonitorType("ghi");
-            Assert.Equal(new[] { "abc", "def", "ghi" }, registry.GetMonitorTypes().OrderBy(t => t));
+            Assert.Equal(new[] { "abc", "def", "ghi", HealthMonitorTypeRegistry.PushMonitorType }, registry.GetMonitorTypes().OrderBy(t => t));
         }
 
         [Fact]
@@ -31,12 +39,12 @@ namespace HealthMonitoring.Management.Core.UnitTests
 
             var registry = new HealthMonitorTypeRegistry(_repository.Object);
 
-            Assert.Equal(new[] { "abc" }, registry.GetMonitorTypes().OrderBy(t => t));
+            Assert.Equal(new[] { "abc", HealthMonitorTypeRegistry.PushMonitorType }, registry.GetMonitorTypes().OrderBy(t => t));
 
             registry.RegisterMonitorType("def");
             registry.RegisterMonitorType("abc");
             registry.RegisterMonitorType("ghi");
-            Assert.Equal(new[] { "abc", "def", "ghi" }, registry.GetMonitorTypes().OrderBy(t => t));
+            Assert.Equal(new[] { "abc", "def", "ghi", HealthMonitorTypeRegistry.PushMonitorType }, registry.GetMonitorTypes().OrderBy(t => t));
         }
     }
 }

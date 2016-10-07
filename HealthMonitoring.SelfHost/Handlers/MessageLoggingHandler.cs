@@ -8,39 +8,45 @@ namespace HealthMonitoring.SelfHost.Handlers
 {
     public class MessageLoggingHandler : MessageHandler
     {
-        private static readonly ILog Logger = LogManager.GetLogger<MessageLoggingHandler>();
-        private readonly string[] _allowedMediaTypes = {"text/plain", "application/json", "text/xml", "application/xml"};
+        private readonly string[] _allowedMediaTypes = { "text/plain", "application/json", "text/xml", "application/xml" };
+        private readonly ILog _logger;
 
-        public override async Task<Guid> HandleRequest(HttpRequestMessage request)
+        public MessageLoggingHandler() : this(LogManager.GetLogger<MessageLoggingHandler>())
+        {
+        }
+
+        protected MessageLoggingHandler(ILog logger)
+        {
+            _logger = logger;
+        }
+
+        public override Task<Guid> HandleRequest(HttpRequestMessage request)
         {
             var correlationId = request.GetCorrelationId();
 
-            await Task.Run(() => Logger.InfoFormat("ID: {0} | {1}: [{2}]",
-                correlationId,
-                request.Method,
-                request.RequestUri));
+            _logger.Info($"ID: {correlationId} | {request.Method}: [{request.RequestUri}]");
 
-            return await Task.FromResult(correlationId);
+            return Task.FromResult(correlationId);
         }
 
         public override async Task HandleResponse(HttpResponseMessage response, Guid correlationId)
         {
-            string baseInfo = $"ID: {correlationId} | status: [{(int)response.StatusCode} {response.ReasonPhrase}]";
+            string content = null;
 
-            if (response.IsSuccessStatusCode)
-            {
-                await Task.Run(() => Logger.Info(baseInfo));
-            }
+            if ((int)response.StatusCode >= 400)
+                content = await FilterResponseContent(response);
+
+            if (content != null)
+                _logger.Info($"ID: {correlationId} | status: [{(int)response.StatusCode} {response.ReasonPhrase}] | content: {content}");
             else
-            {
-                var requestContent = await response.RequestMessage.Content.ReadAsStringAsync();
-                var responseContent = await FilterResponseContentAsync(response);
-                await Task.Run(() => Logger.ErrorFormat("{0} | requestContent: [{1}] | responseContent: [{2}]", baseInfo, requestContent, responseContent));
-            }
+                _logger.Info($"ID: {correlationId} | status: [{(int)response.StatusCode} {response.ReasonPhrase}]");
         }
 
-        public async Task<string> FilterResponseContentAsync(HttpResponseMessage response)
+        private async Task<string> FilterResponseContent(HttpResponseMessage response)
         {
+            if (response.Content != null && _allowedMediaTypes.Contains(response.Content.Headers.ContentType.MediaType))
+                return await response.Content.ReadAsStringAsync();
+            return null;
             var content = string.Empty;
 
             if ((response.Content != null) &&
