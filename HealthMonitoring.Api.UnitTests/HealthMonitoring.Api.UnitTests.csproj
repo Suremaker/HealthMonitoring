@@ -97,6 +97,10 @@
       <Project>{C7EB3E43-9DC4-4D10-9799-3371133BAEF9}</Project>
       <Name>HealthMonitoring.SelfHost</Name>
     </ProjectReference>
+    <ProjectReference Include="..\HealthMonitoring.TestUtils\HealthMonitoring.TestUtils.csproj">
+      <Project>{88551F10-599D-48C4-974F-4AE7F66F6DDC}</Project>
+      <Name>HealthMonitoring.TestUtils</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HealthMonitoring\HealthMonitoring.csproj">
       <Project>{B04E2F95-8F59-4B5C-AC93-4688EA6848D8}</Project>
       <Name>HealthMonitoring</Name>

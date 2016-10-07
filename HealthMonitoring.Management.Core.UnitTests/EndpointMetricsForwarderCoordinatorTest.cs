@@ -1,6 +1,7 @@
 ﻿using System;
 using HealthMonitoring.Forwarders;
 using HealthMonitoring.Model;
+using HealthMonitoring.TestUtils;
 using HealthMonitoring.TimeManagement;
 using Moq;
 using Xunit;
@@ -17,7 +18,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         {
             var endpointId = Guid.NewGuid();
             var health = new EndpointHealth(DateTime.UtcNow, TimeSpan.FromSeconds(1), EndpointStatus.Healthy);
-            _endpoint = new Endpoint(Mock.Of<ITimeCoordinator>(), new EndpointIdentity(endpointId, "type", "Address"), new EndpointMetadata("Name", "Group", null));
+            _endpoint = new Endpoint(TimeCoordinatorMock.Get().Object, new EndpointIdentity(endpointId, "type", "Address"), new EndpointMetadata("Name", "Group", null));
             _endpoint.UpdateHealth(health);
 
             _forwarder = new Mock<IEndpointMetricsForwarder>();

@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Moq">
+      <HintPath>..\packages\Moq.4.5.21\lib\net45\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -54,6 +57,7 @@
     <Compile Include="Awaitable\TimeLineProvider.cs" />
     <Compile Include="CollectionAssert.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TimeCoordinatorMock.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HealthMonitoring\HealthMonitoring.csproj">

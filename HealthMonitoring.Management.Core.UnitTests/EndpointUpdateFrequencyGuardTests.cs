@@ -7,6 +7,7 @@ using HealthMonitoring.Configuration;
 using HealthMonitoring.Management.Core.Registers;
 using HealthMonitoring.Model;
 using HealthMonitoring.TaskManagement;
+using HealthMonitoring.TestUtils;
 using HealthMonitoring.TimeManagement;
 using Moq;
 using Xunit;
@@ -19,7 +20,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         private readonly Mock<IEndpointRegistry> _endpointRegistry = new Mock<IEndpointRegistry>();
         private readonly Mock<IContinuousTaskExecutor<Endpoint>> _taskExecutor = new Mock<IContinuousTaskExecutor<Endpoint>>();
         private readonly Mock<IMonitorSettings> _monitorSettings = new Mock<IMonitorSettings>();
-        private readonly Mock<ITimeCoordinator> _timeCoordinator = new Mock<ITimeCoordinator>();
+        private readonly Mock<ITimeCoordinator> _timeCoordinator = TimeCoordinatorMock.Get();
         private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(10);
         private readonly TimeSpan _inactivityTimeLimit = TimeSpan.FromSeconds(20);
         private readonly TimeSpan _fullInactivityDelay;

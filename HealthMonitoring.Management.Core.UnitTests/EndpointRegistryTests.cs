@@ -3,6 +3,7 @@ using System.Linq;
 using HealthMonitoring.Management.Core.Registers;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
+using HealthMonitoring.TestUtils;
 using HealthMonitoring.TimeManagement;
 using Moq;
 using Xunit;
@@ -17,7 +18,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         private readonly Mock<IEndpointStatsRepository> _statsRepository;
         private readonly Mock<IEndpointMetricsForwarderCoordinator> _forwarderCoordinator;
         private readonly Mock<IEndpointStatsManager> _statsManager = new Mock<IEndpointStatsManager>();
-        private readonly Mock<ITimeCoordinator> _timeCoordinator = new Mock<ITimeCoordinator>();
+        private readonly Mock<ITimeCoordinator> _timeCoordinator = TimeCoordinatorMock.Get();
 
         public EndpointRegistryTests()
         {

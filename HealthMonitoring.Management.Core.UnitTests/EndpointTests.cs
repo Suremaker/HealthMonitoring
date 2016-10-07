@@ -1,5 +1,6 @@
 using System;
 using HealthMonitoring.Model;
+using HealthMonitoring.TestUtils;
 using HealthMonitoring.TimeManagement;
 using Moq;
 using Xunit;
@@ -8,7 +9,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
 {
     public class EndpointTests
     {
-        private readonly Mock<ITimeCoordinator> _timeCoordinator = new Mock<ITimeCoordinator>();
+        private readonly Mock<ITimeCoordinator> _timeCoordinator = TimeCoordinatorMock.Get();
 
         [Fact]
         public void Endpoint_should_be_created_with_last_modified_time_set()
