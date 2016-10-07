@@ -2,31 +2,51 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Common.Logging;
+using System.Linq;
 
 namespace HealthMonitoring.SelfHost.Handlers
 {
-    public class MessageLoggingHandler : MessageHandler 
+    public class MessageLoggingHandler : MessageHandler
     {
-        private static readonly ILog Logger = LogManager.GetLogger<MessageLoggingHandler>();
+        private readonly string[] _allowedMediaTypes = { "text/plain", "application/json", "text/xml", "application/xml" };
+        private readonly ILog _logger;
 
-        public override async Task<Guid> HandleRequest(HttpRequestMessage request)
+        public MessageLoggingHandler() : this(LogManager.GetLogger<MessageLoggingHandler>())
         {
-            Guid correlationId = request.GetCorrelationId();
+        }
 
-            await Task.Run(() => Logger.InfoFormat("ID: {0} | {1}: [{2}]",
-                correlationId,
-                request.Method, 
-                request.RequestUri));
+        protected MessageLoggingHandler(ILog logger)
+        {
+            _logger = logger;
+        }
 
-            return await Task.FromResult(correlationId);
+        public override Task<Guid> HandleRequest(HttpRequestMessage request)
+        {
+            var correlationId = request.GetCorrelationId();
+
+            _logger.Info($"ID: {correlationId} | {request.Method}: [{request.RequestUri}]");
+
+            return Task.FromResult(correlationId);
         }
 
         public override async Task HandleResponse(HttpResponseMessage response, Guid correlationId)
         {
-            await Task.Run(() => Logger.InfoFormat("ID: {0} | status: [{1} {2}]",
-                correlationId,
-                (int)response.StatusCode,
-                response.ReasonPhrase));
+            string content = null;
+
+            if ((int)response.StatusCode >= 400)
+                content = await FilterResponseContent(response);
+
+            if (content != null)
+                _logger.Info($"ID: {correlationId} | status: [{(int)response.StatusCode} {response.ReasonPhrase}] | content: {content}");
+            else
+                _logger.Info($"ID: {correlationId} | status: [{(int)response.StatusCode} {response.ReasonPhrase}]");
+        }
+
+        private async Task<string> FilterResponseContent(HttpResponseMessage response)
+        {
+            if (response.Content != null && _allowedMediaTypes.Contains(response.Content.Headers.ContentType.MediaType))
+                return await response.Content.ReadAsStringAsync();
+            return null;
         }
     }
 }
