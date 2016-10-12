@@ -225,8 +225,8 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             _endpoints.Add(endpoint);
 
             endpoint.SetupStatusResponse(httpStatusCode);
-            var endpointId = _client.RegisterEndpoint(MonitorTypes.Http, endpoint.StatusAddress, group, name, tags);
-            _client.EnsureStatusChanged(endpointId, expectedStatus);
+            var identifier = _client.RegisterEndpoint(MonitorTypes.Http, endpoint.StatusAddress, group, name, tags);
+            _client.EnsureStatusChanged(identifier, expectedStatus);
         }
 
         private void When_client_requests_all_endpoints_details_via_url_and_group_filter_GROUPFILTER(string url, string groupFilter)
@@ -264,13 +264,5 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             var expected = endpoints.OrderBy(e => e).ToArray();
             Assert.Equal(expected, actual);
         }
-
-        private string GetEncriptedSecret(string secret)
-        {
-            return Convert.ToBase64String(Encoding.Default.GetBytes(secret));
-        }
-
-
-
     }
 }

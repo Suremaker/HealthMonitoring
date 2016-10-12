@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using HealthMonitoring.Model;
 using HealthMonitoring.TestUtils;
 using HealthMonitoring.TimeManagement;

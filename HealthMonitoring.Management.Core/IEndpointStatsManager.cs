@@ -1,5 +1,4 @@
-﻿using System;
-using HealthMonitoring.Model;
+﻿using HealthMonitoring.Model;
 
 namespace HealthMonitoring.Management.Core
 {

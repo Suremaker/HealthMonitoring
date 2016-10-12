@@ -117,7 +117,6 @@
   <ItemGroup>
     <Compile Include="Helpers\CusomAssertions.cs" />
     <Compile Include="Helpers\Entities\EndpointHealthStats.cs" />
-    <Compile Include="Helpers\Entities\RegistrationResponse.cs" />
     <Compile Include="Helpers\PrivateTokenProvider.cs" />
     <Compile Include="Helpers\Selenium\DriverToTest.cs" />
     <Compile Include="Helpers\Selenium\SeleniumHelper.cs" />

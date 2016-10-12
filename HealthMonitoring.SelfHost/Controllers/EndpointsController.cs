@@ -35,7 +35,7 @@ namespace HealthMonitoring.SelfHost.Controllers
 
         [Route("api/endpoints/register")]
         [ResponseType(typeof(Guid))]
-        [SwaggerResponse(HttpStatusCode.OK, Type = typeof(Guid))]
+        [SwaggerResponse(HttpStatusCode.Created, Type = typeof(Guid))]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
         [SwaggerResponse(HttpStatusCode.Unauthorized)]
         [SwaggerResponse(HttpStatusCode.Forbidden)]
