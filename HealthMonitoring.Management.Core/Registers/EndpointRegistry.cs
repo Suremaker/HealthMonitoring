@@ -13,7 +13,6 @@ namespace HealthMonitoring.Management.Core.Registers
         private readonly IHealthMonitorTypeRegistry _healthMonitorTypeRegistry;
         private readonly IEndpointConfigurationRepository _endpointConfigurationRepository;
         private readonly IEndpointStatsRepository _statsRepository;
-        private readonly IEndpointMetricsForwarderCoordinator _metricsForwarderCoordinator;
         private readonly IEndpointStatsManager _endpointStatsManager;
         private readonly ITimeCoordinator _timeCoordinator;
         private readonly ConcurrentDictionary<string, Endpoint> _endpoints = new ConcurrentDictionary<string, Endpoint>();
@@ -25,14 +24,12 @@ namespace HealthMonitoring.Management.Core.Registers
             IHealthMonitorTypeRegistry healthMonitorTypeRegistry, 
             IEndpointConfigurationRepository endpointConfigurationRepository,
             IEndpointStatsRepository statsRepository,
-            IEndpointMetricsForwarderCoordinator coordinator,
             IEndpointStatsManager statsManager,
             ITimeCoordinator timeCoordinator)
         {
             _healthMonitorTypeRegistry = healthMonitorTypeRegistry;
             _endpointConfigurationRepository = endpointConfigurationRepository;
             _statsRepository = statsRepository;
-            _metricsForwarderCoordinator = coordinator;
             _endpointStatsManager = statsManager;
             _timeCoordinator = timeCoordinator;
 
@@ -96,8 +93,7 @@ namespace HealthMonitoring.Management.Core.Registers
             if (endpoint == null)
                 return;
             endpoint.UpdateHealth(health);
-            _endpointStatsManager.RecordEndpointStatistics(endpointId, health);
-            _metricsForwarderCoordinator.HandleMetricsForwarding(endpoint.Identity, endpoint.Metadata, health);
+            _endpointStatsManager.RecordEndpointStatistics(endpoint.Identity, endpoint.Metadata, health);
         }
 
         public event Action<Endpoint> EndpointAdded;

@@ -5,6 +5,6 @@ namespace HealthMonitoring.Management.Core
 {
     public interface IEndpointStatsManager
     {
-        void RecordEndpointStatistics(Guid endpointId, EndpointHealth stats);
+        void RecordEndpointStatistics(EndpointIdentity identity, EndpointMetadata metadata, EndpointHealth stats);
     }
 }
