@@ -22,6 +22,40 @@ I want to be able to register browse and unregister endpoints")]
         }
 
         [Scenario]
+        public void Updating_existing_endpoint_without_credentials()
+        {
+            Runner.RunScenario(
+                _ => Given_a_monitor_api_client(),
+                _ => Given_endpoint_with_private_token_is_registered("registered", "http://localhost:2525/status", "group", MonitorTypes.HttpJson, CredentialsProvider.PersonalCredentials.PrivateToken),
+                _ => When_client_request_endpoint_update_without_personal_credentials("registered", "http://localhost:2525/status", "group1", MonitorTypes.HttpJson),
+                _ => Then_unauthorized_result_should_be_received());
+        }
+
+        [Scenario]
+        public void Updating_existing_endpoint_with_personal_credentials()
+        {
+            Runner.RunScenario(
+                _ => Given_a_monitor_api_client(),
+                _ => Given_endpoint_with_private_token_is_registered("registered", "http://localhost:2526/status", "group", MonitorTypes.HttpJson, CredentialsProvider.PersonalCredentials.PrivateToken),
+                _ => Given_endpoint_id_is_received(),
+                _ => When_client_request_endpoint_update_with_credentials("registered", "http://localhost:2526/status", "group1", MonitorTypes.HttpJson, null, CredentialsProvider.PersonalCredentials.PrivateToken),
+                _ => Then_a_new_endpoint_identifier_should_be_returned());
+        }
+
+        [Scenario]
+        public void Trying_to_update_existing_endpoint_by_another_one()
+        {
+            Runner.RunScenario(
+                _ => Given_a_monitor_api_client(),
+                _ => Given_endpoint_with_private_token_is_registered("registered", "http://localhost:2527/status", "group", MonitorTypes.HttpJson, CredentialsProvider.RandomCredentials.PrivateToken),
+                _ => Given_endpoint_id_is_received(),
+                _ => Given_endpoint_with_private_token_is_registered("registered", "http://localhost:2528/status", "group", MonitorTypes.HttpJson, CredentialsProvider.PersonalCredentials.PrivateToken),
+                _ => Given_endpoint_id_is_received(),
+                _ => When_client_request_endpoint_update_with_credentials("registered", "http://localhost:2527/status", "group1", MonitorTypes.HttpJson, null, CredentialsProvider.PersonalCredentials.PrivateToken),
+                _ => Then_unauthorized_result_should_be_received());
+        }
+
+        [Scenario]
         public void Registering_new_endpoint_with_unsupported_monitor()
         {
             Runner.RunScenario(
@@ -83,12 +117,12 @@ I want to be able to register browse and unregister endpoints")]
         }
 
         [Scenario]
-        public void Deleting_existing_endpoint()
+        public void Deleting_existing_endpoint_with_admin_credentials()
         {
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),
-                _ => Given_endpoint_with_name_address_group_and_monitor_is_registered("my_name", "http://localhost:3333/status", "my_group", MonitorTypes.HttpJson),
-                _ => When_client_requests_endpoint_deletion_via_url("/api/endpoints/" + _identifier),
+                _ => Given_endpoint_with_name_address_group_and_monitor_is_registered("already_registered", "http://localhost:3033/status", "my_group", MonitorTypes.HttpJson),
+                _ => When_client_requests_endpoint_deletion_via_url_with_admin_credentials("/api/endpoints/" + _identifier),
                 _ => Then_status_should_be_returned(HttpStatusCode.OK),
                 _ => When_client_requests_endpoint_details_for_inexistent_endpoint_identifier(),
                 _ => Then_status_should_be_returned(HttpStatusCode.NotFound)
@@ -106,12 +140,25 @@ I want to be able to register browse and unregister endpoints")]
         }
 
         [Scenario]
-        public void Updating_endpoint_tags()
+        public void Updating_endpoint_tags_with_admin_credentials()
         {
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),
-                _ => Given_endpoint_with_name_address_group_and_monitor_is_registered("my_name", "http://localhost:3333/status", "my_group", MonitorTypes.HttpJson),
-                _ => When_client_requests_tags_updating_via_url($"api/endpoints/{_identifier}/tags", new[] { "tag1", "tag2" }),
+                _ => Given_endpoint_with_name_address_group_and_monitor_is_registered("my_name", "http://localhost:3034/status", "my_group", MonitorTypes.HttpJson),
+                _ => When_client_requests_tags_updating_via_url_with_admin_credentials($"api/endpoints/{_identifier}/tags", new[] { "tag1", "tag2" }),
+                _ => Then_status_should_be_returned(HttpStatusCode.OK),
+                _ => When_client_requests_endpoint_details_via_url("/api/endpoints/" + _identifier),
+                _ => Then_the_endpoint_tags_should_be(new[] { "tag1", "tag2" })
+                );
+        }
+
+        public void Updating_endpoint_tags_with_personal_credentials()
+        {
+            Runner.RunScenario(
+                _ => Given_a_monitor_api_client(),
+                _ => Given_endpoint_with_private_token_is_registered("my_name", "http://localhost:3035/status", "my_group", MonitorTypes.HttpJson, 
+                CredentialsProvider.PersonalCredentials.PrivateToken),
+                _ => When_client_requests_tags_updating_via_url_with_personal_credentials($"api/endpoints/{_identifier}/tags", new[] { "tag1", "tag2" }),
                 _ => Then_status_should_be_returned(HttpStatusCode.OK),
                 _ => When_client_requests_endpoint_details_via_url("/api/endpoints/" + _identifier),
                 _ => Then_the_endpoint_tags_should_be(new[] { "tag1", "tag2" })

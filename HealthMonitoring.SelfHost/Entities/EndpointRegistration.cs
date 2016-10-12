@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace HealthMonitoring.SelfHost.Entities
 {
@@ -14,5 +15,12 @@ namespace HealthMonitoring.SelfHost.Entities
         public string Group { get; set; }
         [CustomValidation(typeof(TagsValidator), "CheckForUnallowedSymbols")]
         public string[] Tags { get; set; }
+        [MinLength(64)]
+        public string PrivateToken { get; set; }
+
+        public string GetNaturalKey()
+        {
+            return $"{MonitorType}|{Address.ToLowerInvariant()}";
+        }
     }
 }

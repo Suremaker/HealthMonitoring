@@ -103,8 +103,8 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         {
             SetupDefaultRegisterEndpointsMock();
 
-            var endpointIdentities1 = new[] { new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address1"), new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address2") };
-            var endpointIdentities2 = new[] { new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address1"), new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address3") };
+            var endpointIdentities1 = new[] { new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address1", "token1"), new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address2", "token2") };
+            var endpointIdentities2 = new[] { new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address1", "token2"), new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address3", "token3") };
             var countdown1 = new AsyncCountdown("endpointIdentities1", 1);
             var countdown2 = new AsyncCountdown("endpointIdentities2", 1);
 
@@ -246,7 +246,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 
         private EndpointIdentity[] SetupDefaultEndpointIdentitiesMock(Func<AwaitableBuilder<EndpointIdentity[]>, AwaitableBuilder<EndpointIdentity[]>> mockConfiguration)
         {
-            var endpointIdentities = new[] { new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address1"), new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address2") };
+            var endpointIdentities = new[] { new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address1", "token1"), new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address2", "token1") };
 
             _exchangeClient
                 .Setup(c => c.GetEndpointIdentitiesAsync(It.IsAny<CancellationToken>()))

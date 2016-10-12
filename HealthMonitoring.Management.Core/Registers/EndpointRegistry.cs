@@ -5,6 +5,7 @@ using System.Linq;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
 using HealthMonitoring.TimeManagement;
+using HealthMonitoring.Security;
 
 namespace HealthMonitoring.Management.Core.Registers
 {
@@ -13,11 +14,11 @@ namespace HealthMonitoring.Management.Core.Registers
         private readonly IHealthMonitorTypeRegistry _healthMonitorTypeRegistry;
         private readonly IEndpointConfigurationRepository _endpointConfigurationRepository;
         private readonly IEndpointStatsRepository _statsRepository;
-        private readonly IEndpointMetricsForwarderCoordinator _metricsForwarderCoordinator;
         private readonly IEndpointStatsManager _endpointStatsManager;
         private readonly ITimeCoordinator _timeCoordinator;
         private readonly ConcurrentDictionary<string, Endpoint> _endpoints = new ConcurrentDictionary<string, Endpoint>();
         private readonly ConcurrentDictionary<Guid, Endpoint> _endpointsByGuid = new ConcurrentDictionary<Guid, Endpoint>();
+        private readonly ICredentialsProvider _credentialsProvider;
 
         public IEnumerable<Endpoint> Endpoints { get { return _endpoints.Select(p => p.Value); } }
 
@@ -25,16 +26,16 @@ namespace HealthMonitoring.Management.Core.Registers
             IHealthMonitorTypeRegistry healthMonitorTypeRegistry, 
             IEndpointConfigurationRepository endpointConfigurationRepository,
             IEndpointStatsRepository statsRepository,
-            IEndpointMetricsForwarderCoordinator coordinator,
             IEndpointStatsManager statsManager,
-            ITimeCoordinator timeCoordinator)
+            ITimeCoordinator timeCoordinator,
+            ICredentialsProvider credentialsProvider)
         {
             _healthMonitorTypeRegistry = healthMonitorTypeRegistry;
             _endpointConfigurationRepository = endpointConfigurationRepository;
             _statsRepository = statsRepository;
-            _metricsForwarderCoordinator = coordinator;
             _endpointStatsManager = statsManager;
             _timeCoordinator = timeCoordinator;
+            _credentialsProvider = credentialsProvider;
 
             foreach (var endpoint in _endpointConfigurationRepository.LoadEndpoints())
             {
@@ -43,12 +44,15 @@ namespace HealthMonitoring.Management.Core.Registers
             }
         }
 
-        public Guid RegisterOrUpdate(string monitorType, string address, string group, string name, string[] tags)
+        public Guid RegisterOrUpdate(string monitorType, string address, string group, string name, string[] tags, string privateToken = null)
         {
             if (!_healthMonitorTypeRegistry.GetMonitorTypes().Contains(monitorType))
                 throw new UnsupportedMonitorException(monitorType);
-            var newIdentifier = new EndpointIdentity(Guid.NewGuid(), monitorType, address);
-            var endpoint = _endpoints.AddOrUpdate(newIdentifier.GetNaturalKey(), new Endpoint(_timeCoordinator, newIdentifier, new EndpointMetadata(name, group, tags)), (k, e) => e.UpdateMetadata(group, name, tags));
+            var encryptedToken = privateToken?.ToSha256Hash();
+            var newIdentifier = new EndpointIdentity(Guid.NewGuid(), monitorType, address, encryptedToken);
+            var endpoint = _endpoints.AddOrUpdate(newIdentifier.GetNaturalKey(),
+                                new Endpoint(_timeCoordinator, newIdentifier, new EndpointMetadata(name, group, tags)),
+                                (k, e) => e.UpdateEndpoint(group, name, tags, encryptedToken));
             _endpointsByGuid[endpoint.Identity.Id] = endpoint;
             _endpointConfigurationRepository.SaveEndpoint(endpoint);
 
@@ -64,7 +68,7 @@ namespace HealthMonitoring.Management.Core.Registers
                 return false;
 
             var metadata = endpoint.Metadata.Name;
-            endpoint.UpdateMetadata(endpoint.Metadata.Group, metadata, tags);
+            endpoint.UpdateEndpoint(endpoint.Metadata.Group, metadata, tags);
             _endpointConfigurationRepository.SaveEndpoint(endpoint);
             return true;
         }
@@ -73,6 +77,11 @@ namespace HealthMonitoring.Management.Core.Registers
         {
             Endpoint endpoint;
             return _endpointsByGuid.TryGetValue(id, out endpoint) ? endpoint : null;
+        }
+
+        public Endpoint GetByNaturalKey(string key)
+        {
+            return _endpoints.FirstOrDefault(m => m.Key == key).Value;
         }
 
         public bool TryUnregisterById(Guid id)
@@ -96,8 +105,7 @@ namespace HealthMonitoring.Management.Core.Registers
             if (endpoint == null)
                 return;
             endpoint.UpdateHealth(health);
-            _endpointStatsManager.RecordEndpointStatistics(endpointId, health);
-            _metricsForwarderCoordinator.HandleMetricsForwarding(endpoint.Identity, endpoint.Metadata, health);
+            _endpointStatsManager.RecordEndpointStatistics(endpoint.Identity, endpoint.Metadata, health);
         }
 
         public event Action<Endpoint> EndpointAdded;

@@ -42,12 +42,17 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\IDashboardSettings.cs" />
     <Compile Include="Configuration\IMonitorSettings.cs" />
     <Compile Include="Configuration\IThrottlingSettings.cs" />
+    <Compile Include="Security\Credentials.cs" />
+    <Compile Include="Security\EncryptionExtensions.cs" />
+    <Compile Include="Security\ICredentialsProvider.cs" />
+    <Compile Include="Security\CredentialsProvider.cs" />
     <Compile Include="Model\EndpointIdentity.cs" />
     <Compile Include="Model\EndpointMetadata.cs" />
     <Compile Include="Model\EndpointHealth.cs" />
@@ -58,6 +63,7 @@
     <Compile Include="TaskManagement\ContinuousTaskExecutor.cs" />
     <Compile Include="TaskManagement\IContinuousTaskExecutor.cs" />
     <Compile Include="TimeManagement\IStopWatch.cs" />
+    <Compile Include="Security\SecurityRole.cs" />
     <Compile Include="TimeManagement\ITimeCoordinator.cs" />
     <Compile Include="TimeManagement\TimeCoordinator.cs" />
   </ItemGroup>

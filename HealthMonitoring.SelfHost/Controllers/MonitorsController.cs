@@ -3,6 +3,8 @@ using System.Linq;
 using System.Net;
 using System.Web.Http;
 using HealthMonitoring.Management.Core.Registers;
+using HealthMonitoring.Security;
+using HealthMonitoring.SelfHost.Security;
 using Swashbuckle.Swagger.Annotations;
 
 namespace HealthMonitoring.SelfHost.Controllers
@@ -27,6 +29,8 @@ namespace HealthMonitoring.SelfHost.Controllers
         [SwaggerResponse(HttpStatusCode.BadRequest)]
         public IHttpActionResult PostRegisterMonitors([FromBody]params string[] monitorTypes)
         {
+            RequestContext.Authorize(SecurityRole.PullMonitor, SecurityRole.AdminMonitor);
+
             if (monitorTypes == null || monitorTypes.Any(string.IsNullOrWhiteSpace))
                 return BadRequest("Body cannot be null and have to contain properly named monitor types");
 

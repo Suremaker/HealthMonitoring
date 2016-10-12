@@ -9,8 +9,11 @@ using HealthMonitoring.Management.Core;
 using HealthMonitoring.Management.Core.Registers;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
+using HealthMonitoring.Security;
 using HealthMonitoring.SelfHost.Entities;
 using HealthMonitoring.SelfHost.Filters;
+using HealthMonitoring.SelfHost.Models;
+using HealthMonitoring.SelfHost.Security;
 using HealthMonitoring.TimeManagement;
 using Swashbuckle.Swagger.Annotations;
 
@@ -32,14 +35,20 @@ namespace HealthMonitoring.SelfHost.Controllers
 
         [Route("api/endpoints/register")]
         [ResponseType(typeof(Guid))]
-        [SwaggerResponse(HttpStatusCode.Created, Type = typeof(Guid))]
+        [SwaggerResponse(HttpStatusCode.OK, Type = typeof(Guid))]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
+        [SwaggerResponse(HttpStatusCode.Unauthorized)]
+        [SwaggerResponse(HttpStatusCode.Forbidden)]
         public IHttpActionResult PostRegisterEndpoint([FromBody]EndpointRegistration endpoint)
         {
             endpoint.ValidateModel();
+
             try
             {
-                var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Tags);
+                var existed = _endpointRegistry.GetByNaturalKey(endpoint.GetNaturalKey());
+                RequestContext.AuthorizeRegistration(endpoint, existed, SecurityRole.AdminMonitor, SecurityRole.PullMonitor);
+
+                var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Tags, endpoint.PrivateToken);
                 return Created(new Uri(Request.RequestUri, $"/api/endpoints/{id}"), id);
             }
             catch (UnsupportedMonitorException e)
@@ -52,6 +61,8 @@ namespace HealthMonitoring.SelfHost.Controllers
         [ResponseType(typeof(Guid))]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
+        [SwaggerResponse(HttpStatusCode.Unauthorized)]
+        [SwaggerResponse(HttpStatusCode.Forbidden)]
         public IHttpActionResult PostEndpointHealth(DateTimeOffset? clientCurrentTime = null, [FromBody]params EndpointHealthUpdate[] healthUpdate)
         {
             healthUpdate.ValidateModel();
@@ -59,7 +70,10 @@ namespace HealthMonitoring.SelfHost.Controllers
             var clockDifference = GetServerToClientTimeDifference(clientCurrentTime);
 
             foreach (var update in healthUpdate)
+            {
+                RequestContext.Authorize(update.EndpointId, SecurityRole.PullMonitor);
                 _endpointRegistry.UpdateHealth(update.EndpointId, update.ToEndpointHealth(clockDifference));
+            }
 
             return Ok();
         }
@@ -73,10 +87,10 @@ namespace HealthMonitoring.SelfHost.Controllers
 
         [Route("api/endpoints/identities")]
         [SwaggerResponse(HttpStatusCode.OK, Type = typeof(EndpointIdentity[]))]
-        [ResponseType(typeof(EndpointIdentity[]))]
-        public EndpointIdentity[] GetEndpointsIdentities()
+        [ResponseType(typeof(PublicEndpointIdentity[]))]
+        public PublicEndpointIdentity[] GetEndpointsIdentities()
         {
-            return _endpointRegistry.Endpoints.Select(e => e.Identity).ToArray();
+            return _endpointRegistry.Endpoints.Select(e => new PublicEndpointIdentity(e.Identity)).ToArray();
         }
 
         [Route("api/endpoints/{id}")]
@@ -104,8 +118,12 @@ namespace HealthMonitoring.SelfHost.Controllers
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
+        [SwaggerResponse(HttpStatusCode.Unauthorized)]
+        [SwaggerResponse(HttpStatusCode.Forbidden)]
         public IHttpActionResult DeleteEndpoint(Guid id)
         {
+            RequestContext.Authorize(id, SecurityRole.AdminMonitor);
+
             if (_endpointRegistry.TryUnregisterById(id))
                 return Ok();
 
@@ -129,11 +147,15 @@ namespace HealthMonitoring.SelfHost.Controllers
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
+        [SwaggerResponse(HttpStatusCode.Unauthorized)]
+        [SwaggerResponse(HttpStatusCode.Forbidden)]
         [ResponseType(typeof(EndpointDetails))]
         public IHttpActionResult PutUpdateEndpointTags(Guid id, [FromBody]string[] tags)
         {
             try
             {
+                RequestContext.Authorize(id, SecurityRole.AdminMonitor, SecurityRole.PullMonitor);
+
                 tags.CheckForUnallowedSymbols();
 
                 if (_endpointRegistry.TryUpdateEndpointTags(id, tags))

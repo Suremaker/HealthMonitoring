@@ -33,9 +33,15 @@ namespace HealthMonitoring.Management.Core
             LastModifiedTimeUtc = _timeCoordinator.UtcNow;
         }
 
-        public Endpoint UpdateMetadata(string group, string name, string[] tags)
+        private void UpdatePrivateToken(string token)
+        {
+            Identity.PrivateToken = token;
+        }
+
+        public Endpoint UpdateEndpoint(string group, string name, string[] tags, string token = null)
         {
             Metadata = new EndpointMetadata(name, group, tags ?? Metadata.Tags);
+            UpdatePrivateToken(token);
             UpdateLastModifiedTime();
             return this;
         }

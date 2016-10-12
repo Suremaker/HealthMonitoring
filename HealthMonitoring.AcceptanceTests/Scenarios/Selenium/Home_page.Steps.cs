@@ -119,7 +119,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_status_filter_should_be_appended_to_url()
         {
             var selectedStatus = GetSelectedStatusElements().First();
-            var expectedUrl = $"{_homeUrl}&filter-status={selectedStatus.Text}";
+            var expectedUrl = $"{_homeUrl}&filter-status={selectedStatus.Text};";
             var actualUrl = _driver.WaitUntilPageIsChanged(expectedUrl);
 
             CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);

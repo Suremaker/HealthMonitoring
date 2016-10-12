@@ -1,5 +1,7 @@
 using System;
+using System.Threading.Tasks;
 using HealthMonitoring.Model;
+using HealthMonitoring.TestUtils;
 using HealthMonitoring.TimeManagement;
 using Moq;
 using Xunit;
@@ -8,7 +10,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
 {
     public class EndpointTests
     {
-        private readonly Mock<ITimeCoordinator> _timeCoordinator = new Mock<ITimeCoordinator>();
+        private readonly Mock<ITimeCoordinator> _timeCoordinator = TimeCoordinatorMock.Get();
 
         [Fact]
         public void Endpoint_should_be_created_with_last_modified_time_set()
@@ -86,7 +88,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
             var expectedLastModifiedTime = DateTime.UtcNow;
             _timeCoordinator.Setup(c => c.UtcNow).Returns(expectedLastModifiedTime);
 
-            endpoint.UpdateMetadata("new group", "new name", new[] { "t1", "t2" });
+            endpoint.UpdateEndpoint("new group", "new name", new[] { "t1", "t2" });
 
             Assert.Equal("new group", endpoint.Metadata.Group);
             Assert.Equal("new name", endpoint.Metadata.Name);
@@ -102,7 +104,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
 
             var expectedLastModifiedTime = DateTime.UtcNow;
             _timeCoordinator.Setup(c => c.UtcNow).Returns(expectedLastModifiedTime);
-            endpoint.UpdateMetadata("new group", "new name", null);
+            endpoint.UpdateEndpoint("new group", "new name", null);
 
             Assert.Equal("new group", endpoint.Metadata.Group);
             Assert.Equal("new name", endpoint.Metadata.Name);
