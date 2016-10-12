@@ -5,6 +5,7 @@ using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
 using HealthMonitoring.TestUtils;
 using HealthMonitoring.TimeManagement;
+using HealthMonitoring.Security;
 using Moq;
 using Xunit;
 
@@ -16,6 +17,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         private readonly Mock<IHealthMonitorTypeRegistry> _healthMonitorTypeRegistry;
         private readonly Mock<IEndpointConfigurationRepository> _configurationStore;
         private readonly Mock<IEndpointStatsRepository> _statsRepository;
+        private readonly Mock<ICredentialsProvider> _credentialsProvider;
         private readonly Mock<IEndpointStatsManager> _statsManager = new Mock<IEndpointStatsManager>();
         private readonly Mock<ITimeCoordinator> _timeCoordinator = TimeCoordinatorMock.Get();
 
@@ -23,8 +25,9 @@ namespace HealthMonitoring.Management.Core.UnitTests
         {
             _healthMonitorTypeRegistry = new Mock<IHealthMonitorTypeRegistry>();
             _configurationStore = new Mock<IEndpointConfigurationRepository>();
-            _statsRepository = new Mock<IEndpointStatsRepository>();
-            _registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _statsManager.Object, _timeCoordinator.Object);
+            _statsRepository = new Mock<IEndpointStatsRepository>();            
+            _credentialsProvider = new Mock<ICredentialsProvider>();
+            _registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _statsManager.Object, _timeCoordinator.Object, _credentialsProvider.Object);
         }
 
         [Fact]
@@ -33,7 +36,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
             var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }));
             _configurationStore.Setup(s => s.LoadEndpoints()).Returns(new[] { endpoint });
 
-            var registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _statsManager.Object, _timeCoordinator.Object);
+            var registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _statsManager.Object, _timeCoordinator.Object, _credentialsProvider.Object);
 
             Assert.Same(endpoint, registry.GetById(endpoint.Identity.Id));
         }
@@ -46,17 +49,18 @@ namespace HealthMonitoring.Management.Core.UnitTests
             var expectedLastModifiedTime = DateTime.UtcNow;
             _timeCoordinator.Setup(c => c.UtcNow).Returns(expectedLastModifiedTime);
 
-            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1" });
-            Assert.NotEqual(Guid.Empty, id);
+            var endpointId = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1" }, "private_token");
+            Assert.NotEqual(Guid.Empty, endpointId);
 
-            var endpoint = _registry.GetById(id);
+            var endpoint = _registry.GetById(endpointId);
 
             Assert.NotNull(endpoint);
             Assert.Equal("monitor", endpoint.Identity.MonitorType);
             Assert.Equal("address", endpoint.Identity.Address);
+            Assert.Equal("private_token".ToSha256Hash(), endpoint.Identity.PrivateToken);
             Assert.Equal("name", endpoint.Metadata.Name);
             Assert.Equal("group", endpoint.Metadata.Group);
-            Assert.Equal(id, endpoint.Identity.Id);
+            Assert.Equal(endpointId, endpoint.Identity.Id);
             Assert.Equal("t1", endpoint.Metadata.Tags[0]);
             Assert.Equal(expectedLastModifiedTime, endpoint.LastModifiedTimeUtc);
         }
@@ -66,12 +70,14 @@ namespace HealthMonitoring.Management.Core.UnitTests
         {
             SetupMonitors("monitor");
 
-            var endpoint = _registry.GetById(_registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1" }));
+            var endpointId = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] {"t1"}, "private_token");
+            var endpoint = _registry.GetById(endpointId);
 
             Assert.NotNull(endpoint);
             Assert.Equal("t1", endpoint.Metadata.Tags[0]);
 
-            endpoint = _registry.GetById(_registry.RegisterOrUpdate("monitor", "address", "group", "name", null));
+            endpointId = _registry.RegisterOrUpdate("monitor", "address", "group", "name", null, "private_token");
+            endpoint = _registry.GetById(endpointId);
 
             Assert.NotNull(endpoint);
             Assert.Equal("t1", endpoint.Metadata.Tags[0]);
@@ -82,11 +88,13 @@ namespace HealthMonitoring.Management.Core.UnitTests
         {
             SetupMonitors("monitor");
 
-            var endpoint = _registry.GetById(_registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" }));
+            var endpointId = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] {"t1", "t2"}, "private_token");
+            var endpoint = _registry.GetById(endpointId);
 
             Assert.NotNull(endpoint);
 
-            endpoint = _registry.GetById(_registry.RegisterOrUpdate("monitor", "address", "group", "name", null));
+            endpointId = _registry.RegisterOrUpdate("monitor", "address", "group", "name", null, "private_token");
+            endpoint = _registry.GetById(endpointId);
 
             Assert.Equal(new[] { "t1", "t2" }, endpoint.Metadata.Tags);
         }
@@ -96,12 +104,12 @@ namespace HealthMonitoring.Management.Core.UnitTests
         {
             SetupMonitors("monitor");
 
-            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" });
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" }, "private_token");
 
             _configurationStore.Verify(s => s.SaveEndpoint(It.Is<Endpoint>(e => e.Identity.Id == id)));
 
             var newName = "name1";
-            _registry.RegisterOrUpdate("monitor", "address", "group", newName, new[] { "t1", "t2" });
+            _registry.RegisterOrUpdate("monitor", "address", "group", newName, new[] { "t1", "t2" }, "private_token");
             _configurationStore.Verify(s => s.SaveEndpoint(It.Is<Endpoint>(e => e.Identity.Id == id && e.Metadata.Name == newName)));
         }
 
@@ -110,9 +118,9 @@ namespace HealthMonitoring.Management.Core.UnitTests
         {
             SetupMonitors("monitor", "monitor1");
 
-            var id1 = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" });
-            var id2 = _registry.RegisterOrUpdate("monitor1", "address", "group", "name", new[] { "t1", "t2" });
-            var id3 = _registry.RegisterOrUpdate("monitor", "address1", "group", "name", new[] { "t1", "t2" });
+            var id1 = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" }, "private_token");
+            var id2 = _registry.RegisterOrUpdate("monitor1", "address", "group", "name", new[] { "t1", "t2" }, "private_token");
+            var id3 = _registry.RegisterOrUpdate("monitor", "address1", "group", "name", new[] { "t1", "t2" }, "private_token");
 
             Assert.NotEqual(id1, id2);
             Assert.NotEqual(id1, id3);
@@ -129,13 +137,13 @@ namespace HealthMonitoring.Management.Core.UnitTests
             _timeCoordinator.Setup(c => c.UtcNow)
                 .Returns(updateTime1);
 
-            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" });
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" }, "private_token");
             Assert.Equal(updateTime1, _registry.GetById(id).LastModifiedTimeUtc);
 
             _timeCoordinator.Setup(c => c.UtcNow)
                 .Returns(updateTime2);
 
-            var id2 = _registry.RegisterOrUpdate("monitor", "ADDRESS", "group2", "name2", new[] { "t1", "t2" });
+            var id2 = _registry.RegisterOrUpdate("monitor", "ADDRESS", "group2", "name2", new[] { "t1", "t2" }, "private_token2");
 
             Assert.Equal(id, id2);
 
@@ -143,6 +151,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
             Assert.NotNull(endpoint);
             Assert.Equal("monitor", endpoint.Identity.MonitorType);
             Assert.Equal("address", endpoint.Identity.Address);
+            Assert.Equal("private_token2".ToSha256Hash(), endpoint.Identity.PrivateToken);
             Assert.Equal("name2", endpoint.Metadata.Name);
             Assert.Equal("group2", endpoint.Metadata.Group);
             Assert.Equal(updateTime2, endpoint.LastModifiedTimeUtc);
@@ -152,7 +161,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         public void TryUnregister_should_remove_endpoint_and_dispose_it()
         {
             SetupMonitors("monitor");
-            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" });
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" }, "private_token");
             var endpoint = _registry.GetById(id);
             Assert.True(_registry.TryUnregisterById(id), "Endpoint should be unregistered");
             Assert.True(endpoint.IsDisposed, "Endpoint should be disposed");
@@ -178,7 +187,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         public void RegisterOrUpdate_should_throw_UnsupportedMonitorException_if_monitor_is_not_recognized()
         {
             _healthMonitorTypeRegistry.Setup(r => r.GetMonitorTypes()).Returns(new string[0]);
-            var exception = Assert.Throws<UnsupportedMonitorException>(() => _registry.RegisterOrUpdate("monitor", "a", "b", "c", new[] { "t1", "t2" }));
+            var exception = Assert.Throws<UnsupportedMonitorException>(() => _registry.RegisterOrUpdate("monitor", "a", "b", "c", new[] { "t1", "t2" }, "private_token"));
             Assert.Equal("Unsupported monitor: monitor", exception.Message);
         }
 
@@ -186,8 +195,8 @@ namespace HealthMonitoring.Management.Core.UnitTests
         public void Endpoints_should_return_all_endpoints()
         {
             SetupMonitors("monitor");
-            var id1 = _registry.RegisterOrUpdate("monitor", "address", "group", "name", null);
-            var id2 = _registry.RegisterOrUpdate("monitor", "address2", "group", "name", null);
+            var id1 = _registry.RegisterOrUpdate("monitor", "address", "group", "name", null, "private_token");
+            var id2 = _registry.RegisterOrUpdate("monitor", "address2", "group", "name", null, "private_token");
 
             Assert.Equal(new[] { id1, id2 }.OrderBy(i => i).ToArray(), _registry.Endpoints.Select(e => e.Identity.Id).OrderBy(i => i).ToArray());
         }
@@ -196,7 +205,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         public void UpdateHealth_should_update_health_and_save_it_in_repository()
         {
             SetupMonitors("monitor");
-            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", null);
+            var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", null, "private_token");
             var health = new EndpointHealth(DateTime.UtcNow, TimeSpan.Zero, EndpointStatus.Healthy);
             _registry.UpdateHealth(id, health);
             _statsManager.Verify(r => r.RecordEndpointStatistics(It.IsAny<EndpointIdentity>(),It.IsAny<EndpointMetadata>(), health));

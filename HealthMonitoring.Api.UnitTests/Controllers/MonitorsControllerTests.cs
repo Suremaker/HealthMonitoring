@@ -1,5 +1,10 @@
-﻿using System.Web.Http.Results;
+﻿using System;
+using System.Linq;
+using System.Security.Principal;
+using System.Web.Http.Controllers;
+using System.Web.Http.Results;
 using HealthMonitoring.Management.Core.Registers;
+using HealthMonitoring.Security;
 using HealthMonitoring.SelfHost.Controllers;
 using Moq;
 using Xunit;
@@ -8,23 +13,44 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
 {
     public class MonitorsControllerTests
     {
+        private readonly Mock<IHealthMonitorTypeRegistry> _registry;
+        private readonly MonitorsController _controller;
+
+        public MonitorsControllerTests()
+        {
+            _registry = new Mock<IHealthMonitorTypeRegistry>();
+            SetUpReqistry();
+            _controller = new MonitorsController(_registry.Object);  
+        }
+
+        private void SetUpReqistry()
+        {
+            _registry.Setup(r => r.GetMonitorTypes()).Returns(new[] { "monitor2", "monitor1" });
+        }
+
         [Fact]
         public void GetMonitorTypes_should_return_all_registered_monitor_types()
         {
-            var registry = new Mock<IHealthMonitorTypeRegistry>();
-            registry.Setup(r => r.GetMonitorTypes()).Returns(new[] { "monitor2", "monitor1" });
-            var controller = new MonitorsController(registry.Object);
-            Assert.Equal(new[] { "monitor1", "monitor2" }, controller.GetMonitorsTypes());
+            Assert.Equal(new[] { "monitor1", "monitor2" }, _controller.GetMonitorsTypes());
         }
 
         [Fact]
         public void PostRegisterMonitors_should_register_unspecified_monitor_types()
         {
-            var registry = new Mock<IHealthMonitorTypeRegistry>();
-            var controller = new MonitorsController(registry.Object);
-            Assert.IsType<OkResult>(controller.PostRegisterMonitors("monitor1", "monitor2"));
-            registry.Verify(r => r.RegisterMonitorType("monitor1"));
-            registry.Verify(r => r.RegisterMonitorType("monitor2"));
+            AuthorizeRequest(SecurityRole.AdminMonitor);
+            Assert.IsType<OkResult>(_controller.PostRegisterMonitors("monitor1", "monitor2"));
+            _registry.Verify(r => r.RegisterMonitorType("monitor1"));
+            _registry.Verify(r => r.RegisterMonitorType("monitor2"));
+        }
+
+        private void AuthorizeRequest(params SecurityRole[] roles)
+        {
+            var identity = new GenericIdentity(Guid.NewGuid().ToString());
+            var principal = new GenericPrincipal(identity, roles.Select(m => m.ToString()).ToArray());
+            _controller.RequestContext = new HttpRequestContext
+            {
+                Principal = principal
+            };
         }
     }
 }

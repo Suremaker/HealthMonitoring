@@ -28,7 +28,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             MonitorableEndpoint capturedEndpoint = null;
             _registry.NewEndpointAdded += e => { capturedEndpoint = e; };
 
-            var endpointIdentity = new EndpointIdentity(Guid.NewGuid(), "monitor", "address");
+            var endpointIdentity = new EndpointIdentity(Guid.NewGuid(), "monitor", "address", "token1");
             var endpoint = _registry.TryRegister(endpointIdentity);
 
             Assert.NotNull(endpoint);
@@ -41,7 +41,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         [Fact]
         public void TryRegister_should_return_null_if_monitor_type_is_not_recognized()
         {
-            var endpoint = _registry.TryRegister(new EndpointIdentity(Guid.NewGuid(), "unknownMonitorType", "address"));
+            var endpoint = _registry.TryRegister(new EndpointIdentity(Guid.NewGuid(), "unknownMonitorType", "address", "token1"));
             Assert.Null(endpoint);
         }
 
@@ -50,12 +50,12 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         {
             MockMonitor("monitor");
             var endpointId = Guid.NewGuid();
-            var endpoint1 = _registry.TryRegister(new EndpointIdentity(endpointId, "monitor", "address"));
+            var endpoint1 = _registry.TryRegister(new EndpointIdentity(endpointId, "monitor", "address", "token1"));
 
             MonitorableEndpoint newEndpointCapture = null;
             _registry.NewEndpointAdded += e => { newEndpointCapture = e; };
 
-            var endpoint2 = _registry.TryRegister(new EndpointIdentity(endpointId, "monitor", "address"));
+            var endpoint2 = _registry.TryRegister(new EndpointIdentity(endpointId, "monitor", "address", "token1"));
             Assert.Same(endpoint1, endpoint2);
             Assert.Null(newEndpointCapture);
         }
@@ -64,12 +64,12 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         public void UpdateEndpoints_should_register_new_endpoints_dispose_not_specified_ones_and_ignore_ones_with_unrecognized_monitor_type()
         {
             MockMonitor("monitor");
-            var e1 = _registry.TryRegister(new EndpointIdentity(Guid.NewGuid(), "monitor", "address"));
-            var e2 = _registry.TryRegister(new EndpointIdentity(Guid.NewGuid(), "monitor", "address2"));
-            var e3 = _registry.TryRegister(new EndpointIdentity(Guid.NewGuid(), "monitor", "address3"));
-            var i4 = new EndpointIdentity(Guid.NewGuid(), "monitor", "address4");
-            var i5 = new EndpointIdentity(Guid.NewGuid(), "monitor", "address4");
-            var i6 = new EndpointIdentity(Guid.NewGuid(), "unknownMonitor", "address4");
+            var e1 = _registry.TryRegister(new EndpointIdentity(Guid.NewGuid(), "monitor", "address", "token1"));
+            var e2 = _registry.TryRegister(new EndpointIdentity(Guid.NewGuid(), "monitor", "address2", "token2"));
+            var e3 = _registry.TryRegister(new EndpointIdentity(Guid.NewGuid(), "monitor", "address3", "token3"));
+            var i4 = new EndpointIdentity(Guid.NewGuid(), "monitor", "address4", "token4");
+            var i5 = new EndpointIdentity(Guid.NewGuid(), "monitor", "address4", "token4");
+            var i6 = new EndpointIdentity(Guid.NewGuid(), "unknownMonitor", "address4", "token4");
 
             List<MonitorableEndpoint> captured = new List<MonitorableEndpoint>();
             _registry.NewEndpointAdded += e => captured.Add(e);
@@ -89,7 +89,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         public void TryUnregister_should_dispose_endpoint_it()
         {
             MockMonitor("monitor");
-            var endpoint = _registry.TryRegister(new EndpointIdentity(Guid.NewGuid(), "monitor", "address"));
+            var endpoint = _registry.TryRegister(new EndpointIdentity(Guid.NewGuid(), "monitor", "address", "token1"));
             Assert.True(_registry.TryUnregister(endpoint.Identity), "Endpoint should be unregistered");
             Assert.True(endpoint.IsDisposed, "Endpoint should be disposed");
         }
@@ -97,7 +97,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         [Fact]
         public void TryUnregister_should_return_false_if_endpoint_is_not_registered()
         {
-            Assert.False(_registry.TryUnregister(new EndpointIdentity(Guid.NewGuid(), "monitor", "address")));
+            Assert.False(_registry.TryUnregister(new EndpointIdentity(Guid.NewGuid(), "monitor", "address", "token1")));
         }
 
         private void MockMonitor(string monitorType)

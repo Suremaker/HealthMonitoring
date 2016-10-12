@@ -38,7 +38,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             _monitor = new Mock<IHealthMonitor>();
             _monitor.Setup(m => m.Name).Returns("monitor");
 
-            _endpoint = new MonitorableEndpoint(new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), _monitor.Object);
+            _endpoint = new MonitorableEndpoint(new EndpointIdentity(Guid.NewGuid(), "monitor", "address", "token1"), _monitor.Object);
             _awaitableFactory = new AwaitableFactory();
         }
 
