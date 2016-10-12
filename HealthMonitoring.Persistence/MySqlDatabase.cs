@@ -67,7 +67,8 @@ create table EndpointConfig (
     Address varchar(2048) not null, 
     GroupName varchar(1024) not null, 
     Name varchar(1024) not null,
-    Tags varchar(4096)
+    Tags varchar(4096),
+    PrivateToken char(64)
 )");
         }
 

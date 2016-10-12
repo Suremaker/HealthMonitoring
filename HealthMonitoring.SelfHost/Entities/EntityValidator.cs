@@ -10,7 +10,7 @@ namespace HealthMonitoring.SelfHost.Entities
         {
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
-            Validator.ValidateObject(model, new ValidationContext(model));
+            Validator.ValidateObject(model, new ValidationContext(model), true);
         }
     }
 

@@ -13,6 +13,7 @@ using HealthMonitoring.Monitors.Core.Exchange.Client;
 using HealthMonitoring.Monitors.Core.Registers;
 using HealthMonitoring.Monitors.Core.Samplers;
 using HealthMonitoring.Monitors.SelfHost.Configuration;
+using HealthMonitoring.Security;
 using HealthMonitoring.TaskManagement;
 using HealthMonitoring.TimeManagement;
 
@@ -47,7 +48,8 @@ namespace HealthMonitoring.Monitors.SelfHost
         private static IContainer StartHost()
         {
             var timeCoordinator = new TimeCoordinator();
-            var exchangeClient = new HealthMonitorExchangeClient(ConfigurationManager.AppSettings["HealthMonitoringUrl"], timeCoordinator);
+            var credentialProvider = new CredentialsProvider();
+            var exchangeClient = new HealthMonitorExchangeClient(ConfigurationManager.AppSettings["HealthMonitoringUrl"], timeCoordinator, credentialProvider);
             var settings = LoadSettings(exchangeClient);
 
             var builder = new ContainerBuilder();
