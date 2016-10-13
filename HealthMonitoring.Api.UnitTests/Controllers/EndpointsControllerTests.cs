@@ -211,17 +211,17 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
             var endpoints = new[]
             {
                 new Endpoint(TimeCoordinatorMock.Get().Object,
-                    new EndpointIdentity(Guid.Parse("11111111-1111-1111-1111-111111111111"), "monitorType1", "address1", "token1"),
+                    new EndpointIdentity(Guid.Parse("11111111-1111-1111-1111-111111111111"), "monitorType1", "address1"),
                     new EndpointMetadata("nam", "group11", new[] { "t1", "t2" }))
                     .UpdateHealth(new EndpointHealth(DateTime.MinValue, TimeSpan.Zero, EndpointStatus.Healthy)),
 
                 new Endpoint(TimeCoordinatorMock.Get().Object,
-                    new EndpointIdentity(Guid.Parse("22222222-2222-2222-2222-222222222222"), "monitorType1", "address2", "token2"),
+                    new EndpointIdentity(Guid.Parse("22222222-2222-2222-2222-222222222222"), "monitorType1", "address2"),
                     new EndpointMetadata( "name2", "group2", new[] { "t2", "t3" }))
                     .UpdateHealth(new EndpointHealth(DateTime.MinValue, TimeSpan.Zero, EndpointStatus.Unhealthy)),
 
                 new Endpoint(TimeCoordinatorMock.Get().Object,
-                    new EndpointIdentity(Guid.Parse("33333333-3333-3333-3333-333333333333"), "monitorType2", "address123", "token3"),
+                    new EndpointIdentity(Guid.Parse("33333333-3333-3333-3333-333333333333"), "monitorType2", "address123"),
                     new EndpointMetadata( "name3", "group2", new[] { "t1", "t2", "t3" }))
                     .UpdateHealth(new EndpointHealth(DateTime.MinValue, TimeSpan.Zero, EndpointStatus.Faulty))
             };
@@ -361,9 +361,8 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         }
 
         [Theory]
-        [InlineData(SecurityRole.PullMonitor)]
         [InlineData(SecurityRole.AdminMonitor)]
-        public void UpdateTags_should_accept_all_monitor_roles(SecurityRole role)
+        public void UpdateTags_should_accept_roles(SecurityRole role)
         {
             AuthorizeRequest(role);
 

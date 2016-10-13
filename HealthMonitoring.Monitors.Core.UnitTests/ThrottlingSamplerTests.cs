@@ -71,7 +71,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 
         private static MonitorableEndpoint SetupEndpoint(string monitorType)
         {
-            return new MonitorableEndpoint(new EndpointIdentity(Guid.NewGuid(), "blah", "address", "token1"), MonitorMock.Mock(monitorType));
+            return new MonitorableEndpoint(new EndpointIdentity(Guid.NewGuid(), "blah", "address"), MonitorMock.Mock(monitorType));
         }
 
         private static Mock<IThrottlingSettings> SetupThrottling(Dictionary<string, int> throttling)

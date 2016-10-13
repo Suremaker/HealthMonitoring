@@ -17,7 +17,6 @@ namespace HealthMonitoring.Management.Core.UnitTests
         private readonly Mock<IHealthMonitorTypeRegistry> _healthMonitorTypeRegistry;
         private readonly Mock<IEndpointConfigurationRepository> _configurationStore;
         private readonly Mock<IEndpointStatsRepository> _statsRepository;
-        private readonly Mock<ICredentialsProvider> _credentialsProvider;
         private readonly Mock<IEndpointStatsManager> _statsManager = new Mock<IEndpointStatsManager>();
         private readonly Mock<ITimeCoordinator> _timeCoordinator = TimeCoordinatorMock.Get();
 
@@ -26,8 +25,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
             _healthMonitorTypeRegistry = new Mock<IHealthMonitorTypeRegistry>();
             _configurationStore = new Mock<IEndpointConfigurationRepository>();
             _statsRepository = new Mock<IEndpointStatsRepository>();            
-            _credentialsProvider = new Mock<ICredentialsProvider>();
-            _registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _statsManager.Object, _timeCoordinator.Object, _credentialsProvider.Object);
+            _registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _statsManager.Object, _timeCoordinator.Object);
         }
 
         [Fact]
@@ -36,7 +34,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
             var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }));
             _configurationStore.Setup(s => s.LoadEndpoints()).Returns(new[] { endpoint });
 
-            var registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _statsManager.Object, _timeCoordinator.Object, _credentialsProvider.Object);
+            var registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _statsManager.Object, _timeCoordinator.Object);
 
             Assert.Same(endpoint, registry.GetById(endpoint.Identity.Id));
         }
@@ -57,7 +55,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
             Assert.NotNull(endpoint);
             Assert.Equal("monitor", endpoint.Identity.MonitorType);
             Assert.Equal("address", endpoint.Identity.Address);
-            Assert.Equal("private_token".ToSha256Hash(), endpoint.Identity.PrivateToken);
+            Assert.Equal("private_token".ToSha256Hash(), endpoint.PrivateToken);
             Assert.Equal("name", endpoint.Metadata.Name);
             Assert.Equal("group", endpoint.Metadata.Group);
             Assert.Equal(endpointId, endpoint.Identity.Id);
@@ -151,7 +149,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
             Assert.NotNull(endpoint);
             Assert.Equal("monitor", endpoint.Identity.MonitorType);
             Assert.Equal("address", endpoint.Identity.Address);
-            Assert.Equal("private_token2".ToSha256Hash(), endpoint.Identity.PrivateToken);
+            Assert.Equal("private_token2".ToSha256Hash(), endpoint.PrivateToken);
             Assert.Equal("name2", endpoint.Metadata.Name);
             Assert.Equal("group2", endpoint.Metadata.Group);
             Assert.Equal(updateTime2, endpoint.LastModifiedTimeUtc);

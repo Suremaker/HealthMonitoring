@@ -9,6 +9,8 @@ using System.Web.Http;
 using System.Web.Http.ExceptionHandling;
 using System.Web.Http.Results;
 using Common.Logging;
+using HealthMonitoring.Security;
+using HealthMonitoring.SelfHost.Security;
 
 namespace HealthMonitoring.SelfHost.Handlers
 {
@@ -19,15 +21,24 @@ namespace HealthMonitoring.SelfHost.Handlers
         public override void Handle(ExceptionHandlerContext context)
         {
             var exceptionType = context.Exception.GetType();
+            var credentials = context.ParseAuthorizationHeader();
+
             if (exceptionType == typeof(UnauthorizedAccessException))
             {
-                Logger.WarnFormat("Api {0} {1} ivalid credentials: {3}", context.Request.Method, context.Request.RequestUri, context.Request.Headers.Authorization);
+                var encryptedInfo = credentials != null
+                ? $"{credentials.MonitorId}:{credentials.PrivateToken.ToSha256Hash()}"
+                : "none";
+                Logger.WarnFormat("Api {0} {1} ivalid credentials: {3}", context.Request.Method, context.Request.RequestUri, encryptedInfo);
+
                 context.Result = new StatusCodeResult(HttpStatusCode.Forbidden, context.ExceptionContext.Request);
             }
             else if (exceptionType == typeof(AuthenticationException))
             {
                 Logger.WarnFormat("Api {0} {1} unauthenticated request!", context.Request.Method, context.Request.RequestUri);
-                context.Result = new StatusCodeResult(HttpStatusCode.Unauthorized, context.ExceptionContext.Request);
+                var authHeader = credentials != null
+                    ? context.ExceptionContext.Request.Headers.Authorization
+                    : new AuthenticationHeaderValue("Basic", "MonitorId:PrivateToken".ToBase64String()); 
+                context.Result = new UnauthorizedResult(new [] { authHeader }, context.ExceptionContext.Request);
             }
             else
             {
@@ -65,26 +76,6 @@ namespace HealthMonitoring.SelfHost.Handlers
                 StatusCode = HttpStatusCode.InternalServerError
             };
 
-            return Task.FromResult(response);
-        }
-    }
-
-    class UnauthorizedExceptionResponse : IHttpActionResult
-    {
-        private HttpRequestMessage Request { get; }
-
-        public UnauthorizedExceptionResponse(HttpRequestMessage request)
-        {
-            Request = request;
-        }
-
-        public Task<HttpResponseMessage> ExecuteAsync(CancellationToken cancellationToken)
-        {
-            var response = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-            var credentials = Request.Headers.Authorization ?? new AuthenticationHeaderValue("Basic");
-
-            response.Headers.WwwAuthenticate.Add(credentials);
-            response.Content = new StringContent("Invalid monitor credentials!");
             return Task.FromResult(response);
         }
     }

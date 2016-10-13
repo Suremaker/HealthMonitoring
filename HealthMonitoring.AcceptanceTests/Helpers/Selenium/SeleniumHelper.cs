@@ -10,6 +10,8 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Selenium
         public static string[] TestGroups = { "first-group", "second-group", "third-group" };
         public static string[] UniqueTags = { "unique_for_home_page", "tags4568885" };
 
+        private static readonly CredentialsProvider CredentialsProvider = new CredentialsProvider();
+
         public static void RegisterTestEndpoints(this RestClient client)
         {
             var adminCredentials = CredentialsProvider.AdminCredentials;

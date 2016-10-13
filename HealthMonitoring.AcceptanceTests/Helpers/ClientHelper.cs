@@ -13,6 +13,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
     {
         public const string EndpointRegistrationUrl = "/api/endpoints/register";
         public const string RegisterEndpointSecret = "PostRegisterEndpoint";
+        public static readonly CredentialsProvider CredentialsProvider = new CredentialsProvider();
 
         public static RestClient Build()
         {

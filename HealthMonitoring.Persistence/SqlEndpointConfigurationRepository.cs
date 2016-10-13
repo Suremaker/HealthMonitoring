@@ -37,7 +37,7 @@ namespace HealthMonitoring.Persistence
                         endpoint.Metadata.Group,
                         endpoint.Metadata.Name,
                         endpoint.Identity.Id,
-                        endpoint.Identity.PrivateToken,
+                        endpoint.PrivateToken,
                         tags
                     }, tx);
 

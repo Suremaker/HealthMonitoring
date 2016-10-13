@@ -37,7 +37,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         [Fact]
         public void PostRegisterMonitors_should_register_unspecified_monitor_types()
         {
-            AuthorizeRequest(SecurityRole.AdminMonitor);
+            AuthorizeRequest(SecurityRole.PullMonitor);
             Assert.IsType<OkResult>(_controller.PostRegisterMonitors("monitor1", "monitor2"));
             _registry.Verify(r => r.RegisterMonitorType("monitor1"));
             _registry.Verify(r => r.RegisterMonitorType("monitor2"));

@@ -7,9 +7,7 @@ namespace HealthMonitoring.Model
         public Guid Id { get; }
         public string MonitorType { get; }
         public string Address { get; }
-        public string PrivateToken { get; set; }
-
-        public EndpointIdentity(Guid id, string monitorType, string address, string privateToken = null) 
+        public EndpointIdentity(Guid id, string monitorType, string address) 
         {
             if (monitorType == null)
                 throw new ArgumentNullException(nameof(monitorType));
@@ -19,7 +17,6 @@ namespace HealthMonitoring.Model
             Id = id;
             MonitorType = monitorType;
             Address = address;
-            PrivateToken = privateToken;
         }
 
         public override string ToString()

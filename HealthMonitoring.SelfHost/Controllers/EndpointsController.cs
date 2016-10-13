@@ -46,7 +46,7 @@ namespace HealthMonitoring.SelfHost.Controllers
             try
             {
                 var existed = _endpointRegistry.GetByNaturalKey(endpoint.GetNaturalKey());
-                RequestContext.AuthorizeRegistration(endpoint, existed, SecurityRole.AdminMonitor, SecurityRole.PullMonitor);
+                RequestContext.AuthorizeRegistration(endpoint, existed, SecurityRole.AdminMonitor);
 
                 var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Tags, endpoint.PrivateToken);
                 return Created(new Uri(Request.RequestUri, $"/api/endpoints/{id}"), id);
@@ -154,7 +154,7 @@ namespace HealthMonitoring.SelfHost.Controllers
         {
             try
             {
-                RequestContext.Authorize(id, SecurityRole.AdminMonitor, SecurityRole.PullMonitor);
+                RequestContext.Authorize(id, SecurityRole.AdminMonitor);
 
                 tags.CheckForUnallowedSymbols();
 

@@ -113,8 +113,9 @@ namespace HealthMonitoring.Api.UnitTests.Security
         {
             return new Endpoint(
                 _timeCoordinatorMock.Object,
-                new EndpointIdentity(_requestCredentials.MonitorId, "http", "http://endpoint.com", _requestCredentials.PrivateToken.ToSha256Hash()), 
-                new EndpointMetadata("endpoint", "group", null));
+                new EndpointIdentity(_requestCredentials.MonitorId, "http", "http://endpoint.com"), 
+                new EndpointMetadata("endpoint", "group", null),
+                _requestCredentials.PrivateToken.ToSha256Hash());
         }
     }
 }

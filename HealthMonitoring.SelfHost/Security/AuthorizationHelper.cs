@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Net.Http;
 using System.Security.Authentication;
 using System.Web.Http.Controllers;
+using System.Web.Http.ExceptionHandling;
+using System.Web.Http.Filters;
 using HealthMonitoring.Management.Core;
 using HealthMonitoring.Security;
 using HealthMonitoring.SelfHost.Entities;
@@ -9,12 +12,11 @@ namespace HealthMonitoring.SelfHost.Security
 {
     public static class AuthorizationHelper 
     {
-
         public static void AuthorizeRegistration(this HttpRequestContext context, EndpointRegistration model,
             Endpoint modifiable, params SecurityRole[] roles)
         {
-            if (modifiable?.Identity.PrivateToken == null ||
-                modifiable.Identity.PrivateToken == model?.PrivateToken?.ToSha256Hash())
+            if (modifiable?.PrivateToken == null ||
+                modifiable.PrivateToken == model?.PrivateToken?.ToSha256Hash())
                 return;
 
             Authorize(context, modifiable.Identity.Id, roles);
@@ -39,6 +41,16 @@ namespace HealthMonitoring.SelfHost.Security
                 throw new UnauthorizedAccessException();
         }
 
+        public static Credentials ParseAuthorizationHeader(this HttpAuthenticationContext context)
+        {
+            return ParseCredentialsFromRequestHeader(context.Request);
+        }
+
+        public static Credentials ParseAuthorizationHeader(this ExceptionHandlerContext context)
+        {
+            return ParseCredentialsFromRequestHeader(context.Request);
+        }
+
         private static bool IsSelfAuthorized(this HttpRequestContext context, Guid endpointId)
         {
             return endpointId.ToString() == context.Principal.Identity.Name;
@@ -53,6 +65,35 @@ namespace HealthMonitoring.SelfHost.Security
                 inRoles |= context.Principal.IsInRole(role.ToString());
             }
             return inRoles;
+        }
+
+        private static Credentials ParseCredentialsFromRequestHeader(HttpRequestMessage message)
+        {
+            string authHeader = null;
+            string schema = "Basic";
+            var auth = message.Headers.Authorization;
+
+            if (auth != null && string.Equals(auth.Scheme, schema, StringComparison.OrdinalIgnoreCase))
+            {
+                authHeader = auth.Parameter;
+            }
+
+            if (string.IsNullOrEmpty(authHeader))
+            {
+                return null;
+            }
+
+            authHeader = authHeader.FromBase64String();
+            var credentials = authHeader.Split(':');
+            Guid id;
+
+            if (credentials.Length != 2 ||
+                !Guid.TryParse(credentials[0], out id) || string.IsNullOrEmpty(credentials[1]))
+            {
+                return null;
+            }
+
+            return new Credentials(id, credentials[1]);
         }
     }
 }

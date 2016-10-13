@@ -10,7 +10,6 @@ using Newtonsoft.Json;
 using RestSharp;
 using Xunit;
 using Xunit.Abstractions;
-using System.Text;
 
 namespace HealthMonitoring.AcceptanceTests.Scenarios
 {
@@ -20,6 +19,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         private IRestResponse _response;
         private Guid _identifier;
         private readonly List<MockWebEndpoint> _endpoints = new List<MockWebEndpoint>();
+        private readonly CredentialsProvider _credentials = new CredentialsProvider();
 
         public Endpoint_registration(ITestOutputHelper output)
             : base(output)
@@ -111,22 +111,22 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
 
         private void When_client_requests_endpoint_deletion_via_url_with_admin_credentials(string url)
         {
-            DeleteEndpoint(url, CredentialsProvider.AdminCredentials);
+            DeleteEndpoint(url, _credentials.AdminCredentials);
         }
 
         private void When_client_requests_endpoint_deletion_for_inexistent_endpoint_identifier()
         {
-            DeleteEndpoint($"api/endpoints/{Guid.NewGuid()}", CredentialsProvider.AdminCredentials);
+            DeleteEndpoint($"api/endpoints/{Guid.NewGuid()}", _credentials.AdminCredentials);
         }
 
         private void When_client_requests_tags_updating_via_url_with_admin_credentials(string url, string[] tags)
         {
-            PostTags(url, tags, CredentialsProvider.AdminCredentials);
+            PostTags(url, tags, _credentials.AdminCredentials);
         }
 
         private void When_client_requests_tags_updating_via_url_with_personal_credentials(string url, string[] tags)
         {
-            PostTags(url, tags, CredentialsProvider.PersonalCredentials);
+            PostTags(url, tags, _credentials.PersonalCredentials);
         }
 
         private void Then_the_endpoint_tags_should_be(string[] tags)
@@ -148,15 +148,10 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             RegisterEndpoint("/api/endpoints/register", name, group, monitor, address);
         }
 
-        private void Then_unauthorized_result_should_be_received()
-        {
-            _response.VerifyValidStatus(HttpStatusCode.Unauthorized);
-        }
-
         private void Given_endpoint_id_is_received()
         {
             var registrationId = JsonConvert.DeserializeObject<Guid>(_response.Content);
-            CredentialsProvider.UpdatePersonalId(registrationId);
+            _credentials.PersonalCredentials.MonitorId = registrationId;
         }
 
         private void When_client_request_endpoint_update_with_credentials(
@@ -166,11 +161,43 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             RegisterEndpoint("/api/endpoints/register", name, group, monitor, address, tags, privateToken);
         }
 
+        private void Then_response_should_contain_only_id_and_address_and_monitortype(Guid id, string address,
+            string monitor)
+        {
+            _response.VerifyValidStatus(HttpStatusCode.OK);
+            var identities = JsonConvert.DeserializeObject<PublicEndpointIdentity[]>(_response.Content);
+            Assert.NotNull(identities.Single(m => m.Id == id && m.Address == address && m.MonitorType == monitor));
+        }
+
+        private void When_client_request_endpoint_health_update_with_credentials(Guid endpointId, EndpointStatus status, Credentials credentials)
+        {
+            var updates = new []
+            {
+                new EndpointHealthUpdate
+                {
+                    EndpointId = endpointId,
+                    Status = status,
+                    CheckTimeUtc = DateTime.UtcNow,
+                    ResponseTime = TimeSpan.FromSeconds(5)
+                }
+            };
+            PostHealth(updates, credentials);
+        }
+
         private void PostTags(string url, string[] tags, Credentials credentials)
         {
             _response = _client
                 .Put(new RestRequest(url)
                 .AddJsonBody(tags)
+                .Authorize(credentials)
+               );
+        }
+
+        private void PostHealth(EndpointHealthUpdate[] healthUpdate, Credentials credentials)
+        {
+            _response = _client
+                .Post(new RestRequest("api/endpoints/health")
+                .AddJsonBody(healthUpdate)
                 .Authorize(credentials)
                );
         }
@@ -263,6 +290,12 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             var actual = JsonConvert.DeserializeObject<EndpointEntity[]>(_response.Content).Select(e => e.Name).OrderBy(n => n).ToArray();
             var expected = endpoints.OrderBy(e => e).ToArray();
             Assert.Equal(expected, actual);
+        }
+
+        private void When_client_request_endpoint_registration_with_short_private_token()
+        {
+            string shortToken = "1x8cm6vhtmooph12xfheqm8jtpfn68g1ukfm264tzs7svgekgsuk9i3u1uqscv8";
+            RegisterEndpoint("/api/endpoints/register", "name", "group", MonitorTypes.HttpJson, "address", null, shortToken);
         }
     }
 }

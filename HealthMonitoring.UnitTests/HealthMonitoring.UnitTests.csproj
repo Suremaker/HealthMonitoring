@@ -67,6 +67,7 @@
     <Compile Include="ContinuousTaskExecutorTests.cs" />
     <Compile Include="OutgoingQueueTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SecurityTests.cs" />
     <Compile Include="TimeCoordinatorTests.cs" />
   </ItemGroup>
   <ItemGroup>
