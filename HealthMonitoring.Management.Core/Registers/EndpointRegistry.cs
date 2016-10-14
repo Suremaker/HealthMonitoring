@@ -90,14 +90,15 @@ namespace HealthMonitoring.Management.Core.Registers
             return true;
         }
 
-        public void UpdateHealth(Guid endpointId, EndpointHealth health)
+        public bool UpdateHealth(Guid endpointId, EndpointHealth health)
         {
             var endpoint = GetById(endpointId);
             if (endpoint == null)
-                return;
+                return false;
             endpoint.UpdateHealth(health);
             _endpointStatsManager.RecordEndpointStatistics(endpointId, health);
             _metricsForwarderCoordinator.HandleMetricsForwarding(endpoint.Identity, endpoint.Metadata, health);
+            return true;
         }
 
         public event Action<Endpoint> EndpointAdded;

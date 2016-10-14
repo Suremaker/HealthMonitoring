@@ -282,7 +282,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
                 })
                 .ToArray();
 
-            Assert.IsType<OkResult>(_controller.PostEndpointHealth(_utcNow + timeDifference, update1, update2));
+            Assert.IsType<OkResult>(_controller.PostEndpointsHealth(_utcNow + timeDifference, update1, update2));
 
             foreach (var expectedEndpoint in expected)
                 _endpointRegistry.Verify(r => r.UpdateHealth(expectedEndpoint.EndpointId, It.Is<EndpointHealth>(h => AssertHealth(h, expectedEndpoint))));
@@ -294,13 +294,58 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
             var update1 = new EndpointHealthUpdate { EndpointId = Guid.NewGuid(), CheckTimeUtc = _utcNow, Status = EndpointStatus.Offline, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
             var update2 = new EndpointHealthUpdate { EndpointId = Guid.NewGuid(), CheckTimeUtc = _utcNow, Status = EndpointStatus.Healthy, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
 
-            Assert.IsType<OkResult>(_controller.PostEndpointHealth(null, update1, update2));
+            Assert.IsType<OkResult>(_controller.PostEndpointsHealth(null, update1, update2));
 
             _endpointRegistry.Verify(r => r.UpdateHealth(update1.EndpointId, It.Is<EndpointHealth>(h => AssertHealth(h, update1))));
             _endpointRegistry.Verify(r => r.UpdateHealth(update2.EndpointId, It.Is<EndpointHealth>(h => AssertHealth(h, update2))));
         }
 
-        private static bool AssertHealth(EndpointHealth actual, EndpointHealthUpdate expected)
+        [Fact]
+        public void PostEndpointHealth_should_update_health_and_adjust_check_time_with_clientServer_time_difference()
+        {
+            var endpointId = Guid.NewGuid();
+            var update = new HealthUpdate { CheckTimeUtc = _utcNow, Status = EndpointStatus.Offline, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
+            var timeDifference = TimeSpan.FromMinutes(5);
+
+            var expected = new HealthUpdate
+            {
+                CheckTimeUtc = update.CheckTimeUtc - timeDifference,
+                Details = update.Details,
+                ResponseTime = update.ResponseTime,
+                Status = update.Status
+            };
+
+            _endpointRegistry.Setup(r => r.UpdateHealth(endpointId, It.IsAny<EndpointHealth>())).Returns(true);
+
+            Assert.IsType<OkResult>(_controller.PostEndpointHealth(endpointId, update, _utcNow + timeDifference));
+            _endpointRegistry.Verify(r => r.UpdateHealth(endpointId, It.Is<EndpointHealth>(h => AssertHealth(h, expected))), Times.Once);
+        }
+
+        [Fact]
+        public void PostEndpointHealth_should_update_health()
+        {
+            var endpointId = Guid.NewGuid();
+            var update = new HealthUpdate { CheckTimeUtc = _utcNow, Status = EndpointStatus.Offline, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
+
+            _endpointRegistry.Setup(r => r.UpdateHealth(endpointId, It.IsAny<EndpointHealth>())).Returns(true);
+
+            Assert.IsType<OkResult>(_controller.PostEndpointHealth(endpointId, update));
+
+            _endpointRegistry.Verify(r => r.UpdateHealth(endpointId, It.Is<EndpointHealth>(h => AssertHealth(h, update))), Times.Once);
+        }
+
+        [Fact]
+        public void PostEndpointHealth_should_return_NotFound_status_for_unknown_endpoint()
+        {
+            var endpointId = Guid.NewGuid();
+            var update = new HealthUpdate { CheckTimeUtc = _utcNow, Status = EndpointStatus.Offline, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
+
+            _endpointRegistry.Setup(r => r.UpdateHealth(endpointId, It.IsAny<EndpointHealth>())).Returns(false);
+
+            Assert.IsType<NotFoundResult>(_controller.PostEndpointHealth(endpointId, update));
+        }
+
+        private static bool AssertHealth(EndpointHealth actual, HealthUpdate expected)
         {
             Assert.Equal(expected.CheckTimeUtc, actual.CheckTimeUtc);
             Assert.Equal(expected.ResponseTime, actual.ResponseTime);

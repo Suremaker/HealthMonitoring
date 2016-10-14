@@ -199,17 +199,17 @@ namespace HealthMonitoring.Management.Core.UnitTests
             SetupMonitors("monitor");
             var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", null);
             var health = new EndpointHealth(DateTime.UtcNow, TimeSpan.Zero, EndpointStatus.Healthy);
-            _registry.UpdateHealth(id, health);
+            Assert.True(_registry.UpdateHealth(id, health));
             _statsManager.Verify(r => r.RecordEndpointStatistics(id, health));
             Assert.Same(_registry.GetById(id).Health, health);
         }
 
         [Fact]
-        public void UpdateHealth_should_ignore_unknown_edpoints()
+        public void UpdateHealth_should_return_false_for_unknown_endpoints()
         {
             var health = new EndpointHealth(DateTime.UtcNow, TimeSpan.Zero, EndpointStatus.Healthy);
             var id = Guid.NewGuid();
-            _registry.UpdateHealth(id, health);
+            Assert.False(_registry.UpdateHealth(id, health));
             _statsRepository.Verify(r => r.InsertEndpointStatistics(id, health), Times.Never);
         }
 

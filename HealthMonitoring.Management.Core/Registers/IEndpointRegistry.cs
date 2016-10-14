@@ -11,7 +11,7 @@ namespace HealthMonitoring.Management.Core.Registers
         Endpoint GetById(Guid id);
         bool TryUnregisterById(Guid id);
         IEnumerable<Endpoint> Endpoints { get; }
-        void UpdateHealth(Guid endpointId, EndpointHealth health);
+        bool UpdateHealth(Guid endpointId, EndpointHealth health);
         event Action<Endpoint> EndpointAdded;
     }
 }
