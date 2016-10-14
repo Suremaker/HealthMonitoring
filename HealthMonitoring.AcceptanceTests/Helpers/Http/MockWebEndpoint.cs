@@ -1,17 +1,13 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Security.Principal;
 using System.ServiceModel;
-using System.Text;
-using Newtonsoft.Json;
 using SimpleHttpMock;
 
 namespace HealthMonitoring.AcceptanceTests.Helpers.Http
 {
-    class MockWebEndpoint : IDisposable
+    public class MockWebEndpoint : IDisposable
     {
         private MockedHttpServer _server;
         public string Address { get; }
@@ -53,8 +49,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Http
             process.WaitForExit();
 
             if (process.ExitCode != 0)
-                throw new InvalidOperationException(
-                    $"Unable to make namespace reservation for port {port}. Exit code:{process.ExitCode}");
+                throw new InvalidOperationException($"Unable to make namespace reservation for port {port}. Exit code:{process.ExitCode}");
         }
 
         public void Dispose()
@@ -65,24 +60,10 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Http
             _server = null;
         }
 
-        public void SetupStatusResponse(HttpStatusCode code)
+        public void Reconfigure(Action<MockedHttpServerBuilder> configure)
         {
             var builder = new MockedHttpServerBuilder();
-            builder.WhenGet("/status").Respond(code);
-            builder.Reconfigure(_server, true);
-        }
-
-        public void SetupStatusResponse(HttpStatusCode code, object model)
-        {
-            var builder = new MockedHttpServerBuilder();
-            builder.WhenGet("/status").RespondContent(code, r => new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json"));
-            builder.Reconfigure(_server, true);
-        }
-
-        public void SetupStatusPlainResponse(HttpStatusCode code, string text)
-        {
-            var builder = new MockedHttpServerBuilder();
-            builder.WhenGet("/status").RespondContent(code, r => new StringContent(text, Encoding.UTF8, "text/plain"));
+            configure(builder);
             builder.Reconfigure(_server, true);
         }
     }
