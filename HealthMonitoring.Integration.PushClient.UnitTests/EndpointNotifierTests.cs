@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -113,6 +114,32 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         }
 
         [Fact]
+        public async Task Notifier_should_send_faulty_health_to_the_API_if_provided_health_method_returns_null()
+        {
+            var endpointId = Guid.NewGuid();
+            HealthUpdate lastCaptured = null;
+            var countdown = new AsyncCountdown("update", 5);
+
+            SetupHealthCheckInterval(TimeSpan.FromMilliseconds(1));
+            SetupEndpointRegistration(endpointId);
+
+            _mockClient.Setup(c => c.SendHealthUpdateAsync(endpointId, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
+                .Returns((Guid id, HealthUpdate upd, CancellationToken token) => _awaitableFactory
+                    .Execute(() => lastCaptured = upd)
+                    .WithCountdown(countdown)
+                    .RunAsync());
+
+            using (CreateNotifier(token => Task.FromResult((HealthInfo)null)))
+                await countdown.WaitAsync(TestMaxTime);
+
+            Assert.NotNull(lastCaptured);
+            Assert.Equal(HealthStatus.Faulty, lastCaptured.Status);
+            Assert.Equal("Unable to collect health information", lastCaptured.Details["reason"]);
+            Assert.True(lastCaptured.Details["exception"].StartsWith("System.InvalidOperationException: Health information not provided"));
+            Assert.True(lastCaptured.CheckTimeUtc > DateTime.UtcNow.AddMinutes(-1) && lastCaptured.CheckTimeUtc < DateTime.UtcNow.AddMinutes(1));
+        }
+
+        [Fact]
         public async Task Notifier_should_register_endpoint_with_all_details_and_inferred_host()
         {
             EndpointDefinition captured = null;
@@ -206,6 +233,104 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             Assert.Equal("endpointGroup", captured.GroupName);
             Assert.Equal(new[] { "t1" }, captured.Tags);
             Assert.Equal("host:uniqueName", captured.Address);
+        }
+
+        [Fact]
+        public async Task Notifier_should_cancel_health_check_on_dispose()
+        {
+            SetupEndpointRegistration(Guid.NewGuid());
+            SetupHealthCheckInterval(TimeSpan.FromMilliseconds(1));
+
+            var notCancelled = false;
+            var countdown = new AsyncCountdown("healthCheck", 1);
+            Func<CancellationToken, Task<HealthInfo>> healthCheck = async token =>
+            {
+                countdown.Decrement();
+                await Task.Delay(TestMaxTime, token);
+                notCancelled = true;
+                return new HealthInfo(HealthStatus.Healthy);
+            };
+
+            using (CreateNotifier(healthCheck))
+                await countdown.WaitAsync(TestMaxTime);
+
+            Assert.False(notCancelled);
+        }
+
+        [Fact]
+        public async Task Notifier_should_retry_sending_health_updates_in_case_of_exceptions()
+        {
+            var endpointId = Guid.NewGuid();
+            SetupEndpointRegistration(endpointId);
+            var checkInterval = TimeSpan.FromMilliseconds(127);
+
+            SetupHealthCheckInterval(checkInterval);
+            var minRepeats = 10;
+            var countdown = new AsyncCountdown("update", minRepeats);
+            var updates = new ConcurrentQueue<HealthUpdate>();
+
+            _mockClient
+                .Setup(c => c.SendHealthUpdateAsync(endpointId, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
+                .Returns((Guid id, HealthUpdate upd, CancellationToken token) =>
+                {
+                    updates.Enqueue(upd);
+                    return _awaitableFactory
+                        .Throw(new InvalidOperationException())
+                        .WithCountdown(countdown)
+                        .RunAsync();
+                });
+
+            using (CreateNotifier())
+                await countdown.WaitAsync(TestMaxTime);
+
+            for (int i = 0; i < minRepeats - 1; ++i)
+                _mockTimeCoordinator.Verify(c => c.Delay(TimeSpan.FromSeconds(i + 1), It.IsAny<CancellationToken>()), Times.Once);
+
+            _mockTimeCoordinator.Verify(c => c.Delay(checkInterval, It.IsAny<CancellationToken>()), Times.Once);
+
+            Assert.Equal(1, updates.Distinct().Count());
+        }
+
+        [Fact]
+        public async Task Notifier_should_survive_communication_errors_and_eventually_restore_connectivity()
+        {
+            var healthUpdateCountdown = new AsyncCountdown("update", 10);
+            var healthUpdateCountdown2 = new AsyncCountdown("update2", 10);
+            var registrationCountdown = new AsyncCountdown("registration", 10);
+            var intervalCountdown = new AsyncCountdown("interval", 10);
+            var delayCountdown = new AsyncCountdown("delay", 10);
+            var healthCheckInterval = TimeSpan.FromMilliseconds(127);
+            var endpointId = Guid.NewGuid();
+
+            _mockClient.Setup(c => c.SendHealthUpdateAsync(It.IsAny<Guid>(), It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
+                .Returns(() => _awaitableFactory.Throw(new TaskCanceledException()).WithCountdown(healthUpdateCountdown).RunAsync());
+
+            _mockClient.Setup(c => c.RegisterEndpointAsync(It.IsAny<EndpointDefinition>(), It.IsAny<CancellationToken>()))
+                .Returns(() => _awaitableFactory.Throw<Guid>(new TaskCanceledException()).WithCountdown(registrationCountdown).RunAsync());
+
+            _mockClient.Setup(c => c.GetHealthCheckIntervalAsync(It.IsAny<CancellationToken>()))
+                .Returns(() => _awaitableFactory.Throw<TimeSpan>(new TaskCanceledException()).WithCountdown(intervalCountdown).RunAsync());
+
+            _mockTimeCoordinator.Setup(c => c.Delay(healthCheckInterval, It.IsAny<CancellationToken>()))
+                .Returns(() => _awaitableFactory.Return().WithCountdown(delayCountdown).RunAsync());
+
+            using (CreateNotifier())
+            {
+                await registrationCountdown.WaitAsync(TestMaxTime);
+                _mockClient.Setup(c => c.RegisterEndpointAsync(It.IsAny<EndpointDefinition>(), It.IsAny<CancellationToken>()))
+                    .Returns(Task.FromResult(endpointId));
+
+                await healthUpdateCountdown.WaitAsync(TestMaxTime);
+                _mockClient.Setup(c => c.SendHealthUpdateAsync(endpointId, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
+                    .Returns(() => _awaitableFactory.Return().WithCountdown(healthUpdateCountdown2).RunAsync());
+
+                await healthUpdateCountdown2.WaitAsync(TestMaxTime);
+
+                await intervalCountdown.WaitAsync(TestMaxTime);
+                SetupHealthCheckInterval(healthCheckInterval);
+
+                await delayCountdown.WaitAsync(TestMaxTime);
+            }
         }
 
         private void SetupEndpointRegistration(Guid endpointId)

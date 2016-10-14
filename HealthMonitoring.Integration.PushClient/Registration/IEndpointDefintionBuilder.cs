@@ -6,7 +6,7 @@ namespace HealthMonitoring.Integration.PushClient.Registration
     {
         IEndpointDefintionBuilder DefineGroup(string groupName);
         IEndpointDefintionBuilder DefineName(string endpointName);
-        IEndpointDefintionBuilder DefineTags(IEnumerable<string> tags);
+        IEndpointDefintionBuilder DefineTags(params string[] tags);
         IEndpointDefintionBuilder DefineAddress(string endpointUniqueName);
         IEndpointDefintionBuilder DefineAddress(string host, string endpointUniqueName);
     }

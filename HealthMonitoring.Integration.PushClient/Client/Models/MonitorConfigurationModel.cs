@@ -2,7 +2,7 @@
 
 namespace HealthMonitoring.Integration.PushClient.Client.Models
 {
-    class MonitorConfigurationModel
+    internal class MonitorConfigurationModel
     {
         public TimeSpan HealthCheckInterval { get; set; }
     }
