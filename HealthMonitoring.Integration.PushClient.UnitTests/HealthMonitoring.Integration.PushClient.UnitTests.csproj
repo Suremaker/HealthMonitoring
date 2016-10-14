@@ -64,6 +64,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractHealthCheckerTests.cs" />
     <Compile Include="EndpointDefinitionBuilderTests.cs" />
     <Compile Include="EndpointNotifierTests.cs" />
     <Compile Include="HealthMonitorPushClientTests.cs" />

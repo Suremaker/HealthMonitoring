@@ -9,6 +9,7 @@ using Common.Logging;
 using HealthMonitoring.Integration.PushClient.Client.Models;
 using HealthMonitoring.Integration.PushClient.Registration;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace HealthMonitoring.Integration.PushClient.Client
 {
@@ -16,6 +17,7 @@ namespace HealthMonitoring.Integration.PushClient.Client
     {
         private const string PushMonitorType = "push";
         private static readonly ILog _logger = LogManager.GetLogger<HealthMonitorClient>();
+        private static readonly JsonConverter[] JsonConverters = { new StringEnumConverter() };
         private readonly string _healthMonitorUrl;
 
         public HealthMonitorClient(string healthMonitorUrl)
@@ -78,7 +80,7 @@ namespace HealthMonitoring.Integration.PushClient.Client
 
         private static StringContent SerializeJson<T>(T content)
         {
-            return new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+            return new StringContent(JsonConvert.SerializeObject(content, JsonConverters), Encoding.UTF8, "application/json");
         }
     }
 }

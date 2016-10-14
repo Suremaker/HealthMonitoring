@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Integration.PushClient;
 using HealthMonitoring.Integration.PushClient.Monitoring;
-using HealthMonitoring.Monitors;
 
 namespace HealthMonitoring.Examples.ServiceWithPushIntegration
 {
@@ -25,8 +26,16 @@ namespace HealthMonitoring.Examples.ServiceWithPushIntegration
                     .DefineName("Service With Push Integration")
                     .DefineTags("example")
                     .DefineAddress("ServiceWithPushIntegration_node1"))
-                .WithHealthCheckMethod(token => Task.FromResult(new HealthInfo(HealthStatus.Healthy)))
+                .WithHealthCheck(new HealthChecker())
                 .StartHealthNotifier();
+        }
+    }
+
+    internal class HealthChecker : AbstractHealthChecker
+    {
+        protected override Task<HealthStatus> OnHealthCheckAsync(Dictionary<string, string> details, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(HealthStatus.Healthy);
         }
     }
 }

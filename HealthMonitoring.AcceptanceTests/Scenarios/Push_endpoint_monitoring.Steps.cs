@@ -8,7 +8,6 @@ using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Entities;
 using HealthMonitoring.Integration.PushClient;
 using HealthMonitoring.Integration.PushClient.Monitoring;
-using HealthMonitoring.Monitors;
 using LightBDD;
 using RestSharp;
 using Xunit;
@@ -16,7 +15,7 @@ using Xunit.Abstractions;
 
 namespace HealthMonitoring.AcceptanceTests.Scenarios
 {
-    public partial class Push_endpoint_monitoring : FeatureFixture, IDisposable
+    public partial class Push_endpoint_monitoring : FeatureFixture, IDisposable, IHealthChecker
     {
         private Guid _identifier;
         private RestClient _client;
@@ -25,7 +24,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         private string _endpointGroupName;
         private string[] _endpointTags;
         private string _endpointName;
-        private HealthStatus _currentEndpointStatus = HealthStatus.NotExists;
+        private HealthStatus _currentEndpointStatus = HealthStatus.Offline;
         private readonly Dictionary<string, string> _currentEndpointDetails = new Dictionary<string, string>();
         private HealthMonitorPushClient _pushClient;
         private EndpointEntity _details;
@@ -60,15 +59,11 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
                     .DefineGroup(_endpointGroupName)
                     .DefineName(_endpointName)
                     .DefineTags(_endpointTags))
-                .WithHealthCheckMethod(CheckHealthAsync);
+                .WithHealthCheck(this);
 
             _currentEndpointStatus = HealthStatus.Healthy;
         }
 
-        private Task<HealthInfo> CheckHealthAsync(CancellationToken cancellationToken)
-        {
-            return Task.FromResult(new HealthInfo(_currentEndpointStatus, _currentEndpointDetails));
-        }
 
         private void When_client_requests_endpoint_details()
         {
@@ -152,6 +147,21 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
                 () => _client.GetEndpointIdentities().FirstOrDefault(e => e.MonitorType == "push" && e.Address == $"{_endpointHostName}:{_endpointUniqueName}"),
                 e => e != null,
                 "Endpoint was not registered");
+        }
+
+        public Task<EndpointHealth> CheckHealthAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(new EndpointHealth(_currentEndpointStatus, _currentEndpointDetails));
+        }
+
+        private void When_endpoint_health_check_method_detect_health_critical_issues_and_return_faulty_status()
+        {
+            _currentEndpointStatus = HealthStatus.Faulty;
+        }
+
+        private void When_endpoint_health_check_method_detect_endpoint_being_put_offline_and_return_offline_status()
+        {
+            _currentEndpointStatus = HealthStatus.Offline;
         }
     }
 }
