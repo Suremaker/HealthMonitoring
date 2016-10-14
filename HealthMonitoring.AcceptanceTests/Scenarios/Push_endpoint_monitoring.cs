@@ -45,7 +45,11 @@ I want to see the endpoints pushing their health status to the Health Monitor")]
                 _ => Then_endpoint_should_be_registered_in_Health_Monitor(),
                 _ => Then_monitor_should_observe_endpoint_status_being_STATUS(EndpointStatus.Healthy),
                 _ => When_endpoint_health_check_method_detect_health_issues_and_return_unhealthy_status(),
-                _ => Then_monitor_should_observe_endpoint_status_being_STATUS(EndpointStatus.Unhealthy)
+                _ => Then_monitor_should_observe_endpoint_status_being_STATUS(EndpointStatus.Unhealthy),
+                _ => When_endpoint_health_check_method_detect_health_critical_issues_and_return_faulty_status(),
+                _ => Then_monitor_should_observe_endpoint_status_being_STATUS(EndpointStatus.Faulty),
+                _ => When_endpoint_health_check_method_detect_endpoint_being_put_offline_and_return_offline_status(),
+                _ => Then_monitor_should_observe_endpoint_status_being_STATUS(EndpointStatus.Offline)
                 );
         }
 

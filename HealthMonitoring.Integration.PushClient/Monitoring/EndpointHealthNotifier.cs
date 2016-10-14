@@ -8,7 +8,6 @@ using HealthMonitoring.Integration.PushClient.Client;
 using HealthMonitoring.Integration.PushClient.Client.Models;
 using HealthMonitoring.Integration.PushClient.Helpers;
 using HealthMonitoring.Integration.PushClient.Registration;
-using HealthMonitoring.Monitors;
 
 namespace HealthMonitoring.Integration.PushClient.Monitoring
 {
@@ -18,7 +17,7 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
         private readonly IHealthMonitorClient _client;
         private readonly ITimeCoordinator _timeCoordinator;
         private readonly EndpointDefinition _definition;
-        private readonly Func<CancellationToken, Task<HealthInfo>> _healthCheckMethod;
+        private readonly IHealthChecker _healthChecker;
         private readonly Thread _thread;
         private readonly CancellationTokenSource _cancelationTokenSource;
         private readonly CachedValue<TimeSpan> _healthCheckInterval;
@@ -26,12 +25,12 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
         private static readonly TimeSpan HealthCheckIntervalCacheDuration = TimeSpan.FromMinutes(10);
         private const int MaxRepeatDelayInSecs = 60;
 
-        public EndpointHealthNotifier(IHealthMonitorClient client, ITimeCoordinator timeCoordinator, EndpointDefinition definition, Func<CancellationToken, Task<HealthInfo>> healthCheckMethod)
+        public EndpointHealthNotifier(IHealthMonitorClient client, ITimeCoordinator timeCoordinator, EndpointDefinition definition, IHealthChecker healthChecker)
         {
             _client = client;
             _timeCoordinator = timeCoordinator;
             _definition = definition;
-            _healthCheckMethod = healthCheckMethod;
+            _healthChecker = healthChecker;
             _cancelationTokenSource = new CancellationTokenSource();
             _healthCheckInterval = new CachedValue<TimeSpan>(HealthCheckIntervalCacheDuration, GetHealthCheckIntervalAsync);
             _thread = new Thread(HealthLoop) { IsBackground = true, Name = "Health Check loop" };
@@ -75,13 +74,13 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
 
         private async Task PerformHealthCheckAsync()
         {
-            HealthInfo healthInfo;
+            EndpointHealth endpointHealth;
             var checkTimeUtc = DateTime.UtcNow;
             var watch = Stopwatch.StartNew();
             try
             {
-                healthInfo = await _healthCheckMethod.Invoke(_cancelationTokenSource.Token);
-                if (healthInfo == null)
+                endpointHealth = await _healthChecker.CheckHealthAsync(_cancelationTokenSource.Token);
+                if (endpointHealth == null)
                     throw new InvalidOperationException("Health information not provided");
             }
             catch (OperationCanceledException) when (_cancelationTokenSource.IsCancellationRequested)
@@ -91,10 +90,10 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
             catch (Exception e)
             {
                 _logger.Error("Unable to collect health information", e);
-                healthInfo = new HealthInfo(HealthStatus.Faulty, new Dictionary<string, string> { { "reason", "Unable to collect health information" }, { "exception", e.ToString() } });
+                endpointHealth = new EndpointHealth(HealthStatus.Faulty, new Dictionary<string, string> { { "reason", "Unable to collect health information" }, { "exception", e.ToString() } });
             }
 
-            await EnsureSendHealthUpdateAsync(new HealthUpdate(checkTimeUtc, watch.Elapsed, healthInfo));
+            await EnsureSendHealthUpdateAsync(new HealthUpdate(checkTimeUtc, watch.Elapsed, endpointHealth));
         }
 
         private async Task EnsureSendHealthUpdateAsync(HealthUpdate update)

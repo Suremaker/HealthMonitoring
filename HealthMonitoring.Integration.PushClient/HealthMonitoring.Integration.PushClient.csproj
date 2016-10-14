@@ -52,12 +52,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractHealthChecker.cs" />
     <Compile Include="Client\EndpointNotFoundException.cs" />
+    <Compile Include="EndpointHealth.cs" />
+    <Compile Include="HealthStatus.cs" />
     <Compile Include="Helpers\CachedValue.cs" />
     <Compile Include="Client\Models\HealthUpdate.cs" />
     <Compile Include="Client\IHealthMonitorClient.cs" />
     <Compile Include="Helpers\DefaultTimeCoordinator.cs" />
     <Compile Include="Helpers\ITimeCoordinator.cs" />
+    <Compile Include="IHealthChecker.cs" />
     <Compile Include="Properties\ManualVersion.cs" />
     <Compile Include="Registration\EndpointDefinition.cs" />
     <Compile Include="Registration\EndpointDefintionBuilder.cs" />
@@ -72,12 +76,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\HealthMonitoring.Monitors\HealthMonitoring.Monitors.csproj">
-      <Project>{D26577BB-BEA8-4911-8C25-37E268609E3F}</Project>
-      <Name>HealthMonitoring.Monitors</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

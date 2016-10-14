@@ -65,7 +65,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         public async Task Notifier_should_send_current_health_to_the_API()
         {
             var endpointId = Guid.NewGuid();
-            var expectedHealth = new HealthInfo(HealthStatus.Offline, new Dictionary<string, string> { { "key", "value" } });
+            var expectedHealth = new EndpointHealth(HealthStatus.Offline, new Dictionary<string, string> { { "key", "value" } });
             HealthUpdate lastCaptured = null;
             var countdown = new AsyncCountdown("update", 5);
 
@@ -129,7 +129,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
                     .WithCountdown(countdown)
                     .RunAsync());
 
-            using (CreateNotifier(token => Task.FromResult((HealthInfo)null)))
+            using (CreateNotifier(token => Task.FromResult((EndpointHealth)null)))
                 await countdown.WaitAsync(TestMaxTime);
 
             Assert.NotNull(lastCaptured);
@@ -157,10 +157,10 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
 
             Action<IEndpointDefintionBuilder> builder = b => b.DefineName("endpointName")
                     .DefineGroup("endpointGroup")
-                    .DefineTags(new[] { "t1" })
+                    .DefineTags("t1")
                     .DefineAddress("uniqueName");
 
-            using (CreateNotifier(builder, token => Task.FromResult(new HealthInfo(HealthStatus.NotExists))))
+            using (CreateNotifier(builder, token => Task.FromResult(new EndpointHealth(HealthStatus.Offline))))
                 await countdown.WaitAsync(TestMaxTime);
 
             Assert.NotNull(captured);
@@ -222,10 +222,10 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
 
             Action<IEndpointDefintionBuilder> builder = b => b.DefineName("endpointName")
                     .DefineGroup("endpointGroup")
-                    .DefineTags(new[] { "t1" })
+                    .DefineTags("t1")
                     .DefineAddress("host", "uniqueName");
 
-            using (CreateNotifier(builder, token => Task.FromResult(new HealthInfo(HealthStatus.NotExists))))
+            using (CreateNotifier(builder, token => Task.FromResult(new EndpointHealth(HealthStatus.Offline))))
                 await countdown.WaitAsync(TestMaxTime);
 
             Assert.NotNull(captured);
@@ -243,12 +243,12 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
 
             var notCancelled = false;
             var countdown = new AsyncCountdown("healthCheck", 1);
-            Func<CancellationToken, Task<HealthInfo>> healthCheck = async token =>
+            Func<CancellationToken, Task<EndpointHealth>> healthCheck = async token =>
             {
                 countdown.Decrement();
                 await Task.Delay(TestMaxTime, token);
                 notCancelled = true;
-                return new HealthInfo(HealthStatus.Healthy);
+                return new EndpointHealth(HealthStatus.Healthy);
             };
 
             using (CreateNotifier(healthCheck))
@@ -349,21 +349,26 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
 
         private IEndpointHealthNotifier CreateNotifier()
         {
-            return CreateNotifier(token => Task.FromResult(new HealthInfo(HealthStatus.Healthy)));
+            return CreateNotifier(token => Task.FromResult(new EndpointHealth(HealthStatus.Healthy)));
         }
 
-        private IEndpointHealthNotifier CreateNotifier(Func<CancellationToken, Task<HealthInfo>> healthCheck)
+        private IEndpointHealthNotifier CreateNotifier(Func<CancellationToken, Task<EndpointHealth>> healthCheck)
         {
             return CreateNotifier(
-                b => b.DefineName("name").DefineAddress("address").DefineGroup("group").DefineTags(new[] { "t1", "t2" }),
+                b => b.DefineName("name").DefineAddress("address").DefineGroup("group").DefineTags("t1", "t2"),
                 healthCheck);
         }
 
-        private IEndpointHealthNotifier CreateNotifier(Action<IEndpointDefintionBuilder> definitionBuilder, Func<CancellationToken, Task<HealthInfo>> healthCheck)
+        private IEndpointHealthNotifier CreateNotifier(Action<IEndpointDefintionBuilder> definitionBuilder, Func<CancellationToken, Task<EndpointHealth>> healthCheck)
         {
+            var healthChecker = new Mock<IHealthChecker>();
+            healthChecker
+                .Setup(c => c.CheckHealthAsync(It.IsAny<CancellationToken>()))
+                .Returns((CancellationToken token) => healthCheck.Invoke(token));
+
             return new TestablePushClient(_mockClient.Object, _mockTimeCoordinator.Object)
                  .DefineEndpoint(definitionBuilder)
-                 .WithHealthCheckMethod(healthCheck)
+                 .WithHealthCheck(healthChecker.Object)
                  .StartHealthNotifier();
         }
 

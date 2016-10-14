@@ -6,7 +6,6 @@ using HealthMonitoring.Integration.PushClient.Client;
 using HealthMonitoring.Integration.PushClient.Helpers;
 using HealthMonitoring.Integration.PushClient.Monitoring;
 using HealthMonitoring.Integration.PushClient.Registration;
-using HealthMonitoring.Monitors;
 
 namespace HealthMonitoring.Integration.PushClient
 {
@@ -16,7 +15,7 @@ namespace HealthMonitoring.Integration.PushClient
         private readonly IHealthMonitorClient _client;
         private readonly ITimeCoordinator _timeCoordinator;
         private EndpointDefinition _definition;
-        private Func<CancellationToken, Task<HealthInfo>> _healthCheckMethod;
+        private IHealthChecker _healthChecker;
 
         protected HealthMonitorPushClient(IHealthMonitorClient client, ITimeCoordinator timeCoordinator)
         {
@@ -48,9 +47,9 @@ namespace HealthMonitoring.Integration.PushClient
             return this;
         }
 
-        public HealthMonitorPushClient WithHealthCheckMethod(Func<CancellationToken, Task<HealthInfo>> healthCheckMethod)
+        public HealthMonitorPushClient WithHealthCheck(IHealthChecker healthChecker)
         {
-            _healthCheckMethod = healthCheckMethod;
+            _healthChecker = healthChecker;
             return this;
         }
 
@@ -58,14 +57,14 @@ namespace HealthMonitoring.Integration.PushClient
         {
             if (_definition == null)
                 throw new InvalidOperationException("No endpoint definition provided");
-            if (_healthCheckMethod == null)
-                throw new InvalidOperationException("No endpoint health check method provided");
+            if (_healthChecker == null)
+                throw new InvalidOperationException("No health checker provided");
 
             if (_client == null)
                 return null;
 
             _logger.Info("Starting Health Monitor integration...");
-            return new EndpointHealthNotifier(_client, _timeCoordinator, _definition, _healthCheckMethod);
+            return new EndpointHealthNotifier(_client, _timeCoordinator, _definition, _healthChecker);
         }
     }
 }

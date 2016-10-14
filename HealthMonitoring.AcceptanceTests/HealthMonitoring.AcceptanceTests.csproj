@@ -207,10 +207,6 @@
       <Project>{83B5CDAC-0057-4BFE-923C-C3F6ED6D1E7F}</Project>
       <Name>HealthMonitoring.Integration.PushClient</Name>
     </ProjectReference>
-    <ProjectReference Include="..\HealthMonitoring.Monitors\HealthMonitoring.Monitors.csproj">
-      <Project>{D26577BB-BEA8-4911-8C25-37E268609E3F}</Project>
-      <Name>HealthMonitoring.Monitors</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />

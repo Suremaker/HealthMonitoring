@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
-using HealthMonitoring.Monitors;
 
 namespace HealthMonitoring.Integration.PushClient.Client.Models
 {
     public class HealthUpdate
     {
-        public DateTime CheckTimeUtc { get; private set; }
-        public HealthStatus Status { get; private set; }
-        public TimeSpan ResponseTime { get; private set; }
-        public IReadOnlyDictionary<string, string> Details { get; private set; }
+        public DateTime CheckTimeUtc { get; }
+        public HealthStatus Status { get; }
+        public TimeSpan ResponseTime { get; }
+        public IReadOnlyDictionary<string, string> Details { get; }
 
-        public HealthUpdate(DateTime checkTimeUtc, TimeSpan responseTime, HealthInfo info)
+        public HealthUpdate(DateTime checkTimeUtc, TimeSpan responseTime, EndpointHealth info)
         {
             CheckTimeUtc = checkTimeUtc;
             Status = info.Status;

@@ -24,7 +24,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         {
             var notifier = HealthMonitorPushClient.UsingHealthMonitor(url)
                 .DefineEndpoint(b => b.DefineAddress("a").DefineGroup("b").DefineName("c"))
-                .WithHealthCheckMethod(token => Task.FromResult(new HealthInfo(HealthStatus.Healthy)))
+                .WithHealthCheck(Mock.Of<IHealthChecker>())
                 .StartHealthNotifier();
 
             Assert.Null(notifier);
@@ -35,7 +35,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         {
             var notifier = new TestablePushClient(null, Mock.Of<ITimeCoordinator>())
                 .DefineEndpoint(b => b.DefineAddress("a").DefineGroup("b").DefineName("c"))
-                .WithHealthCheckMethod(token => Task.FromResult(new HealthInfo(HealthStatus.Healthy)))
+                .WithHealthCheck(Mock.Of<IHealthChecker>())
                 .StartHealthNotifier();
 
             Assert.Null(notifier);
@@ -46,7 +46,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         {
             var notifier = new TestablePushClient(Mock.Of<IHealthMonitorClient>(), Mock.Of<ITimeCoordinator>())
                 .DefineEndpoint(b => b.DefineAddress("a").DefineGroup("b").DefineName("c"))
-                .WithHealthCheckMethod(token => Task.FromResult(new HealthInfo(HealthStatus.Healthy)))
+                .WithHealthCheck(Mock.Of<IHealthChecker>())
                 .StartHealthNotifier();
 
             Assert.NotNull(notifier);
@@ -56,20 +56,20 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         public void HealthMonitorPushClient_should_require_endpoint_definition_to_start_notifier()
         {
             var ex = Assert.Throws<InvalidOperationException>(() => new TestablePushClient(Mock.Of<IHealthMonitorClient>(), Mock.Of<ITimeCoordinator>())
-                  .WithHealthCheckMethod(token => Task.FromResult(new HealthInfo(HealthStatus.Healthy)))
+                  .WithHealthCheck(Mock.Of<IHealthChecker>())
                   .StartHealthNotifier());
 
             Assert.Equal("No endpoint definition provided", ex.Message);
         }
 
         [Fact]
-        public void HealthMonitorPushClient_should_require_health_check_method_to_start_notifier()
+        public void HealthMonitorPushClient_should_require_health_checker_to_start_notifier()
         {
             var ex = Assert.Throws<InvalidOperationException>(() => new TestablePushClient(Mock.Of<IHealthMonitorClient>(), Mock.Of<ITimeCoordinator>())
                   .DefineEndpoint(b => b.DefineAddress("a").DefineGroup("b").DefineName("c"))
                   .StartHealthNotifier());
 
-            Assert.Equal("No endpoint health check method provided", ex.Message);
+            Assert.Equal("No health checker provided", ex.Message);
         }
     }
 }
