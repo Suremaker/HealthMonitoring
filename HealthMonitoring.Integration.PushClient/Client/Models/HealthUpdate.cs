@@ -11,11 +11,11 @@ namespace HealthMonitoring.Integration.PushClient.Client.Models
         public TimeSpan ResponseTime { get; private set; }
         public IReadOnlyDictionary<string, string> Details { get; private set; }
 
-        public HealthUpdate(DateTime checkTimeUtc, TimeSpan checkTime, HealthInfo info)
+        public HealthUpdate(DateTime checkTimeUtc, TimeSpan responseTime, HealthInfo info)
         {
             CheckTimeUtc = checkTimeUtc;
             Status = info.Status;
-            ResponseTime = checkTime;
+            ResponseTime = responseTime;
             Details = info.Details;
         }
     }

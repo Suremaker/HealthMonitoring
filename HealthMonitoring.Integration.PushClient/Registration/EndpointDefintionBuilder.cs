@@ -29,9 +29,9 @@ namespace HealthMonitoring.Integration.PushClient.Registration
             return this;
         }
 
-        public IEndpointDefintionBuilder DefineTags(IEnumerable<string> tags)
+        public IEndpointDefintionBuilder DefineTags(string[] tags)
         {
-            _tags = tags?.ToArray();
+            _tags = tags;
             return this;
         }
 

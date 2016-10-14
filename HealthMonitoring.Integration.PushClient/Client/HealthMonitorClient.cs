@@ -50,11 +50,14 @@ namespace HealthMonitoring.Integration.PushClient.Client
         {
             _logger.Debug("Retrieving health check interval...");
             var response = await new HttpClient().GetAsync(_healthMonitorUrl + "/api/config", cancellationToken);
-            return (await DeserializeJsonAsync<HealthMonitorConfigurationModel>(response)).Monitor.HealthCheckInterval;
+            var healthCheckInterval = (await DeserializeJsonAsync<HealthMonitorConfigurationModel>(response)).Monitor.HealthCheckInterval;
+            _logger.Info($"Retrieved health check interval: {healthCheckInterval}");
+            return healthCheckInterval;
         }
 
         public async Task SendHealthUpdateAsync(Guid endpointId, HealthUpdate update, CancellationToken cancellationToken)
         {
+            _logger.Info($"Sending health update: {update.Status}");
             var result = await PostAsync($"/api/endpoints/{endpointId}/health?clientCurrentTime={DateTimeOffset.UtcNow.ToString("u", CultureInfo.InvariantCulture)}", update, cancellationToken);
             if (result.StatusCode == HttpStatusCode.NotFound)
                 throw new EndpointNotFoundException();

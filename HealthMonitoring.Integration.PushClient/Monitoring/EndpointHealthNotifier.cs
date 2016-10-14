@@ -23,6 +23,8 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
         private readonly CancellationTokenSource _cancelationTokenSource;
         private readonly CachedValue<TimeSpan> _healthCheckInterval;
         private Guid? _endpointId;
+        private static readonly TimeSpan HealthCheckIntervalCacheDuration = TimeSpan.FromMinutes(10);
+        private const int MaxRepeatDelayInSecs = 60;
 
         public EndpointHealthNotifier(IHealthMonitorClient client, ITimeCoordinator timeCoordinator, EndpointDefinition definition, Func<CancellationToken, Task<HealthInfo>> healthCheckMethod)
         {
@@ -31,7 +33,7 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
             _definition = definition;
             _healthCheckMethod = healthCheckMethod;
             _cancelationTokenSource = new CancellationTokenSource();
-            _healthCheckInterval = new CachedValue<TimeSpan>(TimeSpan.FromMinutes(10), GetHealthCheckIntervalAsync);
+            _healthCheckInterval = new CachedValue<TimeSpan>(HealthCheckIntervalCacheDuration, GetHealthCheckIntervalAsync);
             _thread = new Thread(HealthLoop) { IsBackground = true, Name = "Health Check loop" };
             _thread.Start();
         }
@@ -79,6 +81,8 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
             try
             {
                 healthInfo = await _healthCheckMethod.Invoke(_cancelationTokenSource.Token);
+                if (healthInfo == null)
+                    throw new InvalidOperationException("Health information not provided");
             }
             catch (OperationCanceledException) when (_cancelationTokenSource.IsCancellationRequested)
             {
@@ -89,16 +93,44 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
                 _logger.Error("Unable to collect health information", e);
                 healthInfo = new HealthInfo(HealthStatus.Faulty, new Dictionary<string, string> { { "reason", "Unable to collect health information" }, { "exception", e.ToString() } });
             }
-            await SendHealthUpdateAsync(checkTimeUtc, watch.Elapsed, healthInfo);
+
+            await EnsureSendHealthUpdateAsync(new HealthUpdate(checkTimeUtc, watch.Elapsed, healthInfo));
         }
 
-        private async Task SendHealthUpdateAsync(DateTime checkTimeUtc, TimeSpan checkTime, HealthInfo healthInfo)
+        private async Task EnsureSendHealthUpdateAsync(HealthUpdate update)
+        {
+            int repeats = 0;
+            while (!_cancelationTokenSource.IsCancellationRequested)
+            {
+                try
+                {
+                    await SendHealthUpdateAsync(update);
+                    return;
+                }
+                catch (Exception e) when (!_cancelationTokenSource.IsCancellationRequested)
+                {
+                    _logger.Error("Unable to send health update", e);
+                    await SafeDelay(TimeSpan.FromSeconds(Math.Min(MaxRepeatDelayInSecs, ++repeats)));
+                }
+            }
+        }
+
+        private async Task SafeDelay(TimeSpan delay)
+        {
+            try
+            {
+                await _timeCoordinator.Delay(delay, _cancelationTokenSource.Token);
+            }
+            catch { }
+        }
+
+        private async Task SendHealthUpdateAsync(HealthUpdate update)
         {
             var endpointId = _endpointId ?? (_endpointId = await RegisterEndpointAsync()).Value;
 
             try
             {
-                await _client.SendHealthUpdateAsync(endpointId, new HealthUpdate(checkTimeUtc, checkTime, healthInfo), _cancelationTokenSource.Token);
+                await _client.SendHealthUpdateAsync(endpointId, update, _cancelationTokenSource.Token);
             }
             catch (EndpointNotFoundException)
             {

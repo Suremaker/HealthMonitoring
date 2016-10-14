@@ -101,6 +101,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Integratio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Integration.PushClient.UnitTests", "HealthMonitoring.Integration.PushClient.UnitTests\HealthMonitoring.Integration.PushClient.UnitTests.csproj", "{BF7A5A31-CBA0-44D1-A9A2-F68D6662748F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{DC4C0EF7-F2B6-4B1A-B5D4-7E6C2976619B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Examples.ServiceWithPushIntegration", "HealthMonitoring.Examples.ServiceWithPushIntegration\HealthMonitoring.Examples.ServiceWithPushIntegration.csproj", "{477A2FC6-8A0F-457A-B60B-5DAA2DCBA1A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -219,6 +223,10 @@ Global
 		{BF7A5A31-CBA0-44D1-A9A2-F68D6662748F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF7A5A31-CBA0-44D1-A9A2-F68D6662748F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF7A5A31-CBA0-44D1-A9A2-F68D6662748F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{477A2FC6-8A0F-457A-B60B-5DAA2DCBA1A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{477A2FC6-8A0F-457A-B60B-5DAA2DCBA1A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{477A2FC6-8A0F-457A-B60B-5DAA2DCBA1A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{477A2FC6-8A0F-457A-B60B-5DAA2DCBA1A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -254,5 +262,6 @@ Global
 		{6AA6D3EF-3A85-488B-937F-1D1FC2391BF9} = {11868196-C99E-4959-BE4D-7BEB75B76986}
 		{83B5CDAC-0057-4BFE-923C-C3F6ED6D1E7F} = {DA590DAB-17A4-4DDB-B43F-9EFB2C53C532}
 		{BF7A5A31-CBA0-44D1-A9A2-F68D6662748F} = {11868196-C99E-4959-BE4D-7BEB75B76986}
+		{477A2FC6-8A0F-457A-B60B-5DAA2DCBA1A8} = {DC4C0EF7-F2B6-4B1A-B5D4-7E6C2976619B}
 	EndGlobalSection
 EndGlobal
