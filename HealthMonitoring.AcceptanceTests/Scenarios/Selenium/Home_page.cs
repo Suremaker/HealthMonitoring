@@ -1,4 +1,5 @@
-﻿using LightBDD;
+﻿using System;
+using LightBDD;
 
 namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 {
@@ -86,5 +87,27 @@ I want to open home page")]
                 _ => Then_only_endpoints_with_chosen_parameters_should_be_shown()
                 );
         }
+
+        [Scenario]
+        public void Filters_should_apply_when_traveling_forward_and_backward_on_history()
+        {
+            _driver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(1));
+
+            Runner.RunScenario(
+                _ => Given_home_page(),
+                _ => Given_endpoints_are_visible(),
+                _ => When_user_clicks_on_first_tag(),
+                _ => When_user_clicks_on_status_button(),
+                _ => Then_endpoints_with_selected_filters_should_be_shown(1, 1),
+                _ => When_user_navigates_back(),
+                _ => Then_endpoints_with_selected_filters_should_be_shown(1, 0),
+                _ => When_user_navigates_back(),
+                _ => Then_endpoints_with_selected_filters_should_be_shown(0, 0),
+                _ => When_user_navigates_forward(),
+                _ => Then_endpoints_with_selected_filters_should_be_shown(1, 0),
+                _ => When_user_navigates_forward(),
+                _ => Then_endpoints_with_selected_filters_should_be_shown(1, 1));
+        }
+
     }
 }

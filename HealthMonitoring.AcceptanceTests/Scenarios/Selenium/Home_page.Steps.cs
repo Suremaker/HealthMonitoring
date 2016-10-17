@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Selenium;
+using HealthMonitoring.TestUtils;
 using LightBDD;
 using OpenQA.Selenium;
 using RestSharp;
@@ -102,8 +103,8 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         public void Then_only_endpoints_with_chosen_status_should_be_shown()
         {
-            var selectedStatus = GetSelectedStatusElements().First();
-            var filteredStatuses = GetFilteredStatusElements();
+            var selectedStatus = GetSelectedStatuses().First();
+            var filteredStatuses = GetFilteredStatuses();
 
             Assert.True(filteredStatuses.All(m => string.Equals(m.Text, selectedStatus.Text, StringComparison.CurrentCultureIgnoreCase)));
         }
@@ -111,14 +112,14 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_should_be_shown_selected_status()
         {
             var statusElements = GetAllStatusElements();
-            var selectedStatus = GetSelectedStatusElements().First();
+            var selectedStatus = GetSelectedStatuses().First();
 
             CustomAssertions.EqualNotStrict(selectedStatus.Text, statusElements[1].Text);
         }
 
         public void Then_status_filter_should_be_appended_to_url()
         {
-            var selectedStatus = GetSelectedStatusElements().First();
+            var selectedStatus = GetSelectedStatuses().First();
             var expectedUrl = $"{_homeUrl}&filter-status={selectedStatus.Text};";
             var actualUrl = _driver.WaitUntilPageIsChanged(expectedUrl);
 
@@ -142,7 +143,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_only_endpoints_with_chosen_tags_should_be_shown()
         {
             var filteredTags = GetFilteredTags();
-            int filteredEndpointsCount = GetFilteredStatusElements().Count;
+            int filteredEndpointsCount = GetFilteredStatuses().Count;
 
             Assert.True(_selectedTags.All(tag => filteredTags.Count(el => el.Text == tag) == filteredEndpointsCount));
         }
@@ -175,14 +176,41 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             var tag = SeleniumHelper.TestTags[0];
             var selectedTags = GetSelectedTags();
             var filteredTags = GetFilteredTags();
-            var filteredStatuses = GetFilteredStatusElements();
+            var filteredStatuses = GetFilteredStatuses();
 
             bool areStatusesCorrect = filteredStatuses.All(
-                m => m.Text.ToLower() == "faulty" || 
+                m => m.Text.ToLower() == "faulty" ||
                 m.Text.ToLower() == "healthy");
             Assert.True(areStatusesCorrect);
             Assert.True(filteredTags.Count(m => m.Text == tag) == filteredStatuses.Count);
             Assert.True(selectedTags.Any(m => string.Equals(m.Text, tag)));
+        }
+
+        public void Then_endpoints_with_selected_filters_should_be_shown(int expectedCountOfSelectedTags, int expectedCountOfSelectedStatuses)
+        {
+            var selectedTags = GetSelectedTags().Select(x => x.Text).ToList();
+            Assert.Equal(selectedTags.Count, expectedCountOfSelectedTags);
+
+            if (expectedCountOfSelectedTags > 0)
+            {
+                var filteredTags = GetFilteredTags().Select(x => x.Text).ToList();
+                if (filteredTags.Count > 0)
+                {
+                    Assert.True(selectedTags.All(x => filteredTags.Contains(x)));
+                }
+            }
+
+            var selectedStatuses = GetSelectedStatuses().Select(x => x.Text).ToList();
+            Assert.Equal(selectedStatuses.Count, expectedCountOfSelectedStatuses);
+
+            if (expectedCountOfSelectedStatuses > 0)
+            {
+                var filteredStatuses = GetFilteredStatuses().Select(x => x.Text).ToList();
+                if (filteredStatuses.Count > 0)
+                {
+                    CollectionAssert.AreEquivalent(selectedStatuses, filteredStatuses.Distinct());
+                }
+            }
         }
 
         private List<IWebElement> GetAllTags()
@@ -191,31 +219,39 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             return _driver.WaitElementsAreRendered(selector, elem => !string.IsNullOrEmpty(elem.Text)).ToList();
         }
 
+        private List<IWebElement> GetSelectedStatuses()
+        {
+            return _driver.FindElements(By.XPath("//div[contains(@class, 'selected-filters-container')]//span[contains(@class, 'endpoint-status')]")).ToList();
+        }
+
         private List<IWebElement> GetSelectedTags()
         {
-            var selector = By.XPath("//div[contains(@class, 'selected-filters-container')]//*//span[contains(@class, 'endpointTag')]");
-            return _driver.WaitElementsAreRendered(selector).ToList();
+            return _driver.FindElements(By.XPath("//div[contains(@class, 'selected-filters-container')]//*//span[contains(@class, 'endpointTag')]")).ToList();
         }
 
         private List<IWebElement> GetFilteredTags()
         {
-            return _driver.WaitElementsAreRendered(By.XPath("//table[contains(@class,'endpoints')]//tr//td[6]//span")).ToList();
-        }
-
-        private List<IWebElement> GetSelectedStatusElements()
-        {
-            var selector = By.XPath("//div[contains(@class,'selected-filters-container')]//span[not(contains(@class, 'stats-key'))]");
-            return _driver.WaitElementsAreRendered(selector).ToList();
+            return _driver.FindElements(By.XPath("//table[contains(@class,'endpoints')]//tr//td[6]//span")).ToList();
         }
 
         private List<IWebElement> GetAllStatusElements()
         {
             return _driver.WaitElementsAreRendered(By.XPath("//*[contains(@class, 'endpoint-status')]")).ToList();
         }
-        
-        private List<IWebElement> GetFilteredStatusElements()
+
+        private List<IWebElement> GetFilteredStatuses()
         {
-            return _driver.WaitElementsAreRendered(By.XPath(_filteredStatusElements)).ToList();
+            return _driver.FindElements(By.XPath(_filteredStatusElements)).ToList();
+        }
+
+        private void When_user_navigates_back()
+        {
+            _driver.Navigate().Back();
+        }
+
+        private void When_user_navigates_forward()
+        {
+            _driver.Navigate().Forward();
         }
     }
 }
