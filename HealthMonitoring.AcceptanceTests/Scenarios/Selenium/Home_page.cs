@@ -91,23 +91,21 @@ I want to open home page")]
         [Scenario]
         public void Filters_should_apply_when_traveling_forward_and_backward_on_history()
         {
-            _driver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(1));
-
             Runner.RunScenario(
                 _ => Given_home_page(),
+                _ => With_driver_wait_time(TimeSpan.FromSeconds(1)),
                 _ => Given_endpoints_are_visible(),
                 _ => When_user_clicks_on_first_tag(),
                 _ => When_user_clicks_on_status_button(),
-                _ => Then_endpoints_with_selected_filters_should_be_shown(1, 1),
+                _ => Then_endpoints_should_be_displayed_with_expected_count_of_filters(1, 1),
                 _ => When_user_navigates_back(),
-                _ => Then_endpoints_with_selected_filters_should_be_shown(1, 0),
+                _ => Then_endpoints_should_be_displayed_with_expected_count_of_filters(1, 0),
                 _ => When_user_navigates_back(),
-                _ => Then_endpoints_with_selected_filters_should_be_shown(0, 0),
+                _ => Then_endpoints_should_be_displayed_with_expected_count_of_filters(0, 0),
                 _ => When_user_navigates_forward(),
-                _ => Then_endpoints_with_selected_filters_should_be_shown(1, 0),
+                _ => Then_endpoints_should_be_displayed_with_expected_count_of_filters(1, 0),
                 _ => When_user_navigates_forward(),
-                _ => Then_endpoints_with_selected_filters_should_be_shown(1, 1));
+                _ => Then_endpoints_should_be_displayed_with_expected_count_of_filters(1, 1));
         }
-
     }
 }

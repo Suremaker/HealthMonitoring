@@ -186,7 +186,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             Assert.True(selectedTags.Any(m => string.Equals(m.Text, tag)));
         }
 
-        public void Then_endpoints_with_selected_filters_should_be_shown(int expectedCountOfSelectedTags, int expectedCountOfSelectedStatuses)
+        public void Then_endpoints_should_be_displayed_with_expected_count_of_filters(int expectedCountOfSelectedTags, int expectedCountOfSelectedStatuses)
         {
             var selectedTags = GetSelectedTags().Select(x => x.Text).ToList();
             Assert.Equal(selectedTags.Count, expectedCountOfSelectedTags);
@@ -252,6 +252,11 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         private void When_user_navigates_forward()
         {
             _driver.Navigate().Forward();
+        }
+
+        private void With_driver_wait_time(TimeSpan timeout)
+        {
+            _driver.Manage().Timeouts().ImplicitlyWait(timeout);
         }
     }
 }
