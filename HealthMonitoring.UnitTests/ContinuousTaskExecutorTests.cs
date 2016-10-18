@@ -14,7 +14,7 @@ namespace HealthMonitoring.UnitTests
     public class ContinuousTaskExecutorTests
     {
         private readonly AwaitableFactory _awaitableFactory = new AwaitableFactory();
-        private readonly TimeSpan _testTimeout = TimeSpan.FromSeconds(5);
+        private readonly TimeSpan _testTimeout = TimeSpan.FromSeconds(15);
 
         [Fact]
         public async Task Executor_should_execute_tasks_until_disposal()
