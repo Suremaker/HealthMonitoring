@@ -23,7 +23,7 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
         private readonly CachedValue<TimeSpan> _healthCheckInterval;
         private Guid? _endpointId;
         private static readonly TimeSpan HealthCheckIntervalCacheDuration = TimeSpan.FromMinutes(10);
-        private const int MaxRepeatDelayInSecs = 60;
+        private const int MaxRepeatDelayInSecs = 120;
 
         public EndpointHealthNotifier(IHealthMonitorClient client, ITimeCoordinator timeCoordinator, EndpointDefinition definition, IHealthChecker healthChecker)
         {
@@ -98,7 +98,7 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
 
         private async Task EnsureSendHealthUpdateAsync(HealthUpdate update)
         {
-            int repeats = 0;
+            int repeats = 1;
             while (!_cancelationTokenSource.IsCancellationRequested)
             {
                 try
@@ -109,7 +109,8 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
                 catch (Exception e) when (!_cancelationTokenSource.IsCancellationRequested)
                 {
                     _logger.Error("Unable to send health update", e);
-                    await SafeDelay(TimeSpan.FromSeconds(Math.Min(MaxRepeatDelayInSecs, ++repeats)));
+                    await SafeDelay(TimeSpan.FromSeconds(Math.Min(MaxRepeatDelayInSecs, repeats)));
+                    repeats *= 2;
                 }
             }
         }
