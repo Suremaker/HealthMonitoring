@@ -9,7 +9,7 @@ namespace HealthMonitoring.Management.Core.Registers
         Guid RegisterOrUpdate(string monitorType, string address, string group, string name, string[] tags, string token);
         bool TryUpdateEndpointTags(Guid id, string[] tags);
         Endpoint GetById(Guid id);
-        Endpoint GetByNaturalKey(string key);
+        Endpoint GetByNaturalKey(string monitorType, string address);
         bool TryUnregisterById(Guid id);
         IEnumerable<Endpoint> Endpoints { get; }
         void UpdateHealth(Guid endpointId, EndpointHealth health);

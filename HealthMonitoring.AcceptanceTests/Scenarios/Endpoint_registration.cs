@@ -47,7 +47,7 @@ I want to be able to register browse and unregister endpoints")]
         {
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),
-                _ => Given_endpoint_with_private_token_is_registered("registered", "http://localhost:2527/status", "group", MonitorTypes.HttpJson, _credentials.RandomCredentials.PrivateToken),
+                _ => Given_endpoint_with_private_token_is_registered("registered", "http://localhost:2527/status", "group", MonitorTypes.HttpJson, _credentials.GenerateRandomCredentials().PrivateToken),
                 _ => Given_endpoint_id_is_received(),
                 _ => Given_endpoint_with_private_token_is_registered("registered", "http://localhost:2528/status", "group", MonitorTypes.HttpJson, _credentials.PersonalCredentials.PrivateToken),
                 _ => Given_endpoint_id_is_received(),
@@ -71,7 +71,7 @@ I want to be able to register browse and unregister endpoints")]
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),
                 _ => When_client_request_endpoint_registration_with_short_private_token(),
-                _ => Then_client_should_receive_STATUS_code(HttpStatusCode.InternalServerError)
+                _ => Then_client_should_receive_STATUS_code(HttpStatusCode.BadRequest)
                 );
         }
 

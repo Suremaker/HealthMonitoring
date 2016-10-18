@@ -29,7 +29,7 @@ namespace HealthMonitoring.SelfHost.Controllers
         [SwaggerResponse(HttpStatusCode.BadRequest)]
         public IHttpActionResult PostRegisterMonitors([FromBody]params string[] monitorTypes)
         {
-            RequestContext.Authorize(SecurityRole.PullMonitor);
+            RequestContext.Authorize(SecurityRole.Monitor);
 
             if (monitorTypes == null || monitorTypes.Any(string.IsNullOrWhiteSpace))
                 return BadRequest("Body cannot be null and have to contain properly named monitor types");

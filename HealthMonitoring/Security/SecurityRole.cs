@@ -3,7 +3,7 @@ namespace HealthMonitoring.Security
 {
     public enum SecurityRole
     {
-        AdminMonitor = 0,
-        PullMonitor = 1
+        Admin = 0,
+        Monitor = 1
     }
 }

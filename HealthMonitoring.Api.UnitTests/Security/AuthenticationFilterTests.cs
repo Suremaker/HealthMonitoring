@@ -19,7 +19,7 @@ namespace HealthMonitoring.Api.UnitTests.Security
     public class AuthenticationFilterTests
     {
         private readonly Mock<IEndpointRegistry> _endpointRegistryMock = new Mock<IEndpointRegistry>();
-        private readonly Mock<ICredentialsProvider> _tokenProviderMock = new Mock<ICredentialsProvider>();
+        private readonly Mock<ICredentialsProvider> _credentialsProviderMock = new Mock<ICredentialsProvider>();
         private readonly Mock<ITimeCoordinator> _timeCoordinatorMock = new Mock<ITimeCoordinator>();
         private readonly Credentials _requestCredentials;
         private readonly Credentials _adminCredentials;
@@ -32,7 +32,7 @@ namespace HealthMonitoring.Api.UnitTests.Security
             _adminCredentials = new Credentials(Guid.NewGuid(), "admin");
             _pullMonitorCredentials = new Credentials(Guid.NewGuid(), "pull");
 
-            SetUpTokenProvider();
+            SetUpCredentialsProvider();
             SetUpTimeCoordinator();
 
             _endpoint = GetTestEndpoint();
@@ -43,10 +43,10 @@ namespace HealthMonitoring.Api.UnitTests.Security
             _timeCoordinatorMock.Setup(c => c.UtcNow).Returns(DateTime.UtcNow);
         }
 
-        private void SetUpTokenProvider()
+        private void SetUpCredentialsProvider()
         {
-            _tokenProviderMock.Setup(m => m.GetAdminMonitorCredentials()).Returns(_adminCredentials);
-            _tokenProviderMock.Setup(m => m.GetPullMonitorCredentials()).Returns(_pullMonitorCredentials);
+            _credentialsProviderMock.Setup(m => m.GetAdminMonitorCredentials()).Returns(_adminCredentials);
+            _credentialsProviderMock.Setup(m => m.GetPullMonitorCredentials()).Returns(_pullMonitorCredentials);
         }
         
 
@@ -55,7 +55,7 @@ namespace HealthMonitoring.Api.UnitTests.Security
         {
             var authContext = GetAuthContext(_requestCredentials);
             _endpointRegistryMock.Setup(m => m.GetById(_requestCredentials.MonitorId)).Returns(_endpoint);
-            var filter = new AuthenticationFilter(_endpointRegistryMock.Object, _tokenProviderMock.Object);
+            var filter = new AuthenticationFilter(_endpointRegistryMock.Object, _credentialsProviderMock.Object);
 
             filter.AuthenticateAsync(authContext, CancellationToken.None);
 
@@ -66,7 +66,7 @@ namespace HealthMonitoring.Api.UnitTests.Security
         public void AuthenticatoionFilter_should_save_principal_with_administrative_credentials()
         {
             var authContext = GetAuthContext(_adminCredentials);
-            var filter = new AuthenticationFilter(_endpointRegistryMock.Object, _tokenProviderMock.Object);
+            var filter = new AuthenticationFilter(_endpointRegistryMock.Object, _credentialsProviderMock.Object);
 
             filter.AuthenticateAsync(authContext, CancellationToken.None);
 
@@ -77,7 +77,7 @@ namespace HealthMonitoring.Api.UnitTests.Security
         public void AuthenticatoionFilter_should_save_principal_with_pullmonitor_credentials()
         {
             var authContext = GetAuthContext(_pullMonitorCredentials);
-            var filter = new AuthenticationFilter(_endpointRegistryMock.Object, _tokenProviderMock.Object);
+            var filter = new AuthenticationFilter(_endpointRegistryMock.Object, _credentialsProviderMock.Object);
 
             filter.AuthenticateAsync(authContext, CancellationToken.None);
 
@@ -89,7 +89,7 @@ namespace HealthMonitoring.Api.UnitTests.Security
         {
             var invalidCredentials = new Credentials(Guid.NewGuid(), "invalid");
             var authContext = GetAuthContext(invalidCredentials);
-            var filter = new AuthenticationFilter(_endpointRegistryMock.Object, _tokenProviderMock.Object);
+            var filter = new AuthenticationFilter(_endpointRegistryMock.Object, _credentialsProviderMock.Object);
 
             filter.AuthenticateAsync(authContext, CancellationToken.None);
 

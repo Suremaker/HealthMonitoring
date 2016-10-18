@@ -24,9 +24,14 @@ namespace HealthMonitoring.Model
             return $"{MonitorType}: {Address}";
         }
 
-        public string GetNaturalKey()
+        public string GetOwnNaturalKey()
         {
-            return $"{MonitorType}|{Address.ToLowerInvariant()}";
+            return CreateNaturalKey(MonitorType, Address);
+        }
+
+        public static string CreateNaturalKey(string monitorType, string address)
+        {
+            return $"{monitorType}|{address?.ToLowerInvariant()}";
         }
     }
 }

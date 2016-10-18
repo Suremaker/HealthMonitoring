@@ -149,7 +149,6 @@
     <Compile Include="Entities\EndpointHealthUpdate.cs" />
     <Compile Include="Entities\EndpointRegistration.cs" />
     <Compile Include="Entities\EntityValidator.cs" />
-    <Compile Include="Models\PublicEndpointIdentity.cs" />
     <Compile Include="Filters\EndpointFilter.cs" />
     <Compile Include="Handlers\GlobalExceptionHandler.cs" />
     <Compile Include="Handlers\MessageHandler.cs" />

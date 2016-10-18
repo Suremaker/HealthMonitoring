@@ -16,8 +16,8 @@ namespace HealthMonitoring.Api.UnitTests.Security
         private const string _monitorId = "30494205-ae15-4de7-90ed-2705431a3914";
 
         [Theory]
-        [InlineData(SecurityRole.AdminMonitor)]
-        [InlineData(SecurityRole.PullMonitor)]
+        [InlineData(SecurityRole.Admin)]
+        [InlineData(SecurityRole.Monitor)]
         public void IsSelfAuthorized_should_not_accept_admin_and_pullmonitor_credentials(SecurityRole role)
         {
             var context = GetRequestContext(role);
@@ -27,9 +27,9 @@ namespace HealthMonitoring.Api.UnitTests.Security
         [Fact]
         public void AuthorizeByRoles_should_throw_unauthorize_ex_if_principal_is_not_in_any_role()
         {
-            var roles = new [] {SecurityRole.AdminMonitor};
+            var roles = new [] {SecurityRole.Admin};
             var context = GetRequestContext(roles);
-            Assert.Throws<UnauthorizedAccessException>(() => context.Authorize(SecurityRole.PullMonitor));
+            Assert.Throws<UnauthorizedAccessException>(() => context.Authorize(SecurityRole.Monitor));
         }
 
         [Fact]

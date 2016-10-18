@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Security.Principal;
 using System.Web.Http.Controllers;
 using System.Web.Http.Results;
-using Castle.Core.Internal;
 using HealthMonitoring.Management.Core;
 using HealthMonitoring.Management.Core.Registers;
 using HealthMonitoring.Management.Core.Repositories;
@@ -16,7 +15,6 @@ using HealthMonitoring.SelfHost.Controllers;
 using HealthMonitoring.SelfHost.Entities;
 using HealthMonitoring.TestUtils;
 using HealthMonitoring.TimeManagement;
-using HealthMonitoring.SelfHost.Models;
 using Moq;
 using Xunit;
 
@@ -92,7 +90,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         [Fact]
         public void DeleteEndpoint_should_return_NOTFOUND_if_there_is_no_matching_endpoint()
         {
-            AuthorizeRequest(SecurityRole.AdminMonitor);
+            AuthorizeRequest(SecurityRole.Admin);
             Assert.IsType<NotFoundResult>(_controller.DeleteEndpoint(Guid.NewGuid()));
         }
 
@@ -100,7 +98,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         public void DeleteEndpoint_should_return_OK_if_there_is_matching_endpoint()
         {
             var id = Guid.NewGuid();
-            AuthorizeRequest(SecurityRole.AdminMonitor);
+            AuthorizeRequest(SecurityRole.Admin);
             _endpointRegistry.Setup(r => r.TryUnregisterById(id)).Returns(true);
             Assert.IsType<OkResult>(_controller.DeleteEndpoint(id));
         }
@@ -271,13 +269,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
             };
             _endpointRegistry.Setup(r => r.Endpoints).Returns(endpoints);
             var actual = _controller.GetEndpointsIdentities();
-            var expected = endpoints.Select(e => new PublicEndpointIdentity(e.Identity)).ToArray();
-
-            Assert.True(actual.All(m => expected.FindAll(
-                t => t.Id == m.Id && 
-                t.Address == m.Address && 
-                t.MonitorType == m.MonitorType).Length == 1)
-                );
+            Assert.Equal(endpoints.Select(e => e.Identity), actual);
         }
 
         [Fact]
@@ -299,7 +291,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
                 })
                 .ToArray();
 
-            AuthorizeRequest(SecurityRole.PullMonitor);
+            AuthorizeRequest(SecurityRole.Monitor);
 
             Assert.IsType<OkResult>(_controller.PostEndpointHealth(_utcNow + timeDifference, update1, update2));
 
@@ -310,7 +302,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         [Fact]
         public void PostEndpointsHealth_should_update_endpoints_health()
         {
-            AuthorizeRequest(SecurityRole.PullMonitor);
+            AuthorizeRequest(SecurityRole.Monitor);
             var update1 = new EndpointHealthUpdate { EndpointId = Guid.NewGuid(), CheckTimeUtc = _utcNow, Status = EndpointStatus.Offline, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
             var update2 = new EndpointHealthUpdate { EndpointId = Guid.NewGuid(), CheckTimeUtc = _utcNow, Status = EndpointStatus.Healthy, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
 
@@ -326,7 +318,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
             var endpointId = Guid.NewGuid();
             bool hasBeenCalled = false;
 
-            AuthorizeRequest(SecurityRole.AdminMonitor);
+            AuthorizeRequest(SecurityRole.Admin);
             _endpointRegistry.Setup(m => m.UpdateHealth(It.IsAny<Guid>(), It.IsAny<EndpointHealth>())).Callback(() =>
             {
                 hasBeenCalled = true;
@@ -356,15 +348,14 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         [Fact]
         public void UpdateTags_should_return_BadRequest_if_tags_contains_unallowed_symbols()
         {
-            AuthorizeRequest(SecurityRole.AdminMonitor);
+            AuthorizeRequest(SecurityRole.Admin);
             Assert.IsType<BadRequestErrorMessageResult>(_controller.PutUpdateEndpointTags(Guid.NewGuid(), new[] { "tag!@$%^&():,./" }));
         }
 
-        [Theory]
-        [InlineData(SecurityRole.AdminMonitor)]
-        public void UpdateTags_should_accept_roles(SecurityRole role)
+        [Fact]
+        public void UpdateTags_should_accept_admin_role()
         {
-            AuthorizeRequest(role);
+            AuthorizeRequest(SecurityRole.Admin);
 
             bool updateHasBeedCalled = false;
             _endpointRegistry.Setup(m => m.TryUpdateEndpointTags(It.IsAny<Guid>(), It.IsAny<string[]>())).Callback(() =>
@@ -379,7 +370,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         [Fact]
         public void UpdateTags_should_return_NOTFOUND_if_there_is_no_matching_endpoint()
         {
-            AuthorizeRequest(SecurityRole.AdminMonitor);
+            AuthorizeRequest(SecurityRole.Admin);
             Assert.IsType<NotFoundResult>(_controller.PutUpdateEndpointTags(Guid.NewGuid(), new[] { "tag" }));
         }
 

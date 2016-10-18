@@ -9,15 +9,15 @@ namespace HealthMonitoring.SelfHost.Security
 {
     public class AuthenticationFilter : IAuthenticationFilter
     {
-        public ICredentialsProvider TokenProvider { get; set; }
+        public ICredentialsProvider CredentialsProvider{ get; set; }
         public IEndpointRegistry EndpointRegistry { get; set; }
 
         public bool AllowMultiple { get; }
         private const string _tokenKey = "PrivateToken";
 
-        public AuthenticationFilter(IEndpointRegistry endpointRegistry, ICredentialsProvider tokenProvider)
+        public AuthenticationFilter(IEndpointRegistry endpointRegistry, ICredentialsProvider credentialsProvider)
         {
-            TokenProvider = tokenProvider;
+            CredentialsProvider = credentialsProvider;
             EndpointRegistry = endpointRegistry;
         }
 
@@ -27,8 +27,8 @@ namespace HealthMonitoring.SelfHost.Security
             GenericIdentity identity;
 
             var credentials = context.ParseAuthorizationHeader();
-            var adminCred = TokenProvider.GetAdminMonitorCredentials();
-            var pullCred = TokenProvider.GetPullMonitorCredentials();
+            var adminCred = CredentialsProvider.GetAdminMonitorCredentials();
+            var pullCred = CredentialsProvider.GetPullMonitorCredentials();
 
             if (credentials == null)
                 return Task.FromResult(0);
@@ -36,12 +36,12 @@ namespace HealthMonitoring.SelfHost.Security
             if (credentials.Equals(adminCred))
             {
                 identity = new GenericIdentity(credentials.MonitorId.ToString());
-                principal = new GenericPrincipal(identity, new[] { SecurityRole.AdminMonitor.ToString() });
+                principal = new GenericPrincipal(identity, new[] { SecurityRole.Admin.ToString() });
 
             }else if (credentials.Equals(pullCred))
             {
                 identity = new GenericIdentity(pullCred.MonitorId.ToString());
-                principal = new GenericPrincipal(identity, new[] {SecurityRole.PullMonitor.ToString()});
+                principal = new GenericPrincipal(identity, new[] {SecurityRole.Monitor.ToString()});
             }
             else
             {

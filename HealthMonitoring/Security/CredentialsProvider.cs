@@ -1,28 +1,37 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Configuration;
 
 namespace HealthMonitoring.Security
 {
     public class CredentialsProvider : ICredentialsProvider
     {
-        private string _adminTokenConfigKey = "AdminMonitorPrivateToken";
-        private string _adminIdConfigKey = "AdminMonitorId";
-        private string _pullMonitorTokenConfigKey = "PullMonitorPrivateToken";
-        private string _pullMonitorIdConfigKey = "PullMonitorId";
+        private const string _adminTokenConfigKey = "AdminMonitorPrivateToken";
+        private const string _adminIdConfigKey = "AdminMonitorId";
+        private const string _pullMonitorTokenConfigKey = "PullMonitorPrivateToken";
+        private const string _pullMonitorIdConfigKey = "PullMonitorId";
+        private const string _configurationSectionName = "accessConfiguration";
+
+        public NameValueCollection AccessConfiguration { get; }
+
+        public CredentialsProvider()
+        {
+            AccessConfiguration = (NameValueCollection)ConfigurationManager.GetSection(_configurationSectionName);
+        }
 
         public Credentials GetAdminMonitorCredentials()
         {
             return new Credentials(
-                Guid.Parse(ConfigurationManager.AppSettings[_adminIdConfigKey]),
-                ConfigurationManager.AppSettings[_adminTokenConfigKey]
+                Guid.Parse(AccessConfiguration[_adminIdConfigKey]),
+                AccessConfiguration[_adminTokenConfigKey]
             );
         }
 
         public Credentials GetPullMonitorCredentials()
         {
             return new Credentials(
-                Guid.Parse(ConfigurationManager.AppSettings[_pullMonitorIdConfigKey]),
-                ConfigurationManager.AppSettings[_pullMonitorTokenConfigKey]
+                Guid.Parse(AccessConfiguration[_pullMonitorIdConfigKey]),
+                AccessConfiguration[_pullMonitorTokenConfigKey]
             );
         }
     }

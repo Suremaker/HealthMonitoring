@@ -36,7 +36,7 @@ namespace HealthMonitoring.Management.Core.Registers
 
             foreach (var endpoint in _endpointConfigurationRepository.LoadEndpoints())
             {
-                if (_endpoints.TryAdd(endpoint.Identity.GetNaturalKey(), endpoint))
+                if (_endpoints.TryAdd(endpoint.Identity.GetOwnNaturalKey(), endpoint))
                     _endpointsByGuid.TryAdd(endpoint.Identity.Id, endpoint);
             }
         }
@@ -47,7 +47,7 @@ namespace HealthMonitoring.Management.Core.Registers
                 throw new UnsupportedMonitorException(monitorType);
             var encryptedToken = privateToken?.ToSha256Hash();
             var newIdentifier = new EndpointIdentity(Guid.NewGuid(), monitorType, address);
-            var endpoint = _endpoints.AddOrUpdate(newIdentifier.GetNaturalKey(),
+            var endpoint = _endpoints.AddOrUpdate(newIdentifier.GetOwnNaturalKey(),
                                 new Endpoint(_timeCoordinator, newIdentifier, new EndpointMetadata(name, group, tags), encryptedToken),
                                 (k, e) => e.UpdateEndpoint(group, name, tags, encryptedToken));
             _endpointsByGuid[endpoint.Identity.Id] = endpoint;
@@ -76,8 +76,9 @@ namespace HealthMonitoring.Management.Core.Registers
             return _endpointsByGuid.TryGetValue(id, out endpoint) ? endpoint : null;
         }
 
-        public Endpoint GetByNaturalKey(string key)
+        public Endpoint GetByNaturalKey(string monitorType, string address)
         {
+            var key = EndpointIdentity.CreateNaturalKey(monitorType, address);
             return _endpoints.FirstOrDefault(m => m.Key == key).Value;
         }
 
@@ -86,7 +87,7 @@ namespace HealthMonitoring.Management.Core.Registers
             Endpoint endpoint;
 
             if (!_endpointsByGuid.TryRemove(id, out endpoint) ||
-                !_endpoints.TryRemove(endpoint.Identity.GetNaturalKey(), out endpoint))
+                !_endpoints.TryRemove(endpoint.Identity.GetOwnNaturalKey(), out endpoint))
                 return false;
 
             endpoint.Dispose();

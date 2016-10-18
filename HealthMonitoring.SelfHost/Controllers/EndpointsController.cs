@@ -12,7 +12,6 @@ using HealthMonitoring.Model;
 using HealthMonitoring.Security;
 using HealthMonitoring.SelfHost.Entities;
 using HealthMonitoring.SelfHost.Filters;
-using HealthMonitoring.SelfHost.Models;
 using HealthMonitoring.SelfHost.Security;
 using HealthMonitoring.TimeManagement;
 using Swashbuckle.Swagger.Annotations;
@@ -45,8 +44,8 @@ namespace HealthMonitoring.SelfHost.Controllers
 
             try
             {
-                var existed = _endpointRegistry.GetByNaturalKey(endpoint.GetNaturalKey());
-                RequestContext.AuthorizeRegistration(endpoint, existed, SecurityRole.AdminMonitor);
+                var existed = _endpointRegistry.GetByNaturalKey(endpoint.MonitorType, endpoint.Address);
+                RequestContext.AuthorizeRegistration(endpoint, existed, SecurityRole.Admin);
 
                 var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Tags, endpoint.PrivateToken);
                 return Created(new Uri(Request.RequestUri, $"/api/endpoints/{id}"), id);
@@ -71,7 +70,7 @@ namespace HealthMonitoring.SelfHost.Controllers
 
             foreach (var update in healthUpdate)
             {
-                RequestContext.Authorize(update.EndpointId, SecurityRole.PullMonitor);
+                RequestContext.Authorize(update.EndpointId, SecurityRole.Monitor);
                 _endpointRegistry.UpdateHealth(update.EndpointId, update.ToEndpointHealth(clockDifference));
             }
 
@@ -87,10 +86,10 @@ namespace HealthMonitoring.SelfHost.Controllers
 
         [Route("api/endpoints/identities")]
         [SwaggerResponse(HttpStatusCode.OK, Type = typeof(EndpointIdentity[]))]
-        [ResponseType(typeof(PublicEndpointIdentity[]))]
-        public PublicEndpointIdentity[] GetEndpointsIdentities()
+        [ResponseType(typeof(EndpointIdentity[]))]
+        public EndpointIdentity[] GetEndpointsIdentities()
         {
-            return _endpointRegistry.Endpoints.Select(e => new PublicEndpointIdentity(e.Identity)).ToArray();
+            return _endpointRegistry.Endpoints.Select(e => e.Identity).ToArray();
         }
 
         [Route("api/endpoints/{id}")]
@@ -122,7 +121,7 @@ namespace HealthMonitoring.SelfHost.Controllers
         [SwaggerResponse(HttpStatusCode.Forbidden)]
         public IHttpActionResult DeleteEndpoint(Guid id)
         {
-            RequestContext.Authorize(id, SecurityRole.AdminMonitor);
+            RequestContext.Authorize(id, SecurityRole.Admin);
 
             if (_endpointRegistry.TryUnregisterById(id))
                 return Ok();
@@ -154,7 +153,7 @@ namespace HealthMonitoring.SelfHost.Controllers
         {
             try
             {
-                RequestContext.Authorize(id, SecurityRole.AdminMonitor);
+                RequestContext.Authorize(id, SecurityRole.Admin);
 
                 tags.CheckForUnallowedSymbols();
 

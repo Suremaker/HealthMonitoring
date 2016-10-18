@@ -16,10 +16,5 @@ namespace HealthMonitoring.SelfHost.Entities
         public string[] Tags { get; set; }
         [MinLength(64)]
         public string PrivateToken { get; set; }
-
-        public string GetNaturalKey()
-        {
-            return $"{MonitorType}|{Address.ToLowerInvariant()}";
-        }
     }
 }
