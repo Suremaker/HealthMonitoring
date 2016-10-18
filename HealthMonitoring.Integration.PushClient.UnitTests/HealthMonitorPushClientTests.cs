@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Threading.Tasks;
 using HealthMonitoring.Integration.PushClient.Client;
 using HealthMonitoring.Integration.PushClient.Helpers;
 using HealthMonitoring.Integration.PushClient.UnitTests.Helpers;
-using HealthMonitoring.Monitors;
 using Moq;
 using Xunit;
 

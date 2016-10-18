@@ -12,7 +12,6 @@ using HealthMonitoring.Integration.PushClient.Helpers;
 using HealthMonitoring.Integration.PushClient.Monitoring;
 using HealthMonitoring.Integration.PushClient.Registration;
 using HealthMonitoring.Integration.PushClient.UnitTests.Helpers;
-using HealthMonitoring.Monitors;
 using HealthMonitoring.TestUtils.Awaitable;
 using Moq;
 using Xunit;
@@ -25,6 +24,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         private readonly AwaitableFactory _awaitableFactory = new AwaitableFactory();
         private static readonly TimeSpan TestMaxTime = TimeSpan.FromSeconds(5);
         private readonly Mock<ITimeCoordinator> _mockTimeCoordinator = new Mock<ITimeCoordinator>();
+        private const int MaxEndpointNotifierRetryDelayInSecs = 120;
 
         [Fact]
         public async Task Notifier_should_send_notifications_within_specified_time_span()
@@ -283,8 +283,12 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             using (CreateNotifier())
                 await countdown.WaitAsync(TestMaxTime);
 
-            for (int i = 0; i < minRepeats - 1; ++i)
-                _mockTimeCoordinator.Verify(c => c.Delay(TimeSpan.FromSeconds(i + 1), It.IsAny<CancellationToken>()), Times.Once);
+            int expectedSeconds = 1;
+            for (int i = 0; i < minRepeats; ++i)
+            {
+                _mockTimeCoordinator.Verify(c => c.Delay(TimeSpan.FromSeconds(expectedSeconds), It.IsAny<CancellationToken>()));
+                expectedSeconds = Math.Min(expectedSeconds *= 2, MaxEndpointNotifierRetryDelayInSecs);
+            }
 
             _mockTimeCoordinator.Verify(c => c.Delay(checkInterval, It.IsAny<CancellationToken>()), Times.Once);
 
@@ -302,14 +306,27 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             var healthCheckInterval = TimeSpan.FromMilliseconds(127);
             var endpointId = Guid.NewGuid();
 
+
+            var workingHealthUpdate = _awaitableFactory.Return().WithCountdown(healthUpdateCountdown2);
+            var notWorkingHealthUpdate = _awaitableFactory.Throw(new TaskCanceledException()).WithCountdown(healthUpdateCountdown);
+            var currentHealthUpdate = notWorkingHealthUpdate;
+
+            var notWorkingRegistration = _awaitableFactory.Throw<Guid>(new TaskCanceledException()).WithCountdown(registrationCountdown);
+            var workingRegistration = _awaitableFactory.Return(endpointId);
+            var currentRegistration = notWorkingRegistration;
+
+            var notWorkingHealthCheckInterval = _awaitableFactory.Throw<TimeSpan>(new TaskCanceledException()).WithCountdown(intervalCountdown);
+            var workingHealthCheckInterval = _awaitableFactory.Return(healthCheckInterval);
+            var currentHealthCheckInterval = notWorkingHealthCheckInterval;
+
             _mockClient.Setup(c => c.SendHealthUpdateAsync(It.IsAny<Guid>(), It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
-                .Returns(() => _awaitableFactory.Throw(new TaskCanceledException()).WithCountdown(healthUpdateCountdown).RunAsync());
+                .Returns(() => currentHealthUpdate.RunAsync());
 
             _mockClient.Setup(c => c.RegisterEndpointAsync(It.IsAny<EndpointDefinition>(), It.IsAny<CancellationToken>()))
-                .Returns(() => _awaitableFactory.Throw<Guid>(new TaskCanceledException()).WithCountdown(registrationCountdown).RunAsync());
+                .Returns(() => currentRegistration.RunAsync());
 
             _mockClient.Setup(c => c.GetHealthCheckIntervalAsync(It.IsAny<CancellationToken>()))
-                .Returns(() => _awaitableFactory.Throw<TimeSpan>(new TaskCanceledException()).WithCountdown(intervalCountdown).RunAsync());
+                .Returns(() => currentHealthCheckInterval.RunAsync());
 
             _mockTimeCoordinator.Setup(c => c.Delay(healthCheckInterval, It.IsAny<CancellationToken>()))
                 .Returns(() => _awaitableFactory.Return().WithCountdown(delayCountdown).RunAsync());
@@ -317,17 +334,15 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             using (CreateNotifier())
             {
                 await registrationCountdown.WaitAsync(TestMaxTime);
-                _mockClient.Setup(c => c.RegisterEndpointAsync(It.IsAny<EndpointDefinition>(), It.IsAny<CancellationToken>()))
-                    .Returns(Task.FromResult(endpointId));
+                currentRegistration = workingRegistration;
 
                 await healthUpdateCountdown.WaitAsync(TestMaxTime);
-                _mockClient.Setup(c => c.SendHealthUpdateAsync(endpointId, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
-                    .Returns(() => _awaitableFactory.Return().WithCountdown(healthUpdateCountdown2).RunAsync());
+                currentHealthUpdate = workingHealthUpdate;
 
                 await healthUpdateCountdown2.WaitAsync(TestMaxTime);
 
                 await intervalCountdown.WaitAsync(TestMaxTime);
-                SetupHealthCheckInterval(healthCheckInterval);
+                currentHealthCheckInterval = workingHealthCheckInterval;
 
                 await delayCountdown.WaitAsync(TestMaxTime);
             }
