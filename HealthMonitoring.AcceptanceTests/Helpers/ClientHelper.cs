@@ -107,7 +107,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
             if(credentials == null)
                 return request;
 
-            var authInfo = CredentialsProvider.EncryptBase64String($"{credentials.MonitorId}:{credentials.PrivateToken}");
+            var authInfo = CredentialsProvider.EncryptBase64String($"{credentials.Id}:{credentials.PrivateToken}");
             request.AddHeader("Authorization", $"Basic {authInfo}");
             return request;
         }

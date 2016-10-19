@@ -151,7 +151,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         private void Given_endpoint_id_is_received()
         {
             var registrationId = JsonConvert.DeserializeObject<Guid>(_response.Content);
-            _credentials.PersonalCredentials.MonitorId = registrationId;
+            _credentials.PersonalCredentials.Id = registrationId;
         }
 
         private void When_client_request_endpoint_update_with_credentials(

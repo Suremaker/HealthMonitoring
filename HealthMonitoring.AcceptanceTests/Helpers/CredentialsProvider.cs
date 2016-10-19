@@ -15,14 +15,14 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
 
         public Credentials AdminCredentials => 
             new Credentials(
-                Guid.Parse(AccessConfiguration["AdminMonitorId"]),
-                AccessConfiguration["AdminMonitorPrivateToken"]
+                Guid.Parse(AccessConfiguration["AdminId"]),
+                AccessConfiguration["AdminPrivateToken"]
             );
 
         public Credentials PullMonitorCredentials =>
             new Credentials(
-                Guid.Parse(AccessConfiguration["PullMonitorId"]),
-                AccessConfiguration["PullMonitorPrivateToken"]
+                Guid.Parse(AccessConfiguration["MonitorId"]),
+                AccessConfiguration["MonitorPrivateToken"]
             );
 
         public CredentialsProvider()

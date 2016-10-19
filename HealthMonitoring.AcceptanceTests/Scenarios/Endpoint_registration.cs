@@ -186,7 +186,7 @@ I want to be able to register browse and unregister endpoints")]
                 _credentials.PersonalCredentials.PrivateToken),
                 _ => Given_endpoint_id_is_received(),
                 _ => When_client_requests_all_endpoints_details_via_url("/api/endpoints/identities"),
-                _ => Then_response_should_contain_only_id_and_address_and_monitortype(_credentials.PersonalCredentials.MonitorId, "http://localhost:3036/status", MonitorTypes.HttpJson)
+                _ => Then_response_should_contain_only_id_and_address_and_monitortype(_credentials.PersonalCredentials.Id, "http://localhost:3036/status", MonitorTypes.HttpJson)
                 );
         }
 
@@ -197,7 +197,7 @@ I want to be able to register browse and unregister endpoints")]
                 _ => Given_a_monitor_api_client(),
                 _ => Given_endpoint_with_name_address_group_and_monitor_is_registered("endpoint", "someaddress", "group", MonitorTypes.HttpJson),
                 _ => Given_endpoint_id_is_received(),
-                _ => When_client_request_endpoint_health_update_with_credentials(_credentials.PersonalCredentials.MonitorId, 
+                _ => When_client_request_endpoint_health_update_with_credentials(_credentials.PersonalCredentials.Id, 
                 EndpointStatus.Offline, _credentials.AdminCredentials),
                 _ => Then_client_should_receive_STATUS_code(HttpStatusCode.Forbidden)
                 );

@@ -24,7 +24,7 @@ namespace HealthMonitoring.Model
             return $"{MonitorType}: {Address}";
         }
 
-        public string GetOwnNaturalKey()
+        public string GetNaturalKey()
         {
             return CreateNaturalKey(MonitorType, Address);
         }

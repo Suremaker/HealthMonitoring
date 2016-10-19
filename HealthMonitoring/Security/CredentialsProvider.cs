@@ -6,10 +6,10 @@ namespace HealthMonitoring.Security
 {
     public class CredentialsProvider : ICredentialsProvider
     {
-        private const string _adminTokenConfigKey = "AdminMonitorPrivateToken";
-        private const string _adminIdConfigKey = "AdminMonitorId";
-        private const string _pullMonitorTokenConfigKey = "PullMonitorPrivateToken";
-        private const string _pullMonitorIdConfigKey = "PullMonitorId";
+        private const string _adminTokenConfigKey = "AdminPrivateToken";
+        private const string _adminIdConfigKey = "AdminId";
+        private const string _monitorTokenConfigKey = "MonitorPrivateToken";
+        private const string _monitorIdConfigKey = "MonitorId";
         private const string _configurationSectionName = "accessConfiguration";
 
         public NameValueCollection AccessConfiguration { get; }
@@ -30,8 +30,8 @@ namespace HealthMonitoring.Security
         public Credentials GetPullMonitorCredentials()
         {
             return new Credentials(
-                Guid.Parse(AccessConfiguration[_pullMonitorIdConfigKey]),
-                AccessConfiguration[_pullMonitorTokenConfigKey]
+                Guid.Parse(AccessConfiguration[_monitorIdConfigKey]),
+                AccessConfiguration[_monitorTokenConfigKey]
             );
         }
     }
