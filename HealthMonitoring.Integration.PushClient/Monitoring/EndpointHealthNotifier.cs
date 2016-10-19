@@ -130,7 +130,7 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
 
             try
             {
-                await _client.SendHealthUpdateAsync(endpointId, update, _cancelationTokenSource.Token);
+                await _client.SendHealthUpdateAsync(endpointId, _definition.AuthenticationToken, update, _cancelationTokenSource.Token);
             }
             catch (EndpointNotFoundException)
             {

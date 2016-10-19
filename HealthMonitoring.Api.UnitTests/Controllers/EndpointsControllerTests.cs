@@ -345,7 +345,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
             };
 
             _endpointRegistry.Setup(r => r.UpdateHealth(endpointId, It.IsAny<EndpointHealth>())).Returns(true);
-
+            AuthorizeWithId(endpointId);
             Assert.IsType<OkResult>(_controller.PostEndpointHealth(endpointId, update, _utcNow + timeDifference));
             _endpointRegistry.Verify(r => r.UpdateHealth(endpointId, It.Is<EndpointHealth>(h => AssertHealth(h, expected))), Times.Once);
         }
@@ -357,7 +357,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
             var update = new HealthUpdate { CheckTimeUtc = _utcNow, Status = EndpointStatus.Offline, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
 
             _endpointRegistry.Setup(r => r.UpdateHealth(endpointId, It.IsAny<EndpointHealth>())).Returns(true);
-
+            AuthorizeWithId(endpointId);
             Assert.IsType<OkResult>(_controller.PostEndpointHealth(endpointId, update));
 
             _endpointRegistry.Verify(r => r.UpdateHealth(endpointId, It.Is<EndpointHealth>(h => AssertHealth(h, update))), Times.Once);
@@ -370,7 +370,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
             var update = new HealthUpdate { CheckTimeUtc = _utcNow, Status = EndpointStatus.Offline, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
 
             _endpointRegistry.Setup(r => r.UpdateHealth(endpointId, It.IsAny<EndpointHealth>())).Returns(false);
-
+            AuthorizeWithId(endpointId);
             Assert.IsType<NotFoundResult>(_controller.PostEndpointHealth(endpointId, update));
         }
 
@@ -417,6 +417,14 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         {
             AuthorizeRequest(SecurityRole.Admin);
             Assert.IsType<NotFoundResult>(_controller.PutUpdateEndpointTags(Guid.NewGuid(), new[] { "tag" }));
+        }
+
+        private void AuthorizeWithId(Guid id)
+        {
+            _controller.RequestContext = new HttpRequestContext
+            {
+                Principal = new GenericPrincipal(new GenericIdentity(id.ToString()), null)
+            };
         }
 
         private void AuthorizeRequest(params SecurityRole[] roles)

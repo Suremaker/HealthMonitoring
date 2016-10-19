@@ -25,7 +25,8 @@ namespace HealthMonitoring.Examples.ServiceWithPushIntegration
                     .DefineGroup("Examples")
                     .DefineName("Service With Push Integration")
                     .DefineTags("example")
-                    .DefineAddress("ServiceWithPushIntegration_node1"))
+                    .DefineAddress("ServiceWithPushIntegration_node1")
+                    .DefineAuthenticationToken("12345678"))
                 .WithHealthCheck(new HealthChecker())
                 .StartHealthNotifier();
         }

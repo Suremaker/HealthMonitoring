@@ -25,6 +25,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         private static readonly TimeSpan TestMaxTime = TimeSpan.FromSeconds(5);
         private readonly Mock<ITimeCoordinator> _mockTimeCoordinator = new Mock<ITimeCoordinator>();
         private const int MaxEndpointNotifierRetryDelayInSecs = 120;
+        private const string AuthenticationToken = "token";
 
         [Fact]
         public async Task Notifier_should_send_notifications_within_specified_time_span()
@@ -43,7 +44,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             SetupEndpointRegistration(endpointId);
 
             _mockClient
-                .Setup(c => c.SendHealthUpdateAsync(endpointId, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.SendHealthUpdateAsync(endpointId, AuthenticationToken, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
                 .Returns(() => _awaitableFactory.Return().WithDelay(TimeSpan.FromMilliseconds(50)).WithTimeline("updateHealth").WithCountdown(countdown).RunAsync());
 
             _mockTimeCoordinator
@@ -72,8 +73,8 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             SetupHealthCheckInterval(TimeSpan.FromMilliseconds(1));
             SetupEndpointRegistration(endpointId);
 
-            _mockClient.Setup(c => c.SendHealthUpdateAsync(endpointId, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
-                .Returns((Guid id, HealthUpdate upd, CancellationToken token) => _awaitableFactory
+            _mockClient.Setup(c => c.SendHealthUpdateAsync(endpointId, AuthenticationToken, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
+                .Returns((Guid id, string authToken, HealthUpdate upd, CancellationToken token) => _awaitableFactory
                     .Execute(() => lastCaptured = upd)
                     .WithCountdown(countdown)
                     .RunAsync());
@@ -97,8 +98,8 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             SetupHealthCheckInterval(TimeSpan.FromMilliseconds(1));
             SetupEndpointRegistration(endpointId);
 
-            _mockClient.Setup(c => c.SendHealthUpdateAsync(endpointId, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
-                .Returns((Guid id, HealthUpdate upd, CancellationToken token) => _awaitableFactory
+            _mockClient.Setup(c => c.SendHealthUpdateAsync(endpointId, AuthenticationToken, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
+                .Returns((Guid id, string authToken, HealthUpdate upd, CancellationToken token) => _awaitableFactory
                     .Execute(() => lastCaptured = upd)
                     .WithCountdown(countdown)
                     .RunAsync());
@@ -123,8 +124,8 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             SetupHealthCheckInterval(TimeSpan.FromMilliseconds(1));
             SetupEndpointRegistration(endpointId);
 
-            _mockClient.Setup(c => c.SendHealthUpdateAsync(endpointId, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
-                .Returns((Guid id, HealthUpdate upd, CancellationToken token) => _awaitableFactory
+            _mockClient.Setup(c => c.SendHealthUpdateAsync(endpointId, AuthenticationToken, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
+                .Returns((Guid id, string authToken, HealthUpdate upd, CancellationToken token) => _awaitableFactory
                     .Execute(() => lastCaptured = upd)
                     .WithCountdown(countdown)
                     .RunAsync());
@@ -158,7 +159,8 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             Action<IEndpointDefintionBuilder> builder = b => b.DefineName("endpointName")
                     .DefineGroup("endpointGroup")
                     .DefineTags("t1")
-                    .DefineAddress("uniqueName");
+                    .DefineAddress("uniqueName")
+                    .DefineAuthenticationToken(AuthenticationToken);
 
             using (CreateNotifier(builder, token => Task.FromResult(new EndpointHealth(HealthStatus.Offline))))
                 await countdown.WaitAsync(TestMaxTime);
@@ -184,14 +186,14 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
                 .Returns(Task.FromResult(newEndpointId));
 
             _mockClient
-                .Setup(c => c.SendHealthUpdateAsync(oldEndpointId, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.SendHealthUpdateAsync(oldEndpointId, AuthenticationToken, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
                 .Returns(() => _awaitableFactory
                     .Throw(new EndpointNotFoundException())
                     .WithCountdown(oldEndpointCountdown)
                     .RunAsync());
 
             _mockClient
-                .Setup(c => c.SendHealthUpdateAsync(newEndpointId, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.SendHealthUpdateAsync(newEndpointId, AuthenticationToken, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
                 .Returns(() => _awaitableFactory
                     .Return()
                     .WithCountdown(newEndpointCountdown)
@@ -223,7 +225,8 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             Action<IEndpointDefintionBuilder> builder = b => b.DefineName("endpointName")
                     .DefineGroup("endpointGroup")
                     .DefineTags("t1")
-                    .DefineAddress("host", "uniqueName");
+                    .DefineAddress("host", "uniqueName")
+                    .DefineAuthenticationToken(AuthenticationToken);
 
             using (CreateNotifier(builder, token => Task.FromResult(new EndpointHealth(HealthStatus.Offline))))
                 await countdown.WaitAsync(TestMaxTime);
@@ -270,8 +273,8 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             var updates = new ConcurrentQueue<HealthUpdate>();
 
             _mockClient
-                .Setup(c => c.SendHealthUpdateAsync(endpointId, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
-                .Returns((Guid id, HealthUpdate upd, CancellationToken token) =>
+                .Setup(c => c.SendHealthUpdateAsync(endpointId, AuthenticationToken, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
+                .Returns((Guid id, string authToken, HealthUpdate upd, CancellationToken token) =>
                 {
                     updates.Enqueue(upd);
                     return _awaitableFactory
@@ -319,7 +322,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             var workingHealthCheckInterval = _awaitableFactory.Return(healthCheckInterval);
             var currentHealthCheckInterval = notWorkingHealthCheckInterval;
 
-            _mockClient.Setup(c => c.SendHealthUpdateAsync(It.IsAny<Guid>(), It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
+            _mockClient.Setup(c => c.SendHealthUpdateAsync(It.IsAny<Guid>(), AuthenticationToken, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
                 .Returns(() => currentHealthUpdate.RunAsync());
 
             _mockClient.Setup(c => c.RegisterEndpointAsync(It.IsAny<EndpointDefinition>(), It.IsAny<CancellationToken>()))
@@ -370,7 +373,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         private IEndpointHealthNotifier CreateNotifier(Func<CancellationToken, Task<EndpointHealth>> healthCheck)
         {
             return CreateNotifier(
-                b => b.DefineName("name").DefineAddress("address").DefineGroup("group").DefineTags("t1", "t2"),
+                b => b.DefineName("name").DefineAddress("address").DefineGroup("group").DefineTags("t1", "t2").DefineAuthenticationToken(AuthenticationToken),
                 healthCheck);
         }
 

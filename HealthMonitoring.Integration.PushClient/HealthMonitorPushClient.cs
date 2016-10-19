@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Common.Logging;
 using HealthMonitoring.Integration.PushClient.Client;
 using HealthMonitoring.Integration.PushClient.Helpers;

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 
@@ -12,10 +10,11 @@ namespace HealthMonitoring.Integration.PushClient.Registration
         private string _endpointName;
         private string[] _tags;
         private string _address;
+        private string _authenticationToken;
 
         public IEndpointDefintionBuilder DefineGroup(string groupName)
         {
-            if(string.IsNullOrWhiteSpace(groupName))
+            if (string.IsNullOrWhiteSpace(groupName))
                 throw new ArgumentException("Value cannot be empty", nameof(groupName));
             _groupName = groupName;
             return this;
@@ -66,6 +65,14 @@ namespace HealthMonitoring.Integration.PushClient.Registration
             return this;
         }
 
+        public IEndpointDefintionBuilder DefineAuthenticationToken(string authenticationToken)
+        {
+            if (string.IsNullOrWhiteSpace(authenticationToken))
+                throw new ArgumentException("Value cannot be empty", nameof(authenticationToken));
+            _authenticationToken = authenticationToken;
+            return this;
+        }
+
         public EndpointDefinition Build()
         {
             if (string.IsNullOrWhiteSpace(_endpointName))
@@ -74,8 +81,10 @@ namespace HealthMonitoring.Integration.PushClient.Registration
                 throw new InvalidOperationException("No endpoint group provided");
             if (string.IsNullOrWhiteSpace(_address))
                 throw new InvalidOperationException("No endpoint address provided");
+            if (string.IsNullOrWhiteSpace(_authenticationToken))
+                throw new InvalidOperationException("No endpoint authentication token provided");
 
-            return new EndpointDefinition(_address, _groupName, _endpointName, _tags);
+            return new EndpointDefinition(_address, _groupName, _endpointName, _tags, _authenticationToken);
         }
     }
 }

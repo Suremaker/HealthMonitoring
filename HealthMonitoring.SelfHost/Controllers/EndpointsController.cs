@@ -64,15 +64,13 @@ namespace HealthMonitoring.SelfHost.Controllers
         [SwaggerResponse(HttpStatusCode.Forbidden)]
         public IHttpActionResult PostEndpointsHealth(DateTimeOffset? clientCurrentTime = null, [FromBody]params EndpointHealthUpdate[] healthUpdate)
         {
+            RequestContext.Authorize(SecurityRole.Monitor);
             healthUpdate.ValidateModel();
 
             var clockDifference = GetServerToClientTimeDifference(clientCurrentTime);
 
             foreach (var update in healthUpdate)
-            {
-                RequestContext.Authorize(update.EndpointId, SecurityRole.Monitor);
                 _endpointRegistry.UpdateHealth(update.EndpointId, update.ToEndpointHealth(clockDifference));
-            }
             return Ok();
         }
 
@@ -80,10 +78,14 @@ namespace HealthMonitoring.SelfHost.Controllers
         [ResponseType(typeof(Guid))]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
+        [SwaggerResponse(HttpStatusCode.Unauthorized)]
+        [SwaggerResponse(HttpStatusCode.Forbidden)]
         public IHttpActionResult PostEndpointHealth(Guid id, [FromBody]HealthUpdate health, DateTimeOffset? clientCurrentTime = null)
         {
-            health.ValidateModel();
+            if (_endpointRegistry.GetById(id) != null)
+                RequestContext.Authorize(id);
 
+            health.ValidateModel();
             var clockDifference = GetServerToClientTimeDifference(clientCurrentTime);
 
             if (!_endpointRegistry.UpdateHealth(id, health.ToEndpointHealth(clockDifference)))

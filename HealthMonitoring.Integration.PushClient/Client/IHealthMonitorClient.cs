@@ -10,6 +10,6 @@ namespace HealthMonitoring.Integration.PushClient.Client
     {
         Task<Guid> RegisterEndpointAsync(EndpointDefinition definition, CancellationToken cancellationToken);
         Task<TimeSpan> GetHealthCheckIntervalAsync(CancellationToken cancellationToken);
-        Task SendHealthUpdateAsync(Guid endpointId, HealthUpdate update, CancellationToken cancellationToken);
+        Task SendHealthUpdateAsync(Guid endpointId, string authenticationToken, HealthUpdate update, CancellationToken cancellationToken);
     }
 }

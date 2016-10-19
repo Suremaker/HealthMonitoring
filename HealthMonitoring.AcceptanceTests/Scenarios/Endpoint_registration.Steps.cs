@@ -299,7 +299,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
 
         private void When_client_request_endpoint_registration_with_short_password()
         {
-            string password = "1x8cm6vhtmooph12xfheqm8jtpfn68g1ukfm264tzs7svgekgsuk9i3u1uqscv8";
+            string password = "1234567";
             RegisterEndpoint("/api/endpoints/register", "name", "group", MonitorTypes.HttpJson, "address", null, password);
         }
     }

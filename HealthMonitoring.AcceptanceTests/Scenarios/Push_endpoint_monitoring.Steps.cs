@@ -30,6 +30,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         private EndpointEntity _details;
         private IEndpointHealthNotifier _monitor;
         private readonly CredentialsProvider _credentials = new CredentialsProvider();
+        private string _authenticationToken;
 
         public Push_endpoint_monitoring(ITestOutputHelper output)
             : base(output)
@@ -53,13 +54,15 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             _endpointGroupName = Guid.NewGuid().ToString();
             _endpointName = Guid.NewGuid().ToString();
             _endpointTags = new[] { "tag1", "tag2" };
+            _authenticationToken = Guid.NewGuid().ToString();
 
             _pushClient = HealthMonitorPushClient.UsingHealthMonitor(ClientHelper.GetHealthMonitorUrl().ToString())
                 .DefineEndpoint(b => b
                     .DefineAddress(_endpointHostName, _endpointUniqueName)
                     .DefineGroup(_endpointGroupName)
                     .DefineName(_endpointName)
-                    .DefineTags(_endpointTags))
+                    .DefineTags(_endpointTags)
+                    .DefineAuthenticationToken(_authenticationToken))
                 .WithHealthCheck(this);
 
             _currentEndpointStatus = HealthStatus.Healthy;

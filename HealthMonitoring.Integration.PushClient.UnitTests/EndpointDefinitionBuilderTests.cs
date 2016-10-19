@@ -72,5 +72,14 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             var ex = Assert.Throws<ArgumentException>(() => _client.DefineEndpoint(b => b.DefineAddress(host, "uq")));
             Assert.Equal("Value cannot be empty\r\nParameter name: host", ex.Message);
         }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("\t\n\r ")]
+        public void Definition_builder_should_require_non_empty_authentication_token(string token)
+        {
+            var ex = Assert.Throws<ArgumentException>(() => _client.DefineEndpoint(b => b.DefineAuthenticationToken(token)));
+            Assert.Equal("Value cannot be empty\r\nParameter name: authenticationToken", ex.Message);
+        }
     }
 }
