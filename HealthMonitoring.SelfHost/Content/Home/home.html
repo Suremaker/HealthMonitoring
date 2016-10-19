@@ -63,7 +63,7 @@
                     <td><a href="/dashboard/details?id={{e.Id}}" target="_blank">{{e.Name}}</a></td>
                     <td class="endpoint-status status-{{e.Status}}" ng-click="onStatusSelected(e.Status)">{{e.Status}}</td>
                     <td>{{formatDuration(e.LastResponseTime)}}</td>
-                    <td>{{formatDate(e.LastCheckUtc)}}</td>
+                    <td>{{e.LastCheckUtc | dateFilter }}</td>
                     <td>
                         <p class="tagsContainer"><span ng-repeat="tag in e.Tags | orderBy: 'toString()'" ng-click="addItemToFilter(tag, tagsFilterName)" ng-style="endpointTagStyles[e.Id][tag]" ng-mouseenter="changeTagColour(e.Id, tag, true)" ng-mouseleave="changeTagColour(e.Id, tag, false)" class="endpointTag">{{tag}}</span></p>
                     </td>
@@ -72,168 +72,168 @@
         </article>
         <footer>Version: {{config.Dashboard.Version}}</footer>
     </section>
-    <script>
-        var app = angular.module('app', ['angular.filter', 'advanced.filters']);
-        app.config(function ($locationProvider) {
-            $locationProvider.html5Mode(true);
-        });
+<script>
+    
+    var app = angular.module('app', ['angular.filter', 'advanced.filters']);
+    app.config(function ($locationProvider) {
+        $locationProvider.html5Mode(true);
+    });
 
-        app.controller('ctrl', function ($scope, $http, $location) {
-            $scope.config = null;
-            $scope.alerts = [];
+    app.controller('ctrl', ["$scope", "$http", "$location", function ($scope, $http, $location) {
+        $scope.config = null;
+        $scope.alerts = [];
 
-            $scope.tagsFilterName = 'filter-tags';
-            $scope.statusFilterName = 'filter-status';
+        $scope.tagsFilterName = 'filter-tags';
+        $scope.statusFilterName = 'filter-status';
 
-            $scope.filters = {};
-            $scope.filters[$scope.tagsFilterName] = [];
-            $scope.filters[$scope.statusFilterName] = [];
+        $scope.filters = {};
+        $scope.filters[$scope.tagsFilterName] = [];
+        $scope.filters[$scope.statusFilterName] = [];
 
-            $scope.filterTagStyles = {};
-            $scope.endpointTagStyles = {};
+        $scope.filterTagStyles = {};
+        $scope.endpointTagStyles = {};
 
-            var endpointFrequency = getEndpointUpdatingFrequency($location);
-            var configFrequency = getConfigUpdatingFrequency($location);
+        var endpointFrequency = getEndpointUpdatingFrequency($location);
+        var configFrequency = getConfigUpdatingFrequency($location);
 
-            $scope.getConfig = function () {
-                $http.get("/api/config")
-                    .success(function (response) {
-                        $scope.config = response;
-                    })
-                    .error(function (data, status) {
-                        $scope.config = { Dashboard: { Title: "-- connection issue --" }, Version: "-- connection issue --" };
-                    });
-            }
+        $scope.getConfig = function () {
+            $http.get("/api/config")
+                .success(function (response) {
+                    $scope.config = response;
+                })
+                .error(function (data, status) {
+                    $scope.config = { Dashboard: { Title: "-- connection issue --" }, Version: "-- connection issue --" };
+                });
+        }
 
-            $scope.getEndpoints = function () {
-                var setEndpointTagStyles = function () {
-                    angular.forEach($scope.endpoints, function (endpoint) {
-                        $scope.endpointTagStyles[endpoint.Id] = {};
-                        angular.forEach(endpoint.Tags,
-                            function (tag) {
-                                $scope.endpointTagStyles[endpoint.Id][tag] = { background: hashColour(tag, false) };
-                            });
-                    });
-                };
-
-                $http.get("/api/endpoints")
-                    .success(function (response) {
-                        $scope.endpoints = response;
-                        setEndpointTagStyles();
-                    })
-                    .error(function (data, status) {
-                        $scope.endpoints = null;
-                    });
-            }
-
-            $scope.tagFilter = function (endpoint) {
-                var tags = $scope.filters[$scope.tagsFilterName];
-                for (var i = 0; i < tags.length; i++) {
-                    if (endpoint.Tags == null || endpoint.Tags.indexOf(tags[i]) < 0) {
-                         return false;
-                    }
-                }
-                return true;
-            }
-
-            $scope.statusFilter = function (endpoint) {
-                var statuses = $scope.filters[$scope.statusFilterName];
-                if (statuses.length > 0) {
-                    if (statuses.indexOf(endpoint.Status) < 0)
-                        return false;
-                }
-                return true;
-            }
-
-            $scope.addItemToFilter = function (item, filterName) {
-                if ($scope.filters[filterName].indexOf(item) === -1)
-                    $scope.filters[filterName].push(item);
-                $scope.updateLocationParams(filterName);
-                setFilterTagStyles($scope);
-            }
-
-            $scope.removeItemFromFilter = function (item, filterName) {
-                var index = $scope.filters[filterName].indexOf(item);
-                $scope.filters[filterName].splice(index, 1);
-                $scope.updateLocationParams(filterName);
-                setFilterTagStyles($scope);
-            }
-
-            $scope.updateLocationParams = function (filterName) {
-                $location.search(filterName, arrayToParamString($scope.filters[filterName]));
+        $scope.getEndpoints = function () {
+            var setEndpointTagStyles = function () {
+                angular.forEach($scope.endpoints, function (endpoint) {
+                    $scope.endpointTagStyles[endpoint.Id] = {};
+                    angular.forEach(endpoint.Tags,
+                        function (tag) {
+                            $scope.endpointTagStyles[endpoint.Id][tag] = { background: hashColour(tag, false) };
+                        });
+                });
             };
 
-            $scope.changeFilterTagColour = function (tag, hover) {
-                $scope.filterTagStyles[tag] = { background: hashColour(tag, hover) };
+            $http.get("/api/endpoints")
+                .success(function (response) {
+                    $scope.endpoints = response;
+                    setEndpointTagStyles();
+                })
+                .error(function (data, status) {
+                    $scope.endpoints = null;
+                });
+        }
+
+        $scope.tagFilter = function (endpoint) {
+            var tags = $scope.filters[$scope.tagsFilterName];
+            for (var i = 0; i < tags.length; i++) {
+                if (endpoint.Tags == null || endpoint.Tags.indexOf(tags[i]) < 0) {
+                    return false;
+                }
             }
+            return true;
+        }
 
-            $scope.changeTagColour = function (endpointId, tag, hover) {
-                $scope.endpointTagStyles[endpointId][tag] = { background: hashColour(tag, hover) };
+        $scope.statusFilter = function (endpoint) {
+            var statuses = $scope.filters[$scope.statusFilterName];
+            if (statuses.length > 0) {
+                if (statuses.indexOf(endpoint.Status) < 0)
+                    return false;
             }
+            return true;
+        }
 
-            $scope.valueComparator = function (a, b) { return a === b; }
+        $scope.addItemToFilter = function (item, filterName) {
+            if ($scope.filters[filterName].indexOf(item) === -1)
+                $scope.filters[filterName].push(item);
+            $scope.updateLocationParams(filterName);
+            setFilterTagStyles($scope);
+        }
 
-            $scope.$on('$locationChangeSuccess', function () {
-                initFiltersFromUrl($scope, $location);
-            });
+        $scope.removeItemFromFilter = function (item, filterName) {
+            var index = $scope.filters[filterName].indexOf(item);
+            $scope.filters[filterName].splice(index, 1);
+            $scope.updateLocationParams(filterName);
+            setFilterTagStyles($scope);
+        }
 
-            $scope.parseDuration = parseDuration;
-            $scope.formatDate = formatDate;
-            $scope.formatDuration = formatDuration;
+        $scope.updateLocationParams = function (filterName) {
+            $location.search(filterName, arrayToParamString($scope.filters[filterName]));
+        };
 
-            $scope.getConfig();
-            $scope.getEndpoints();
-            setInterval($scope.getEndpoints, endpointFrequency);
-            setInterval($scope.getConfig, configFrequency);
+        $scope.changeFilterTagColour = function (tag, hover) {
+            $scope.filterTagStyles[tag] = { background: hashColour(tag, hover) };
+        }
+
+        $scope.changeTagColour = function (endpointId, tag, hover) {
+            $scope.endpointTagStyles[endpointId][tag] = { background: hashColour(tag, hover) };
+        }
+
+        $scope.valueComparator = function (a, b) { return a === b; }
+
+        $scope.$on('$locationChangeSuccess', function () {
+            initFiltersFromUrl($scope, $location);
         });
 
-        function getEndpointUpdatingFrequency(location) {
-            var param = location.search()["endpoint-frequency"];
-            var freq = parseInt(param);
-            return freq >= 1000 ? freq : 5000;
+        $scope.parseDuration = parseDuration;
+        $scope.formatDuration = formatDuration;
+
+        $scope.getConfig();
+        $scope.getEndpoints();
+        setInterval($scope.getEndpoints, endpointFrequency);
+        setInterval($scope.getConfig, configFrequency);
+    }]);
+
+    function getEndpointUpdatingFrequency(location) {
+        var param = location.search()["endpoint-frequency"];
+        var freq = parseInt(param);
+        return freq >= 1000 ? freq : 5000;
+    }
+
+    function getConfigUpdatingFrequency(location) {
+        var param = location.search()["config-frequency"];
+        var freq = parseInt(param);
+        return freq >= 5000 ? freq : 20000;
+    }
+
+    function setFilterTagStyles(scope) {
+        angular.forEach(scope.filters[scope.tagsFilterName], function (tag) {
+            scope.filterTagStyles[tag] = { background: hashColour(tag, false) };
+        });
+    }
+
+    function initFiltersFromUrl(scope, location) {
+        var tagsFilter = location.search()[scope.tagsFilterName];
+        var statusFilter = location.search()[scope.statusFilterName];
+
+        if (tagsFilter !== undefined && tagsFilter != null)
+            scope.filters[scope.tagsFilterName] = arrayFromParamString(tagsFilter);
+        else
+            scope.filters[scope.tagsFilterName] = [];
+
+        if (statusFilter !== undefined && statusFilter != null)
+            scope.filters[scope.statusFilterName] = arrayFromParamString(statusFilter);
+        else
+            scope.filters[scope.statusFilterName] = [];
+
+        setFilterTagStyles(scope);
+    }
+
+    function arrayToParamString(items) {
+        var params = "";
+        for (var i = 0; i < items.length; i++) {
+            params += items[i] + ";";
         }
+        return params;
+    }
 
-        function getConfigUpdatingFrequency(location) {
-            var param = location.search()["config-frequency"];
-            var freq = parseInt(param);
-            return freq >= 5000 ? freq : 20000;
-        }
+    function arrayFromParamString(str) {
+        return str.split(";").filter(Boolean);
+    }
 
-        function setFilterTagStyles(scope) {
-            angular.forEach(scope.filters[scope.tagsFilterName], function (tag) {
-                scope.filterTagStyles[tag] = { background: hashColour(tag, false) };
-            });
-        }
-
-        function initFiltersFromUrl(scope, location) {
-            var tagsFilter = location.search()[scope.tagsFilterName];
-            var statusFilter = location.search()[scope.statusFilterName];
-
-            if (tagsFilter !== undefined && tagsFilter != null)
-                scope.filters[scope.tagsFilterName] = arrayFromParamString(tagsFilter);
-            else
-                scope.filters[scope.tagsFilterName] = [];
-
-            if (statusFilter !== undefined && statusFilter != null)
-                scope.filters[scope.statusFilterName] = arrayFromParamString(statusFilter);
-            else
-                scope.filters[scope.statusFilterName] = [];
-
-            setFilterTagStyles(scope);
-        }
-
-        function arrayToParamString(items) {
-            var params = "";
-            for (var i = 0; i < items.length; i++) {
-                params += items[i] + ";";
-            }
-            return params;
-        }
-
-        function arrayFromParamString(str) {
-            return str.split(";").filter(Boolean);
-        }
-
-    </script>
+</script>
 </body>
 </html>

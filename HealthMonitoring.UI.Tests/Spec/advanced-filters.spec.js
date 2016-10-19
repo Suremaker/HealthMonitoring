@@ -4,7 +4,7 @@
 ///<reference path="~/../HealthMonitoring.SelfHost/Content/Scripts/advanced-filters.js"/>
 
 describe("advanced.filters test",
-    function() {
+    function () {
         var endpoints = [
                             {
                                 "Id": "adbe75c3-abd4-4866-bc0c-e7b42bee053a",
@@ -69,20 +69,20 @@ describe("advanced.filters test",
         ];
 
         describe("wildcardFilter test",
-            function() {
+            function () {
                 var filter,
                     criteria;
 
-                beforeEach(function() {
+                beforeEach(function () {
                     module('advanced.filters');
 
-                    inject(function($filter) {
+                    inject(function ($filter) {
                         filter = $filter;
                     });
                 });
 
                 it('Should return all items if group filtering is not strict',
-                    function() {
+                    function () {
                         // Arrange
                         criteria = {
                             Group: '*-group*'
@@ -96,7 +96,7 @@ describe("advanced.filters test",
                     });
 
                 it('Should return only healthy endpoints if status is filtered strictly',
-                    function() {
+                    function () {
                         // Arrange
                         criteria = {
                             Status: 'healthy'
@@ -114,7 +114,7 @@ describe("advanced.filters test",
                     });
 
                 it('Should search one endpoint by $=Microsoft',
-                    function() {
+                    function () {
                         // Arrange
                         criteria = {
                             $: 'Microsoft'
@@ -129,7 +129,7 @@ describe("advanced.filters test",
                     });
 
                 it('Should return all endpoints if criteria property is not specified',
-                    function() {
+                    function () {
                         // Arrange
                         criteria = {
                             Group: ''
@@ -143,7 +143,7 @@ describe("advanced.filters test",
                     });
 
                 it('Should filter by custom wildcard rules correctly',
-                    function() {
+                    function () {
                         // Arrange
                         var rules = [['%', '.']];
                         criteria = {
@@ -160,7 +160,7 @@ describe("advanced.filters test",
                     });
 
                 it('Should filter by multiple parameters',
-                    function() {
+                    function () {
                         // Arrange
                         criteria = {
                             Status: '*lthy',
@@ -186,13 +186,13 @@ describe("advanced.filters test",
 
 
         describe("wildcardFilter test",
-            function() {
+            function () {
                 var filter;
 
-                beforeEach(function() {
+                beforeEach(function () {
                     module('advanced.filters');
 
-                    inject(function($filter) {
+                    inject(function ($filter) {
                         filter = $filter;
                     });
                 });
@@ -224,5 +224,30 @@ describe("advanced.filters test",
                         expect(result[1].Tags).toEqual(jasmine.arrayContaining(['tag2', 'tag1']));
                     });
 
+            });
+
+        describe("dateFilter test",
+            function () {
+                var filter;
+
+                beforeEach(function () {
+                    module('advanced.filters');
+
+                    inject(function ($filter) {
+                        filter = $filter;
+                    });
+                });
+
+                it('Should format date to human readable local representation',
+                    function () {
+                        // Arrange
+                        var date = '2016-10-19T09:06:27.9480132Z';
+
+                        // Act
+                        var result = filter('dateFilter')(date);
+
+                        // Assert
+                        expect(result).toMatch(/[A-Z]{3} [0-9]{2} [A-Z]{3} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2}/i);
+                    });
             });
     });
