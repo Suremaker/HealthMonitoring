@@ -75,6 +75,7 @@
     <Compile Include="Registration\IEndpointDefintionBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="HealthMonitoring.Integration.PushClient.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
