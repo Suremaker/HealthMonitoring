@@ -196,6 +196,12 @@
     <None Include="HealthMonitoring.SelfHost.exe.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HealthMonitoring.TestUtils\HealthMonitoring.TestUtils.csproj">
+      <Project>{88551F10-599D-48C4-974F-4AE7F66F6DDC}</Project>
+      <Name>HealthMonitoring.TestUtils</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">

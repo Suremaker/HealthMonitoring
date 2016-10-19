@@ -1,4 +1,5 @@
-﻿using LightBDD;
+﻿using System;
+using LightBDD;
 
 namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 {
@@ -85,6 +86,26 @@ I want to open home page")]
                 _ => When_user_navigates_to_home_page_with_filters_in_url(),
                 _ => Then_only_endpoints_with_chosen_parameters_should_be_shown()
                 );
+        }
+
+        [Scenario]
+        public void Filters_should_apply_when_traveling_forward_and_backward_on_history()
+        {
+            Runner.RunScenario(
+                _ => Given_home_page(),
+                _ => With_driver_wait_time(TimeSpan.FromSeconds(1)),
+                _ => Given_endpoints_are_visible(),
+                _ => When_user_clicks_on_first_tag(),
+                _ => When_user_clicks_on_status_button(),
+                _ => Then_endpoints_should_be_filtered_with_TAGFILTERS_tag_and_STATUSFILTERS_status_filters(1, 1),
+                _ => When_user_navigates_back(),
+                _ => Then_endpoints_should_be_filtered_with_TAGFILTERS_tag_and_STATUSFILTERS_status_filters(1, 0),
+                _ => When_user_navigates_back(),
+                _ => Then_endpoints_should_be_filtered_with_TAGFILTERS_tag_and_STATUSFILTERS_status_filters(0, 0),
+                _ => When_user_navigates_forward(),
+                _ => Then_endpoints_should_be_filtered_with_TAGFILTERS_tag_and_STATUSFILTERS_status_filters(1, 0),
+                _ => When_user_navigates_forward(),
+                _ => Then_endpoints_should_be_filtered_with_TAGFILTERS_tag_and_STATUSFILTERS_status_filters(1, 1));
         }
     }
 }
