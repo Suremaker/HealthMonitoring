@@ -29,7 +29,7 @@ namespace HealthMonitoring.Persistence
                 var tags = endpoint.Metadata.Tags.ToDbString();
                 
                 conn.Execute(
-                    $"replace into EndpointConfig(MonitorType, Address, GroupName, Name, Id, PrivateToken{(tags != null ? ", Tags" : "")}) values(@MonitorType,@Address,@Group,@Name,@Id, @PrivateToken{(tags != null ? ",@Tags" : "")})",
+                    $"replace into EndpointConfig(MonitorType, Address, GroupName, Name, Id, Password{(tags != null ? ", Tags" : "")}) values(@MonitorType,@Address,@Group,@Name,@Id, @Password{(tags != null ? ",@Tags" : "")})",
                     new
                     {
                         endpoint.Identity.MonitorType,
@@ -37,7 +37,7 @@ namespace HealthMonitoring.Persistence
                         endpoint.Metadata.Group,
                         endpoint.Metadata.Name,
                         endpoint.Identity.Id,
-                        endpoint.PrivateToken,
+                        endpoint.Password,
                         tags
                     }, tx);
 

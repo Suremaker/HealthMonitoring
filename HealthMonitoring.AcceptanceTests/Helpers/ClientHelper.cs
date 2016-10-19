@@ -5,6 +5,7 @@ using System.Net;
 using HealthMonitoring.AcceptanceTests.Helpers.Entities;
 using Newtonsoft.Json;
 using RestSharp;
+using RestSharp.Authenticators;
 using Xunit;
 
 namespace HealthMonitoring.AcceptanceTests.Helpers
@@ -61,9 +62,8 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
         public static Guid RegisterEndpoint(this RestClient client, string monitor, string address, string group, string name, string[] tags = null, Credentials credentials = null)
         {
             var request = new RestRequest(EndpointRegistrationUrl)
-                .AddJsonBody(new {group, monitorType = monitor, name, address, tags})
-                .Authorize(credentials);
-            var response = client.Post(request);
+                .AddJsonBody(new {group, monitorType = monitor, name, address, tags});
+            var response = client.Authorize(credentials).Post(request);
             response.VerifyValidStatus(HttpStatusCode.Created);
             return JsonConvert.DeserializeObject<Guid>(response.Content);
         }
@@ -102,14 +102,13 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
             return JsonConvert.DeserializeObject<EndpointHealthStats[]>(response.Content);
         }
 
-        public static IRestRequest Authorize(this IRestRequest request, Credentials credentials)
+        public static IRestClient Authorize(this RestClient client, Credentials credentials)
         {
             if(credentials == null)
-                return request;
+                return client;
 
-            var authInfo = CredentialsProvider.EncryptBase64String($"{credentials.Id}:{credentials.PrivateToken}");
-            request.AddHeader("Authorization", $"Basic {authInfo}");
-            return request;
+            client.Authenticator = new HttpBasicAuthenticator(credentials.Id.ToString(), credentials.Password);
+            return client;
         }
     }
 }

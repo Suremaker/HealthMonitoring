@@ -33,7 +33,7 @@ namespace HealthMonitoring.Monitors.Core.Exchange.Client
 
         public Task RegisterMonitorsAsync(IEnumerable<string> monitorTypes, CancellationToken token)
         {
-            var credentials = _credentialsProvider.GetPullMonitorCredentials();
+            var credentials = _credentialsProvider.GetMonitorCredentials();
 
             return PostAsync(
                 "/api/monitors/register", 
@@ -51,7 +51,7 @@ namespace HealthMonitoring.Monitors.Core.Exchange.Client
 
         public Task UploadHealthAsync(EndpointHealthUpdate[] updates, CancellationToken token)
         {
-        var credentials = _credentialsProvider.GetPullMonitorCredentials();
+        var credentials = _credentialsProvider.GetMonitorCredentials();
 
             return PostAsync(
                 "/api/endpoints/health?clientCurrentTime=" + _timeCoordinator.UtcNow.ToString("u", CultureInfo.InvariantCulture), 
@@ -79,7 +79,7 @@ namespace HealthMonitoring.Monitors.Core.Exchange.Client
             if (credentials == null)
                 return client;
 
-            var token = $"{credentials.MonitorId}:{credentials.PrivateToken}".ToBase64String();
+            var token = $"{credentials.Id}:{credentials.Password}".ToBase64String();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
             return client;
         }

@@ -40,12 +40,12 @@ namespace HealthMonitoring.SelfHost.Configuration
             config.Services.Replace(typeof(IExceptionHandler), new GlobalExceptionHandler());
             config.MessageHandlers.Add(new MessageLoggingHandler());
             
-            var tokenProvider =
+            var credentialsProvider =
                 config.DependencyResolver.GetService(typeof(ICredentialsProvider)) as ICredentialsProvider;
             var endpointRegistry = 
                 config.DependencyResolver.GetService(typeof(IEndpointRegistry)) as IEndpointRegistry;
                 
-            config.Filters.Add(new AuthenticationFilter(endpointRegistry, tokenProvider));
+            config.Filters.Add(new AuthenticationFilter(endpointRegistry, credentialsProvider));
         }
 
         private static void ConfigureSerializers(HttpConfiguration config)

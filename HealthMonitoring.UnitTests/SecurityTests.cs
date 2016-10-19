@@ -10,9 +10,9 @@ namespace HealthMonitoring.UnitTests
         public void Hashcodes_of_the_same_credentials_should_be_equal()
         {
             Guid id = Guid.NewGuid();
-            string token = "string_token";
-            var cred1 = new Credentials(id, token);
-            var cred2 = new Credentials(id, token);
+            string password = "password";
+            var cred1 = new Credentials(id, password);
+            var cred2 = new Credentials(id, password);
 
             Assert.Equal(cred1.GetHashCode(), cred2.GetHashCode());
         }

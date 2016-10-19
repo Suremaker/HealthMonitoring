@@ -12,14 +12,14 @@ namespace HealthMonitoring.Management.Core
         public bool IsDisposed { get; private set; }
         public EndpointHealth Health { get; private set; }
         public DateTimeOffset LastModifiedTimeUtc { get; private set; }
-        public string PrivateToken { get; private set; }
+        public string Password { get; private set; }
 
-        public Endpoint(ITimeCoordinator timeCoordinator, EndpointIdentity identity, EndpointMetadata metadata, string privateToken = null)
+        public Endpoint(ITimeCoordinator timeCoordinator, EndpointIdentity identity, EndpointMetadata metadata, string password = null)
         {
             _timeCoordinator = timeCoordinator;
             Identity = identity;
             Metadata = metadata;
-            PrivateToken = privateToken;
+            Password = password;
             UpdateLastModifiedTime();
         }
 
@@ -42,10 +42,10 @@ namespace HealthMonitoring.Management.Core
             return this;
         }
 
-        public Endpoint UpdateEndpoint(string group, string name, string[] tags, string privateToken)
+        public Endpoint UpdateEndpoint(string group, string name, string[] tags, string password)
         {
             UpdateMetadata(group, name, tags ?? Metadata.Tags);
-            PrivateToken = privateToken;
+            Password = password;
             return this;
         }
 

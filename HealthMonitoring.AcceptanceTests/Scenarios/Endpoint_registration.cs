@@ -26,7 +26,7 @@ I want to be able to register browse and unregister endpoints")]
         {
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),
-                _ => Given_endpoint_with_private_token_is_registered("registered", "http://localhost:2525/status", "group", MonitorTypes.HttpJson, _credentials.PersonalCredentials.PrivateToken),
+                _ => Given_endpoint_with_password_is_registered("registered", "http://localhost:2525/status", "group", MonitorTypes.HttpJson, _credentials.PersonalCredentials.Password),
                 _ => When_client_request_endpoint_update_without_personal_credentials("registered", "http://localhost:2525/status", "group1", MonitorTypes.HttpJson),
                 _ => Then_client_should_receive_STATUS_code(HttpStatusCode.Unauthorized));
         }
@@ -36,9 +36,9 @@ I want to be able to register browse and unregister endpoints")]
         {
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),
-                _ => Given_endpoint_with_private_token_is_registered("registered", "http://localhost:2526/status", "group", MonitorTypes.HttpJson, _credentials.PersonalCredentials.PrivateToken),
+                _ => Given_endpoint_with_password_is_registered("registered", "http://localhost:2526/status", "group", MonitorTypes.HttpJson, _credentials.PersonalCredentials.Password),
                 _ => Given_endpoint_id_is_received(),
-                _ => When_client_request_endpoint_update_with_credentials("registered", "http://localhost:2526/status", "group1", MonitorTypes.HttpJson, null, _credentials.PersonalCredentials.PrivateToken),
+                _ => When_client_request_endpoint_update_with_credentials("registered", "http://localhost:2526/status", "group1", MonitorTypes.HttpJson, null, _credentials.PersonalCredentials.Password),
                 _ => Then_a_new_endpoint_identifier_should_be_returned());
         }
 
@@ -47,11 +47,11 @@ I want to be able to register browse and unregister endpoints")]
         {
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),
-                _ => Given_endpoint_with_private_token_is_registered("registered", "http://localhost:2527/status", "group", MonitorTypes.HttpJson, _credentials.GenerateRandomCredentials().PrivateToken),
+                _ => Given_endpoint_with_password_is_registered("registered", "http://localhost:2527/status", "group", MonitorTypes.HttpJson, _credentials.GenerateRandomCredentials().Password),
                 _ => Given_endpoint_id_is_received(),
-                _ => Given_endpoint_with_private_token_is_registered("registered", "http://localhost:2528/status", "group", MonitorTypes.HttpJson, _credentials.PersonalCredentials.PrivateToken),
+                _ => Given_endpoint_with_password_is_registered("registered", "http://localhost:2528/status", "group", MonitorTypes.HttpJson, _credentials.PersonalCredentials.Password),
                 _ => Given_endpoint_id_is_received(),
-                _ => When_client_request_endpoint_update_with_credentials("registered", "http://localhost:2527/status", "group1", MonitorTypes.HttpJson, null, _credentials.PersonalCredentials.PrivateToken),
+                _ => When_client_request_endpoint_update_with_credentials("registered", "http://localhost:2527/status", "group1", MonitorTypes.HttpJson, null, _credentials.PersonalCredentials.Password),
                 _ => Then_client_should_receive_STATUS_code(HttpStatusCode.Unauthorized));
         }
 
@@ -70,7 +70,7 @@ I want to be able to register browse and unregister endpoints")]
         {
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),
-                _ => When_client_request_endpoint_registration_with_short_private_token(),
+                _ => When_client_request_endpoint_registration_with_short_password(),
                 _ => Then_client_should_receive_STATUS_code(HttpStatusCode.BadRequest)
                 );
         }
@@ -167,8 +167,8 @@ I want to be able to register browse and unregister endpoints")]
         {
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),
-                _ => Given_endpoint_with_private_token_is_registered("my_name", "http://localhost:3035/status", "my_group", MonitorTypes.HttpJson,
-                _credentials.PersonalCredentials.PrivateToken),
+                _ => Given_endpoint_with_password_is_registered("my_name", "http://localhost:3035/status", "my_group", MonitorTypes.HttpJson,
+                _credentials.PersonalCredentials.Password),
                 _ => Given_endpoint_id_is_received(),
                 _ => When_client_requests_tags_updating_via_url_with_personal_credentials($"api/endpoints/{_identifier}/tags", new[] { "tag1", "tag2" }),
                 _ => Then_status_should_be_returned(HttpStatusCode.OK),
@@ -182,8 +182,8 @@ I want to be able to register browse and unregister endpoints")]
         {
             Runner.RunScenario(
                 _ => Given_a_monitor_api_client(),
-                _ => Given_endpoint_with_private_token_is_registered("my_name1", "http://localhost:3036/status", "my_group", MonitorTypes.HttpJson,
-                _credentials.PersonalCredentials.PrivateToken),
+                _ => Given_endpoint_with_password_is_registered("my_name1", "http://localhost:3036/status", "my_group", MonitorTypes.HttpJson,
+                _credentials.PersonalCredentials.Password),
                 _ => Given_endpoint_id_is_received(),
                 _ => When_client_requests_all_endpoints_details_via_url("/api/endpoints/identities"),
                 _ => Then_response_should_contain_only_id_and_address_and_monitortype(_credentials.PersonalCredentials.Id, "http://localhost:3036/status", MonitorTypes.HttpJson)

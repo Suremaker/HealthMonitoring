@@ -45,8 +45,8 @@ namespace HealthMonitoring.Api.UnitTests.Security
 
         private void SetUpCredentialsProvider()
         {
-            _credentialsProviderMock.Setup(m => m.GetAdminMonitorCredentials()).Returns(_adminCredentials);
-            _credentialsProviderMock.Setup(m => m.GetPullMonitorCredentials()).Returns(_pullMonitorCredentials);
+            _credentialsProviderMock.Setup(m => m.GetAdminCredentials()).Returns(_adminCredentials);
+            _credentialsProviderMock.Setup(m => m.GetMonitorCredentials()).Returns(_pullMonitorCredentials);
         }
         
 
@@ -54,7 +54,7 @@ namespace HealthMonitoring.Api.UnitTests.Security
         public void AuthenticatoionFilter_should_save_principal_into_request_context()
         {
             var authContext = GetAuthContext(_requestCredentials);
-            _endpointRegistryMock.Setup(m => m.GetById(_requestCredentials.MonitorId)).Returns(_endpoint);
+            _endpointRegistryMock.Setup(m => m.GetById(_requestCredentials.Id)).Returns(_endpoint);
             var filter = new AuthenticationFilter(_endpointRegistryMock.Object, _credentialsProviderMock.Object);
 
             filter.AuthenticateAsync(authContext, CancellationToken.None);
@@ -70,7 +70,7 @@ namespace HealthMonitoring.Api.UnitTests.Security
 
             filter.AuthenticateAsync(authContext, CancellationToken.None);
 
-            Assert.Equal(authContext.Principal.Identity.Name, _adminCredentials.MonitorId.ToString());
+            Assert.Equal(authContext.Principal.Identity.Name, _adminCredentials.Id.ToString());
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace HealthMonitoring.Api.UnitTests.Security
 
             filter.AuthenticateAsync(authContext, CancellationToken.None);
 
-            Assert.Equal(authContext.Principal.Identity.Name, _pullMonitorCredentials.MonitorId.ToString());
+            Assert.Equal(authContext.Principal.Identity.Name, _pullMonitorCredentials.Id.ToString());
         }
 
         [Fact]
@@ -105,7 +105,7 @@ namespace HealthMonitoring.Api.UnitTests.Security
             var principal = new GenericPrincipal(new GenericIdentity("Basic"), null);
             var context = new HttpAuthenticationContext(actionContext, principal);
             
-            context.Request.Headers.Authorization = new AuthenticationHeaderValue("Basic", $"{credentials.MonitorId}:{credentials.PrivateToken}".ToBase64String());
+            context.Request.Headers.Authorization = new AuthenticationHeaderValue("Basic", $"{credentials.Id}:{credentials.Password}".ToBase64String());
             return context;
         }
 
@@ -113,9 +113,9 @@ namespace HealthMonitoring.Api.UnitTests.Security
         {
             return new Endpoint(
                 _timeCoordinatorMock.Object,
-                new EndpointIdentity(_requestCredentials.MonitorId, "http", "http://endpoint.com"), 
+                new EndpointIdentity(_requestCredentials.Id, "http", "http://endpoint.com"), 
                 new EndpointMetadata("endpoint", "group", null),
-                _requestCredentials.PrivateToken.ToSha256Hash());
+                _requestCredentials.Password.ToSha256Hash());
         }
     }
 }

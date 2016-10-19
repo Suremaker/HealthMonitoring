@@ -47,7 +47,8 @@ namespace HealthMonitoring.SelfHost.Handlers
                 Message = context.Exception.Message
             };
 
-            Logger.ErrorFormat("Api {0} {1} exception: {2}", context.Request.Method, context.Request.RequestUri, context.Exception);
+            var errorMessage = $"Api {context.Request.Method} {context.Request.RequestUri} exception: {context.Exception}";
+            Logger.Error(errorMessage);
         }
 
         public override Task HandleAsync(ExceptionHandlerContext context, CancellationToken cancellationToken)
@@ -62,9 +63,10 @@ namespace HealthMonitoring.SelfHost.Handlers
         {
             var credentials = context.ParseAuthorizationHeader();
             var encryptedInfo = credentials != null
-                ? $"{credentials.MonitorId}:{credentials.PrivateToken.ToSha256Hash()}"
+                ? $"{credentials.Id}:{credentials.Password.ToSha256Hash()}"
                 : "none";
-            Logger.WarnFormat("Api {0} {1} ivalid credentials: {3}", context.Request.Method, context.Request.RequestUri, encryptedInfo);
+            var errorMessage = $"Api {context.Request.Method} {context.Request.RequestUri} ivalid credentials: {encryptedInfo}";
+            Logger.Warn(errorMessage);
 
             context.Result = new StatusCodeResult(HttpStatusCode.Forbidden, context.ExceptionContext.Request);
         }
@@ -72,10 +74,10 @@ namespace HealthMonitoring.SelfHost.Handlers
         private void HandleAuthenticationException(ExceptionHandlerContext context)
         {
             var credentials = context.ParseAuthorizationHeader();
-            Logger.WarnFormat("Api {0} {1} unauthenticated request!", context.Request.Method, context.Request.RequestUri);
+            Logger.Warn($"Api {context.Request.Method} {context.Request.RequestUri} unauthenticated request!");
             var authHeader = credentials != null
                 ? context.ExceptionContext.Request.Headers.Authorization
-                : new AuthenticationHeaderValue("Basic", "MonitorId:PrivateToken".ToBase64String());
+                : new AuthenticationHeaderValue("Basic", "id:password".ToBase64String());
             context.Result = new UnauthorizedResult(new[] { authHeader }, context.ExceptionContext.Request);
         }
 

@@ -5,10 +5,10 @@ namespace HealthMonitoring.Security
 {
     public class Credentials
     {
-        public Credentials(Guid monitorId, string privateToken)
+        public Credentials(Guid id, string password)
         {
-            MonitorId = monitorId;
-            PrivateToken = privateToken;
+            Id = id;
+            Password = password;
         }
 
         public override bool Equals(object obj)
@@ -16,16 +16,16 @@ namespace HealthMonitoring.Security
             Credentials cred = obj as Credentials;
 
             return !ReferenceEquals(null, cred)
-                   && string.Equals(PrivateToken, cred.PrivateToken)
-                   && MonitorId == cred.MonitorId;
+                   && string.Equals(Password, cred.Password)
+                   && Id == cred.Id;
         }
 
         public override int GetHashCode()
         {
-            return PrivateToken.GetHashCode() ^ MonitorId.GetHashCode();
+            return Password.GetHashCode() ^ Id.GetHashCode();
         }
 
-        public string PrivateToken { get; }
-        public Guid MonitorId { get; }
+        public string Password { get; }
+        public Guid Id { get; }
     }
 }

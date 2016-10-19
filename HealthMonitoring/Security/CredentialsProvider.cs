@@ -6,9 +6,9 @@ namespace HealthMonitoring.Security
 {
     public class CredentialsProvider : ICredentialsProvider
     {
-        private const string _adminTokenConfigKey = "AdminPrivateToken";
+        private const string _adminPasswordConfigKey = "AdminPassword";
         private const string _adminIdConfigKey = "AdminId";
-        private const string _monitorTokenConfigKey = "MonitorPrivateToken";
+        private const string _monitorPasswordConfigKey = "MonitorPassword";
         private const string _monitorIdConfigKey = "MonitorId";
         private const string _configurationSectionName = "accessConfiguration";
 
@@ -19,19 +19,19 @@ namespace HealthMonitoring.Security
             AccessConfiguration = (NameValueCollection)ConfigurationManager.GetSection(_configurationSectionName);
         }
 
-        public Credentials GetAdminMonitorCredentials()
+        public Credentials GetAdminCredentials()
         {
             return new Credentials(
                 Guid.Parse(AccessConfiguration[_adminIdConfigKey]),
-                AccessConfiguration[_adminTokenConfigKey]
+                AccessConfiguration[_adminPasswordConfigKey]
             );
         }
 
-        public Credentials GetPullMonitorCredentials()
+        public Credentials GetMonitorCredentials()
         {
             return new Credentials(
                 Guid.Parse(AccessConfiguration[_monitorIdConfigKey]),
-                AccessConfiguration[_monitorTokenConfigKey]
+                AccessConfiguration[_monitorPasswordConfigKey]
             );
         }
     }

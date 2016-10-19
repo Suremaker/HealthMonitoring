@@ -13,7 +13,7 @@ namespace HealthMonitoring.SelfHost.Security
         public IEndpointRegistry EndpointRegistry { get; set; }
 
         public bool AllowMultiple { get; }
-        private const string _tokenKey = "PrivateToken";
+        private const string _passwordKey = "Password";
 
         public AuthenticationFilter(IEndpointRegistry endpointRegistry, ICredentialsProvider credentialsProvider)
         {
@@ -27,31 +27,31 @@ namespace HealthMonitoring.SelfHost.Security
             GenericIdentity identity;
 
             var credentials = context.ParseAuthorizationHeader();
-            var adminCred = CredentialsProvider.GetAdminMonitorCredentials();
-            var pullCred = CredentialsProvider.GetPullMonitorCredentials();
+            var adminCred = CredentialsProvider.GetAdminCredentials();
+            var pullCred = CredentialsProvider.GetMonitorCredentials();
 
             if (credentials == null)
                 return Task.FromResult(0);
 
             if (credentials.Equals(adminCred))
             {
-                identity = new GenericIdentity(credentials.MonitorId.ToString());
+                identity = new GenericIdentity(credentials.Id.ToString());
                 principal = new GenericPrincipal(identity, new[] { SecurityRole.Admin.ToString() });
 
             }else if (credentials.Equals(pullCred))
             {
-                identity = new GenericIdentity(pullCred.MonitorId.ToString());
+                identity = new GenericIdentity(pullCred.Id.ToString());
                 principal = new GenericPrincipal(identity, new[] {SecurityRole.Monitor.ToString()});
             }
             else
             {
-                string encryptedToken = credentials.PrivateToken.ToSha256Hash();
-                var endpoint = EndpointRegistry.GetById(credentials.MonitorId);
+                string encryptedPassword = credentials.Password.ToSha256Hash();
+                var endpoint = EndpointRegistry.GetById(credentials.Id);
 
-                if (endpoint?.PrivateToken == encryptedToken)
+                if (endpoint?.Password == encryptedPassword)
                 {
-                    context.Request.Properties[_tokenKey] = encryptedToken;
-                    identity = new GenericIdentity(credentials.MonitorId.ToString());
+                    context.Request.Properties[_passwordKey] = encryptedPassword;
+                    identity = new GenericIdentity(credentials.Id.ToString());
                     principal = new GenericPrincipal(identity, null);
                 }
             }

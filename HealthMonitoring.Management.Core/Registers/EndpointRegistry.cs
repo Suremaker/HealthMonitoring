@@ -41,15 +41,15 @@ namespace HealthMonitoring.Management.Core.Registers
             }
         }
 
-        public Guid RegisterOrUpdate(string monitorType, string address, string group, string name, string[] tags, string privateToken = null)
+        public Guid RegisterOrUpdate(string monitorType, string address, string group, string name, string[] tags, string password = null)
         {
             if (!_healthMonitorTypeRegistry.GetMonitorTypes().Contains(monitorType))
                 throw new UnsupportedMonitorException(monitorType);
-            var encryptedToken = privateToken?.ToSha256Hash();
+            var encryptedPassword = password?.ToSha256Hash();
             var newIdentifier = new EndpointIdentity(Guid.NewGuid(), monitorType, address);
             var endpoint = _endpoints.AddOrUpdate(newIdentifier.GetNaturalKey(),
-                                new Endpoint(_timeCoordinator, newIdentifier, new EndpointMetadata(name, group, tags), encryptedToken),
-                                (k, e) => e.UpdateEndpoint(group, name, tags, encryptedToken));
+                                new Endpoint(_timeCoordinator, newIdentifier, new EndpointMetadata(name, group, tags), encryptedPassword),
+                                (k, e) => e.UpdateEndpoint(group, name, tags, encryptedPassword));
             _endpointsByGuid[endpoint.Identity.Id] = endpoint;
             _endpointConfigurationRepository.SaveEndpoint(endpoint);
 

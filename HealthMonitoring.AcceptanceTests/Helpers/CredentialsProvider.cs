@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.Configuration;
-using System.Text;
 
 namespace HealthMonitoring.AcceptanceTests.Helpers
 {
@@ -16,13 +15,13 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
         public Credentials AdminCredentials => 
             new Credentials(
                 Guid.Parse(AccessConfiguration["AdminId"]),
-                AccessConfiguration["AdminPrivateToken"]
+                AccessConfiguration["AdminPassword"]
             );
 
-        public Credentials PullMonitorCredentials =>
+        public Credentials MonitorCredentials =>
             new Credentials(
                 Guid.Parse(AccessConfiguration["MonitorId"]),
-                AccessConfiguration["MonitorPrivateToken"]
+                AccessConfiguration["MonitorPassword"]
             );
 
         public CredentialsProvider()
@@ -32,12 +31,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
 
         public Credentials GenerateRandomCredentials()
         {
-            return new Credentials(Guid.NewGuid(), PersonalCredentials.PrivateToken.ToUpper());
-        }
-
-        public string EncryptBase64String(string value)
-        {
-            return Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
+            return new Credentials(Guid.NewGuid(), PersonalCredentials.Password.ToUpper());
         }
     }
 }

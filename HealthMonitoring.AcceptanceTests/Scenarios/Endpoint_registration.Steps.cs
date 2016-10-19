@@ -135,11 +135,11 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             AssertTags(tags, entity.Tags);
         }
 
-        private void Given_endpoint_with_private_token_is_registered(
+        private void Given_endpoint_with_password_is_registered(
             string name, string address, string group,
-            string monitor, string privateToken)
+            string monitor, string password)
         {
-            RegisterEndpoint("/api/endpoints/register", name, group, monitor, address, null, privateToken);
+            RegisterEndpoint("/api/endpoints/register", name, group, monitor, address, null, password);
             Then_a_new_endpoint_identifier_should_be_returned();
         }
 
@@ -156,9 +156,9 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
 
         private void When_client_request_endpoint_update_with_credentials(
             string name, string address, string group, string monitor, 
-            string[] tags, string privateToken)
+            string[] tags, string password)
         {
-            RegisterEndpoint("/api/endpoints/register", name, group, monitor, address, tags, privateToken);
+            RegisterEndpoint("/api/endpoints/register", name, group, monitor, address, tags, password);
         }
 
         private void Then_response_should_contain_only_id_and_address_and_monitortype(Guid id, string address,
@@ -187,36 +187,41 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         private void PostTags(string url, string[] tags, Credentials credentials)
         {
             _response = _client
+                .Authorize(credentials)
                 .Put(new RestRequest(url)
                 .AddJsonBody(tags)
-                .Authorize(credentials)
                );
         }
 
         private void PostHealth(EndpointHealthUpdate[] healthUpdate, Credentials credentials)
         {
             _response = _client
+                .Authorize(credentials)
                 .Post(new RestRequest("api/endpoints/health")
                 .AddJsonBody(healthUpdate)
-                .Authorize(credentials)
                );
         }
         
         private void RegisterEndpoint(
             string url, string name, string group, string monitor,
-            string address, string[] tags = null, string privateToken = null,
+            string address, string[] tags = null, string password = null,
             Credentials credentials = null)
         {
-            object body = new { name, group, monitorType = monitor, address, tags, privateToken };
+            object body = new { name, group, monitorType = monitor, address, tags, password };
 
-            _response = _client.Post(new RestRequest(url)
+            _response = _client
+                .Authorize(credentials)
+                .Post(new RestRequest(url)
                 .AddJsonBody(body)
-                .Authorize(credentials));
+                );
         }
 
         private void DeleteEndpoint(string url, Credentials credentials)
         {
-            _response = _client.Delete(new RestRequest(url).Authorize(credentials));
+            _response = _client
+                .Authorize(credentials)
+                .Delete(new RestRequest(url)
+                );
         }
 
         private void AssertTags(string[] existing, string[] expected)
@@ -292,10 +297,10 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             Assert.Equal(expected, actual);
         }
 
-        private void When_client_request_endpoint_registration_with_short_private_token()
+        private void When_client_request_endpoint_registration_with_short_password()
         {
-            string shortToken = "1x8cm6vhtmooph12xfheqm8jtpfn68g1ukfm264tzs7svgekgsuk9i3u1uqscv8";
-            RegisterEndpoint("/api/endpoints/register", "name", "group", MonitorTypes.HttpJson, "address", null, shortToken);
+            string password = "1x8cm6vhtmooph12xfheqm8jtpfn68g1ukfm264tzs7svgekgsuk9i3u1uqscv8";
+            RegisterEndpoint("/api/endpoints/register", "name", "group", MonitorTypes.HttpJson, "address", null, password);
         }
     }
 }

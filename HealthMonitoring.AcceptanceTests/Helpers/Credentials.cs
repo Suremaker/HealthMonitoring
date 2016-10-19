@@ -5,12 +5,12 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
     class Credentials
     {
         public Guid Id { get; set; }
-        public string PrivateToken { get; set; }
+        public string Password { get; set; }
 
-        public Credentials(Guid id, string token)
+        public Credentials(Guid id, string password)
         {
             Id = id;
-            PrivateToken = token;
+            Password = password;
         }
     }
 }

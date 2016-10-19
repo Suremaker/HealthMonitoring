@@ -47,7 +47,7 @@ namespace HealthMonitoring.SelfHost.Controllers
                 var existed = _endpointRegistry.GetByNaturalKey(endpoint.MonitorType, endpoint.Address);
                 RequestContext.AuthorizeRegistration(endpoint, existed, SecurityRole.Admin);
 
-                var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Tags, endpoint.PrivateToken);
+                var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Tags, endpoint.Password);
                 return Created(new Uri(Request.RequestUri, $"/api/endpoints/{id}"), id);
             }
             catch (UnsupportedMonitorException e)

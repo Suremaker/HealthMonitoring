@@ -36,13 +36,13 @@ namespace HealthMonitoring.Api.UnitTests.Security
         public void ParseAuthorizationHeader_should_decrypt_authorization_header_credentials()
         {
             Guid monitorId = Guid.NewGuid();
-            string privateToken = "private_token";
-            var auth = new AuthenticationHeaderValue("Basic", $"{monitorId}:{privateToken}".ToBase64String());
+            string password = "password";
+            var auth = new AuthenticationHeaderValue("Basic", $"{monitorId}:{password}".ToBase64String());
             var context = GetAuthorizedExceptionContext(auth);
 
             var credentials = context.ParseAuthorizationHeader();
-            Assert.Equal(credentials.MonitorId, monitorId);
-            Assert.Equal(credentials.PrivateToken, privateToken);
+            Assert.Equal(credentials.Id, monitorId);
+            Assert.Equal(credentials.Password, password);
         }
 
         [Theory]

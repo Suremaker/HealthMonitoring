@@ -11,7 +11,7 @@ namespace HealthMonitoring.Api.UnitTests.Validators
         {
             var endpoint = new EndpointRegistration
             {
-                Address = "address", Group = "group", MonitorType = "http", Name = "name", PrivateToken = "private_token"
+                Address = "address", Group = "group", MonitorType = "http", Name = "name", Password = "password"
             };
 
             Assert.Throws<ValidationException>(() => endpoint.ValidateModel());

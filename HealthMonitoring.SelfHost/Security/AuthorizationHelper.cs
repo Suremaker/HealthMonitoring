@@ -10,13 +10,13 @@ using HealthMonitoring.SelfHost.Entities;
 
 namespace HealthMonitoring.SelfHost.Security
 {
-    public static class AuthorizationHelper 
+    public static class AuthorizationExtensions
     {
         public static void AuthorizeRegistration(this HttpRequestContext context, EndpointRegistration model,
             Endpoint modifiable, params SecurityRole[] roles)
         {
-            if (modifiable?.PrivateToken == null ||
-                modifiable.PrivateToken == model?.PrivateToken?.ToSha256Hash())
+            if (modifiable?.Password == null ||
+                modifiable.Password == model?.Password?.ToSha256Hash())
                 return;
 
             Authorize(context, modifiable.Identity.Id, roles);
