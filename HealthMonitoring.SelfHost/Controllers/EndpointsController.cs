@@ -9,8 +9,10 @@ using HealthMonitoring.Management.Core;
 using HealthMonitoring.Management.Core.Registers;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
+using HealthMonitoring.Security;
 using HealthMonitoring.SelfHost.Entities;
 using HealthMonitoring.SelfHost.Filters;
+using HealthMonitoring.SelfHost.Security;
 using HealthMonitoring.TimeManagement;
 using Swashbuckle.Swagger.Annotations;
 
@@ -34,12 +36,18 @@ namespace HealthMonitoring.SelfHost.Controllers
         [ResponseType(typeof(Guid))]
         [SwaggerResponse(HttpStatusCode.Created, Type = typeof(Guid))]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
+        [SwaggerResponse(HttpStatusCode.Unauthorized)]
+        [SwaggerResponse(HttpStatusCode.Forbidden)]
         public IHttpActionResult PostRegisterEndpoint([FromBody]EndpointRegistration endpoint)
         {
             endpoint.ValidateModel();
+
             try
             {
-                var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Tags);
+                var existed = _endpointRegistry.GetByNaturalKey(endpoint.MonitorType, endpoint.Address);
+                RequestContext.AuthorizeRegistration(endpoint, existed, SecurityRole.Admin);
+
+                var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Tags, endpoint.Password);
                 return Created(new Uri(Request.RequestUri, $"/api/endpoints/{id}"), id);
             }
             catch (UnsupportedMonitorException e)
@@ -52,6 +60,8 @@ namespace HealthMonitoring.SelfHost.Controllers
         [ResponseType(typeof(Guid))]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
+        [SwaggerResponse(HttpStatusCode.Unauthorized)]
+        [SwaggerResponse(HttpStatusCode.Forbidden)]
         public IHttpActionResult PostEndpointHealth(DateTimeOffset? clientCurrentTime = null, [FromBody]params EndpointHealthUpdate[] healthUpdate)
         {
             healthUpdate.ValidateModel();
@@ -59,7 +69,10 @@ namespace HealthMonitoring.SelfHost.Controllers
             var clockDifference = GetServerToClientTimeDifference(clientCurrentTime);
 
             foreach (var update in healthUpdate)
+            {
+                RequestContext.Authorize(update.EndpointId, SecurityRole.Monitor);
                 _endpointRegistry.UpdateHealth(update.EndpointId, update.ToEndpointHealth(clockDifference));
+            }
 
             return Ok();
         }
@@ -104,8 +117,12 @@ namespace HealthMonitoring.SelfHost.Controllers
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
+        [SwaggerResponse(HttpStatusCode.Unauthorized)]
+        [SwaggerResponse(HttpStatusCode.Forbidden)]
         public IHttpActionResult DeleteEndpoint(Guid id)
         {
+            RequestContext.Authorize(id, SecurityRole.Admin);
+
             if (_endpointRegistry.TryUnregisterById(id))
                 return Ok();
 
@@ -129,11 +146,15 @@ namespace HealthMonitoring.SelfHost.Controllers
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
+        [SwaggerResponse(HttpStatusCode.Unauthorized)]
+        [SwaggerResponse(HttpStatusCode.Forbidden)]
         [ResponseType(typeof(EndpointDetails))]
         public IHttpActionResult PutUpdateEndpointTags(Guid id, [FromBody]string[] tags)
         {
             try
             {
+                RequestContext.Authorize(id, SecurityRole.Admin);
+
                 tags.CheckForUnallowedSymbols();
 
                 if (_endpointRegistry.TryUpdateEndpointTags(id, tags))

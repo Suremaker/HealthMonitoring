@@ -5,6 +5,7 @@ using System.Net;
 using HealthMonitoring.AcceptanceTests.Helpers.Entities;
 using Newtonsoft.Json;
 using RestSharp;
+using RestSharp.Authenticators;
 using Xunit;
 
 namespace HealthMonitoring.AcceptanceTests.Helpers
@@ -12,6 +13,8 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
     static class ClientHelper
     {
         public const string EndpointRegistrationUrl = "/api/endpoints/register";
+        public const string RegisterEndpointSecret = "PostRegisterEndpoint";
+        public static readonly CredentialsProvider CredentialsProvider = new CredentialsProvider();
 
         public static RestClient Build()
         {
@@ -56,9 +59,11 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
             response.VerifyHeader("location", new Uri(GetBaseUrl(), url).ToString());
         }
 
-        public static Guid RegisterEndpoint(this RestClient client, string monitor, string address, string group, string name, string[] tags = null)
+        public static Guid RegisterEndpoint(this RestClient client, string monitor, string address, string group, string name, string[] tags = null, Credentials credentials = null)
         {
-            var response = client.Post(new RestRequest(EndpointRegistrationUrl).AddJsonBody(new { group, monitorType = monitor, name, address, tags }));
+            var request = new RestRequest(EndpointRegistrationUrl)
+                .AddJsonBody(new {group, monitorType = monitor, name, address, tags});
+            var response = client.Authorize(credentials).Post(request);
             response.VerifyValidStatus(HttpStatusCode.Created);
             return JsonConvert.DeserializeObject<Guid>(response.Content);
         }
@@ -95,6 +100,15 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
         {
             response.VerifyValidStatus(HttpStatusCode.OK);
             return JsonConvert.DeserializeObject<EndpointHealthStats[]>(response.Content);
+        }
+
+        public static IRestClient Authorize(this RestClient client, Credentials credentials)
+        {
+            if(credentials == null)
+                return client;
+
+            client.Authenticator = new HttpBasicAuthenticator(credentials.Id.ToString(), credentials.Password);
+            return client;
         }
     }
 }

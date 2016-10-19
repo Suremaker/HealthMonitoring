@@ -5,6 +5,7 @@ using System.Linq;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
 using HealthMonitoring.TimeManagement;
+using HealthMonitoring.Security;
 
 namespace HealthMonitoring.Management.Core.Registers
 {
@@ -40,12 +41,15 @@ namespace HealthMonitoring.Management.Core.Registers
             }
         }
 
-        public Guid RegisterOrUpdate(string monitorType, string address, string group, string name, string[] tags)
+        public Guid RegisterOrUpdate(string monitorType, string address, string group, string name, string[] tags, string password = null)
         {
             if (!_healthMonitorTypeRegistry.GetMonitorTypes().Contains(monitorType))
                 throw new UnsupportedMonitorException(monitorType);
+            var encryptedPassword = password?.ToSha256Hash();
             var newIdentifier = new EndpointIdentity(Guid.NewGuid(), monitorType, address);
-            var endpoint = _endpoints.AddOrUpdate(newIdentifier.GetNaturalKey(), new Endpoint(_timeCoordinator, newIdentifier, new EndpointMetadata(name, group, tags)), (k, e) => e.UpdateMetadata(group, name, tags));
+            var endpoint = _endpoints.AddOrUpdate(newIdentifier.GetNaturalKey(),
+                                new Endpoint(_timeCoordinator, newIdentifier, new EndpointMetadata(name, group, tags), encryptedPassword),
+                                (k, e) => e.UpdateEndpoint(group, name, tags, encryptedPassword));
             _endpointsByGuid[endpoint.Identity.Id] = endpoint;
             _endpointConfigurationRepository.SaveEndpoint(endpoint);
 
@@ -70,6 +74,12 @@ namespace HealthMonitoring.Management.Core.Registers
         {
             Endpoint endpoint;
             return _endpointsByGuid.TryGetValue(id, out endpoint) ? endpoint : null;
+        }
+
+        public Endpoint GetByNaturalKey(string monitorType, string address)
+        {
+            var key = EndpointIdentity.CreateNaturalKey(monitorType, address);
+            return _endpoints.FirstOrDefault(m => m.Key == key).Value;
         }
 
         public bool TryUnregisterById(Guid id)

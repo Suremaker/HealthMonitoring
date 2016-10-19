@@ -2,7 +2,6 @@
 using HealthMonitoring.Forwarders;
 using HealthMonitoring.Model;
 using HealthMonitoring.TestUtils;
-using HealthMonitoring.TimeManagement;
 using Moq;
 using Xunit;
 

@@ -155,6 +155,8 @@
     <Compile Include="Handlers\MessageLoggingHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Security\AuthenticationFilter.cs" />
+    <Compile Include="Security\AuthorizationHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

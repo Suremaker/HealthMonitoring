@@ -14,5 +14,7 @@ namespace HealthMonitoring.SelfHost.Entities
         public string Group { get; set; }
         [CustomValidation(typeof(TagsValidator), "CheckForUnallowedSymbols")]
         public string[] Tags { get; set; }
+        [MinLength(64)]
+        public string Password { get; set; }
     }
 }

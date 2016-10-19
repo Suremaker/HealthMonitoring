@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Model;
 using HealthMonitoring.Monitors.Core.Exchange.Client;
+using HealthMonitoring.Security;
 using HealthMonitoring.TimeManagement;
 using Moq;
 using Xunit;
@@ -19,7 +20,8 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         {
             private readonly HttpMessageHandler _handler;
 
-            public TestableHealthMonitorExchangeClient(HttpMessageHandler handler, ITimeCoordinator timeCoordinator) : base("http://mock", timeCoordinator)
+            public TestableHealthMonitorExchangeClient(HttpMessageHandler handler, ITimeCoordinator timeCoordinator, ICredentialsProvider credentialsProvider) 
+                : base("http://mock", timeCoordinator, credentialsProvider)
             {
                 _handler = handler;
             }
@@ -59,9 +61,10 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
         {
             var mockHttp = new MockHttpMessageHandler();
             var mockTimeCoordinator = new Mock<ITimeCoordinator>();
+            var mockCredentialsProvider = new Mock<ICredentialsProvider>();
             var currentTimeUtc = DateTime.UtcNow;
             mockTimeCoordinator.Setup(c => c.UtcNow).Returns(currentTimeUtc);
-            var client = new TestableHealthMonitorExchangeClient(mockHttp, mockTimeCoordinator.Object);
+            var client = new TestableHealthMonitorExchangeClient(mockHttp, mockTimeCoordinator.Object, mockCredentialsProvider.Object);
 
             mockHttp.Setup(
                 $"http://mock/api/endpoints/health?clientCurrentTime={currentTimeUtc.ToString("u", CultureInfo.InvariantCulture)}", 

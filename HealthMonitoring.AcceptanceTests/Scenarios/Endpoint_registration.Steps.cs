@@ -19,6 +19,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         private IRestResponse _response;
         private Guid _identifier;
         private readonly List<MockWebEndpoint> _endpoints = new List<MockWebEndpoint>();
+        private readonly CredentialsProvider _credentials = new CredentialsProvider();
 
         public Endpoint_registration(ITestOutputHelper output)
             : base(output)
@@ -38,7 +39,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
 
         private void When_client_requests_endpoint_registration_via_url_with_name_address_group_and_monitor(string url, string name, string address, string group, string monitor)
         {
-            _response = _client.Post(new RestRequest(url).AddJsonBody(new { group, monitorType = monitor, name, address }));
+            RegisterEndpoint(url, name, group, monitor, address);
         }
 
         private void Then_a_new_endpoint_identifier_should_be_returned()
@@ -108,24 +109,119 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             Assert.Equal(message, error);
         }
 
-        private void When_client_requests_endpoint_deletion_via_url(string url)
+        private void When_client_requests_endpoint_deletion_via_url_with_admin_credentials(string url)
         {
-            _response = _client.Delete(new RestRequest(url));
+            DeleteEndpoint(url, _credentials.AdminCredentials);
         }
 
         private void When_client_requests_endpoint_deletion_for_inexistent_endpoint_identifier()
         {
-            When_client_requests_endpoint_deletion_via_url($"api/endpoints/{Guid.NewGuid()}");
+            DeleteEndpoint($"api/endpoints/{Guid.NewGuid()}", _credentials.AdminCredentials);
         }
-        private void When_client_requests_tags_updating_via_url(string url, string[] tags)
+
+        private void When_client_requests_tags_updating_via_url_with_admin_credentials(string url, string[] tags)
         {
-            _response = _client.Put(new RestRequest(url).AddJsonBody(tags));
+            PostTags(url, tags, _credentials.AdminCredentials);
+        }
+
+        private void When_client_requests_tags_updating_via_url_with_personal_credentials(string url, string[] tags)
+        {
+            PostTags(url, tags, _credentials.PersonalCredentials);
         }
 
         private void Then_the_endpoint_tags_should_be(string[] tags)
         {
             var entity = _response.DeserializeEndpointDetails();
             AssertTags(tags, entity.Tags);
+        }
+
+        private void Given_endpoint_with_password_is_registered(
+            string name, string address, string group,
+            string monitor, string password)
+        {
+            RegisterEndpoint("/api/endpoints/register", name, group, monitor, address, null, password);
+            Then_a_new_endpoint_identifier_should_be_returned();
+        }
+
+        private void When_client_request_endpoint_update_without_personal_credentials(string name, string address, string group, string monitor)
+        {
+            RegisterEndpoint("/api/endpoints/register", name, group, monitor, address);
+        }
+
+        private void Given_endpoint_id_is_received()
+        {
+            var registrationId = JsonConvert.DeserializeObject<Guid>(_response.Content);
+            _credentials.PersonalCredentials.Id = registrationId;
+        }
+
+        private void When_client_request_endpoint_update_with_credentials(
+            string name, string address, string group, string monitor, 
+            string[] tags, string password)
+        {
+            RegisterEndpoint("/api/endpoints/register", name, group, monitor, address, tags, password);
+        }
+
+        private void Then_response_should_contain_only_id_and_address_and_monitortype(Guid id, string address,
+            string monitor)
+        {
+            _response.VerifyValidStatus(HttpStatusCode.OK);
+            var identities = JsonConvert.DeserializeObject<PublicEndpointIdentity[]>(_response.Content);
+            Assert.NotNull(identities.Single(m => m.Id == id && m.Address == address && m.MonitorType == monitor));
+        }
+
+        private void When_client_request_endpoint_health_update_with_credentials(Guid endpointId, EndpointStatus status, Credentials credentials)
+        {
+            var updates = new []
+            {
+                new EndpointHealthUpdate
+                {
+                    EndpointId = endpointId,
+                    Status = status,
+                    CheckTimeUtc = DateTime.UtcNow,
+                    ResponseTime = TimeSpan.FromSeconds(5)
+                }
+            };
+            PostHealth(updates, credentials);
+        }
+
+        private void PostTags(string url, string[] tags, Credentials credentials)
+        {
+            _response = _client
+                .Authorize(credentials)
+                .Put(new RestRequest(url)
+                .AddJsonBody(tags)
+               );
+        }
+
+        private void PostHealth(EndpointHealthUpdate[] healthUpdate, Credentials credentials)
+        {
+            _response = _client
+                .Authorize(credentials)
+                .Post(new RestRequest("api/endpoints/health")
+                .AddJsonBody(healthUpdate)
+               );
+        }
+        
+        private void RegisterEndpoint(
+            string url, string name, string group, string monitor,
+            string address, string[] tags = null, string password = null,
+            Credentials credentials = null)
+        {
+            object body = new { name, group, monitorType = monitor, address, tags, password };
+
+            _response = _client
+                .Authorize(credentials)
+                .Post(new RestRequest(url)
+                .AddJsonBody(body)
+                );
+        }
+
+        private void DeleteEndpoint(string url, Credentials credentials)
+        {
+            _response = _client
+                .Authorize(credentials)
+                .Delete(new RestRequest(url)
+                );
         }
 
         private void AssertTags(string[] existing, string[] expected)
@@ -199,6 +295,12 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             var actual = JsonConvert.DeserializeObject<EndpointEntity[]>(_response.Content).Select(e => e.Name).OrderBy(n => n).ToArray();
             var expected = endpoints.OrderBy(e => e).ToArray();
             Assert.Equal(expected, actual);
+        }
+
+        private void When_client_request_endpoint_registration_with_short_password()
+        {
+            string password = "1x8cm6vhtmooph12xfheqm8jtpfn68g1ukfm264tzs7svgekgsuk9i3u1uqscv8";
+            RegisterEndpoint("/api/endpoints/register", "name", "group", MonitorTypes.HttpJson, "address", null, password);
         }
     }
 }

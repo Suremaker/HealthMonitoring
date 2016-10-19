@@ -7,8 +7,7 @@ namespace HealthMonitoring.Model
         public Guid Id { get; }
         public string MonitorType { get; }
         public string Address { get; }
-
-        public EndpointIdentity(Guid id, string monitorType, string address)
+        public EndpointIdentity(Guid id, string monitorType, string address) 
         {
             if (monitorType == null)
                 throw new ArgumentNullException(nameof(monitorType));
@@ -27,7 +26,12 @@ namespace HealthMonitoring.Model
 
         public string GetNaturalKey()
         {
-            return $"{MonitorType}|{Address.ToLowerInvariant()}";
+            return CreateNaturalKey(MonitorType, Address);
+        }
+
+        public static string CreateNaturalKey(string monitorType, string address)
+        {
+            return $"{monitorType}|{address?.ToLowerInvariant()}";
         }
     }
 }

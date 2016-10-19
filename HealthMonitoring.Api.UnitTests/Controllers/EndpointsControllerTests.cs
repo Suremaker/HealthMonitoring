@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Principal;
+using System.Web.Http.Controllers;
 using System.Web.Http.Results;
 using HealthMonitoring.Management.Core;
 using HealthMonitoring.Management.Core.Registers;
 using HealthMonitoring.Management.Core.Repositories;
 using HealthMonitoring.Model;
+using HealthMonitoring.Security;
 using HealthMonitoring.SelfHost.Controllers;
 using HealthMonitoring.SelfHost.Entities;
 using HealthMonitoring.TestUtils;
@@ -58,10 +61,12 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
             var group = "def";
             var name = "ghi";
             var tags = new[] { "t1", "t2" };
+            string token = null;
 
-            _endpointRegistry.Setup(r => r.RegisterOrUpdate(monitor, address, group, name, tags)).Returns(id);
+            _endpointRegistry.Setup(r => r.RegisterOrUpdate(monitor, address, group, name, tags, token)).Returns(id);
 
             _controller.Request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:9090/");
+
             var response = _controller.PostRegisterEndpoint(new EndpointRegistration
             {
                 Address = address,
@@ -85,6 +90,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         [Fact]
         public void DeleteEndpoint_should_return_NOTFOUND_if_there_is_no_matching_endpoint()
         {
+            AuthorizeRequest(SecurityRole.Admin);
             Assert.IsType<NotFoundResult>(_controller.DeleteEndpoint(Guid.NewGuid()));
         }
 
@@ -92,6 +98,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         public void DeleteEndpoint_should_return_OK_if_there_is_matching_endpoint()
         {
             var id = Guid.NewGuid();
+            AuthorizeRequest(SecurityRole.Admin);
             _endpointRegistry.Setup(r => r.TryUnregisterById(id)).Returns(true);
             Assert.IsType<OkResult>(_controller.DeleteEndpoint(id));
         }
@@ -101,8 +108,9 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         {
             var monitor = "monitor";
             _endpointRegistry
-                .Setup(r => r.RegisterOrUpdate(monitor, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>()))
+                .Setup(r => r.RegisterOrUpdate(monitor, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Throws(new UnsupportedMonitorException(monitor));
+            _controller.Request = new HttpRequestMessage();
 
             var response = _controller.PostRegisterEndpoint(new EndpointRegistration
             {
@@ -283,6 +291,8 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
                 })
                 .ToArray();
 
+            AuthorizeRequest(SecurityRole.Monitor);
+
             Assert.IsType<OkResult>(_controller.PostEndpointHealth(_utcNow + timeDifference, update1, update2));
 
             foreach (var expectedEndpoint in expected)
@@ -292,6 +302,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         [Fact]
         public void PostEndpointsHealth_should_update_endpoints_health()
         {
+            AuthorizeRequest(SecurityRole.Monitor);
             var update1 = new EndpointHealthUpdate { EndpointId = Guid.NewGuid(), CheckTimeUtc = _utcNow, Status = EndpointStatus.Offline, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
             var update2 = new EndpointHealthUpdate { EndpointId = Guid.NewGuid(), CheckTimeUtc = _utcNow, Status = EndpointStatus.Healthy, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
 
@@ -299,6 +310,23 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
 
             _endpointRegistry.Verify(r => r.UpdateHealth(update1.EndpointId, It.Is<EndpointHealth>(h => AssertHealth(h, update1))));
             _endpointRegistry.Verify(r => r.UpdateHealth(update2.EndpointId, It.Is<EndpointHealth>(h => AssertHealth(h, update2))));
+        }
+
+        [Fact]
+        public void PostEndpointsHealth_should_not_update_health_if_admin_credentials_provided()
+        {
+            var endpointId = Guid.NewGuid();
+            bool hasBeenCalled = false;
+
+            AuthorizeRequest(SecurityRole.Admin);
+            _endpointRegistry.Setup(m => m.UpdateHealth(It.IsAny<Guid>(), It.IsAny<EndpointHealth>())).Callback(() =>
+            {
+                hasBeenCalled = true;
+            });
+            var update = new EndpointHealthUpdate { EndpointId = endpointId, CheckTimeUtc = DateTime.UtcNow, Status = EndpointStatus.Healthy, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
+
+            Assert.Throws<UnauthorizedAccessException>(() => _controller.PostEndpointHealth(null, update));
+            Assert.False(hasBeenCalled);
         }
 
         private static bool AssertHealth(EndpointHealth actual, EndpointHealthUpdate expected)
@@ -320,13 +348,40 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         [Fact]
         public void UpdateTags_should_return_BadRequest_if_tags_contains_unallowed_symbols()
         {
+            AuthorizeRequest(SecurityRole.Admin);
             Assert.IsType<BadRequestErrorMessageResult>(_controller.PutUpdateEndpointTags(Guid.NewGuid(), new[] { "tag!@$%^&():,./" }));
+        }
+
+        [Fact]
+        public void UpdateTags_should_accept_admin_role()
+        {
+            AuthorizeRequest(SecurityRole.Admin);
+
+            bool updateHasBeedCalled = false;
+            _endpointRegistry.Setup(m => m.TryUpdateEndpointTags(It.IsAny<Guid>(), It.IsAny<string[]>())).Callback(() =>
+            {
+                updateHasBeedCalled = true;
+            });
+
+            _controller.PutUpdateEndpointTags(Guid.NewGuid(), new[] {"tag"});
+            Assert.True(updateHasBeedCalled);
         }
 
         [Fact]
         public void UpdateTags_should_return_NOTFOUND_if_there_is_no_matching_endpoint()
         {
+            AuthorizeRequest(SecurityRole.Admin);
             Assert.IsType<NotFoundResult>(_controller.PutUpdateEndpointTags(Guid.NewGuid(), new[] { "tag" }));
+        }
+
+        private void AuthorizeRequest(params SecurityRole[] roles)
+        {
+            var identity = new GenericIdentity(Guid.NewGuid().ToString());
+            var principal = new GenericPrincipal(identity, roles.Select(m => m.ToString()).ToArray());
+            _controller.RequestContext = new HttpRequestContext
+            {
+                Principal = principal
+            };
         }
     }
 }
