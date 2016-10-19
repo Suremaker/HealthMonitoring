@@ -14,7 +14,7 @@ namespace HealthMonitoring.UnitTests
     public class ContinuousTaskExecutorTests
     {
         private readonly AwaitableFactory _awaitableFactory = new AwaitableFactory();
-        private readonly TimeSpan _testTimeout = TimeSpan.FromSeconds(15);
+        private readonly TimeSpan _testTimeout = TimeSpan.FromSeconds(5);
 
         [Fact]
         public async Task Executor_should_execute_tasks_until_disposal()
@@ -139,7 +139,7 @@ namespace HealthMonitoring.UnitTests
             }
         }
 
-        [Fact]
+        [Fact(Skip = "https://jira.wonga.com/browse/UKPE-1269")]
         public async Task Executor_should_cancel_all_tasks_on_disposal_and_report_all_finished()
         {
             var task1NotCancelled = false;
