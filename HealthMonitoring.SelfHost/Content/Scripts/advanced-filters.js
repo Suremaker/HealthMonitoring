@@ -115,6 +115,11 @@ angular.module('advanced.filters', [])
             });
 
             return filtered;
-
         };
+    })
+
+    .filter('dateFilter', function ($filter) {
+        return function (date) {
+            return $filter('date')(date, 'EEE d MMM y HH:mm:ss');
+        }
     });

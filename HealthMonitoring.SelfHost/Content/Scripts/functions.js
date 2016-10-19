@@ -19,11 +19,6 @@ function parseDuration(timeSpan) {
     return ms;
 }
 
-function formatDate(dateString) {
-    if (dateString == null) { return ""; }
-    return new Date(dateString).toUTCString();
-}
-
 function formatDuration(timeSpan) {
     if (timeSpan == null) { return ""; }
     return parseDuration(timeSpan) + " ms";

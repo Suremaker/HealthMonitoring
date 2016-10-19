@@ -5,6 +5,7 @@
     <title>Health Monitoring - {{details.Group}}:{{details.Name}}</title>
     <link rel="icon" href="/static/assets/favicon.ico">
     <script src="/static/scripts/angular.min.js"></script>
+    <script src="/static/scripts/advanced-filters.js"></script>
     <script src="/static/scripts/functions.js"></script>
     <link rel="stylesheet" href="/static/details/details.css">
     <link rel="stylesheet" href="/static/styles/common.css">
@@ -19,7 +20,7 @@
     <tr><td>Address:</td><td>{{details.Address}}</td></tr>
     <tr><td>Monitor Type:</td><td>{{details.MonitorType}}</td></tr>
     <tr><td>Status:</td><td class="status {{details.Status}}">{{details.Status}}</td></tr>
-    <tr><td>Last Check:</td><td>{{formatDate(details.LastCheckUtc)}}</td></tr>
+    <tr><td>Last Check:</td><td>{{details.LastCheckUtc | dateFilter}}</td></tr>
     <tr><td>Last Response Time:</td><td>{{formatDuration(details.LastResponseTime)}}</td></tr>
     <tr><td>Tags:</td><td><p class="tagsContainer"><span ng-repeat="tag in details.Tags" ng-click="tagClick(tag)" ng-style="tagStyles[tag]" ng-mouseenter="changeTagColour(tag, true)" ng-mouseleave="changeTagColour(tag, false)" class="endpointTag">{{tag}}</span></p></td>
     </tr>
@@ -33,7 +34,7 @@
 <div class="chart" style="width:{{graph.width+2}}px; height:{{graph.height+2}}px;">
     <!-- Labels -->
     <div class="y" style="width:{{graph.height}}px;">Response Time: 0 ms - {{stats.maxDuration}} ms</div>
-    <div class="x">Time: {{formatDate(stats.newestTime)}} - {{formatDate(stats.oldestTime)}}</div>
+    <div class="x">Time: {{stats.newestTime | dateFilter}} - {{stats.oldestTime | dateFilter}}</div>
     <!-- Data -->
     <svg style="width: {{graph.width}}px; height: {{graph.height}}px; " ng-mousemove="displayHint($event)" ng-mouseleave="currentStat=null">
         <path ng-repeat="(k,v) in stats.paths" d="{{v.data}}" class="{{k}}"/>
@@ -42,19 +43,19 @@
 <div class="legendBar">Legend: <div ng-repeat="(k,v) in stats.paths" class="status {{k}}">{{k}}</div></div>
 <div class="tooltip" ng-if="currentStat">
     <table>
-        <tr><td>Check Time:</td><td>{{formatDate(currentStat.time)}}</td></tr>
+        <tr><td>Check Time:</td><td>{{currentStat.time | dateFilter}}</td></tr>
         <tr><td>Response Time:</td><td>{{formatDuration(currentStat.duration)}}</td></tr>
         <tr><td>Status:</td><td class="status {{currentStat.status}}">{{currentStat.status}}</td></tr>
     </table>
 </div>
 <script>
-    var app = angular.module('app', []);
+    var app = angular.module('app', ['advanced.filters']);
 
     app.config(function ($locationProvider) {
         $locationProvider.html5Mode(true);
     });
 
-    app.controller('ctrl', function ($scope, $http, $location) {
+    app.controller('ctrl', ['$scope', '$http', '$location', function ($scope, $http, $location) {
 
         $scope.details = {};
         $scope.tagStyles = {};
@@ -158,7 +159,6 @@
         }
 
         $scope.parseDuration = parseDuration;
-        $scope.formatDate = formatDate;
         $scope.formatDuration = formatDuration;
 
         $scope.displayHint = function ($evt) {
@@ -169,7 +169,7 @@
 
         $scope.update();
         setInterval($scope.update, 3000);
-    });
+    }]);
 </script>
 </body>
 </html>
