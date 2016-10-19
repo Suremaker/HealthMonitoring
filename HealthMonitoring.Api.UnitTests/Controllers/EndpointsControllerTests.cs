@@ -311,7 +311,8 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
             _endpointRegistry.Verify(r => r.UpdateHealth(update1.EndpointId, It.Is<EndpointHealth>(h => AssertHealth(h, update1))));
             _endpointRegistry.Verify(r => r.UpdateHealth(update2.EndpointId, It.Is<EndpointHealth>(h => AssertHealth(h, update2))));
         }
-[Fact]
+
+        [Fact]
         public void PostEndpointsHealth_should_not_update_health_if_admin_credentials_provided()
         {
             var endpointId = Guid.NewGuid();
@@ -324,9 +325,10 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
             });
             var update = new EndpointHealthUpdate { EndpointId = endpointId, CheckTimeUtc = DateTime.UtcNow, Status = EndpointStatus.Healthy, ResponseTime = TimeSpan.FromSeconds(5), Details = new Dictionary<string, string> { { "a", "b" } } };
 
-            Assert.Throws<UnauthorizedAccessException>(() => _controller.PostEndpointHealth(null, update));
+            Assert.Throws<UnauthorizedAccessException>(() => _controller.PostEndpointsHealth(null, update));
             Assert.False(hasBeenCalled);
         }
+
         [Fact]
         public void PostEndpointHealth_should_update_health_and_adjust_check_time_with_clientServer_time_difference()
         {
@@ -406,7 +408,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
                 updateHasBeedCalled = true;
             });
 
-            _controller.PutUpdateEndpointTags(Guid.NewGuid(), new[] {"tag"});
+            _controller.PutUpdateEndpointTags(Guid.NewGuid(), new[] { "tag" });
             Assert.True(updateHasBeedCalled);
         }
 

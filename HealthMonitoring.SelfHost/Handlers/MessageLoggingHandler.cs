@@ -47,13 +47,6 @@ namespace HealthMonitoring.SelfHost.Handlers
             if (response.Content != null && _allowedMediaTypes.Contains(response.Content.Headers.ContentType.MediaType))
                 return await response.Content.ReadAsStringAsync();
             return null;
-            var content = string.Empty;
-
-            if ((response.Content != null) &&
-                _allowedMediaTypes.Contains(response.Content.Headers.ContentType.MediaType))
-                content = await response.Content.ReadAsStringAsync();
-
-            return await Task.FromResult(content);
         }
     }
 }

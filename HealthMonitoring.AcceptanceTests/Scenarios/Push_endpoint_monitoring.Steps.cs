@@ -29,6 +29,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         private HealthMonitorPushClient _pushClient;
         private EndpointEntity _details;
         private IEndpointHealthNotifier _monitor;
+        private readonly CredentialsProvider _credentials = new CredentialsProvider();
 
         public Push_endpoint_monitoring(ITestOutputHelper output)
             : base(output)
@@ -129,7 +130,9 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
 
         private void When_admin_removes_the_endpoint_from_the_monitor()
         {
-            _client.Delete(new RestRequest($"/api/endpoints/{_identifier}"))
+            _client
+                .Authorize(_credentials.AdminCredentials)
+                .Delete(new RestRequest($"/api/endpoints/{_identifier}"))
                 .VerifyValidStatus(HttpStatusCode.OK);
         }
 
