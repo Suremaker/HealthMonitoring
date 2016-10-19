@@ -186,12 +186,12 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             Assert.True(selectedTags.Any(m => string.Equals(m.Text, tag)));
         }
 
-        public void Then_endpoints_should_be_displayed_with_expected_count_of_filters(int expectedCountOfSelectedTags, int expectedCountOfSelectedStatuses)
+        public void Then_endpoints_should_be_filtered_with_TAGFILTERS_tag_and_STATUSFILTERS_status_filters(int tagFilters, int statusFilters)
         {
             var selectedTags = GetSelectedTags().Select(x => x.Text).ToList();
-            Assert.Equal(selectedTags.Count, expectedCountOfSelectedTags);
+            Assert.Equal(selectedTags.Count, tagFilters);
 
-            if (expectedCountOfSelectedTags > 0)
+            if (tagFilters > 0)
             {
                 var filteredTags = GetFilteredTags().Select(x => x.Text).ToList();
                 if (filteredTags.Count > 0)
@@ -201,9 +201,9 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             }
 
             var selectedStatuses = GetSelectedStatuses().Select(x => x.Text).ToList();
-            Assert.Equal(selectedStatuses.Count, expectedCountOfSelectedStatuses);
+            Assert.Equal(selectedStatuses.Count, statusFilters);
 
-            if (expectedCountOfSelectedStatuses > 0)
+            if (statusFilters > 0)
             {
                 var filteredStatuses = GetFilteredStatuses().Select(x => x.Text).ToList();
                 if (filteredStatuses.Count > 0)

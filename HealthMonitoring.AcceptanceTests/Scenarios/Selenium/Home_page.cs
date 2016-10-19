@@ -97,15 +97,15 @@ I want to open home page")]
                 _ => Given_endpoints_are_visible(),
                 _ => When_user_clicks_on_first_tag(),
                 _ => When_user_clicks_on_status_button(),
-                _ => Then_endpoints_should_be_displayed_with_expected_count_of_filters(1, 1),
+                _ => Then_endpoints_should_be_filtered_with_TAGFILTERS_tag_and_STATUSFILTERS_status_filters(1, 1),
                 _ => When_user_navigates_back(),
-                _ => Then_endpoints_should_be_displayed_with_expected_count_of_filters(1, 0),
+                _ => Then_endpoints_should_be_filtered_with_TAGFILTERS_tag_and_STATUSFILTERS_status_filters(1, 0),
                 _ => When_user_navigates_back(),
-                _ => Then_endpoints_should_be_displayed_with_expected_count_of_filters(0, 0),
+                _ => Then_endpoints_should_be_filtered_with_TAGFILTERS_tag_and_STATUSFILTERS_status_filters(0, 0),
                 _ => When_user_navigates_forward(),
-                _ => Then_endpoints_should_be_displayed_with_expected_count_of_filters(1, 0),
+                _ => Then_endpoints_should_be_filtered_with_TAGFILTERS_tag_and_STATUSFILTERS_status_filters(1, 0),
                 _ => When_user_navigates_forward(),
-                _ => Then_endpoints_should_be_displayed_with_expected_count_of_filters(1, 1));
+                _ => Then_endpoints_should_be_filtered_with_TAGFILTERS_tag_and_STATUSFILTERS_status_filters(1, 1));
         }
     }
 }
