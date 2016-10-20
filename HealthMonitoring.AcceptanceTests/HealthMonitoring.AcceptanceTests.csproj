@@ -121,10 +121,15 @@
     <Compile Include="Helpers\Entities\EndpointHealthUpdate.cs" />
     <Compile Include="Helpers\Entities\PublicEndpointIdentity.cs" />
     <Compile Include="Helpers\CredentialsProvider.cs" />
+    <Compile Include="Helpers\Entities\EndpointIdentity.cs" />
+    <Compile Include="Helpers\Http\MockWebEndpoint.cs" />
+    <Compile Include="Helpers\Http\MockWebEndpointExtensions.cs" />
+    <Compile Include="Helpers\Http\MockWebEndpointFactory.cs" />
     <Compile Include="Helpers\Selenium\DriverToTest.cs" />
     <Compile Include="Helpers\Selenium\SeleniumHelper.cs" />
     <Compile Include="Helpers\Selenium\SeleniumConfiguration.cs" />
     <Compile Include="Helpers\Selenium\WebDriverExtensions.cs" />
+    <Compile Include="Helpers\Wait.cs" />
     <Compile Include="Scenarios\Endpoint_registration.cs" />
     <Compile Include="Scenarios\Endpoint_registration.Steps.cs">
       <DependentUpon>Endpoint_registration.cs</DependentUpon>
@@ -134,11 +139,8 @@
     <Compile Include="Helpers\Entities\EndpointEntity.cs" />
     <Compile Include="Helpers\Entities\ErrorEntity.cs" />
     <Compile Include="Helpers\FormatCollectionAttribute.cs" />
-    <Compile Include="Helpers\Http\MockWebEndpoint.cs" />
-    <Compile Include="Helpers\Http\MockWebEndpointFactory.cs" />
     <Compile Include="Helpers\MonitorTypes.cs" />
     <Compile Include="Helpers\Timeouts.cs" />
-    <Compile Include="Helpers\Wait.cs" />
     <Compile Include="Scenarios\Endpoint_statistics.cs" />
     <Compile Include="Scenarios\Endpoint_statistics.Steps.cs">
       <DependentUpon>Endpoint_statistics.cs</DependentUpon>
@@ -159,6 +161,10 @@
     <Compile Include="Scenarios\Monitors_configuration.cs" />
     <Compile Include="Scenarios\Monitors_configuration.Steps.cs">
       <DependentUpon>Monitors_configuration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Scenarios\Push_endpoint_monitoring.cs" />
+    <Compile Include="Scenarios\Push_endpoint_monitoring.Steps.cs">
+      <DependentUpon>Push_endpoint_monitoring.cs</DependentUpon>
     </Compile>
     <Compile Include="Scenarios\Rest_endpoint_monitoring.cs" />
     <Compile Include="Scenarios\Rest_endpoint_monitoring.Steps.cs">
@@ -203,7 +209,10 @@
   <ItemGroup>
     <ProjectReference Include="..\HealthMonitoring.TestUtils\HealthMonitoring.TestUtils.csproj">
       <Project>{88551F10-599D-48C4-974F-4AE7F66F6DDC}</Project>
-      <Name>HealthMonitoring.TestUtils</Name>
+      <Name>HealthMonitoring.TestUtils</Name></ProjectReference>
+    <ProjectReference Include="..\HealthMonitoring.Integration.PushClient\HealthMonitoring.Integration.PushClient.csproj">
+      <Project>{83B5CDAC-0057-4BFE-923C-C3F6ED6D1E7F}</Project>
+      <Name>HealthMonitoring.Integration.PushClient</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

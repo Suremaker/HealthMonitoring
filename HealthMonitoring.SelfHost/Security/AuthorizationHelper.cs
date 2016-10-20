@@ -12,8 +12,7 @@ namespace HealthMonitoring.SelfHost.Security
 {
     public static class AuthorizationExtensions
     {
-        public static void AuthorizeRegistration(this HttpRequestContext context, EndpointRegistration model,
-            Endpoint modifiable, params SecurityRole[] roles)
+        public static void AuthorizeRegistration(this HttpRequestContext context, EndpointRegistration model, Endpoint modifiable, params SecurityRole[] roles)
         {
             if (modifiable?.Password == null ||
                 modifiable.Password == model?.Password?.ToSha256Hash())
@@ -31,7 +30,7 @@ namespace HealthMonitoring.SelfHost.Security
 
             authorized |= IsInRoles(context, roles);
 
-            if(!authorized)
+            if (!authorized)
                 throw new UnauthorizedAccessException();
         }
 
@@ -87,8 +86,7 @@ namespace HealthMonitoring.SelfHost.Security
             var credentials = authHeader.Split(':');
             Guid id;
 
-            if (credentials.Length != 2 ||
-                !Guid.TryParse(credentials[0], out id) || string.IsNullOrEmpty(credentials[1]))
+            if (credentials.Length != 2 ||!Guid.TryParse(credentials[0], out id) || string.IsNullOrEmpty(credentials[1]))
             {
                 return null;
             }

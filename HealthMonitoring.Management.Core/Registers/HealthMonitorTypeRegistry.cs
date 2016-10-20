@@ -7,6 +7,8 @@ namespace HealthMonitoring.Management.Core.Registers
 {
     public class HealthMonitorTypeRegistry : IHealthMonitorTypeRegistry
     {
+        public const string PushMonitorType = "push";
+
         private readonly IHealthMonitorTypeRepository _repository;
         private readonly ConcurrentDictionary<string, string> _monitorTypes;
 
@@ -14,6 +16,7 @@ namespace HealthMonitoring.Management.Core.Registers
         {
             _repository = repository;
             _monitorTypes = new ConcurrentDictionary<string, string>(_repository.LoadMonitorTypes().ToDictionary(t => t, t => t));
+            RegisterMonitorType(PushMonitorType);
         }
 
         public void RegisterMonitorType(string monitorType)

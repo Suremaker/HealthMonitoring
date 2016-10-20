@@ -18,7 +18,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
 
         public static RestClient Build()
         {
-            var client = new RestClient(GetBaseUrl());
+            var client = new RestClient(GetHealthMonitorUrl());
 
             Wait.Until(
                 Timeouts.Default,
@@ -29,7 +29,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
             return client;
         }
 
-        private static Uri GetBaseUrl()
+        public static Uri GetHealthMonitorUrl()
         {
             return new Uri(ConfigurationManager.AppSettings["BaseUrl"]);
         }
@@ -56,7 +56,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
 
         public static void VerifyLocationHeader(this IRestResponse response, string url)
         {
-            response.VerifyHeader("location", new Uri(GetBaseUrl(), url).ToString());
+            response.VerifyHeader("location", new Uri(GetHealthMonitorUrl(), url).ToString());
         }
 
         public static Guid RegisterEndpoint(this RestClient client, string monitor, string address, string group, string name, string[] tags = null, Credentials credentials = null)
@@ -88,6 +88,13 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
         public static EndpointEntity GetEndpointDetails(this RestClient client, Guid identifier)
         {
             return client.Get(new RestRequest("/api/endpoints/" + identifier)).DeserializeEndpointDetails();
+        }
+
+        public static EndpointIdentity[] GetEndpointIdentities(this RestClient client)
+        {
+            var response = client.Get(new RestRequest("/api/endpoints/identities"));
+            response.VerifyValidStatus(HttpStatusCode.OK);
+            return JsonConvert.DeserializeObject<EndpointIdentity[]>(response.Content);
         }
 
         public static EndpointEntity DeserializeEndpointDetails(this IRestResponse response)

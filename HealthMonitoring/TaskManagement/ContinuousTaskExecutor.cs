@@ -54,7 +54,7 @@ namespace HealthMonitoring.TaskManagement
             {
                 try
                 {
-                    ProcessTasks();
+                    ProcessTasks().Wait(_cancellation.Token);
                     errorCounter = 0;
                 }
                 catch (OperationCanceledException) when (_cancellation.IsCancellationRequested)
@@ -91,9 +91,10 @@ namespace HealthMonitoring.TaskManagement
             catch (AggregateException) { }
         }
 
-        private void ProcessTasks()
+        private async Task ProcessTasks()
         {
-            Task.WhenAny(GetTasks()).Wait(_cancellation.Token);
+            var finishedTask = await Task.WhenAny(GetTasks());
+            await finishedTask;
         }
 
         private IEnumerable<Task> GetTasks()
@@ -123,12 +124,11 @@ namespace HealthMonitoring.TaskManagement
 
         private void FinalizeTask(T item)
         {
-            LazilyCreatedTask value;
-            if (!_tasks.TryRemove(item, out value))
-                return;
-
             Logger.Info($"Finished processing {typeof(T)}: {item}");
             FinishedTaskFor?.Invoke(item);
+
+            LazilyCreatedTask value;
+            _tasks.TryRemove(item, out value);
         }
 
         private Task WaitForNewItemAsync()
