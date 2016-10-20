@@ -6,10 +6,7 @@ Added Admin and Monitor credentials for API/Monitor process
 Added Password field to the request body of POST api/endpoints/register
 Secured api methods with basic authentication (POST api/monitors/register, PUT api/endpoints/{id}/tags, DELETE api/endpoints/{id}, POST api/endpoints/{id}/health, POST api/endpoints/health)
 Implemented HealthMonitoring.Integration.PushClient allowing to integrate with Hmon over push method
-
-3.3.2.0
--------
-Use local date when formatting as string
+Use local date when formatting as string on UI
 
 3.3.1.0
 -------
