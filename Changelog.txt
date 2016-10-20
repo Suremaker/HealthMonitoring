@@ -1,3 +1,7 @@
+3.3.2.0
+-------
+Use local date when formatting as string
+
 3.3.1.0
 -------
 Reverted nuget3x to nuget2x dependency to fix the deployment package creation
