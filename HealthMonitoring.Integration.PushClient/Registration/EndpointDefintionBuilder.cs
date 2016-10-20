@@ -10,7 +10,7 @@ namespace HealthMonitoring.Integration.PushClient.Registration
         private string _endpointName;
         private string[] _tags;
         private string _address;
-        private string _authenticationToken;
+        private string _password;
 
         public IEndpointDefintionBuilder DefineGroup(string groupName)
         {
@@ -65,11 +65,11 @@ namespace HealthMonitoring.Integration.PushClient.Registration
             return this;
         }
 
-        public IEndpointDefintionBuilder DefineAuthenticationToken(string authenticationToken)
+        public IEndpointDefintionBuilder DefinePassword(string password)
         {
-            if (string.IsNullOrWhiteSpace(authenticationToken))
-                throw new ArgumentException("Value cannot be empty", nameof(authenticationToken));
-            _authenticationToken = authenticationToken;
+            if (string.IsNullOrWhiteSpace(password))
+                throw new ArgumentException("Value cannot be empty", nameof(password));
+            _password = password;
             return this;
         }
 
@@ -81,10 +81,10 @@ namespace HealthMonitoring.Integration.PushClient.Registration
                 throw new InvalidOperationException("No endpoint group provided");
             if (string.IsNullOrWhiteSpace(_address))
                 throw new InvalidOperationException("No endpoint address provided");
-            if (string.IsNullOrWhiteSpace(_authenticationToken))
+            if (string.IsNullOrWhiteSpace(_password))
                 throw new InvalidOperationException("No endpoint authentication token provided");
 
-            return new EndpointDefinition(_address, _groupName, _endpointName, _tags, _authenticationToken);
+            return new EndpointDefinition(_address, _groupName, _endpointName, _tags, _password);
         }
     }
 }

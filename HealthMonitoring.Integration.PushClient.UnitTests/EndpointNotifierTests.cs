@@ -160,7 +160,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
                     .DefineGroup("endpointGroup")
                     .DefineTags("t1")
                     .DefineAddress("uniqueName")
-                    .DefineAuthenticationToken(AuthenticationToken);
+                    .DefinePassword(AuthenticationToken);
 
             using (CreateNotifier(builder, token => Task.FromResult(new EndpointHealth(HealthStatus.Offline))))
                 await countdown.WaitAsync(TestMaxTime);
@@ -226,7 +226,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
                     .DefineGroup("endpointGroup")
                     .DefineTags("t1")
                     .DefineAddress("host", "uniqueName")
-                    .DefineAuthenticationToken(AuthenticationToken);
+                    .DefinePassword(AuthenticationToken);
 
             using (CreateNotifier(builder, token => Task.FromResult(new EndpointHealth(HealthStatus.Offline))))
                 await countdown.WaitAsync(TestMaxTime);
@@ -373,7 +373,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         private IEndpointHealthNotifier CreateNotifier(Func<CancellationToken, Task<EndpointHealth>> healthCheck)
         {
             return CreateNotifier(
-                b => b.DefineName("name").DefineAddress("address").DefineGroup("group").DefineTags("t1", "t2").DefineAuthenticationToken(AuthenticationToken),
+                b => b.DefineName("name").DefineAddress("address").DefineGroup("group").DefineTags("t1", "t2").DefinePassword(AuthenticationToken),
                 healthCheck);
         }
 

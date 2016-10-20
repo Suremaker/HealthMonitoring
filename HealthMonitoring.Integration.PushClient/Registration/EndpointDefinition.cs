@@ -6,15 +6,15 @@
         public string GroupName { get; }
         public string EndpointName { get; }
         public string[] Tags { get; }
-        public string AuthenticationToken { get;  }
+        public string Password { get;  }
 
-        public EndpointDefinition(string address, string groupName, string endpointName, string[] tags, string authenticationToken)
+        public EndpointDefinition(string address, string groupName, string endpointName, string[] tags, string password)
         {
             Address = address;
             GroupName = groupName;
             EndpointName = endpointName;
             Tags = tags;
-            AuthenticationToken = authenticationToken;
+            Password = password;
         }
     }
 }

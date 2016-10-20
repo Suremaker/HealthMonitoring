@@ -40,7 +40,7 @@ namespace HealthMonitoring.Integration.PushClient.Client
                         Address = definition.Address,
                         MonitorType = PushMonitorType,
                         Tags = definition.Tags,
-                        Password = definition.AuthenticationToken
+                        Password = definition.Password
                     }, cancellationToken);
 
                     return await DeserializeJsonAsync<Guid>(response);

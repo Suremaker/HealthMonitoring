@@ -21,7 +21,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         public void HealthMonitorPushClient_should_allow_empty_url_and_disable_integration(string url)
         {
             var notifier = HealthMonitorPushClient.UsingHealthMonitor(url)
-                .DefineEndpoint(b => b.DefineAddress("a").DefineGroup("b").DefineName("c").DefineAuthenticationToken("t"))
+                .DefineEndpoint(b => b.DefineAddress("a").DefineGroup("b").DefineName("c").DefinePassword("t"))
                 .WithHealthCheck(Mock.Of<IHealthChecker>())
                 .StartHealthNotifier();
 
@@ -32,7 +32,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         public void HealthMonitorPushClient_should_disable_integration_if_no_client_provided()
         {
             var notifier = new TestablePushClient(null, Mock.Of<ITimeCoordinator>())
-                .DefineEndpoint(b => b.DefineAddress("a").DefineGroup("b").DefineName("c").DefineAuthenticationToken("t"))
+                .DefineEndpoint(b => b.DefineAddress("a").DefineGroup("b").DefineName("c").DefinePassword("t"))
                 .WithHealthCheck(Mock.Of<IHealthChecker>())
                 .StartHealthNotifier();
 
@@ -43,7 +43,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         public void HealthMonitorPushClient_should_start_notifier_if_client_is_provided()
         {
             var notifier = new TestablePushClient(Mock.Of<IHealthMonitorClient>(), Mock.Of<ITimeCoordinator>())
-                .DefineEndpoint(b => b.DefineAddress("a").DefineGroup("b").DefineName("c").DefineAuthenticationToken("t"))
+                .DefineEndpoint(b => b.DefineAddress("a").DefineGroup("b").DefineName("c").DefinePassword("t"))
                 .WithHealthCheck(Mock.Of<IHealthChecker>())
                 .StartHealthNotifier();
 
@@ -64,7 +64,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         public void HealthMonitorPushClient_should_require_health_checker_to_start_notifier()
         {
             var ex = Assert.Throws<InvalidOperationException>(() => new TestablePushClient(Mock.Of<IHealthMonitorClient>(), Mock.Of<ITimeCoordinator>())
-                  .DefineEndpoint(b => b.DefineAddress("a").DefineGroup("b").DefineName("c").DefineAuthenticationToken("t"))
+                  .DefineEndpoint(b => b.DefineAddress("a").DefineGroup("b").DefineName("c").DefinePassword("t"))
                   .StartHealthNotifier());
 
             Assert.Equal("No health checker provided", ex.Message);

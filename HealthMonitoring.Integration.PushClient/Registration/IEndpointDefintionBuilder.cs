@@ -7,6 +7,6 @@
         IEndpointDefintionBuilder DefineTags(params string[] tags);
         IEndpointDefintionBuilder DefineAddress(string endpointUniqueName);
         IEndpointDefintionBuilder DefineAddress(string host, string endpointUniqueName);
-        IEndpointDefintionBuilder DefineAuthenticationToken(string authenticationToken);
+        IEndpointDefintionBuilder DefinePassword(string password);
     }
 }
