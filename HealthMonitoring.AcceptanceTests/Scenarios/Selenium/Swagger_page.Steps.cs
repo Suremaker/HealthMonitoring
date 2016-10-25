@@ -104,24 +104,24 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
                 );
         }
 
-        private string GetApiUrlHeadingSelector(string apiUrl, string method)
+        private string GetSectionHeadingSelector(string apiUrl, string method)
         {
             return $"//div[@class='heading' and .//a[text()='{apiUrl}'] and .//a[text()='{method}']]";
         }
 
         private string GetHeadingUrlSelector(string apiUrl, string method)
         {
-            return $"{GetApiUrlHeadingSelector(apiUrl, method)}//a[text()='{apiUrl}']";
+            return $"{GetSectionHeadingSelector(apiUrl, method)}//a[text()='{apiUrl}']";
         }
 
         private string GetAuthFormSelector(string apiUrl, string method)
         {
-            return $"{GetApiUrlHeadingSelector(apiUrl, method)}//form[@class='auth-form']/input";
+            return $"{GetSectionHeadingSelector(apiUrl, method)}//form[@class='auth-form']/input";
         }
 
         private string GetContentOfSection(string apiUrl, string method)
         {
-            return $"{GetApiUrlHeadingSelector(apiUrl, method)}//following-sibling::div[@class='content']";
+            return $"{GetSectionHeadingSelector(apiUrl, method)}//following-sibling::div[@class='content']";
         }
 
         private string GetIdParameterSelector(string apiUrl, string method)

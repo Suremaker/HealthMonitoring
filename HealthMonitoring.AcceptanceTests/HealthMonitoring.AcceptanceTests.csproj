@@ -205,12 +205,8 @@
     <Content Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="HealthMonitoring.Monitors.SelfHost.exe.config">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="HealthMonitoring.SelfHost.exe.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="HealthMonitoring.Monitors.SelfHost.exe.config"></None>
+    <None Include="HealthMonitoring.SelfHost.exe.config"></None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
