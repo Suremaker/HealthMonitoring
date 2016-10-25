@@ -92,8 +92,8 @@
       <HintPath>..\packages\Microsoft.AspNet.WebApi.SelfHost.5.2.3\lib\net45\System.Web.Http.SelfHost.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="WebDriver, Version=2.53.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.WebDriver.2.53.1\lib\net40\WebDriver.dll</HintPath>
+    <Reference Include="WebDriver, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.WebDriver.3.0.0\lib\net40\WebDriver.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
@@ -119,7 +119,6 @@
     <Compile Include="Helpers\CusomAssertions.cs" />
     <Compile Include="Helpers\Entities\EndpointHealthStats.cs" />
     <Compile Include="Helpers\Entities\EndpointHealthUpdate.cs" />
-    <Compile Include="Helpers\Entities\PublicEndpointIdentity.cs" />
     <Compile Include="Helpers\CredentialsProvider.cs" />
     <Compile Include="Helpers\Entities\EndpointIdentity.cs" />
     <Compile Include="Helpers\Http\MockWebEndpoint.cs" />
@@ -182,6 +181,10 @@
     <Compile Include="Scenarios\Selenium\Home_page.Steps.cs">
       <DependentUpon>Home_page.cs</DependentUpon>
     </Compile>
+    <Compile Include="Scenarios\Selenium\Swagger_page.cs" />
+    <Compile Include="Scenarios\Selenium\Swagger_page.Steps.cs">
+      <DependentUpon>Swagger_page.cs</DependentUpon>
+    </Compile>
     <Compile Include="Scenarios\Selenium\WebDriverContext.cs" />
     <Compile Include="Scenarios\Swagger_documentation.cs" />
     <Compile Include="Scenarios\Swagger_documentation.Steps.cs">
@@ -202,14 +205,19 @@
     <Content Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="HealthMonitoring.Monitors.SelfHost.exe.config" />
-    <None Include="HealthMonitoring.SelfHost.exe.config" />
+    <None Include="HealthMonitoring.Monitors.SelfHost.exe.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="HealthMonitoring.SelfHost.exe.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HealthMonitoring.TestUtils\HealthMonitoring.TestUtils.csproj">
       <Project>{88551F10-599D-48C4-974F-4AE7F66F6DDC}</Project>
-      <Name>HealthMonitoring.TestUtils</Name></ProjectReference>
+      <Name>HealthMonitoring.TestUtils</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HealthMonitoring.Integration.PushClient\HealthMonitoring.Integration.PushClient.csproj">
       <Project>{83B5CDAC-0057-4BFE-923C-C3F6ED6D1E7F}</Project>
       <Name>HealthMonitoring.Integration.PushClient</Name>
@@ -248,11 +256,11 @@ xcopy  /Y /I $(ProjectDir)log4net.config $(TargetDir)monitor\
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Selenium.WebDriver.ChromeDriver.2.23.0.1\build\Selenium.WebDriver.ChromeDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.ChromeDriver.2.23.0.1\build\Selenium.WebDriver.ChromeDriver.targets'))" />
     <Error Condition="!Exists('..\packages\Selenium.WebDriver.IEDriver.2.53.1.1\build\Selenium.WebDriver.IEDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.IEDriver.2.53.1.1\build\Selenium.WebDriver.IEDriver.targets'))" />
+    <Error Condition="!Exists('..\packages\Selenium.WebDriver.ChromeDriver.2.24.0.0\build\Selenium.WebDriver.ChromeDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.ChromeDriver.2.24.0.0\build\Selenium.WebDriver.ChromeDriver.targets'))" />
   </Target>
-  <Import Project="..\packages\Selenium.WebDriver.ChromeDriver.2.23.0.1\build\Selenium.WebDriver.ChromeDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.ChromeDriver.2.23.0.1\build\Selenium.WebDriver.ChromeDriver.targets')" />
   <Import Project="..\packages\Selenium.WebDriver.IEDriver.2.53.1.1\build\Selenium.WebDriver.IEDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.IEDriver.2.53.1.1\build\Selenium.WebDriver.IEDriver.targets')" />
+  <Import Project="..\packages\Selenium.WebDriver.ChromeDriver.2.24.0.0\build\Selenium.WebDriver.ChromeDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.ChromeDriver.2.24.0.0\build\Selenium.WebDriver.ChromeDriver.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

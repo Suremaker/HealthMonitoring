@@ -59,7 +59,7 @@ namespace HealthMonitoring.Persistence
         {
             using (var conn = _db.OpenConnection())
                 return conn.Query<EndpointEntity>("select * from EndpointConfig")
-                    .Select(e => new Endpoint(_timeCoordinator, new EndpointIdentity(e.Id, e.MonitorType, e.Address), new EndpointMetadata(e.Name, e.GroupName, e.Tags.FromDbString())))
+                    .Select(e => new Endpoint(_timeCoordinator, new EndpointIdentity(e.Id, e.MonitorType, e.Address), new EndpointMetadata(e.Name, e.GroupName, e.Tags.FromDbString()), e.Password))
                     .ToArray();
         }
     }
