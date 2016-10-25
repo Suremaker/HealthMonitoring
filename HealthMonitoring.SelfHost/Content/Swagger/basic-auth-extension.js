@@ -2,7 +2,7 @@
     var authForm = "<form class='auth-form' style='display:none' title='Fill basic auth credentials if needed.'>" +
             "<label style='margin-left: 10%'>basic auth: </label>" +
             "<input placeholder='id' style='width: 25%;margin: 5px 0 0 10px;' name='cred_id' class='cred-id' />" +
-            "<input placeholder='password' style='width: 25%;margin: 5px 0 0 15px;' name='cred_pwd' class='cred-pwd' />" +
+            "<input placeholder='password' type='password' style='width: 25%;margin: 5px 0 0 15px;' name='cred_pwd' class='cred-pwd' />" +
         "</form>";
 
     var placeToInsert = ".endpoint .heading > h3";
@@ -16,14 +16,25 @@
         }
     };
 
-    insertCredentialsForm(placeToInsert);
+    insertCredentialsForms(placeToInsert);
     setTimeout(showAuthForms, 1000);
 
-    function insertCredentialsForm(selector) {
+    function insertCredentialsForms(selector) {
         if ($(selector) == null)
             throw "could not insert basic auth form. element not exist:" + selector;
 
-        $(authForm).insertAfter(selector);
+        $(selector).each(function(i, heading) {
+            var responseCodes = $(heading).parents(".endpoint").find(".code");
+
+            $(responseCodes).each(function (j, el) {
+                var code = $(el);
+                if (code.text() === "401" ||
+                    code.text() === "403") {
+                    $(authForm).insertAfter(heading);
+                    return false;
+                }
+            });
+        });
     }
 
     function authorizeHeader() {
@@ -44,12 +55,13 @@
     function updateCredentials(form) {
         credentials.id = $(form).children("input[name=cred_id]:first").val();
         credentials.password = $(form).children("input[name=cred_pwd]:first").val();
-        console.log(credentials);
         authorizeHeader();
     }
 
     function toggleAuthForm(heading) {
         var form = $(heading).children(".auth-form:first");
+        if (!form.length) return;
+
         if ($(heading).next(".content").css('display') === 'block') {
             form.hide();
         } else {
