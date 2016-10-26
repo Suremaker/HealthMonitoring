@@ -165,7 +165,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
             string monitor)
         {
             _response.VerifyValidStatus(HttpStatusCode.OK);
-            var identities = JsonConvert.DeserializeObject<PublicEndpointIdentity[]>(_response.Content);
+            var identities = JsonConvert.DeserializeObject<EndpointIdentity[]>(_response.Content);
             Assert.NotNull(identities.Single(m => m.Id == id && m.Address == address && m.MonitorType == monitor));
         }
 

@@ -74,6 +74,7 @@ namespace HealthMonitoring.SelfHost.Configuration
                 {
                     c.DisableValidator();
                     c.CustomAsset("index", typeof(Startup).Assembly, "HealthMonitoring.SelfHost.Content.Swagger.swagger.html");
+                    c.InjectJavaScript(typeof(Startup).Assembly, "HealthMonitoring.SelfHost.Content.Swagger.basic-auth-extension.js");
                 });
         }
 

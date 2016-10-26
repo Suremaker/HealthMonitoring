@@ -6,7 +6,7 @@ namespace HealthMonitoring.Security
 {
     public static class EncryptionExtensions
     {
-        private static readonly Encoding Encoding = Encoding.UTF8;
+        private static readonly Encoding Encoding = Encoding.ASCII;
 
         public static string ToSha256Hash(this string value)
         {

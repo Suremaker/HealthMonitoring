@@ -36,6 +36,9 @@ namespace HealthMonitoring.SelfHost.Security
 
         public static void Authorize(this HttpRequestContext context, params SecurityRole[] roles)
         {
+            if (context.Principal == null)
+                throw new AuthenticationException();
+
             if (!IsInRoles(context, roles))
                 throw new UnauthorizedAccessException();
         }

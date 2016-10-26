@@ -27,6 +27,8 @@ namespace HealthMonitoring.SelfHost.Controllers
         [Route("api/monitors/register")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
+        [SwaggerResponse(HttpStatusCode.Unauthorized)]
+        [SwaggerResponse(HttpStatusCode.Forbidden)]
         public IHttpActionResult PostRegisterMonitors([FromBody]params string[] monitorTypes)
         {
             RequestContext.Authorize(SecurityRole.Monitor);
