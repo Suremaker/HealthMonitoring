@@ -1,5 +1,6 @@
 3.4.0.0
 -------
+Added basic authentication form to swagger ui
 Implemented push monitor type (being internally available in API)
 Added POST api/endpoints/{id}/health to allow updating health of specified endpoint
 Added Admin and Monitor credentials for API/Monitor process
