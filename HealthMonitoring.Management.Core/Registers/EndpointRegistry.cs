@@ -13,7 +13,6 @@ namespace HealthMonitoring.Management.Core.Registers
     {
         private readonly IHealthMonitorTypeRegistry _healthMonitorTypeRegistry;
         private readonly IEndpointConfigurationRepository _endpointConfigurationRepository;
-        private readonly IEndpointStatsRepository _statsRepository;
         private readonly IEndpointStatsManager _endpointStatsManager;
         private readonly ITimeCoordinator _timeCoordinator;
         private readonly ConcurrentDictionary<string, Endpoint> _endpoints = new ConcurrentDictionary<string, Endpoint>();
@@ -24,13 +23,11 @@ namespace HealthMonitoring.Management.Core.Registers
         public EndpointRegistry(
             IHealthMonitorTypeRegistry healthMonitorTypeRegistry, 
             IEndpointConfigurationRepository endpointConfigurationRepository,
-            IEndpointStatsRepository statsRepository,
             IEndpointStatsManager statsManager,
             ITimeCoordinator timeCoordinator)
         {
             _healthMonitorTypeRegistry = healthMonitorTypeRegistry;
             _endpointConfigurationRepository = endpointConfigurationRepository;
-            _statsRepository = statsRepository;
             _endpointStatsManager = statsManager;
             _timeCoordinator = timeCoordinator;
 
@@ -93,7 +90,6 @@ namespace HealthMonitoring.Management.Core.Registers
             endpoint.Dispose();
 
             _endpointConfigurationRepository.DeleteEndpoint(endpoint.Identity.Id);
-            _statsRepository.DeleteStatistics(endpoint.Identity.Id);
             return true;
         }
 

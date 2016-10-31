@@ -37,9 +37,12 @@ namespace HealthMonitoring.Management.Core.UnitTests
         [Fact]
         public async Task Manager_should_delete_old_stats()
         {
+            const int expectedRepeats = 3;
+
             var age = TimeSpan.FromHours(1);
             var utcNow = DateTime.UtcNow;
-            var asyncCountdown = new AsyncCountdown("delete old stats", 1);
+            var asyncCountdown = new AsyncCountdown("delete old stats", expectedRepeats);
+            var asyncCounter = new AsyncCounter();
 
             var monitorSettings = new Mock<IMonitorSettings>();
             monitorSettings.Setup(s => s.StatsHistoryMaxAge).Returns(age);
@@ -50,10 +53,22 @@ namespace HealthMonitoring.Management.Core.UnitTests
             var endpointMetricsCoordinator = new Mock<IEndpointMetricsForwarderCoordinator>();
 
             var repository = new Mock<IEndpointStatsRepository>();
-            repository.Setup(r => r.DeleteStatisticsOlderThan(utcNow - age)).Callback(() => asyncCountdown.Decrement());
+
+            repository.Setup(r => r.DeleteStatisticsOlderThan(utcNow - age, It.IsAny<int>())).Returns(() =>
+            {
+                asyncCountdown.Decrement();
+                asyncCounter.Increment();
+
+                const int deletedItemsCount = 127;
+                return asyncCounter.Value >= expectedRepeats ? 0 : deletedItemsCount;
+            });
 
             using (new EndpointStatsManager(repository.Object, monitorSettings.Object, timeCoordinator.Object, endpointMetricsCoordinator.Object))
                 await asyncCountdown.WaitAsync(MaxTestTime);
+
+            await Task.Delay(TimeSpan.FromMilliseconds(500));
+            //it should stop calling cleanup after there is no more items to be cleaned
+            Assert.Equal(expectedRepeats, asyncCounter.Value);
         }
     }
 }

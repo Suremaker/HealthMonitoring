@@ -1,3 +1,8 @@
+3.4.1.0
+-------
+Corrected stats write/delete performance issues by deleting old stats in batches (to avoid db timeouts) and do not deleting stats on endpoint delete (they will be cleaned eventually as old stats)
+Corrected memory issues in API by queueing up to 10000 stats entries to be saved in case of db issues (the incoming stats will overwrite the oldest in queue if limit is reached)
+
 3.4.0.0
 -------
 Added basic authentication form to swagger ui
