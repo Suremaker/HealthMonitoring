@@ -51,9 +51,17 @@ namespace HealthMonitoring.Management.Core.Registers
                                 new Endpoint(_timeCoordinator, newIdentifier, new EndpointMetadata(name, group, tags), encryptedPassword),
                                 (k, e) => e.UpdateEndpoint(group, name, tags, encryptedPassword));
             _endpointsByGuid[endpoint.Identity.Id] = endpoint;
+
+            var firstRegistration = endpoint.Identity == newIdentifier;
+
+            if (firstRegistration)
+                endpoint.UpdateFirstRegistrationTime();
+            else
+                endpoint.UpdateLastRegistrationUpdateTime();
+
             _endpointConfigurationRepository.SaveEndpoint(endpoint);
 
-            if (endpoint.Identity == newIdentifier)
+            if (firstRegistration)
                 EndpointAdded?.Invoke(endpoint);
             return endpoint.Identity.Id;
         }

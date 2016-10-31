@@ -30,6 +30,18 @@ namespace HealthMonitoring.Management.Core
             UpdateLastModifiedTime();
         }
 
+        public void UpdateFirstRegistrationTime()
+        {
+            Metadata.SetFirstRegistrationTime(_timeCoordinator.UtcNow);
+            UpdateLastModifiedTime();
+        }
+
+        public void UpdateLastRegistrationUpdateTime()
+        {
+            Metadata.SetLastRegistrationUpdateTime(_timeCoordinator.UtcNow);
+            UpdateLastModifiedTime();
+        }
+
         private void UpdateLastModifiedTime()
         {
             LastModifiedTimeUtc = _timeCoordinator.UtcNow;

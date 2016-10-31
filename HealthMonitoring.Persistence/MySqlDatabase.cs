@@ -40,6 +40,10 @@ namespace HealthMonitoring.Persistence
                     CreateColumn(conn, "EndpointConfig", "Tags", "varchar(4096)");
                 if (!DoesColumnExists(conn, "EndpointConfig", "Password"))
                     CreateColumn(conn, "EndpointConfig", "Password", "varchar(64)");
+                if (!DoesColumnExists(conn, "EndpointConfig", "FirstTimeRegistered"))
+                    CreateColumn(conn, "EndpointConfig", "FirstTimeRegistered", "datetime");
+                if (!DoesColumnExists(conn, "EndpointConfig", "LastTimeRegistrationUpdated"))
+                    CreateColumn(conn, "EndpointConfig", "LastTimeRegistrationUpdated", "datetime");
                 if (!DoesTableExists(conn, "EndpointStats"))
                     CreateEndpointStats(conn);
                 if (!DoesTableExists(conn, "HealthMonitorTypes"))
