@@ -8,7 +8,6 @@ namespace HealthMonitoring.Management.Core.Repositories
     {
         void InsertEndpointStatistics(Guid endpointId, EndpointHealth stats);
         IEnumerable<EndpointStats> GetStatistics(Guid id, int limitDays);
-        void DeleteStatistics(Guid id);
-        void DeleteStatisticsOlderThan(DateTime date);
+        int DeleteStatisticsOlderThan(DateTime date, int maxBatchSize);
     }
 }
