@@ -67,7 +67,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
                 await asyncCountdown.WaitAsync(MaxTestTime);
 
             await Task.Delay(TimeSpan.FromMilliseconds(500));
-            //it should stop calling cleanup after there is no more items to be cleaned
+            //it should stop calling cleanup when there are no more items to be cleaned
             Assert.Equal(expectedRepeats, asyncCounter.Value);
         }
     }
