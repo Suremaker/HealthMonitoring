@@ -92,7 +92,7 @@ namespace HealthMonitoring.Management.Core
             try
             {
                 var date = _timeCoordinator.UtcNow.Subtract(_settings.StatsHistoryMaxAge);
-                Logger.Info($"Deleting older stats than {date}");
+                Logger.Info($"Deleting stats older than {date}");
                 long current;
                 while ((current = _repository.DeleteStatisticsOlderThan(date, BatchSize)) > 0)
                     total += current;
