@@ -16,7 +16,6 @@ namespace HealthMonitoring.Management.Core.UnitTests
         private readonly EndpointRegistry _registry;
         private readonly Mock<IHealthMonitorTypeRegistry> _healthMonitorTypeRegistry;
         private readonly Mock<IEndpointConfigurationRepository> _configurationStore;
-        private readonly Mock<IEndpointStatsRepository> _statsRepository;
         private readonly Mock<IEndpointStatsManager> _statsManager = new Mock<IEndpointStatsManager>();
         private readonly Mock<ITimeCoordinator> _timeCoordinator = TimeCoordinatorMock.Get();
 
@@ -24,8 +23,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         {
             _healthMonitorTypeRegistry = new Mock<IHealthMonitorTypeRegistry>();
             _configurationStore = new Mock<IEndpointConfigurationRepository>();
-            _statsRepository = new Mock<IEndpointStatsRepository>();            
-            _registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _statsManager.Object, _timeCoordinator.Object);
+            _registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsManager.Object, _timeCoordinator.Object);
         }
 
         [Fact]
@@ -34,7 +32,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
             var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }));
             _configurationStore.Setup(s => s.LoadEndpoints()).Returns(new[] { endpoint });
 
-            var registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsRepository.Object, _statsManager.Object, _timeCoordinator.Object);
+            var registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsManager.Object, _timeCoordinator.Object);
 
             Assert.Same(endpoint, registry.GetById(endpoint.Identity.Id));
         }
@@ -68,7 +66,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         {
             SetupMonitors("monitor");
 
-            var endpointId = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] {"t1"}, "password");
+            var endpointId = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1" }, "password");
             var endpoint = _registry.GetById(endpointId);
 
             Assert.NotNull(endpoint);
@@ -86,7 +84,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         {
             SetupMonitors("monitor");
 
-            var endpointId = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] {"t1", "t2"}, "password");
+            var endpointId = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1", "t2" }, "password");
             var endpoint = _registry.GetById(endpointId);
 
             Assert.NotNull(endpoint);
@@ -166,7 +164,6 @@ namespace HealthMonitoring.Management.Core.UnitTests
             Assert.Null(_registry.GetById(id));
 
             _configurationStore.Verify(s => s.DeleteEndpoint(id));
-            _statsRepository.Verify(s => s.DeleteStatistics(id));
         }
 
         [Fact]
@@ -206,7 +203,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
             var id = _registry.RegisterOrUpdate("monitor", "address", "group", "name", null, "password");
             var health = new EndpointHealth(DateTime.UtcNow, TimeSpan.Zero, EndpointStatus.Healthy);
             Assert.True(_registry.UpdateHealth(id, health));
-            _statsManager.Verify(r => r.RecordEndpointStatistics(It.IsAny<EndpointIdentity>(),It.IsAny<EndpointMetadata>(), health));
+            _statsManager.Verify(r => r.RecordEndpointStatistics(It.IsAny<EndpointIdentity>(), It.IsAny<EndpointMetadata>(), health));
             Assert.Same(_registry.GetById(id).Health, health);
         }
 
@@ -216,7 +213,6 @@ namespace HealthMonitoring.Management.Core.UnitTests
             var health = new EndpointHealth(DateTime.UtcNow, TimeSpan.Zero, EndpointStatus.Healthy);
             var id = Guid.NewGuid();
             Assert.False(_registry.UpdateHealth(id, health));
-            _statsRepository.Verify(r => r.InsertEndpointStatistics(id, health), Times.Never);
         }
 
         [Fact]

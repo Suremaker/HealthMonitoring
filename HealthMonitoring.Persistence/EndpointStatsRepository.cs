@@ -40,23 +40,14 @@ namespace HealthMonitoring.Persistence
             }
         }
 
-        public void DeleteStatistics(Guid id)
+        public int DeleteStatisticsOlderThan(DateTime date, int maxBatchSize)
         {
             using (var conn = _db.OpenConnection())
             using (var tx = conn.BeginTransaction())
             {
-                conn.Execute("delete from EndpointStats where endpointId=@id", new { id }, tx);
+                var count = conn.Execute("delete from EndpointStats where CheckTimeUtc < @date order by CheckTimeUtc limit @maxBatchSize", new { date, maxBatchSize }, tx);
                 tx.Commit();
-            }
-        }
-
-        public void DeleteStatisticsOlderThan(DateTime date)
-        {
-            using (var conn = _db.OpenConnection())
-            using (var tx = conn.BeginTransaction())
-            {
-                conn.Execute("delete from EndpointStats where CheckTimeUtc < @date", new { date }, tx);
-                tx.Commit();
+                return count;
             }
         }
     }
