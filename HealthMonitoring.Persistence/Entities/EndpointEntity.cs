@@ -11,7 +11,7 @@ namespace HealthMonitoring.Persistence.Entities
         public string GroupName { get; set; }
         public string Tags { get; set; }
         public string Password { get; set; }
-        public DateTime? FirstTimeRegistered { get; set; }
-        public DateTime? LastTimeRegistrationUpdated { get; set; }
+        public DateTime FirstTimeRegistered { get; set; }
+        public DateTime LastTimeRegistrationUpdated { get; set; }
     }
 }

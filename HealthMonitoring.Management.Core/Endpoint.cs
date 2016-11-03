@@ -30,18 +30,6 @@ namespace HealthMonitoring.Management.Core
             UpdateLastModifiedTime();
         }
 
-        public void UpdateFirstRegistrationTime()
-        {
-            Metadata.SetFirstRegistrationTime(_timeCoordinator.UtcNow);
-            UpdateLastModifiedTime();
-        }
-
-        public void UpdateLastRegistrationUpdateTime()
-        {
-            Metadata.SetLastRegistrationUpdateTime(_timeCoordinator.UtcNow);
-            UpdateLastModifiedTime();
-        }
-
         private void UpdateLastModifiedTime()
         {
             LastModifiedTimeUtc = _timeCoordinator.UtcNow;
@@ -49,7 +37,7 @@ namespace HealthMonitoring.Management.Core
 
         public Endpoint UpdateMetadata(string group, string name, string[] tags)
         {
-            Metadata = new EndpointMetadata(name, group, tags ?? Metadata.Tags);
+            Metadata = new EndpointMetadata(name, group, tags ?? Metadata.Tags, Metadata.FirstTimeRegistered, _timeCoordinator.UtcNow);
             UpdateLastModifiedTime();
             return this;
         }

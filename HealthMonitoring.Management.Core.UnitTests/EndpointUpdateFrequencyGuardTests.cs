@@ -219,7 +219,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
 
         private Endpoint CreateEndpoint()
         {
-            return new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), string.Empty, string.Empty), new EndpointMetadata(string.Empty, string.Empty, null));
+            return new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), string.Empty, string.Empty), new EndpointMetadata(string.Empty, string.Empty, null, DateTime.UtcNow, DateTime.UtcNow));
         }
 
         private EndpointUpdateFrequencyGuard CreateGuard()

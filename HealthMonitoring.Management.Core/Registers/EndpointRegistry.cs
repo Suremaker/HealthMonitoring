@@ -47,21 +47,16 @@ namespace HealthMonitoring.Management.Core.Registers
                 throw new UnsupportedMonitorException(monitorType);
             var encryptedPassword = password?.ToSha256Hash();
             var newIdentifier = new EndpointIdentity(Guid.NewGuid(), monitorType, address);
+
             var endpoint = _endpoints.AddOrUpdate(newIdentifier.GetNaturalKey(),
-                                new Endpoint(_timeCoordinator, newIdentifier, new EndpointMetadata(name, group, tags), encryptedPassword),
+                                new Endpoint(_timeCoordinator, newIdentifier, new EndpointMetadata(name, group, tags, _timeCoordinator.UtcNow, _timeCoordinator.UtcNow), encryptedPassword),
                                 (k, e) => e.UpdateEndpoint(group, name, tags, encryptedPassword));
+
             _endpointsByGuid[endpoint.Identity.Id] = endpoint;
-
-            var firstRegistration = endpoint.Identity == newIdentifier;
-
-            if (firstRegistration)
-                endpoint.UpdateFirstRegistrationTime();
-            else
-                endpoint.UpdateLastRegistrationUpdateTime();
 
             _endpointConfigurationRepository.SaveEndpoint(endpoint);
 
-            if (firstRegistration)
+            if (endpoint.Identity == newIdentifier)
                 EndpointAdded?.Invoke(endpoint);
             return endpoint.Identity.Id;
         }

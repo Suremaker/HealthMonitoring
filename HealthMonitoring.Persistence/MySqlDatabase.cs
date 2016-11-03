@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.Data;
 using System.Linq;
 using Dapper;
@@ -40,10 +41,12 @@ namespace HealthMonitoring.Persistence
                     CreateColumn(conn, "EndpointConfig", "Tags", "varchar(4096)");
                 if (!DoesColumnExists(conn, "EndpointConfig", "Password"))
                     CreateColumn(conn, "EndpointConfig", "Password", "varchar(64)");
+
                 if (!DoesColumnExists(conn, "EndpointConfig", "FirstTimeRegistered"))
-                    CreateColumn(conn, "EndpointConfig", "FirstTimeRegistered", "datetime");
+                    CreateColumnAndSetValue(conn, "EndpointConfig", "FirstTimeRegistered", "datetime not null", DateTime.UtcNow);
                 if (!DoesColumnExists(conn, "EndpointConfig", "LastTimeRegistrationUpdated"))
-                    CreateColumn(conn, "EndpointConfig", "LastTimeRegistrationUpdated", "datetime");
+                    CreateColumnAndSetValue(conn, "EndpointConfig", "LastTimeRegistrationUpdated", "datetime not null", DateTime.UtcNow);
+
                 if (!DoesTableExists(conn, "EndpointStats"))
                     CreateEndpointStats(conn);
                 if (!DoesTableExists(conn, "HealthMonitorTypes"))
@@ -102,6 +105,12 @@ create index EndpointStats_CheckTimeUtc_idx on EndpointStats(CheckTimeUtc);
         private void CreateColumn(IDbConnection conn, string tableName, string columnName, string columnDefinition)
         {
             conn.Execute($"ALTER TABLE {tableName} ADD COLUMN {columnName} {columnDefinition}");
+        }
+
+        private void CreateColumnAndSetValue(IDbConnection conn, string tableName, string columnName, string columnDefinition, object value)
+        {
+            conn.Execute($"ALTER TABLE {tableName} ADD COLUMN {columnName} {columnDefinition}");
+            conn.Execute($"UPDATE {tableName} SET {columnName} = @value;", new { value });
         }
 
         private bool DoesColumnExists(IDbConnection conn, string tableName, string columnName)
