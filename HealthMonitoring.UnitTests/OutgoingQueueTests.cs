@@ -9,7 +9,7 @@ namespace HealthMonitoring.UnitTests
 {
     public class OutgoingQueueTests
     {
-        private static readonly TimeSpan AcceptableTimeDelta = TimeSpan.FromMilliseconds(300);
+        private static readonly TimeSpan AcceptableTimeDelta = TimeSpan.FromMilliseconds(50);
 
         [Fact]
         public void Queue_should_override_old_items_if_limit_is_reached()
@@ -68,7 +68,7 @@ namespace HealthMonitoring.UnitTests
             watch.Stop();
 
             Assert.Equal(availableItemsCount, items.Length);
-            Assert.True((watch.Elapsed - timeout).Duration() < AcceptableTimeDelta, "Expected full timeout");
+            Assert.True(watch.Elapsed > (timeout - AcceptableTimeDelta).Duration(), $"Expected full timeout! Elapsed time: {watch.Elapsed}");
         }
 
         [Fact]

@@ -45,7 +45,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
 
             _mockClient
                 .Setup(c => c.SendHealthUpdateAsync(endpointId, AuthenticationToken, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
-                .Returns(() => _awaitableFactory.Return().WithDelay(TimeSpan.FromMilliseconds(50)).WithTimeline("updateHealth").WithCountdown(countdown).RunAsync());
+                .Returns(() => _awaitableFactory.Return().WithDelay(TimeSpan.FromMilliseconds(100)).WithTimeline("updateHealth").WithCountdown(countdown).RunAsync());
 
             _mockTimeCoordinator
                 .Setup(c => c.Delay(interval, It.IsAny<CancellationToken>()))
