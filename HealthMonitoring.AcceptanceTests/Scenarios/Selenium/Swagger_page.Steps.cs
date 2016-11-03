@@ -87,7 +87,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             var status = _driver.WaitElementIsRendered(By.XPath(selector));
             var responseCode = ((int) code).ToString();
 
-            Assert.True(string.Equals(status.Text, responseCode));
+            Assert.True(string.Equals(status.Text, responseCode), $"Expected status: {responseCode}, actual status: {status.Text}");
         }
 
         private void RegisterEndpoint(
