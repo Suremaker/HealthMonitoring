@@ -42,10 +42,10 @@ namespace HealthMonitoring.Persistence
                 if (!DoesColumnExists(conn, "EndpointConfig", "Password"))
                     CreateColumn(conn, "EndpointConfig", "Password", "varchar(64)");
                 var date = DateTime.UtcNow;
-                if (!DoesColumnExists(conn, "EndpointConfig", "FirstTimeRegistered"))
-                    CreateColumnAndSetValue(conn, "EndpointConfig", "FirstTimeRegistered", "datetime not null", date);
-                if (!DoesColumnExists(conn, "EndpointConfig", "LastTimeRegistrationUpdated"))
-                    CreateColumnAndSetValue(conn, "EndpointConfig", "LastTimeRegistrationUpdated", "datetime not null", date);
+                if (!DoesColumnExists(conn, "EndpointConfig", "RegisteredOnUtc"))
+                    CreateColumnAndSetValue(conn, "EndpointConfig", "RegisteredOnUtc", "datetime not null", date);
+                if (!DoesColumnExists(conn, "EndpointConfig", "RegistrationUpdatedOnUtc"))
+                    CreateColumnAndSetValue(conn, "EndpointConfig", "RegistrationUpdatedOnUtc", "datetime not null", date);
                 if (!DoesTableExists(conn, "EndpointStats"))
                     CreateEndpointStats(conn);
                 if (!DoesTableExists(conn, "HealthMonitorTypes"))
@@ -76,7 +76,9 @@ create table EndpointConfig (
     GroupName varchar(1024) not null, 
     Name varchar(1024) not null,
     Tags varchar(4096),
-    Password char(64)
+    Password char(64),
+    RegisteredOnUtc datetime not null,
+    RegistrationUpdatedOnUtc datetime not null
 )");
         }
 

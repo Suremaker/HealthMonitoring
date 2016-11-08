@@ -254,8 +254,8 @@ namespace HealthMonitoring.Management.Core.UnitTests
             var endpoint = _registry.GetById(endpointId);
 
             Assert.NotNull(endpoint);
-            Assert.Equal(firstRegistrationDate, endpoint.Metadata.FirstTimeRegistered);
-            Assert.Equal(firstRegistrationDate, endpoint.Metadata.LastTimeRegistrationUpdated);
+            Assert.Equal(firstRegistrationDate, endpoint.Metadata.RegisteredOnUtc);
+            Assert.Equal(firstRegistrationDate, endpoint.Metadata.RegistrationUpdatedOnUtc);
 
             var secondRegistrationDate = DateTime.UtcNow;
             _timeCoordinator.Setup(c => c.UtcNow).Returns(secondRegistrationDate);
@@ -266,8 +266,8 @@ namespace HealthMonitoring.Management.Core.UnitTests
             Assert.Equal(endpointId, endpointIdUpdated);
 
             Assert.NotNull(endpoint);
-            Assert.Equal(firstRegistrationDate, endpoint.Metadata.FirstTimeRegistered);
-            Assert.Equal(secondRegistrationDate, endpoint.Metadata.LastTimeRegistrationUpdated);
+            Assert.Equal(firstRegistrationDate, endpoint.Metadata.RegisteredOnUtc);
+            Assert.Equal(secondRegistrationDate, endpoint.Metadata.RegistrationUpdatedOnUtc);
         }
 
         private void SetupMonitors(params string[] monitorTypes)
