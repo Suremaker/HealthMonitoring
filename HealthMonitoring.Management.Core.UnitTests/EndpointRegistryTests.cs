@@ -29,7 +29,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         [Fact]
         public void EndpointRegistry_should_load_endpoints_from_repository()
         {
-            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }));
+            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }, DateTime.UtcNow, DateTime.UtcNow));
             _configurationStore.Setup(s => s.LoadEndpoints()).Returns(new[] { endpoint });
 
             var registry = new EndpointRegistry(_healthMonitorTypeRegistry.Object, _configurationStore.Object, _statsManager.Object, _timeCoordinator.Object);
@@ -238,6 +238,36 @@ namespace HealthMonitoring.Management.Core.UnitTests
             _registry.RegisterOrUpdate("monitor", "address", "group", "name", new string[0]);
 
             Assert.Null(captured);
+        }
+
+        [Fact]
+        public void RegisterOrUpdate_should_update_registration_dates()
+        {
+            SetupMonitors("monitor");
+
+            var firstRegistrationDate = DateTime.UtcNow;
+            _timeCoordinator.Setup(c => c.UtcNow).Returns(firstRegistrationDate);
+
+            var endpointId = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1" }, "password");
+            Assert.NotEqual(Guid.Empty, endpointId);
+
+            var endpoint = _registry.GetById(endpointId);
+
+            Assert.NotNull(endpoint);
+            Assert.Equal(firstRegistrationDate, endpoint.Metadata.FirstTimeRegistered);
+            Assert.Equal(firstRegistrationDate, endpoint.Metadata.LastTimeRegistrationUpdated);
+
+            var secondRegistrationDate = DateTime.UtcNow;
+            _timeCoordinator.Setup(c => c.UtcNow).Returns(secondRegistrationDate);
+
+            var endpointIdUpdated = _registry.RegisterOrUpdate("monitor", "address", "group", "name", new[] { "t1" }, "password");
+            Assert.NotEqual(Guid.Empty, endpointId);
+
+            Assert.Equal(endpointId, endpointIdUpdated);
+
+            Assert.NotNull(endpoint);
+            Assert.Equal(firstRegistrationDate, endpoint.Metadata.FirstTimeRegistered);
+            Assert.Equal(secondRegistrationDate, endpoint.Metadata.LastTimeRegistrationUpdated);
         }
 
         private void SetupMonitors(params string[] monitorTypes)

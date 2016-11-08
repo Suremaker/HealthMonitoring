@@ -37,7 +37,7 @@ namespace HealthMonitoring.Management.Core
 
         public Endpoint UpdateMetadata(string group, string name, string[] tags)
         {
-            Metadata = new EndpointMetadata(name, group, tags ?? Metadata.Tags);
+            Metadata = new EndpointMetadata(name, group, tags ?? Metadata.Tags, Metadata.FirstTimeRegistered, _timeCoordinator.UtcNow);
             UpdateLastModifiedTime();
             return this;
         }

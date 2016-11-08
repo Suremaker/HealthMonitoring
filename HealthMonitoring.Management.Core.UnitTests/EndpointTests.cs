@@ -16,7 +16,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         {
             var expectedLastModifiedTime = DateTime.UtcNow;
             _timeCoordinator.Setup(c => c.UtcNow).Returns(expectedLastModifiedTime);
-            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", null));
+            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", null, DateTime.UtcNow, DateTime.UtcNow));
 
 
             Assert.Equal(expectedLastModifiedTime, endpoint.LastModifiedTimeUtc);
@@ -25,7 +25,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         [Fact]
         public void UpdateHealth_should_update_health_and_last_modified_time()
         {
-            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", null));
+            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", null, DateTime.UtcNow, DateTime.UtcNow));
             var health = new EndpointHealth(DateTime.UtcNow, TimeSpan.Zero, EndpointStatus.Healthy);
 
             var expectedLastModifiedTime = DateTime.UtcNow;
@@ -43,7 +43,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
             var expectedLastModifiedTime1 = DateTime.UtcNow;
             var expectedLastModifiedTime2 = DateTime.UtcNow.AddMinutes(1);
 
-            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", null));
+            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", null, DateTime.UtcNow, DateTime.UtcNow));
             var oldHealth = new EndpointHealth(DateTime.UtcNow, TimeSpan.Zero, EndpointStatus.Healthy);
 
             _timeCoordinator.Setup(c => c.UtcNow).Returns(expectedLastModifiedTime1);
@@ -65,7 +65,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
             var expectedLastModifiedTime1 = DateTime.UtcNow;
             var expectedLastModifiedTime2 = DateTime.UtcNow.AddMinutes(1);
 
-            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", null));
+            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", null, DateTime.UtcNow, DateTime.UtcNow));
             var newHealth = new EndpointHealth(DateTime.UtcNow, TimeSpan.Zero, EndpointStatus.Healthy);
             var oldHealth = new EndpointHealth(DateTime.UtcNow.AddSeconds(-1), TimeSpan.Zero, EndpointStatus.Healthy);
 
@@ -82,7 +82,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         [Fact]
         public void UpdateMetadata_should_update_metadata_and_last_modified_time()
         {
-            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1" }));
+            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1" }, DateTime.UtcNow, DateTime.UtcNow));
 
             var expectedLastModifiedTime = DateTime.UtcNow;
             _timeCoordinator.Setup(c => c.UtcNow).Returns(expectedLastModifiedTime);
@@ -99,7 +99,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         [Fact]
         public void UpdateMetadata_should_not_update_tags_if_null_provided()
         {
-            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1" }));
+            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1" }, DateTime.UtcNow, DateTime.UtcNow));
 
             var expectedLastModifiedTime = DateTime.UtcNow;
             _timeCoordinator.Setup(c => c.UtcNow).Returns(expectedLastModifiedTime);
@@ -114,7 +114,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
         [Fact]
         public void Dispose_should_remove_health_information_and_update_last_modified_time_as_well_as_IsDisposed_property()
         {
-            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", null));
+            var endpoint = new Endpoint(_timeCoordinator.Object, new EndpointIdentity(Guid.NewGuid(), "monitor", "address"), new EndpointMetadata("name", "group", null, DateTime.UtcNow, DateTime.UtcNow));
             endpoint.UpdateHealth(new EndpointHealth(DateTime.UtcNow, TimeSpan.Zero, EndpointStatus.Healthy));
 
             DateTime expectedLastModifiedTime = DateTime.UtcNow;

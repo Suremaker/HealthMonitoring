@@ -128,7 +128,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         public void GetEndpoint_should_return_endpoint_information()
         {
             Guid id = Guid.NewGuid();
-            var endpoint = new Endpoint(TimeCoordinatorMock.Get().Object, new EndpointIdentity(id, "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }));
+            var endpoint = new Endpoint(TimeCoordinatorMock.Get().Object, new EndpointIdentity(id, "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }, _utcNow, _utcNow));
             _endpointRegistry.Setup(r => r.GetById(id)).Returns(endpoint);
 
             var result = _controller.GetEndpoint(id) as OkNegotiatedContentResult<EndpointDetails>;
@@ -149,7 +149,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         {
             var id = Guid.NewGuid();
 
-            var endpoint = new Endpoint(TimeCoordinatorMock.Get().Object, new EndpointIdentity(id, "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }));
+            var endpoint = new Endpoint(TimeCoordinatorMock.Get().Object, new EndpointIdentity(id, "monitor", "address"), new EndpointMetadata("name", "group", new[] { "t1", "t2" }, DateTime.UtcNow, DateTime.UtcNow));
             var endpointHealth = new EndpointHealth(_utcNow, TimeSpan.FromSeconds(5), status, new Dictionary<string, string> { { "abc", "def" } });
 
             endpoint.UpdateHealth(endpointHealth);
@@ -179,8 +179,8 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         {
             var endpoints = new[]
             {
-                new Endpoint(TimeCoordinatorMock.Get().Object,new EndpointIdentity(Guid.NewGuid(),"a", "b"),new EndpointMetadata("c", "d", new[] { "t1", "t2" })),
-                new Endpoint(TimeCoordinatorMock.Get().Object,new EndpointIdentity(Guid.NewGuid(), "e", "f"),new EndpointMetadata( "g", "h", new[] { "t1", "t2" }))
+                new Endpoint(TimeCoordinatorMock.Get().Object,new EndpointIdentity(Guid.NewGuid(),"a", "b"),new EndpointMetadata("c", "d", new[] { "t1", "t2" }, DateTime.UtcNow, DateTime.UtcNow)),
+                new Endpoint(TimeCoordinatorMock.Get().Object,new EndpointIdentity(Guid.NewGuid(), "e", "f"),new EndpointMetadata( "g", "h", new[] { "t1", "t2" }, DateTime.UtcNow, DateTime.UtcNow))
             };
             _endpointRegistry.Setup(r => r.Endpoints).Returns(endpoints);
             var results = _controller.GetEndpoints().ToArray();
@@ -210,17 +210,17 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
             {
                 new Endpoint(TimeCoordinatorMock.Get().Object,
                     new EndpointIdentity(Guid.Parse("11111111-1111-1111-1111-111111111111"), "monitorType1", "address1"),
-                    new EndpointMetadata("nam", "group11", new[] { "t1", "t2" }))
+                    new EndpointMetadata("nam", "group11", new[] { "t1", "t2" }, DateTime.UtcNow, DateTime.UtcNow))
                     .UpdateHealth(new EndpointHealth(DateTime.MinValue, TimeSpan.Zero, EndpointStatus.Healthy)),
 
                 new Endpoint(TimeCoordinatorMock.Get().Object,
                     new EndpointIdentity(Guid.Parse("22222222-2222-2222-2222-222222222222"), "monitorType1", "address2"),
-                    new EndpointMetadata( "name2", "group2", new[] { "t2", "t3" }))
+                    new EndpointMetadata( "name2", "group2", new[] { "t2", "t3" }, DateTime.UtcNow, DateTime.UtcNow))
                     .UpdateHealth(new EndpointHealth(DateTime.MinValue, TimeSpan.Zero, EndpointStatus.Unhealthy)),
 
                 new Endpoint(TimeCoordinatorMock.Get().Object,
                     new EndpointIdentity(Guid.Parse("33333333-3333-3333-3333-333333333333"), "monitorType2", "address123"),
-                    new EndpointMetadata( "name3", "group2", new[] { "t1", "t2", "t3" }))
+                    new EndpointMetadata( "name3", "group2", new[] { "t1", "t2", "t3" }, DateTime.UtcNow, DateTime.UtcNow))
                     .UpdateHealth(new EndpointHealth(DateTime.MinValue, TimeSpan.Zero, EndpointStatus.Faulty))
             };
             _endpointRegistry.Setup(r => r.Endpoints).Returns(endpoints);
@@ -263,9 +263,9 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
         {
             var endpoints = new[]
             {
-                new Endpoint(TimeCoordinatorMock.Get().Object,new EndpointIdentity(Guid.NewGuid(), "monitor1", "address1"), new EndpointMetadata("name", "group",new string[0])),
-                new Endpoint(TimeCoordinatorMock.Get().Object,new EndpointIdentity(Guid.NewGuid(), "monitor2", "address2"), new EndpointMetadata("name", "group",new string[0])),
-                new Endpoint(TimeCoordinatorMock.Get().Object,new EndpointIdentity(Guid.NewGuid(), "monitor3", "address3"), new EndpointMetadata("name", "group",new string[0]))
+                new Endpoint(TimeCoordinatorMock.Get().Object,new EndpointIdentity(Guid.NewGuid(), "monitor1", "address1"), new EndpointMetadata("name", "group",new string[0], DateTime.UtcNow, DateTime.UtcNow)),
+                new Endpoint(TimeCoordinatorMock.Get().Object,new EndpointIdentity(Guid.NewGuid(), "monitor2", "address2"), new EndpointMetadata("name", "group",new string[0], DateTime.UtcNow, DateTime.UtcNow)),
+                new Endpoint(TimeCoordinatorMock.Get().Object,new EndpointIdentity(Guid.NewGuid(), "monitor3", "address3"), new EndpointMetadata("name", "group",new string[0], DateTime.UtcNow, DateTime.UtcNow))
             };
             _endpointRegistry.Setup(r => r.Endpoints).Returns(endpoints);
             var actual = _controller.GetEndpointsIdentities();

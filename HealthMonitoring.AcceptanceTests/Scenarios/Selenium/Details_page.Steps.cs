@@ -22,7 +22,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         private const string _endpointNameOnDetailsPage = "/html/body/table[1]/tbody/tr[3]/td[2]";
         private const string _endpointGroupOnDetailsPage = "/html/body/table[1]/tbody/tr[2]/td[2]";
-        private const string _endpointTagsDetailsPage = "/html/body/table[1]/tbody/tr[9]/td[2]//span";
+        private const string _endpointTagsDetailsPage = "/html/body/table[1]/tbody/tr[11]/td[2]//span";
 
         private readonly IWebDriver _driver;
         private readonly RestClient _client;

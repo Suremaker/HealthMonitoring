@@ -44,10 +44,14 @@ namespace HealthMonitoring.Management.Core.Registers
                 throw new UnsupportedMonitorException(monitorType);
             var encryptedPassword = password?.ToSha256Hash();
             var newIdentifier = new EndpointIdentity(Guid.NewGuid(), monitorType, address);
+
+            var utcNow = _timeCoordinator.UtcNow;
             var endpoint = _endpoints.AddOrUpdate(newIdentifier.GetNaturalKey(),
-                                new Endpoint(_timeCoordinator, newIdentifier, new EndpointMetadata(name, group, tags), encryptedPassword),
+                                new Endpoint(_timeCoordinator, newIdentifier, new EndpointMetadata(name, group, tags, utcNow, utcNow), encryptedPassword),
                                 (k, e) => e.UpdateEndpoint(group, name, tags, encryptedPassword));
+
             _endpointsByGuid[endpoint.Identity.Id] = endpoint;
+
             _endpointConfigurationRepository.SaveEndpoint(endpoint);
 
             if (endpoint.Identity == newIdentifier)

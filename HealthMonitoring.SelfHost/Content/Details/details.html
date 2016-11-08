@@ -22,6 +22,8 @@
     <tr><td>Status:</td><td class="status {{details.Status}}">{{details.Status}}</td></tr>
     <tr><td>Last Check:</td><td>{{details.LastCheckUtc | dateFilter}}</td></tr>
     <tr><td>Last Response Time:</td><td>{{formatDuration(details.LastResponseTime)}}</td></tr>
+    <tr><td>Registered On:</td><td>{{details.FirstTimeRegistered | dateFilter}}</td></tr>
+    <tr><td>Registration Updated On:</td><td>{{details.LastTimeRegistrationUpdated | dateFilter}}</td></tr>
     <tr><td>Tags:</td><td><p class="tagsContainer"><span ng-repeat="tag in details.Tags" ng-click="tagClick(tag)" ng-style="tagStyles[tag]" ng-mouseenter="changeTagColour(tag, true)" ng-mouseleave="changeTagColour(tag, false)" class="endpointTag">{{tag}}</span></p></td>
     </tr>
 </table>
