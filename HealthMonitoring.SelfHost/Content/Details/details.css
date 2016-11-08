@@ -69,15 +69,18 @@ path.offline { stroke: blue; }
 path.notRun{ stroke: #111111; }
 path.notExists { stroke: #444444; }
 
+.endpoint-status{padding: 0.2em 0.4em 0.2em 0.4em; border-radius: 0.25em; cursor:pointer;margin: 0 0.1em 0 0.1em; text-align: center !important;}
+
 .legendBar { margin-left: 20px;}
 .status { padding: 2px;font-size: smaller;display: inline-block;margin-right: 2px;}
-.status.healthy { background-color: darkgreen;color: #eeeeee;}
-.status.faulty { background-color: darkred;color: #eeeeee;}
-.status.unhealthy { background-color: gold;}
-.status.timedOut { background-color: orangered;color: #eeeeee;}
-.status.offline { background-color: blue;color: #eeeeee;}
-.status.notRun { background-color: #111111;color: #eeeeee;}
-.status.notExists { background-color: #444444;color: #eeeeee;}
+.stats-key{width: 75px; display: inline-block;margin-right: 0.2em;text-transform: capitalize;}
+.status-healthy { background-color: darkgreen;color: #eeeeee;}
+.status-faulty { background-color: darkred;color: #eeeeee;}
+.status-unhealthy { background-color: gold;}
+.status-timedOut { background-color: orangered;color: #eeeeee;}
+.status-offline { background-color: blue;color: #eeeeee;}
+.status-notRun { background-color: #111111;color: #eeeeee;}
+.status-notExists { background-color: #444444;color: #eeeeee;}
 
 .tooltip {
     display:block;

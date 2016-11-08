@@ -7,6 +7,7 @@
     <script src="/static/scripts/angular.min.js"></script>
     <script src="/static/scripts/advanced-filters.js"></script>
     <script src="/static/scripts/functions.js"></script>
+    <script src="/static/scripts/legend.js"></script>
     <link rel="stylesheet" href="/static/details/details.css">
     <link rel="stylesheet" href="/static/styles/common.css">
     <base href="/dashboard" target="_blank"/>
@@ -19,7 +20,7 @@
     <tr><td>Name:</td><td>{{details.Name}}</td></tr>
     <tr><td>Address:</td><td>{{details.Address}}</td></tr>
     <tr><td>Monitor Type:</td><td>{{details.MonitorType}}</td></tr>
-    <tr><td>Status:</td><td class="status {{details.Status}}">{{details.Status}}</td></tr>
+    <tr><td>Status:</td><td><span class="endpoint-status status-{{details.Status}}">{{details.Status}}</span></td></tr>
     <tr><td>Last Check:</td><td>{{details.LastCheckUtc | dateFilter}}</td></tr>
     <tr><td>Last Response Time:</td><td>{{formatDuration(details.LastResponseTime)}}</td></tr>
     <tr><td>Tags:</td><td><p class="tagsContainer"><span ng-repeat="tag in details.Tags" ng-click="tagClick(tag)" ng-style="tagStyles[tag]" ng-mouseenter="changeTagColour(tag, true)" ng-mouseleave="changeTagColour(tag, false)" class="endpointTag">{{tag}}</span></p></td>
@@ -40,12 +41,16 @@
         <path ng-repeat="(k,v) in stats.paths" d="{{v.data}}" class="{{k}}"/>
     </svg>
 </div>
-<div class="legendBar">Legend: <div ng-repeat="(k,v) in stats.paths" class="status {{k}}">{{k}}</div></div>
+<div class="legendBar">
+    <strong>Legend:</strong>
+    <div ng-repeat="(key,value) in statLegend" style="margin-top:0.5em"><span class="endpoint-status stats-key status-{{key}}">{{key}} </span>{{value}}</div>
+</div>
+
 <div class="tooltip" ng-if="currentStat">
     <table>
         <tr><td>Check Time:</td><td>{{currentStat.time | dateFilter}}</td></tr>
         <tr><td>Response Time:</td><td>{{formatDuration(currentStat.duration)}}</td></tr>
-        <tr><td>Status:</td><td class="status {{currentStat.status}}">{{currentStat.status}}</td></tr>
+        <tr><td>Status:</td><td class="endpoint-status status-{{currentStat.status}}">{{currentStat.status}}</td></tr>
     </table>
 </div>
 <script>
@@ -62,6 +67,7 @@
         $scope.stats = {lines:[],paths:{}};
         $scope.graph = { width: 800, height: 400 };
         $scope.statsLoading = false;
+        $scope.statLegend = statusLegend;
 
         $scope.updateDetails = function () {
 

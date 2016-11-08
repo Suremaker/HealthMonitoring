@@ -8,6 +8,7 @@
     <script src="/static/scripts/angular-filter.min.js"></script>
     <script src="/static/scripts/functions.js"></script>
     <script src="/static/scripts/advanced-filters.js"></script>
+    <script src="/static/scripts/legend.js"></script>
     <link rel="stylesheet" href="/static/home/home.css">
     <link rel="stylesheet" href="/static/styles/common.css">
     <base href="/">
@@ -35,7 +36,7 @@
                     <span class="stats-value">{{endpoints.length}}</span>
                 </div>
                 <div ng-repeat="(key,value) in endpoints | groupBy: 'Status'" ng-click="addItemToFilter(key, statusFilterName)">
-                    <span class="endpoint-status stats-key status-{{key}}">{{key}}</span>
+                    <span class="endpoint-status stats-key status-{{key}}" ng-mousemove="displayHint($event)" ng-mouseleave="hideTooltip()">{{key}}</span>
                     <span class="stats-value">{{value.length}}</span>
                 </div>
             </div>
@@ -43,6 +44,9 @@
             <div class="selected-filters-container">
                 <span ng-if="filters[statusFilterName].length" class="filter-label stats-key">Selected Statuses</span>
                 <span ng-repeat="status in filters[statusFilterName]" ng-click="removeItemFromFilter(status, statusFilterName)" class="endpoint-status status-{{status}}">{{status}}</span>
+            </div>
+            <div class="tooltip" style="left: {{statLegend.x}}px; top: {{statLegend.y}}px;" ng-if="statLegend">
+            <div>{{statLegend.description}}</div>
             </div>
 
             <div class="selected-filters-container">
@@ -61,7 +65,7 @@
                 <tr ng-repeat="e in endpoints | filter:statusFilter | orderBy: ['Group','Name'] | filter:tagFilter">
                     <td>{{e.Group}}</td>
                     <td><a href="/dashboard/details?id={{e.Id}}" target="_blank">{{e.Name}}</a></td>
-                    <td class="endpoint-status status-{{e.Status}}" ng-click="onStatusSelected(e.Status)">{{e.Status}}</td>
+                    <td class="endpoint-status status-{{e.Status}}" ng-click="onStatusSelected(e.Status)" ng-mousemove="displayHint($event)" ng-mouseleave="hideTooltip()">{{e.Status}}</td>
                     <td>{{formatDuration(e.LastResponseTime)}}</td>
                     <td>{{e.LastCheckUtc | dateFilter }}</td>
                     <td>
@@ -92,6 +96,7 @@
 
         $scope.filterTagStyles = {};
         $scope.endpointTagStyles = {};
+        $scope.statLegend = null;
 
         var endpointFrequency = getEndpointUpdatingFrequency($location);
         var configFrequency = getConfigUpdatingFrequency($location);
@@ -104,6 +109,16 @@
                 .error(function (data, status) {
                     $scope.config = { Dashboard: { Title: "-- connection issue --" }, Version: "-- connection issue --" };
                 });
+        }
+
+        $scope.displayHint = function (evnt) {
+            if ($scope.statLegend==null) {
+                $scope.statLegend = { status: evnt.target.innerHTML, description: statusLegend[evnt.target.innerHTML], x: evnt.clientX + 5, y: evnt.clientY + 5 };
+            }
+        }
+
+        $scope.hideTooltip = function () {
+            $scope.statLegend = null;
         }
 
         $scope.getEndpoints = function () {
