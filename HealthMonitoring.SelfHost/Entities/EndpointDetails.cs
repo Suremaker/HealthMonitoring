@@ -32,8 +32,8 @@ namespace HealthMonitoring.SelfHost.Entities
                 Status = EndpointStatus.NotRun;
             }
             Tags = endpoint.Metadata.Tags;
-            FirstTimeRegistered = endpoint.Metadata.FirstTimeRegistered;
-            LastTimeRegistrationUpdated = endpoint.Metadata.LastTimeRegistrationUpdated;
+            RegisteredOnUtc = endpoint.Metadata.RegisteredOnUtc;
+            RegistrationUpdatedOnUtc = endpoint.Metadata.RegistrationUpdatedOnUtc;
         }
 
         public static EndpointDetails FromDomain(Endpoint endpoint)
@@ -60,7 +60,7 @@ namespace HealthMonitoring.SelfHost.Entities
         [Required]
         public IDictionary<string, string> Details { get; set; }
         public string[] Tags { get; set; }
-        public DateTime FirstTimeRegistered { get; set; }
-        public DateTime LastTimeRegistrationUpdated { get; set; }
+        public DateTime RegisteredOnUtc { get; set; }
+        public DateTime RegistrationUpdatedOnUtc { get; set; }
     }
 }

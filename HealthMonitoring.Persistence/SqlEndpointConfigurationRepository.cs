@@ -29,7 +29,7 @@ namespace HealthMonitoring.Persistence
                 var tags = endpoint.Metadata.Tags.ToDbString();
 
                 conn.Execute(
-                    $"replace into EndpointConfig(MonitorType, Address, GroupName, Name, Id, Password, FirstTimeRegistered, LastTimeRegistrationUpdated{(tags != null ? ", Tags" : "")}) values(@MonitorType,@Address,@Group,@Name,@Id,@Password,@FirstTimeRegistered,@LastTimeRegistrationUpdated{(tags != null ? ",@Tags" : "")})",
+                    $"replace into EndpointConfig(MonitorType, Address, GroupName, Name, Id, Password, RegisteredOnUtc, RegistrationUpdatedOnUtc{(tags != null ? ", Tags" : "")}) values(@MonitorType,@Address,@Group,@Name,@Id,@Password,@RegisteredOnUtc,@RegistrationUpdatedOnUtc{(tags != null ? ",@Tags" : "")})",
                     new
                     {
                         endpoint.Identity.MonitorType,
@@ -38,8 +38,8 @@ namespace HealthMonitoring.Persistence
                         endpoint.Metadata.Name,
                         endpoint.Identity.Id,
                         endpoint.Password,
-                        endpoint.Metadata.FirstTimeRegistered,
-                        endpoint.Metadata.LastTimeRegistrationUpdated,
+                        endpoint.Metadata.RegisteredOnUtc,
+                        endpoint.Metadata.RegistrationUpdatedOnUtc,
                         tags
                     }, tx);
 
@@ -64,7 +64,7 @@ namespace HealthMonitoring.Persistence
                     .Select(e => new Endpoint(
                         _timeCoordinator,
                         new EndpointIdentity(e.Id, e.MonitorType, e.Address),
-                        new EndpointMetadata(e.Name, e.GroupName, e.Tags.FromDbString(), e.FirstTimeRegistered, e.LastTimeRegistrationUpdated),
+                        new EndpointMetadata(e.Name, e.GroupName, e.Tags.FromDbString(), e.RegisteredOnUtc, e.RegistrationUpdatedOnUtc),
                         e.Password))
                     .ToArray();
         }
