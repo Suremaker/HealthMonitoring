@@ -1,3 +1,8 @@
+3.5.0.0
+-------
+Added health monitoring legend with status description (Home Page and Details Page)
+Added 'Registered On' and 'Registration Updated On' dates to the endpoints (Details Page and GET /api/endpoints/, GET /api/endpoints/{id}/)
+
 3.4.1.0
 -------
 Corrected stats write/delete performance issues by deleting old stats in batches (to avoid db timeouts) and not deleting stats on endpoint delete (they will be cleaned eventually as old stats)
