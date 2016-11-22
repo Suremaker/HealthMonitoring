@@ -50,6 +50,8 @@ namespace HealthMonitoring.Persistence
                     CreateEndpointStats(conn);
                 if (!DoesTableExists(conn, "HealthMonitorTypes"))
                     CreateHealthMonitorTypesTable(conn);
+                if (!DoesIndexExists(conn, "EndpointStats_EndpointIdCheckTimeUtc_idx"))
+                    CreateEndpointStatsIndex(conn);
             }
         }
 
@@ -60,6 +62,15 @@ FROM information_schema.TABLES
 WHERE
 TABLE_NAME='{tableName}'
 AND TABLE_SCHEMA='{_databaseName}'";
+
+            return conn
+                .Query(query)
+                .Any();
+        }
+
+        private bool DoesIndexExists(IDbConnection conn, string indexName)
+        {
+            var query = $@"show index from EndpointStats where Key_name='{indexName}'";
 
             return conn
                 .Query(query)
@@ -82,6 +93,11 @@ create table EndpointConfig (
 )");
         }
 
+        private static void CreateEndpointStatsIndex(IDbConnection conn)
+        {
+            conn.Execute("create index EndpointStats_EndpointIdCheckTimeUtc_idx on EndpointStats(EndpointId,CheckTimeUtc)");
+        }
+
         private void CreateHealthMonitorTypesTable(IDbConnection conn)
         {
             conn.Execute("create table HealthMonitorTypes(MonitorType varchar(256) primary key)");
@@ -100,6 +116,7 @@ create table EndpointStats (
 
 create index EndpointStats_EndpointId_idx on EndpointStats(EndpointId);
 create index EndpointStats_CheckTimeUtc_idx on EndpointStats(CheckTimeUtc);
+create index EndpointStats_EndpointIdCheckTimeUtc_idx on EndpointStats(EndpointId,CheckTimeUtc);
 ");
         }
 
