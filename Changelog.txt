@@ -1,3 +1,7 @@
+3.5.1.0
+-------
+Added EndpointStats multiple-column index for stats limit days query
+
 3.5.0.0
 -------
 Added health monitoring legend with status description (Home Page and Details Page)
