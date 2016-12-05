@@ -34,13 +34,13 @@ namespace HealthMonitoring.SelfHost.Entities
             Tags = endpoint.Metadata.Tags;
             RegisteredOnUtc = endpoint.Metadata.RegisteredOnUtc;
             RegistrationUpdatedOnUtc = endpoint.Metadata.RegistrationUpdatedOnUtc;
+            MonitorTag = endpoint.Metadata.MonitorTag;
         }
 
         public static EndpointDetails FromDomain(Endpoint endpoint)
         {
             return new EndpointDetails(endpoint);
         }
-
         [Required]
         public Guid Id { get; set; }
         [Required]
@@ -60,7 +60,11 @@ namespace HealthMonitoring.SelfHost.Entities
         [Required]
         public IDictionary<string, string> Details { get; set; }
         public string[] Tags { get; set; }
+        [Required]
         public DateTime RegisteredOnUtc { get; set; }
+        [Required]
         public DateTime RegistrationUpdatedOnUtc { get; set; }
+        [Required]
+        public string MonitorTag { get; set; }
     }
 }

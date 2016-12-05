@@ -46,12 +46,18 @@ namespace HealthMonitoring.Persistence
                     CreateColumnAndSetValue(conn, "EndpointConfig", "RegisteredOnUtc", "datetime not null", date);
                 if (!DoesColumnExists(conn, "EndpointConfig", "RegistrationUpdatedOnUtc"))
                     CreateColumnAndSetValue(conn, "EndpointConfig", "RegistrationUpdatedOnUtc", "datetime not null", date);
+                if (!DoesColumnExists(conn, "EndpointConfig", "MonitorTag"))
+                    CreateColumn(conn, "EndpointConfig", "MonitorTag", "varchar(1024) default 'default'");
                 if (!DoesTableExists(conn, "EndpointStats"))
                     CreateEndpointStats(conn);
                 if (!DoesTableExists(conn, "HealthMonitorTypes"))
                     CreateHealthMonitorTypesTable(conn);
-                if (!DoesIndexExists(conn, "EndpointStats_EndpointIdCheckTimeUtc_idx"))
+                if (!DoesIndexExists(conn, "EndpointStats", "EndpointStats_EndpointIdCheckTimeUtc_idx"))
                     CreateEndpointStatsIndex(conn);
+                if (!DoesIndexExists(conn, "EndpointConfig", "EndpointConfig_MonitorTag_idx"))
+                    CreateMonitorTagIndex(conn);
+                if (!DoesIndexExists(conn, "EndpointConfig", "EndpointConfig_MonitorType_idx"))
+                    CreateMonitorTypeIndex(conn);
             }
         }
 
@@ -68,9 +74,9 @@ AND TABLE_SCHEMA='{_databaseName}'";
                 .Any();
         }
 
-        private bool DoesIndexExists(IDbConnection conn, string indexName)
+        private bool DoesIndexExists(IDbConnection conn, string tableName, string indexName)
         {
-            var query = $@"show index from EndpointStats where Key_name='{indexName}'";
+            var query = $@"show index from {tableName} where Key_name='{indexName}'";
 
             return conn
                 .Query(query)
@@ -89,8 +95,22 @@ create table EndpointConfig (
     Tags varchar(4096),
     Password char(64),
     RegisteredOnUtc datetime not null,
-    RegistrationUpdatedOnUtc datetime not null
-)");
+    RegistrationUpdatedOnUtc datetime not null,
+    MonitorTag varchar(1024) not null default 'default'
+);
+
+create index EndpointConfig_MonitorType_idx on EndpointConfig(MonitorType);
+create index EndpointConfig_MonitorTag_idx on EndpointConfig(MonitorTag);
+");
+        }
+
+        private void CreateMonitorTagIndex(IDbConnection conn)
+        {
+            conn.Execute("create index EndpointConfig_MonitorTag_idx on EndpointConfig(MonitorTag)");
+        }
+        private void CreateMonitorTypeIndex(IDbConnection conn)
+        {
+            conn.Execute("create index EndpointConfig_MonitorType_idx on EndpointConfig(MonitorType)");
         }
 
         private static void CreateEndpointStatsIndex(IDbConnection conn)

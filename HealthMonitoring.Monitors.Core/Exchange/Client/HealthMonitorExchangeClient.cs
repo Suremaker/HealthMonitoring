@@ -19,7 +19,7 @@ namespace HealthMonitoring.Monitors.Core.Exchange.Client
     {
         private readonly string _healthMonBaseUrl;
         private readonly ITimeCoordinator _timeCoordinator;
-        private readonly ICredentialsProvider _credentialsProvider = new CredentialsProvider();
+        private readonly ICredentialsProvider _credentialsProvider;
 
         public HealthMonitorExchangeClient(string healthMonBaseUrl, ITimeCoordinator timeCoordinator, ICredentialsProvider credentialsProvider)
         {
@@ -36,26 +36,26 @@ namespace HealthMonitoring.Monitors.Core.Exchange.Client
             var credentials = _credentialsProvider.GetMonitorCredentials();
 
             return PostAsync(
-                "/api/monitors/register", 
+                "/api/monitors/register",
                 monitorTypes.ToArray(),
                 token,
                 credentials
                 );
         }
 
-        public async Task<EndpointIdentity[]> GetEndpointIdentitiesAsync(CancellationToken token)
+        public async Task<EndpointIdentity[]> GetEndpointIdentitiesAsync(string monitorTag, CancellationToken token)
         {
-            var result = await GetAsync("/api/endpoints/identities", token);
+            var result = await GetAsync("/api/endpoints/identities?monitorTag=" + Uri.EscapeUriString(monitorTag), token);
             return DeserializeJson<EndpointIdentity[]>(await result.Content.ReadAsStringAsync());
         }
 
         public Task UploadHealthAsync(EndpointHealthUpdate[] updates, CancellationToken token)
         {
-        var credentials = _credentialsProvider.GetMonitorCredentials();
+            var credentials = _credentialsProvider.GetMonitorCredentials();
 
             return PostAsync(
-                "/api/endpoints/health?clientCurrentTime=" + _timeCoordinator.UtcNow.ToString("u", CultureInfo.InvariantCulture), 
-                updates.Select(u => new { EndpointId = u.EndpointId, Status = u.Health.Status, CheckTimeUtc = u.Health.CheckTimeUtc, ResponseTime = u.Health.ResponseTime, Details = u.Health.Details }), 
+                "/api/endpoints/health?clientCurrentTime=" + _timeCoordinator.UtcNow.ToString("u", CultureInfo.InvariantCulture),
+                updates.Select(u => new { EndpointId = u.EndpointId, Status = u.Health.Status, CheckTimeUtc = u.Health.CheckTimeUtc, ResponseTime = u.Health.ResponseTime, Details = u.Health.Details }),
                 token,
                 credentials);
         }

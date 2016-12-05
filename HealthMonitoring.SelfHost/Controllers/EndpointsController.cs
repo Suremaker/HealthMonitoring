@@ -47,7 +47,7 @@ namespace HealthMonitoring.SelfHost.Controllers
                 var existed = _endpointRegistry.GetByNaturalKey(endpoint.MonitorType, endpoint.Address);
                 RequestContext.AuthorizeRegistration(endpoint, existed, SecurityRole.Admin);
 
-                var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Tags, endpoint.Password);
+                var id = _endpointRegistry.RegisterOrUpdate(endpoint.MonitorType, endpoint.Address, endpoint.Group, endpoint.Name, endpoint.Tags, endpoint.MonitorTag, endpoint.Password);
                 return Created(new Uri(Request.RequestUri, $"/api/endpoints/{id}"), id);
             }
             catch (UnsupportedMonitorException e)
@@ -104,9 +104,13 @@ namespace HealthMonitoring.SelfHost.Controllers
         [Route("api/endpoints/identities")]
         [SwaggerResponse(HttpStatusCode.OK, Type = typeof(EndpointIdentity[]))]
         [ResponseType(typeof(EndpointIdentity[]))]
-        public EndpointIdentity[] GetEndpointsIdentities()
+        public EndpointIdentity[] GetEndpointsIdentities(string monitorTag = null)
         {
-            return _endpointRegistry.Endpoints.Select(e => e.Identity).ToArray();
+            Func<Endpoint, bool> predicate = e => true;
+            if (monitorTag != null)
+                predicate = e => string.Equals(e.Metadata.MonitorTag, monitorTag, StringComparison.OrdinalIgnoreCase);
+
+            return _endpointRegistry.Endpoints.Where(predicate).Select(e => e.Identity).ToArray();
         }
 
         [Route("api/endpoints/{id}")]

@@ -16,5 +16,7 @@ namespace HealthMonitoring.SelfHost.Entities
         public string[] Tags { get; set; }
         [MinLength(8)]
         public string Password { get; set; }
+
+        public string MonitorTag { get; set; }
     }
 }
