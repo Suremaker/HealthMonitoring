@@ -34,7 +34,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 
         private MonitorDataExchange CreateExchange()
         {
-            return CreateExchange(new DataExchangeConfig(1024, 64, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1)));
+            return CreateExchange(new DataExchangeConfig(1024, 64, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1), EndpointMetadata.DefaultMonitorTag));
         }
 
         private MonitorDataExchange CreateExchange(DataExchangeConfig config)
@@ -57,7 +57,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 
             SetupDefaultEndpointIdentitiesMock();
 
-            using (CreateExchange(new DataExchangeConfig(100, 10, TimeSpan.FromMilliseconds(1), TimeSpan.FromSeconds(1))))
+            using (CreateExchange(new DataExchangeConfig(100, 10, TimeSpan.FromMilliseconds(1), TimeSpan.FromSeconds(1), EndpointMetadata.DefaultMonitorTag)))
                 await countdown.WaitAsync(TestMaxWaitTime);
         }
 
@@ -73,7 +73,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 
             SetupDefaultEndpointIdentitiesMock();
 
-            using (CreateExchange(new DataExchangeConfig(100, 10, TimeSpan.FromMilliseconds(1), TimeSpan.FromSeconds(1))))
+            using (CreateExchange(new DataExchangeConfig(100, 10, TimeSpan.FromMilliseconds(1), TimeSpan.FromSeconds(1), EndpointMetadata.DefaultMonitorTag)))
                 await countdown.WaitAsync(TestMaxWaitTime);
 
             var capturedCalls = counter.Value;
@@ -108,14 +108,16 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             var countdown1 = new AsyncCountdown("endpointIdentities1", 1);
             var countdown2 = new AsyncCountdown("endpointIdentities2", 1);
 
-            SetupExchangeClient(c => c.GetEndpointIdentitiesAsync(It.IsAny<CancellationToken>()),
+            var monitorTag = "some_tag";
+
+            SetupExchangeClient(c => c.GetEndpointIdentitiesAsync(monitorTag, It.IsAny<CancellationToken>()),
 
                 () => { throw new InvalidOperationException(); },
                 () => _awaitableFactory.Return(endpointIdentities1).WithCountdown(countdown1).RunAsync(),
                 () => { throw new InvalidOperationException(); },
                 () => _awaitableFactory.Return(endpointIdentities2).WithCountdown(countdown2).RunAsync());
 
-            using (CreateExchange(new DataExchangeConfig(100, 10, TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(1))))
+            using (CreateExchange(new DataExchangeConfig(100, 10, TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(1), monitorTag)))
             {
                 await countdown1.WaitAsync(TestMaxWaitTime);
                 await countdown2.WaitAsync(TestMaxWaitTime);
@@ -130,10 +132,10 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 
             SetupDefaultRegisterEndpointsMock();
 
-            _exchangeClient.Setup(c => c.GetEndpointIdentitiesAsync(It.IsAny<CancellationToken>()))
+            _exchangeClient.Setup(c => c.GetEndpointIdentitiesAsync(EndpointMetadata.DefaultMonitorTag, It.IsAny<CancellationToken>()))
                 .Returns(() => _awaitableFactory.Throw<EndpointIdentity[]>(new InvalidOperationException()).WithCountdown(countdown).WithCounter(counter).RunAsync());
 
-            using (CreateExchange(new DataExchangeConfig(100, 10, TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(1))))
+            using (CreateExchange(new DataExchangeConfig(100, 10, TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(1), EndpointMetadata.DefaultMonitorTag)))
                 await countdown.WaitAsync(TestMaxWaitTime);
 
             var capturedCalls = counter.Value;
@@ -158,7 +160,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 
             var healths = PrepareEndpointHealths(bucketSize * bucketCount);
 
-            using (var ex = CreateExchange(new DataExchangeConfig(bucketSize * bucketCount, bucketSize, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1))))
+            using (var ex = CreateExchange(new DataExchangeConfig(bucketSize * bucketCount, bucketSize, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1), EndpointMetadata.DefaultMonitorTag)))
             {
                 foreach (var health in healths)
                     ex.UpdateHealth(identity.Id, health);
@@ -187,7 +189,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
 
             var healths = PrepareEndpointHealths(2);
 
-            using (var ex = CreateExchange(new DataExchangeConfig(100, 1, TimeSpan.FromMilliseconds(1), TimeSpan.FromSeconds(1))))
+            using (var ex = CreateExchange(new DataExchangeConfig(100, 1, TimeSpan.FromMilliseconds(1), TimeSpan.FromSeconds(1), EndpointMetadata.DefaultMonitorTag)))
             {
                 foreach (var health in healths)
                     ex.UpdateHealth(identity.Id, health);
@@ -221,7 +223,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             });
 
 
-            var config = new DataExchangeConfig(100, count, TimeSpan.FromMilliseconds(1), TimeSpan.FromSeconds(1));
+            var config = new DataExchangeConfig(100, count, TimeSpan.FromMilliseconds(1), TimeSpan.FromSeconds(1), EndpointMetadata.DefaultMonitorTag);
 
             var healths = PrepareEndpointHealths(count);
 
@@ -249,7 +251,7 @@ namespace HealthMonitoring.Monitors.Core.UnitTests
             var endpointIdentities = new[] { new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address1"), new EndpointIdentity(Guid.NewGuid(), MonitorTypeName, "address2") };
 
             _exchangeClient
-                .Setup(c => c.GetEndpointIdentitiesAsync(It.IsAny<CancellationToken>()))
+                .Setup(c => c.GetEndpointIdentitiesAsync(EndpointMetadata.DefaultMonitorTag, It.IsAny<CancellationToken>()))
                 .Returns(() => mockConfiguration(_awaitableFactory.Return(endpointIdentities)).RunAsync());
             return endpointIdentities;
         }

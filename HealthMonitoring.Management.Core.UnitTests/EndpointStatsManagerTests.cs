@@ -24,7 +24,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
 
             var endpointHealth = new EndpointHealth(DateTime.UtcNow, TimeSpan.Zero, EndpointStatus.Offline);
             var endpointId = Guid.NewGuid();
-            var endpoint = new Endpoint(TimeCoordinatorMock.Get().Object, new EndpointIdentity(endpointId, "type", "address"), new EndpointMetadata("name", "group", null, DateTime.UtcNow, DateTime.UtcNow));
+            var endpoint = new Endpoint(TimeCoordinatorMock.Get().Object, new EndpointIdentity(endpointId, "type", "address"), new EndpointMetadata("name", "group", null, EndpointMetadata.DefaultMonitorTag, DateTime.UtcNow, DateTime.UtcNow));
 
             using (var manager = new EndpointStatsManager(repository.Object, monitorSettings.Object, TimeCoordinatorMock.Get().Object, endpointMetricsCoordinator.Object))
             {

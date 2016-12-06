@@ -13,5 +13,6 @@ namespace HealthMonitoring.Persistence.Entities
         public string Password { get; set; }
         public DateTime RegisteredOnUtc { get; set; }
         public DateTime RegistrationUpdatedOnUtc { get; set; }
+        public string MonitorTag { get; set; }
     }
 }

@@ -88,7 +88,7 @@ namespace HealthMonitoring.Monitors.Core.Exchange
             {
                 try
                 {
-                    _monitorableEndpointRegistry.UpdateEndpoints(await _exchangeClient.GetEndpointIdentitiesAsync(_cancellation.Token));
+                    _monitorableEndpointRegistry.UpdateEndpoints(await _exchangeClient.GetEndpointIdentitiesAsync(_config.MonitorTag, _cancellation.Token));
                 }
                 catch (OperationCanceledException) when (_cancellation.IsCancellationRequested)
                 {

@@ -115,6 +115,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\AppDomainExecutor.cs" />
     <Compile Include="Helpers\Credentials.cs" />
     <Compile Include="Helpers\CusomAssertions.cs" />
     <Compile Include="Helpers\Entities\EndpointHealthStats.cs" />
@@ -143,6 +144,10 @@
     <Compile Include="Scenarios\Endpoint_statistics.cs" />
     <Compile Include="Scenarios\Endpoint_statistics.Steps.cs">
       <DependentUpon>Endpoint_statistics.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Scenarios\Endpoint_monitoring_with_specific_monitor_process.cs" />
+    <Compile Include="Scenarios\Endpoint_monitoring_with_specific_monitor_process.Steps.cs">
+      <DependentUpon>Endpoint_monitoring_with_specific_monitor_process.cs</DependentUpon>
     </Compile>
     <Compile Include="Scenarios\Nsb5_Msmq_endpoint_monitoring.cs" />
     <Compile Include="Scenarios\Nsb5_Msmq_endpoint_monitoring.Steps.cs">
@@ -205,8 +210,11 @@
     <Content Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="HealthMonitoring.Monitors.SelfHost.exe.config"></None>
-    <None Include="HealthMonitoring.SelfHost.exe.config"></None>
+    <None Include="HealthMonitoring.Monitors.SelfHost.exe2.config" />
+    <None Include="HealthMonitoring.Monitors.SelfHost.exe.config">
+    </None>
+    <None Include="HealthMonitoring.SelfHost.exe.config">
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -226,7 +234,8 @@
     <Error Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
   </Target>
   <PropertyGroup>
-    <PreBuildEvent>RD /S /Q $(TargetDir)monitors 2&gt; nul
+    <PreBuildEvent>RD /S /Q $(TargetDir)monitor 2&gt; nul
+RD /S /Q $(TargetDir)monitor2 2&gt; nul
 RD /S /Q $(TargetDir)api 2&gt; nul
 RD /S /Q $(TargetDir)samples 2&gt; nul
 
@@ -246,7 +255,9 @@ xcopy  /Y /I $(ProjectDir)HealthMonitoring.SelfHost.exe.config $(TargetDir)api\
 xcopy  /Y /I $(ProjectDir)HealthMonitoring.Monitors.SelfHost.exe.config $(TargetDir)monitor\
 xcopy  /Y /I $(ProjectDir)log4net.config $(TargetDir)api\
 xcopy  /Y /I $(ProjectDir)log4net.config $(TargetDir)monitor\
-</PreBuildEvent>
+
+xcopy  /Y /I /S $(TargetDir)monitor $(TargetDir)monitor2\
+xcopy  /Y /I $(ProjectDir)HealthMonitoring.Monitors.SelfHost.exe2.config $(TargetDir)monitor2\HealthMonitoring.Monitors.SelfHost.exe.config</PreBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

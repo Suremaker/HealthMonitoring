@@ -35,16 +35,16 @@ namespace HealthMonitoring.Management.Core
             LastModifiedTimeUtc = _timeCoordinator.UtcNow;
         }
 
-        public Endpoint UpdateMetadata(string group, string name, string[] tags)
+        public Endpoint UpdateMetadata(string group, string name, string[] tags, string monitorTag)
         {
-            Metadata = new EndpointMetadata(name, group, tags ?? Metadata.Tags, Metadata.RegisteredOnUtc, _timeCoordinator.UtcNow);
+            Metadata = new EndpointMetadata(name, group, tags ?? Metadata.Tags, monitorTag, Metadata.RegisteredOnUtc, _timeCoordinator.UtcNow);
             UpdateLastModifiedTime();
             return this;
         }
 
-        public Endpoint UpdateEndpoint(string group, string name, string[] tags, string password)
+        public Endpoint UpdateEndpoint(string group, string name, string[] tags, string monitorTag, string password)
         {
-            UpdateMetadata(group, name, tags ?? Metadata.Tags);
+            UpdateMetadata(group, name, tags ?? Metadata.Tags, monitorTag ?? Metadata.MonitorTag);
             Password = password;
             return this;
         }

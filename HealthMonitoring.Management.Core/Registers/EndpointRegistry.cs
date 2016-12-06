@@ -21,7 +21,7 @@ namespace HealthMonitoring.Management.Core.Registers
         public IEnumerable<Endpoint> Endpoints { get { return _endpoints.Select(p => p.Value); } }
 
         public EndpointRegistry(
-            IHealthMonitorTypeRegistry healthMonitorTypeRegistry, 
+            IHealthMonitorTypeRegistry healthMonitorTypeRegistry,
             IEndpointConfigurationRepository endpointConfigurationRepository,
             IEndpointStatsManager statsManager,
             ITimeCoordinator timeCoordinator)
@@ -38,7 +38,7 @@ namespace HealthMonitoring.Management.Core.Registers
             }
         }
 
-        public Guid RegisterOrUpdate(string monitorType, string address, string group, string name, string[] tags, string password = null)
+        public Guid RegisterOrUpdate(string monitorType, string address, string group, string name, string[] tags, string monitorTag, string password)
         {
             if (!_healthMonitorTypeRegistry.GetMonitorTypes().Contains(monitorType))
                 throw new UnsupportedMonitorException(monitorType);
@@ -47,8 +47,8 @@ namespace HealthMonitoring.Management.Core.Registers
 
             var utcNow = _timeCoordinator.UtcNow;
             var endpoint = _endpoints.AddOrUpdate(newIdentifier.GetNaturalKey(),
-                                new Endpoint(_timeCoordinator, newIdentifier, new EndpointMetadata(name, group, tags, utcNow, utcNow), encryptedPassword),
-                                (k, e) => e.UpdateEndpoint(group, name, tags, encryptedPassword));
+                                new Endpoint(_timeCoordinator, newIdentifier, new EndpointMetadata(name, group, tags, string.IsNullOrWhiteSpace(monitorTag)? EndpointMetadata.DefaultMonitorTag:monitorTag, utcNow, utcNow), encryptedPassword),
+                                (k, e) => e.UpdateEndpoint(group, name, tags, monitorTag, encryptedPassword));
 
             _endpointsByGuid[endpoint.Identity.Id] = endpoint;
 
@@ -65,8 +65,8 @@ namespace HealthMonitoring.Management.Core.Registers
             if (!_endpointsByGuid.TryGetValue(id, out endpoint))
                 return false;
 
-            var metadata = endpoint.Metadata.Name;
-            endpoint.UpdateMetadata(endpoint.Metadata.Group, metadata, tags);
+            var metadata = endpoint.Metadata;
+            endpoint.UpdateMetadata(metadata.Group, metadata.Name, tags, metadata.MonitorTag);
             _endpointConfigurationRepository.SaveEndpoint(endpoint);
             return true;
         }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -25,31 +24,12 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
         public static void Initialize(string assemblyPath)
         {
+            AppDomainExecutor.Initialize(assemblyPath);
             DeleteDatabase();
 
-            _monitor = StartAssembly(assemblyPath, "monitor\\HealthMonitoring.Monitors.SelfHost.exe");
-            _api = StartAssembly(assemblyPath, "api\\HealthMonitoring.SelfHost.exe");
+            _monitor = AppDomainExecutor.StartAssembly("monitor\\HealthMonitoring.Monitors.SelfHost.exe");
+            _api = AppDomainExecutor.StartAssembly("api\\HealthMonitoring.SelfHost.exe");
             EnsureProcessesAlive();
-        }
-
-        private static Tuple<Thread, AppDomain> StartAssembly(string assemblyPath, string exeRelativePath)
-        {
-            var exePath = Path.GetDirectoryName(assemblyPath) + "\\" + exeRelativePath;
-
-            var setup = new AppDomainSetup
-            {
-                ApplicationBase = Path.GetDirectoryName(exePath),
-                ConfigurationFile = Path.GetFileName(exePath) + ".config"
-            };
-            var domain = AppDomain.CreateDomain(exeRelativePath, AppDomain.CurrentDomain.Evidence, setup);
-            var thread = new Thread(() => ExecuteAssembly(exePath, domain)) { IsBackground = true };
-            thread.Start();
-            return Tuple.Create(thread, domain);
-        }
-
-        private static int ExecuteAssembly(string exePath, AppDomain domain)
-        {
-            return domain.ExecuteAssembly(exePath);
         }
 
         private static void EnsureProcessesAlive()
@@ -83,18 +63,8 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
 
         public static void Terminate()
         {
-            KillAppDomain(_api);
-            KillAppDomain(_monitor);
-        }
-
-        private static void KillAppDomain(Tuple<Thread, AppDomain> process)
-        {
-            try
-            {
-                AppDomain.Unload(process.Item2);
-                process.Item1.Join();
-            }
-            catch { }
+            AppDomainExecutor.KillAppDomain(_api);
+            AppDomainExecutor.KillAppDomain(_monitor);
         }
     }
 
