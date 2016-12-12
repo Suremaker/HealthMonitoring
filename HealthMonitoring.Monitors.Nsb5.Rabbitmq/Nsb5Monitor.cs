@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Monitors.Nsb5.Messages;
@@ -11,14 +12,13 @@ namespace HealthMonitoring.Monitors.Nsb5.Rabbitmq
     public class Nsb5Monitor : IHealthMonitor, IDisposable
     {
         private static readonly HealthInfo MessageTimeoutResponse = new HealthInfo(HealthStatus.Faulty, new Dictionary<string, string> { { "message", "health check timeout" } });
-        private readonly IBus _bus;
+        private IBus _bus;
         private readonly TimeSpan _messageTimeout;
         public string Name => "nsb5.rabbitmq";
 
         public Nsb5Monitor()
         {
             _messageTimeout = GetMessageTimeout();
-            _bus = BusProvider.Create(_messageTimeout);
         }
 
         private TimeSpan GetMessageTimeout()
@@ -35,10 +35,27 @@ namespace HealthMonitoring.Monitors.Nsb5.Rabbitmq
             var requestId = Guid.NewGuid();
             using (var wait = new ResponseWaiter(requestId, _messageTimeout))
             {
-                _bus.Send(Address.Parse(address), new GetStatusRequest { RequestId = requestId });
+                SendHealthRequest(address, requestId);
                 var response = await wait.GetResponseAsync(cancellationToken);
 
                 return response != null ? Healthy(response) : MessageTimeoutResponse;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        private void SendHealthRequest(string address, Guid requestId)
+        {
+            if (_bus == null)
+                _bus = BusProvider.Create(_messageTimeout);
+
+            try
+            {
+                _bus.Send(Address.Parse(address), new GetStatusRequest { RequestId = requestId });
+            }
+            catch (ObjectDisposedException)
+            {
+                _bus = null;
+                throw;
             }
         }
 
