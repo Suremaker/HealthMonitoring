@@ -9,11 +9,12 @@
     <script src="/static/scripts/functions.js"></script>
     <script src="/static/scripts/advanced-filters.js"></script>
     <script src="/static/scripts/legend.js"></script>
-    <link rel="stylesheet" href="/static/home/home.css">
+    <link rel="stylesheet" href="/static/styles/site.css">
+    <link rel="stylesheet" href="/static/styles/home.css">
     <link rel="stylesheet" href="/static/styles/common.css">
     <base href="/">
 </head>
-<body ng-app="app" data-ng-controller="ctrl">
+<body ng-app="app" data-ng-controller="HomeController">
     <section id="main">
         <header>
             <img src="/static/assets/favicon.svg" alt="logo" class="logo" />
@@ -35,15 +36,15 @@
                     <span class="filter-label stats-key">total</span>
                     <span class="stats-value">{{endpoints.length}}</span>
                 </div>
-                <div ng-repeat="(key,value) in endpoints | groupBy: 'Status'" ng-click="addItemToFilter(key, statusFilterName)">
-                    <span class="endpoint-status stats-key status-{{key}}" ng-mousemove="displayHint($event)" ng-mouseleave="hideTooltip()">{{key}}</span>
+                <div ng-repeat="(key,value) in endpoints | orderBy: 'Status' | groupBy: 'Status'" ng-click="addItemToFilter(key, statusFilterName)">
+                    <span class="endpoint-status stats-key status-{{key}} endpoint-clickable" ng-mousemove="displayHint($event)" ng-mouseleave="hideTooltip()">{{key}}</span>
                     <span class="stats-value">{{value.length}}</span>
                 </div>
             </div>
 
             <div class="selected-filters-container">
                 <span ng-if="filters[statusFilterName].length" class="filter-label stats-key">Selected Statuses</span>
-                <span ng-repeat="status in filters[statusFilterName]" ng-click="removeItemFromFilter(status, statusFilterName)" class="endpoint-status status-{{status}}">{{status}}</span>
+                <span ng-repeat="status in filters[statusFilterName]" ng-click="removeItemFromFilter(status, statusFilterName)" class="endpoint-status status-{{status}} endpoint-clickable">{{status}}</span>
             </div>
             <div class="tooltip" style="left: {{statLegend.x}}px; top: {{statLegend.y}}px;" ng-if="statLegend">
             <div>{{statLegend.description}}</div>
@@ -60,195 +61,29 @@
             <header>Endpoints</header>
             <p ng-if="endpoints==null">-- connection issue --</p>
             <p ng-if="endpoints.length==0">No endpoints registered yet</p>
-            <table ng-if="endpoints.length>0" class="endpoints">
-                <tr><th>Group</th><th>Name</th><th>Status</th><th>Response time</th><th>Last check time</th><th>Tags<th></tr>
-                <tr ng-repeat="e in endpoints | filter:statusFilter | orderBy: ['Group','Name'] | filter:tagFilter">
-                    <td>{{e.Group}}</td>
-                    <td><a href="/dashboard/details?id={{e.Id}}" target="_blank">{{e.Name}}</a></td>
-                    <td class="endpoint-status status-{{e.Status}}" ng-click="onStatusSelected(e.Status)" ng-mousemove="displayHint($event)" ng-mouseleave="hideTooltip()">{{e.Status}}</td>
-                    <td>{{formatDuration(e.LastResponseTime)}}</td>
-                    <td>{{e.LastCheckUtc | dateFilter }}</td>
-                    <td>
-                        <p class="tagsContainer"><span ng-repeat="tag in e.Tags | orderBy: 'toString()'" ng-click="addItemToFilter(tag, tagsFilterName)" ng-style="endpointTagStyles[e.Id][tag]" ng-mouseenter="changeTagColour(e.Id, tag, true)" ng-mouseleave="changeTagColour(e.Id, tag, false)" class="endpointTag">{{tag}}</span></p>
-                    </td>
-                </tr>
-            </table>
+            <div>
+                <table ng-if="endpoints.length>0" class="endpoints">
+                    <tr><th>Group</th><th>Name</th><th>Status</th><th>Response time</th><th>Last check time</th><th>Tags<th></tr>
+                    <tr ng-repeat="e in endpoints | filter:statusFilter | orderBy: ['Group','Name'] | filter:tagFilter">
+                        <td><div class="overlaytext">{{e.Group}}</div></td>
+                        <td><a href="/dashboard/details?id={{e.Id}}" target="_blank"><div class="overlaytext">{{e.Name}}</div></a></td>
+                        <td>
+                            <div class="endpoint-status status-{{e.Status}}" ng-click="onStatusSelected(e.Status)" ng-mousemove="displayHint($event)" ng-mouseleave="hideTooltip()">{{e.Status}}</div>
+                        </td>
+                        <td>{{formatDuration(e.LastResponseTime)}}</td>
+                        <td>{{e.LastCheckUtc | dateFilter }}</td>
+                        <td>
+                            <p class="tagsContainer"><span ng-repeat="tag in e.Tags | orderBy: 'toString()'" ng-click="addItemToFilter(tag, tagsFilterName)" ng-style="endpointTagStyles[e.Id][tag]" ng-mouseenter="changeTagColour(e.Id, tag, true)" ng-mouseleave="changeTagColour(e.Id, tag, false)" class="endpointTag">{{tag}}</span></p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </article>
         <footer>Version: {{config.Dashboard.Version}}</footer>
     </section>
-<script>
-    
-    var app = angular.module('app', ['angular.filter', 'advanced.filters']);
-    app.config(function ($locationProvider) {
-        $locationProvider.html5Mode(true);
-    });
 
-    app.controller('ctrl', ["$scope", "$http", "$location", function ($scope, $http, $location) {
-        $scope.config = null;
-        $scope.alerts = [];
-
-        $scope.tagsFilterName = 'filter-tags';
-        $scope.statusFilterName = 'filter-status';
-
-        $scope.filters = {};
-        $scope.filters[$scope.tagsFilterName] = [];
-        $scope.filters[$scope.statusFilterName] = [];
-
-        $scope.filterTagStyles = {};
-        $scope.endpointTagStyles = {};
-        $scope.statLegend = null;
-
-        var endpointFrequency = getEndpointUpdatingFrequency($location);
-        var configFrequency = getConfigUpdatingFrequency($location);
-
-        $scope.getConfig = function () {
-            $http.get("/api/config")
-                .success(function (response) {
-                    $scope.config = response;
-                })
-                .error(function (data, status) {
-                    $scope.config = { Dashboard: { Title: "-- connection issue --" }, Version: "-- connection issue --" };
-                });
-        }
-
-        $scope.displayHint = function (evnt) {
-            if ($scope.statLegend==null) {
-                $scope.statLegend = { status: evnt.target.innerHTML, description: statusLegend[evnt.target.innerHTML], x: evnt.clientX + 5, y: evnt.clientY + 5 };
-            }
-        }
-
-        $scope.hideTooltip = function () {
-            $scope.statLegend = null;
-        }
-
-        $scope.getEndpoints = function () {
-            var setEndpointTagStyles = function () {
-                angular.forEach($scope.endpoints, function (endpoint) {
-                    $scope.endpointTagStyles[endpoint.Id] = {};
-                    angular.forEach(endpoint.Tags,
-                        function (tag) {
-                            $scope.endpointTagStyles[endpoint.Id][tag] = { background: hashColour(tag, false) };
-                        });
-                });
-            };
-
-            $http.get("/api/endpoints")
-                .success(function (response) {
-                    $scope.endpoints = response;
-                    setEndpointTagStyles();
-                })
-                .error(function (data, status) {
-                    $scope.endpoints = null;
-                });
-        }
-
-        $scope.tagFilter = function (endpoint) {
-            var tags = $scope.filters[$scope.tagsFilterName];
-            for (var i = 0; i < tags.length; i++) {
-                if (endpoint.Tags == null || endpoint.Tags.indexOf(tags[i]) < 0) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        $scope.statusFilter = function (endpoint) {
-            var statuses = $scope.filters[$scope.statusFilterName];
-            if (statuses.length > 0) {
-                if (statuses.indexOf(endpoint.Status) < 0)
-                    return false;
-            }
-            return true;
-        }
-
-        $scope.addItemToFilter = function (item, filterName) {
-            if ($scope.filters[filterName].indexOf(item) === -1)
-                $scope.filters[filterName].push(item);
-            $scope.updateLocationParams(filterName);
-            setFilterTagStyles($scope);
-        }
-
-        $scope.removeItemFromFilter = function (item, filterName) {
-            var index = $scope.filters[filterName].indexOf(item);
-            $scope.filters[filterName].splice(index, 1);
-            $scope.updateLocationParams(filterName);
-            setFilterTagStyles($scope);
-        }
-
-        $scope.updateLocationParams = function (filterName) {
-            $location.search(filterName, arrayToParamString($scope.filters[filterName]));
-        };
-
-        $scope.changeFilterTagColour = function (tag, hover) {
-            $scope.filterTagStyles[tag] = { background: hashColour(tag, hover) };
-        }
-
-        $scope.changeTagColour = function (endpointId, tag, hover) {
-            $scope.endpointTagStyles[endpointId][tag] = { background: hashColour(tag, hover) };
-        }
-
-        $scope.valueComparator = function (a, b) { return a === b; }
-
-        $scope.$on('$locationChangeSuccess', function () {
-            initFiltersFromUrl($scope, $location);
-        });
-
-        $scope.parseDuration = parseDuration;
-        $scope.formatDuration = formatDuration;
-
-        $scope.getConfig();
-        $scope.getEndpoints();
-        setInterval($scope.getEndpoints, endpointFrequency);
-        setInterval($scope.getConfig, configFrequency);
-    }]);
-
-    function getEndpointUpdatingFrequency(location) {
-        var param = location.search()["endpoint-frequency"];
-        var freq = parseInt(param);
-        return freq >= 1000 ? freq : 5000;
-    }
-
-    function getConfigUpdatingFrequency(location) {
-        var param = location.search()["config-frequency"];
-        var freq = parseInt(param);
-        return freq >= 5000 ? freq : 20000;
-    }
-
-    function setFilterTagStyles(scope) {
-        angular.forEach(scope.filters[scope.tagsFilterName], function (tag) {
-            scope.filterTagStyles[tag] = { background: hashColour(tag, false) };
-        });
-    }
-
-    function initFiltersFromUrl(scope, location) {
-        var tagsFilter = location.search()[scope.tagsFilterName];
-        var statusFilter = location.search()[scope.statusFilterName];
-
-        if (tagsFilter !== undefined && tagsFilter != null)
-            scope.filters[scope.tagsFilterName] = arrayFromParamString(tagsFilter);
-        else
-            scope.filters[scope.tagsFilterName] = [];
-
-        if (statusFilter !== undefined && statusFilter != null)
-            scope.filters[scope.statusFilterName] = arrayFromParamString(statusFilter);
-        else
-            scope.filters[scope.statusFilterName] = [];
-
-        setFilterTagStyles(scope);
-    }
-
-    function arrayToParamString(items) {
-        var params = "";
-        for (var i = 0; i < items.length; i++) {
-            params += items[i] + ";";
-        }
-        return params;
-    }
-
-    function arrayFromParamString(str) {
-        return str.split(";").filter(Boolean);
-    }
-
-</script>
+    <script src="/static/scripts/healthmonitoringApp.js"></script>
+    <script src="/static/scripts/homeController.js"></script>
+    <script src="/static/scripts/endpointService.js"></script>
 </body>
 </html>

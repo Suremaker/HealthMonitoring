@@ -16,7 +16,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
     {
         private const string _title = "Health Monitoring";
         private const string _filteredStatusElements = "//table[contains(@class,'endpoints')]//tr//td[3]";
-        private const string _endpointsGroupsSelector = "//*[@id='main']/article[2]/table/tbody/tr/td[1]";
+        private const string _endpointsGroupsSelector = "//*[@id='main']/article[2]/div/table/tbody/tr/th[1]";
 
         private readonly IWebDriver _driver;
         private readonly RestClient _client;

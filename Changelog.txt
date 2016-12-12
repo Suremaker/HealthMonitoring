@@ -1,3 +1,10 @@
+3.6.1.0
+-------
+Css refactoring. Added base css file and separate css files for each page.
+Minor css changes
+Javascript refactoring. Javascript code moved out from htlm pages,
+Added service for api calls
+
 3.6.0.0
 -------
 Added ability to run multiple monitor processes allowing to monitor different set of endpoints, differentiated with MonitorTag
