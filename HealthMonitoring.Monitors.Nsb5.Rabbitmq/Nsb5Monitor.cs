@@ -19,6 +19,7 @@ namespace HealthMonitoring.Monitors.Nsb5.Rabbitmq
         public Nsb5Monitor()
         {
             _messageTimeout = GetMessageTimeout();
+            _bus = CreateBus();
         }
 
         private TimeSpan GetMessageTimeout()
@@ -46,7 +47,7 @@ namespace HealthMonitoring.Monitors.Nsb5.Rabbitmq
         private void SendHealthRequest(string address, Guid requestId)
         {
             if (_bus == null)
-                _bus = BusProvider.Create(_messageTimeout);
+                _bus = CreateBus();
 
             try
             {
@@ -57,6 +58,11 @@ namespace HealthMonitoring.Monitors.Nsb5.Rabbitmq
                 _bus = null;
                 throw;
             }
+        }
+
+        private IBus CreateBus()
+        {
+            return BusProvider.Create(_messageTimeout);
         }
 
         private static HealthInfo Healthy(GetStatusResponse response)
