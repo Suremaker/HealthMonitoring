@@ -1,3 +1,7 @@
+3.6.1.0
+-------
+Nsb5.Rabbitmq monitor: added an ability to recover from disposed bus
+
 3.6.0.0
 -------
 Added ability to run multiple monitor processes allowing to monitor different set of endpoints, differentiated with MonitorTag
