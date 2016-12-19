@@ -36,7 +36,7 @@ namespace HealthMonitoring.Api.UnitTests.Controllers
 
         [Theory]
         [InlineData("assets", "favicon.ico", "image/x-icon")]
-        [InlineData("dashboard", "dashboard.css", "text/css")]
+        [InlineData("styles", "dashboard.css", "text/css")]
         [InlineData("scripts", "angular.min.js", "application/javascript")]
         [InlineData("assets", "favicon.svg", "image/svg+xml")]
         public void GetStatic_should_return_content(string directory, string file, string mediaType)

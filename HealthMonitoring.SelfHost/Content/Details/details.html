@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html ng-app="app" data-ng-controller="ctrl">
+<html ng-app="app" data-ng-controller="DetailsController">
 <head>
     <meta charset="utf-8">
     <title>Health Monitoring - {{details.Group}}:{{details.Name}}</title>
@@ -8,9 +8,10 @@
     <script src="/static/scripts/advanced-filters.js"></script>
     <script src="/static/scripts/functions.js"></script>
     <script src="/static/scripts/legend.js"></script>
-    <link rel="stylesheet" href="/static/details/details.css">
+    <link rel="stylesheet" href="/static/styles/site.css">
+    <link rel="stylesheet" href="/static/styles/details.css">
     <link rel="stylesheet" href="/static/styles/common.css">
-    <base href="/dashboard" target="_blank"/>
+    <base href="/dashboard" target="_blank" />
 </head>
 <body>
 <h1>Endpoint</h1>
@@ -56,129 +57,8 @@
         <tr><td>Status:</td><td class="endpoint-status status-{{currentStat.status}}">{{currentStat.status}}</td></tr>
     </table>
 </div>
-<script>
-    var app = angular.module('app', ['advanced.filters']);
-
-    app.config(function ($locationProvider) {
-        $locationProvider.html5Mode(true);
-    });
-
-    app.controller('ctrl', ['$scope', '$http', '$location', function ($scope, $http, $location) {
-
-        $scope.details = {};
-        $scope.tagStyles = {};
-        $scope.stats = {lines:[],paths:{}};
-        $scope.graph = { width: 800, height: 400 };
-        $scope.statsLoading = false;
-        $scope.statLegend = statusLegend;
-
-        $scope.updateDetails = function () {
-
-            $http.get("/api/endpoints/" + $location.search().id)
-                .success(function(response) {
-                    $scope.details = response;
-
-                    angular.forEach($scope.details.Tags, function (tag) {
-                        $scope.tagStyles[tag] = { background: hashColour(tag, false) };
-                    });
-                })
-                .error(function(data, status) {
-                    $scope.details = {};
-                });
-        };
-
-        $scope.tagClick = function (tag) {
-            var url = "/#?filter-tags=" + tag;
-            window.open(url, '_blank');
-        };
-
-        $scope.changeTagColour = function (tag, hover) {
-            $scope.tagStyles[tag] = { background: hashColour(tag, hover) };
-        }
-
-        function buildPaths(lines, maxDuration, graphDims) {
-
-            var paths = {};
-
-            for (var i = 0; i < lines.length; ++i) {
-                var point = lines[i];
-                var path = paths[point.status];
-                if (path == null) {
-                    paths[point.status] = path =  { data: "", last: -1 }
-                };
-
-                var ox = (i+1) * graphDims.width / lines.length;
-                var nx = i * graphDims.width / lines.length;
-                var ny = point.value * graphDims.height / maxDuration;
-                var oy = (i+1<lines.length) ? (lines[i+1].value * graphDims.height / maxDuration) : ny;
-                if (path.last !== ox) {
-                    path.data += "M " + ox + " " + oy + " ";
-                }
-                path.data += "L " + nx + " " + ny + " ";
-                path.last = nx;
-            }
-            return paths;
-        }
-
-        function convert(stats,graphDims) {
-            var maxDuration = 1;
-            var lines = [];
-            var oldestTime = null;
-            var newestTime = null;
-
-            for (var i = stats.length - 1; i >=0; --i) {
-                var stat = stats[i];
-                var duration = parseDuration(stat.ResponseTime);
-                if (maxDuration < duration) {
-                    maxDuration = duration;
-                }
-                lines.push({ status: stat.Status, value: duration, duration: stat.ResponseTime, time: stat.CheckTimeUtc });
-            }
-
-            if (lines.length > 0) {
-                newestTime = lines[0].time;
-                oldestTime = lines[lines.length - 1].time;
-            }
-
-            return { lines: lines, maxDuration: maxDuration, newestTime: newestTime, oldestTime: oldestTime, paths: buildPaths(lines, maxDuration, graphDims) };
-        }
-
-        $scope.updateStats = function () {
-
-            if ($scope.statsLoading)
-                return;
-
-            $scope.statsLoading = true;
-
-            $http.get("/api/endpoints/" + $location.search().id + "/stats?limitDays=1")
-                .success(function (response) {
-                    $scope.graph.width = Math.max(800, response.length);
-                    $scope.stats = convert(response, $scope.graph);
-                    $scope.statsLoading = false;
-                })
-                .error(function(data, status) {
-                    $scope.stats = { lines: [], paths: {}, maxDuration: 0 };
-                    $scope.statsLoading = false;
-                });
-        };
-
-        $scope.update = function() {
-            $scope.updateDetails();
-            $scope.updateStats();
-        }
-
-        $scope.parseDuration = parseDuration;
-        $scope.formatDuration = formatDuration;
-
-        $scope.displayHint = function ($evt) {
-            var index = Math.floor($evt.offsetX * $scope.stats.lines.length / $scope.graph.width);
-            $scope.currentStat = (index < $scope.stats.lines.length) ? $scope.stats.lines[index] : null;
-            $scope.toolTipPosition = { x: $evt.clientX, y: $evt.clientY };
-        };
-
-        $scope.update();
-        setInterval($scope.update, 3000);
-    }]);
-</script>
+    <script src="/static/scripts/healthmonitoringApp.js"></script>
+    <script src="/static/scripts/detailsController.js"></script>
+    <script src="/static/scripts/endpointService.js"></script>
 </body>
 </html>

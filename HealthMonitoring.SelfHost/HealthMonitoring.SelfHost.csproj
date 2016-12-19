@@ -168,9 +168,9 @@
     <EmbeddedResource Include="Content\Home\home.html" />
     <EmbeddedResource Include="Content\Dashboard\dashboard.html" />
     <EmbeddedResource Include="Content\Swagger\swagger.html" />
-    <EmbeddedResource Include="Content\Dashboard\dashboard.css" />
+    <EmbeddedResource Include="Content\styles\dashboard.css" />
     <EmbeddedResource Include="Content\Details\details.html" />
-    <EmbeddedResource Include="Content\Details\details.css" />
+    <EmbeddedResource Include="Content\styles\details.css" />
     <EmbeddedResource Include="..\icons\faulty.svg">
       <Link>Content\Assets\faulty.svg</Link>
     </EmbeddedResource>
@@ -192,19 +192,26 @@
     <EmbeddedResource Include="..\icons\notExists.svg">
       <Link>Content\Assets\notExists.svg</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\Home\home.css" />
+    <EmbeddedResource Include="Content\styles\home.css" />
     <EmbeddedResource Include="..\icons\favicon.svg">
       <Link>Content\Assets\favicon.svg</Link>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Scripts\angular-filter.min.js" />
     <EmbeddedResource Include="Content\Scripts\functions.js" />
-    <EmbeddedResource Include="Content\Dashboard\groupNodeSizer.js" />
+    <EmbeddedResource Include="Content\Scripts\groupNodeSizer.js" />
     <EmbeddedResource Include="Content\styles\Common.css" />
     <EmbeddedResource Include="Content\Scripts\advanced-filters.js" />
     <EmbeddedResource Include="Content\Scripts\advanced-directives.js" />
     <EmbeddedResource Include="Content\Templates\wg-multiselect.html" />
     <EmbeddedResource Include="Content\Swagger\basic-auth-extension.js" />
     <EmbeddedResource Include="Content\Scripts\legend.js" />
+    <EmbeddedResource Include="Content\styles\site.css" />
+    <EmbeddedResource Include="Content\Scripts\dashboardController.js" />
+    <EmbeddedResource Include="Content\Scripts\detailsController.js" />
+    <EmbeddedResource Include="Content\Scripts\homeController.js" />
+    <EmbeddedResource Include="Content\Scripts\angular-route.min.js" />
+    <EmbeddedResource Include="Content\Scripts\healthmonitoringApp.js" />
+    <EmbeddedResource Include="Content\Scripts\endpointService.js" />
     <Content Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
