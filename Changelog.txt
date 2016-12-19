@@ -4,6 +4,7 @@ Css refactoring. Added base css file and separate css files for each page.
 Minor css changes
 Javascript refactoring. Javascript code moved out from htlm pages,
 Added service for api calls
+Nsb5.Rabbitmq monitor: added an ability to recover from disposed bus
 
 3.6.0.0
 -------
