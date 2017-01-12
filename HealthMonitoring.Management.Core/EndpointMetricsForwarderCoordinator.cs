@@ -26,7 +26,7 @@ namespace HealthMonitoring.Management.Core
         public void HandleMetricsForwarding(EndpointIdentity identity, EndpointMetadata metadata, EndpointHealth health)
         {
             var ed = new EndpointDetails(identity.Id, metadata.Group, metadata.Name, identity.Address, identity.MonitorType);
-            var em = new EndpointMetrics(health.CheckTimeUtc, health.ResponseTime.Milliseconds, health.Status.ToString());
+            var em = new EndpointMetrics(health.CheckTimeUtc, health.ResponseTime, health.Status.ToString());
 
             foreach (var f in _forwarders)
             {
