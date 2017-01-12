@@ -40,7 +40,7 @@ namespace HealthMonitoring.Management.Core.UnitTests
                     g.MonitorType.Equals(_endpoint.Identity.MonitorType)),
                 It.Is<EndpointMetrics>(
                     m => m.CheckTimeUtc.Equals(_endpoint.Health.CheckTimeUtc) && 
-                    m.ResponseTimeMilliseconds.Equals(_endpoint.Health.ResponseTime.Milliseconds) &&
+                    m.ResponseTime.Equals(_endpoint.Health.ResponseTime) &&
                     m.Status.Equals(_endpoint.Health.Status.ToString()))),
                 Times.Once);
         }
