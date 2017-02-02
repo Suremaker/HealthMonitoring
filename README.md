@@ -1,6 +1,6 @@
 # Health Monitoring
 
-[![Build status](https://ci.appveyor.com/api/projects/status/uyjooj1a8y6dc3ny/branch/master?svg=true)](https://ci.appveyor.com/project/Suremaker/healthmonitoring/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/vqyv48pu962sht6u/branch/master?svg=true)](https://ci.appveyor.com/project/wongatech-platformengineering/healthmonitoring/branch/master)
 
 This project aims to provide a tool for monitoring health of various components belonging to a bigger eco-system (like SOA or Microservice Architecture).
 
