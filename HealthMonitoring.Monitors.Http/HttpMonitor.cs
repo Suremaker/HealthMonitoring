@@ -24,20 +24,16 @@ namespace HealthMonitoring.Monitors.Http
 
         public async Task<HealthInfo> CheckHealthAsync(string address, CancellationToken cancellationToken)
         {
-            using (var client = new HttpClient())
+            using (var client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false }))
             using (var response = await client.GetAsync(address, cancellationToken))
             {
-                switch (response.StatusCode)
-                {
-                    case HttpStatusCode.NotFound:
-                        return new HealthInfo(HealthStatus.NotExists);
-                    case HttpStatusCode.ServiceUnavailable:
-                        return new HealthInfo(HealthStatus.Offline);
-                    case HttpStatusCode.OK:
-                        return new HealthInfo(HealthStatus.Healthy, await ReadSuccessfulContent(response.Content));
-                    default:
-                        return new HealthInfo(HealthStatus.Faulty, await GetFaultyResponseDetails(response));
-                }
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                    return new HealthInfo(HealthStatus.NotExists);
+                if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
+                    return new HealthInfo(HealthStatus.Offline);
+                if (response.IsSuccessStatusCode)
+                    return new HealthInfo(HealthStatus.Healthy, await ReadSuccessfulContent(response.Content));
+                return new HealthInfo(HealthStatus.Faulty, await GetFaultyResponseDetails(response));
             }
         }
 
@@ -51,8 +47,8 @@ namespace HealthMonitoring.Monitors.Http
         {
             return new Dictionary<string, string>
             {
-                {"code",response.StatusCode.ToString()},
-                {"content",await response.Content.ReadAsStringAsync()}
+                {"code", response.StatusCode.ToString()},
+                {"content", await response.Content.ReadAsStringAsync()}
             };
         }
     }

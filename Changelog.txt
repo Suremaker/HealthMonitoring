@@ -1,3 +1,7 @@
+3.7.1.0
+-------
+Changed http and http.json monitor to report endpoints returning HTTP 3XX codes failing (disabled following redirections)
+
 3.7.0.0
 -------
 Use TimeSpan instead of primitive for Forwarders EndpointMetric, should have been total milliseconds as well
