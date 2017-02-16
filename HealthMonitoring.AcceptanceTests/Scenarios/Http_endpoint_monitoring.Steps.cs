@@ -108,5 +108,11 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         {
             Assert.Equal(status, _details.Status);
         }
+
+        private void Given_an_endpoint_returning_http_redirects()
+        {
+            Given_a_rest_endpoint();
+            _restEndpoint.SetupStatusPlainResponse(HttpStatusCode.Redirect, "go away");
+        }
     }
 }
