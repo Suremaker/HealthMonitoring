@@ -3,7 +3,7 @@ using System.Linq;
 using System.Net;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Selenium;
-using LightBDD;
+using LightBDD.XUnit2;
 using Newtonsoft.Json;
 using OpenQA.Selenium;
 using RestSharp;

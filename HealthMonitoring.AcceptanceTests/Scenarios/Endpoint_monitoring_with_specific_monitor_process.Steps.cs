@@ -2,10 +2,8 @@
 using System.Net;
 using System.Threading;
 using HealthMonitoring.AcceptanceTests.Helpers;
-using HealthMonitoring.AcceptanceTests.Helpers.Entities;
 using HealthMonitoring.AcceptanceTests.Helpers.Http;
-using HealthMonitoring.AcceptanceTests.Xunit;
-using LightBDD;
+using LightBDD.XUnit2;
 using RestSharp;
 using Xunit.Abstractions;
 

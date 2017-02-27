@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using HealthMonitoring.AcceptanceTests.Helpers;
-using LightBDD;
+using LightBDD.Framework;
+using LightBDD.Framework.Scenarios.Extended;
+using LightBDD.XUnit2;
 
 namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 {

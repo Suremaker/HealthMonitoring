@@ -4,7 +4,7 @@ using System.Net;
 using System.Threading;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Http;
-using LightBDD;
+using LightBDD.XUnit2;
 using RestSharp;
 using Xunit;
 using Xunit.Abstractions;

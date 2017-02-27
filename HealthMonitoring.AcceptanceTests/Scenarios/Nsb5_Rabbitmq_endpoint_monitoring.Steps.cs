@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Entities;
-using LightBDD;
+using LightBDD.XUnit2;
 using RabbitMQ.Client;
 using RestSharp;
 using Xunit;
