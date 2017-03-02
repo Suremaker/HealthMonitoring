@@ -14,6 +14,7 @@ namespace HealthMonitoring.Integration.PushClient
         private readonly ITimeCoordinator _timeCoordinator;
         private EndpointDefinition _definition;
         private IHealthChecker _healthChecker;
+        private IBackOffStategy _backOffStategy;
 
         protected HealthMonitorPushClient(IHealthMonitorClient client, ITimeCoordinator timeCoordinator)
         {
@@ -51,18 +52,29 @@ namespace HealthMonitoring.Integration.PushClient
             return this;
         }
 
+        public HealthMonitorPushClient WithBackOffStategy(IBackOffStategy backOffStategy)
+        {
+            _backOffStategy = backOffStategy;
+            return this;
+        }
+
         public IEndpointHealthNotifier StartHealthNotifier()
         {
             if (_definition == null)
                 throw new InvalidOperationException("No endpoint definition provided");
+
             if (_healthChecker == null)
                 throw new InvalidOperationException("No health checker provided");
+
+            if (_backOffStategy == null)
+                _backOffStategy = new DefaultBackOffStrategy();
 
             if (_client == null)
                 return null;
 
             _logger.Info("Starting Health Monitor integration...");
-            return new EndpointHealthNotifier(_client, _timeCoordinator, _definition, _healthChecker);
+
+            return new EndpointHealthNotifier(_client, _timeCoordinator, _definition, _healthChecker, _backOffStategy);
         }
     }
 }

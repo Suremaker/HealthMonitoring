@@ -8,6 +8,7 @@ using HealthMonitoring.Integration.PushClient.Client;
 using HealthMonitoring.Integration.PushClient.Client.Models;
 using HealthMonitoring.Integration.PushClient.Helpers;
 using HealthMonitoring.Integration.PushClient.Registration;
+using ITimeCoordinator = HealthMonitoring.Integration.PushClient.Helpers.ITimeCoordinator;
 
 namespace HealthMonitoring.Integration.PushClient.Monitoring
 {
@@ -18,19 +19,26 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
         private readonly ITimeCoordinator _timeCoordinator;
         private readonly EndpointDefinition _definition;
         private readonly IHealthChecker _healthChecker;
+        private readonly IBackOffStategy _backOffStategy;
         private readonly Thread _thread;
         private readonly CancellationTokenSource _cancelationTokenSource;
         private readonly CachedValue<TimeSpan> _healthCheckInterval;
         private Guid? _endpointId;
         private static readonly TimeSpan HealthCheckIntervalCacheDuration = TimeSpan.FromMinutes(10);
-        private const int MaxRepeatDelayInSecs = 120;
-
-        public EndpointHealthNotifier(IHealthMonitorClient client, ITimeCoordinator timeCoordinator, EndpointDefinition definition, IHealthChecker healthChecker)
+        private TimeSpan? _timespan;
+        
+        public EndpointHealthNotifier(
+            IHealthMonitorClient client, 
+            ITimeCoordinator timeCoordinator, 
+            EndpointDefinition definition, 
+            IHealthChecker healthChecker, 
+            IBackOffStategy backOffStategy)
         {
             _client = client;
             _timeCoordinator = timeCoordinator;
             _definition = definition;
             _healthChecker = healthChecker;
+            _backOffStategy = backOffStategy;
             _cancelationTokenSource = new CancellationTokenSource();
             _healthCheckInterval = new CachedValue<TimeSpan>(HealthCheckIntervalCacheDuration, GetHealthCheckIntervalAsync);
             _thread = new Thread(HealthLoop) { IsBackground = true, Name = "Health Check loop" };
@@ -90,7 +98,9 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
             catch (Exception e)
             {
                 _logger.Error("Unable to collect health information", e);
-                endpointHealth = new EndpointHealth(HealthStatus.Faulty, new Dictionary<string, string> { { "reason", "Unable to collect health information" }, { "exception", e.ToString() } });
+                endpointHealth = new EndpointHealth(
+                    HealthStatus.Faulty, 
+                    new Dictionary<string, string> { { "reason", "Unable to collect health information" }, { "exception", e.ToString() } });
             }
 
             await EnsureSendHealthUpdateAsync(new HealthUpdate(checkTimeUtc, watch.Elapsed, endpointHealth));
@@ -98,7 +108,6 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
 
         private async Task EnsureSendHealthUpdateAsync(HealthUpdate update)
         {
-            int repeats = 1;
             while (!_cancelationTokenSource.IsCancellationRequested)
             {
                 try
@@ -109,12 +118,17 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
                 catch (Exception e) when (!_cancelationTokenSource.IsCancellationRequested)
                 {
                     _logger.Error("Unable to send health update", e);
-                    await SafeDelay(TimeSpan.FromSeconds(Math.Min(MaxRepeatDelayInSecs, repeats)));
-                    repeats *= 2;
+
+                    _timespan = await _backOffStategy.Apply(_timespan, _cancelationTokenSource.Token);
+
+                    if (_timespan.HasValue)
+                    {
+                        await SafeDelay(_timespan.Value);
+                    }
                 }
             }
         }
-
+        
         private async Task SafeDelay(TimeSpan delay)
         {
             try
