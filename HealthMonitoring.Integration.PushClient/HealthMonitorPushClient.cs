@@ -67,7 +67,7 @@ namespace HealthMonitoring.Integration.PushClient
                 throw new InvalidOperationException("No health checker provided");
 
             if (_backOffStategy == null)
-                _backOffStategy = new DefaultBackOffStrategy();
+                _backOffStategy = new RecommendedBackOffStrategy();
 
             if (_client == null)
                 return null;

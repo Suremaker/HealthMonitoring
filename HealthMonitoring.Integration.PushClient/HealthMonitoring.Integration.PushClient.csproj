@@ -56,10 +56,11 @@
     <Compile Include="Client\EndpointNotFoundException.cs" />
     <Compile Include="EndpointHealth.cs" />
     <Compile Include="HealthStatus.cs" />
+    <Compile Include="Helpers\BackOffPlan.cs" />
     <Compile Include="Helpers\CachedValue.cs" />
     <Compile Include="Client\Models\HealthUpdate.cs" />
     <Compile Include="Client\IHealthMonitorClient.cs" />
-    <Compile Include="Helpers\DefaultBackOffStrategy.cs" />
+    <Compile Include="Helpers\RecommendedBackOffStrategy.cs" />
     <Compile Include="Helpers\DefaultTimeCoordinator.cs" />
     <Compile Include="Helpers\IBackOffStategy.cs" />
     <Compile Include="Helpers\ITimeCoordinator.cs" />

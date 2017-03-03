@@ -25,8 +25,8 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
         private readonly CachedValue<TimeSpan> _healthCheckInterval;
         private Guid? _endpointId;
         private static readonly TimeSpan HealthCheckIntervalCacheDuration = TimeSpan.FromMinutes(10);
-        private TimeSpan? _timespan;
-        
+        private TimeSpan? _retryInterval;
+
         public EndpointHealthNotifier(
             IHealthMonitorClient client, 
             ITimeCoordinator timeCoordinator, 
@@ -113,17 +113,23 @@ namespace HealthMonitoring.Integration.PushClient.Monitoring
                 try
                 {
                     await SendHealthUpdateAsync(update);
+                    _retryInterval = null;
                     return;
                 }
                 catch (Exception e) when (!_cancelationTokenSource.IsCancellationRequested)
                 {
-                    _logger.Error("Unable to send health update", e);
+                    BackOffPlan backOffPlan = await _backOffStategy.GetCurrent(_retryInterval, _cancelationTokenSource.Token);
 
-                    _timespan = await _backOffStategy.Apply(_timespan, _cancelationTokenSource.Token);
-
-                    if (_timespan.HasValue)
+                    if (backOffPlan.ShouldLog)
                     {
-                        await SafeDelay(_timespan.Value);
+                        _logger.Error("Unable to send health update", e);
+                    }
+
+                    _retryInterval = backOffPlan.RetryInterval;
+
+                    if (_retryInterval.HasValue)
+                    {
+                        await SafeDelay(_retryInterval.Value);
                     }
                 }
             }
