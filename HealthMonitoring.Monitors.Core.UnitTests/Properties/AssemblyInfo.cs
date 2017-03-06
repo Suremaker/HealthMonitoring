@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;		
 		
 [assembly: AssemblyTitle("HealthMonitoring.Monitors.Core.UnitTests")]		
@@ -11,5 +11,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]		
 [assembly: ComVisible(false)]		
 [assembly: Guid("cb4eb4ad-dcfa-406a-8a06-51a1e31cda81")]		
-[assembly: AssemblyVersion("3.5.1.0")]		
-[assembly: AssemblyFileVersion("3.5.1.0")]
+[assembly: AssemblyVersion("3.7.1.0")]		
+[assembly: AssemblyFileVersion("3.7.1.0")]

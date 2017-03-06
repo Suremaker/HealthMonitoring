@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Integration.PushClient;
+using HealthMonitoring.Integration.PushClient.Helpers;
 using HealthMonitoring.Integration.PushClient.Monitoring;
 
 namespace HealthMonitoring.Examples.ServiceWithPushIntegration

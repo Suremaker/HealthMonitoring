@@ -12,8 +12,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: Guid("8d2cfa8a-f44f-4de2-98bc-b19eb496f003")]
-[assembly: AssemblyVersion("3.5.1.0")]
-[assembly: AssemblyFileVersion("3.5.1.0")]
+[assembly: AssemblyVersion("3.7.1.0")]
+[assembly: AssemblyFileVersion("3.7.1.0")]
 
 // Allows to display scenario names properly in Release mode
 [assembly: Debuggable(true, true)]

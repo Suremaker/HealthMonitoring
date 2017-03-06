@@ -24,6 +24,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         private readonly AwaitableFactory _awaitableFactory = new AwaitableFactory();
         private static readonly TimeSpan TestMaxTime = TimeSpan.FromSeconds(5);
         private readonly Mock<ITimeCoordinator> _mockTimeCoordinator = new Mock<ITimeCoordinator>();
+        private readonly Mock<IBackOffStategy> _mockBackOffStategy = new Mock<IBackOffStategy>();
         private const int MaxEndpointNotifierRetryDelayInSecs = 120;
         private const string AuthenticationToken = "token";
 
@@ -259,9 +260,9 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
 
             Assert.False(notCancelled);
         }
-
+        
         [Fact]
-        public async Task Notifier_should_retry_sending_health_updates_in_case_of_exceptions()
+        public async Task Notifier_should_retry_sending_health_updates_according_to_recommened_backOff_strategy_in_case_of_exceptions()
         {
             var endpointId = Guid.NewGuid();
             SetupEndpointRegistration(endpointId);
@@ -271,6 +272,8 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             var minRepeats = 10;
             var countdown = new AsyncCountdown("update", minRepeats);
             var updates = new ConcurrentQueue<HealthUpdate>();
+
+            var backOffPlan = new BackOffPlan(null, false);
 
             _mockClient
                 .Setup(c => c.SendHealthUpdateAsync(endpointId, AuthenticationToken, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
@@ -282,14 +285,21 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
                         .WithCountdown(countdown)
                         .RunAsync();
                 });
-
+            
             using (CreateNotifier())
                 await countdown.WaitAsync(TestMaxTime);
 
             int expectedSeconds = 1;
             for (int i = 0; i < minRepeats; ++i)
             {
+                backOffPlan = new BackOffPlan(TimeSpan.FromSeconds(Math.Min(expectedSeconds, MaxEndpointNotifierRetryDelayInSecs)), true);
+
+                _mockBackOffStategy
+                    .Setup(b => b.GetCurrent(TimeSpan.FromSeconds(expectedSeconds), It.IsAny<CancellationToken>()))
+                    .Returns(Task.FromResult(backOffPlan));
+
                 _mockTimeCoordinator.Verify(c => c.Delay(TimeSpan.FromSeconds(expectedSeconds), It.IsAny<CancellationToken>()));
+
                 expectedSeconds = Math.Min(expectedSeconds *= 2, MaxEndpointNotifierRetryDelayInSecs);
             }
 
