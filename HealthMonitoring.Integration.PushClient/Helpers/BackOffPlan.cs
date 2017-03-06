@@ -8,8 +8,14 @@ namespace HealthMonitoring.Integration.PushClient.Helpers
 {
     public class BackOffPlan
     {
-        public TimeSpan? RetryInterval { get; set; }
+        public TimeSpan? RetryInterval { get; private set; }
 
-        public bool ShouldLog { get; set; }
+        public bool ShouldLog { get; private set; }
+
+        public BackOffPlan(TimeSpan? retryInterval, bool shouldLog)
+        {
+            RetryInterval = retryInterval;
+            ShouldLog = shouldLog;
+        }
     }
 }

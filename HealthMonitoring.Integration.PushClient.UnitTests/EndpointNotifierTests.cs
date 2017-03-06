@@ -273,11 +273,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             var countdown = new AsyncCountdown("update", minRepeats);
             var updates = new ConcurrentQueue<HealthUpdate>();
 
-            var backOffPlan = new BackOffPlan
-            {
-                ShouldLog = false,
-                RetryInterval = null
-            };
+            var backOffPlan = new BackOffPlan(null, false);
 
             _mockClient
                 .Setup(c => c.SendHealthUpdateAsync(endpointId, AuthenticationToken, It.IsAny<HealthUpdate>(), It.IsAny<CancellationToken>()))
@@ -296,8 +292,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             int expectedSeconds = 1;
             for (int i = 0; i < minRepeats; ++i)
             {
-                backOffPlan.ShouldLog = true;
-                backOffPlan.RetryInterval = TimeSpan.FromSeconds(Math.Min(expectedSeconds, MaxEndpointNotifierRetryDelayInSecs));
+                backOffPlan = new BackOffPlan(TimeSpan.FromSeconds(Math.Min(expectedSeconds, MaxEndpointNotifierRetryDelayInSecs)), true);
 
                 _mockBackOffStategy
                     .Setup(b => b.GetCurrent(TimeSpan.FromSeconds(expectedSeconds), It.IsAny<CancellationToken>()))

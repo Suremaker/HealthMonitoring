@@ -54,11 +54,7 @@ namespace HealthMonitoring.Integration.PushClient.Helpers
 
             bool shouldLog = await RecordLog(currentInterval, cancellationToken);
 
-            var backOffPlan = new BackOffPlan
-            {
-                RetryInterval = newInterval,
-                ShouldLog = shouldLog
-            };
+            var backOffPlan = new BackOffPlan(newInterval, shouldLog);
 
             return backOffPlan;
         }
