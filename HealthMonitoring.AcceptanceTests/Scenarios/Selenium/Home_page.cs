@@ -89,6 +89,30 @@ I want to open home page")]
         }
 
         [Scenario]
+        public void Applying_group_filter_to_endpoints()
+        {
+            const string groupFilter = "second";
+
+            Runner.RunScenario(
+                _ => Given_home_page(),
+                _ => With_group_filter_input(groupFilter),
+                _ => Then_only_endpoints_with_groupfilter_parameters_should_be_shown(groupFilter)
+                );
+        }
+
+        [Scenario]
+        public void Applying_name_filter_to_endpoints()
+        {
+            const string nameFilter = "o";
+
+            Runner.RunScenario(
+                _ => Given_home_page(),
+                _ => With_name_filter_input(nameFilter),
+                _ => Then_only_endpoints_with_namefilter_parameters_should_be_shown(nameFilter)
+                );
+        }
+
+        [Scenario]
         public void Filters_should_apply_when_traveling_forward_and_backward_on_history()
         {
             Runner.RunScenario(
