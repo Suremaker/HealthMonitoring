@@ -210,10 +210,10 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
                     group => group.Displayed && group.Enabled)
                 .ToList();
 
-            bool areStatusesCorrect = groupElements.All(m => m.Text.ToLower().IndexOf(groupFilterValue, StringComparison.OrdinalIgnoreCase) >= 0);
+            bool areStatusesCorrect = groupElements.All(m => m.Text.IndexOf(groupFilterValue, StringComparison.OrdinalIgnoreCase) >= 0);
 
             Assert.True(areStatusesCorrect);
-            Assert.True(groupElements.Count(m => m.Text.ToLower().IndexOf(groupFilterValue, StringComparison.OrdinalIgnoreCase) >= 0) == groupElements.Count);
+            Assert.True(groupElements.Count(m => m.Text.IndexOf(groupFilterValue, StringComparison.OrdinalIgnoreCase) >= 0) == groupElements.Count);
         }
 
         public void Then_only_endpoints_with_namefilter_parameters_should_be_shown(string nameFilterValue)
@@ -224,10 +224,10 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
                     group => group.Displayed && group.Enabled)
                 .ToList();
 
-            bool areStatusesCorrect = nameElements.All(m => m.Text.ToLower().IndexOf(nameFilterValue, StringComparison.OrdinalIgnoreCase) >= 0);
+            bool areStatusesCorrect = nameElements.All(m => m.Text.IndexOf(nameFilterValue, StringComparison.OrdinalIgnoreCase) >= 0);
 
             Assert.True(areStatusesCorrect);
-            Assert.True(nameElements.Count(m => m.Text.ToLower().IndexOf(nameFilterValue, StringComparison.OrdinalIgnoreCase) >= 0) == nameElements.Count);
+            Assert.True(nameElements.Count(m => m.Text.IndexOf(nameFilterValue, StringComparison.OrdinalIgnoreCase) >= 0) == nameElements.Count);
         }
 
         public void Then_endpoints_should_be_filtered_with_TAGFILTERS_tag_and_STATUSFILTERS_status_filters(int tagFilters, int statusFilters)
