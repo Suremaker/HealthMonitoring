@@ -65,6 +65,7 @@
                     <span ng-if="filters[tagsFilterName].length" class="filter-label stats-key">Selected Tags</span>
                     <span ng-repeat="tag in filters[tagsFilterName] | orderBy: 'toString()'" ng-click="removeItemFromFilter(tag, tagsFilterName)" ng-style="filterTagStyles[tag]" ng-mouseenter="changeFilterTagColour(tag, true)" ng-mouseleave="changeFilterTagColour(tag, false)" class="endpointTag">{{tag}}</span>
                 </p>
+                <br ng-if="filters[tagsFilterName].length" />
             </div>
             
             <div g-show="endpoints.length">
