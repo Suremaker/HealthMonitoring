@@ -121,10 +121,7 @@ table.endpoints {
         }
 
 
-.selected-filters-container {
-    padding-left: 1em;
-    padding-top: 1em;
-}
+.selected-filters-container {}
 
 .filter-label {
     padding: 0.2em 0.4em 0.2em 0.4em;

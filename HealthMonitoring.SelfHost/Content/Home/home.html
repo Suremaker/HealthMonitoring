@@ -50,22 +50,23 @@
             <p ng-if="endpoints==null">-- connection issue --</p>
             <p ng-if="endpoints.length==0">No endpoints registered yet</p>
             
-            <div>
-                <p>
+            <div class="selected-filters-container">
+                <p class="tagsContainer">
                     <span ng-if="filters[statusFilterName].length" class="filter-label stats-key">Selected Statuses</span>
                     <span ng-repeat="status in filters[statusFilterName]" ng-click="removeItemFromFilter(status, statusFilterName)" class="endpoint-status status-{{status}} endpoint-clickable">{{status}}</span>
                 </p>
+                <br ng-if="filters[statusFilterName].length" />
             </div>
             <div class="tooltip" style="left: {{statLegend.x}}px; top: {{statLegend.y}}px;" ng-if="statLegend">
                 <div>{{statLegend.description}}</div>
             </div>
 
-            <div>
+            <div class="selected-filters-container">
                 <p class="tagsContainer">
                     <span ng-if="filters[tagsFilterName].length" class="filter-label stats-key">Selected Tags</span>
                     <span ng-repeat="tag in filters[tagsFilterName] | orderBy: 'toString()'" ng-click="removeItemFromFilter(tag, tagsFilterName)" ng-style="filterTagStyles[tag]" ng-mouseenter="changeFilterTagColour(tag, true)" ng-mouseleave="changeFilterTagColour(tag, false)" class="endpointTag">{{tag}}</span>
                 </p>
-                <br ng-if="filters[tagsFilterName].length" />
+                <br ng-if="filters[tagsFilterName].length"/>
             </div>
             
             <div g-show="endpoints.length">
@@ -80,6 +81,12 @@
                                ng-model="nameFilter" />
                     </span>
                 </p>
+                <!--<br/>
+                <p class="tagsContainer">
+                    <span>
+                        <input type="checkbox" name="groupItems" value=false> Group items
+                    </span>
+                </p>-->
             </div>
 
         </article>
@@ -112,6 +119,7 @@
                         </td>
                     </tr>
                 </table>
+                <table ng-if=""></table>
             </div>
         </article>
         <footer>Version: {{config.Dashboard.Version}}</footer>
