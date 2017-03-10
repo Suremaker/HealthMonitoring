@@ -18,3 +18,7 @@
 .endpointTag:hover {
     cursor: pointer;
 }
+
+.responseTime {
+    text-align: left !important;
+}
