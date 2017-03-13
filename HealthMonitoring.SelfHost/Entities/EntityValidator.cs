@@ -18,16 +18,14 @@ namespace HealthMonitoring.SelfHost.Entities
     {
         public static ValidationResult CheckForUnallowedSymbols(this string[] tags)
         {
-            return ValidationResult.Success;
+            const string allowedSymbols = "_";
 
-            //const string allowedSymbols = "_";
+            if (tags == null || tags.All(tag => tag.All(symbol => char.IsLetterOrDigit(symbol) || allowedSymbols.Contains(symbol))))
+            {
+                return ValidationResult.Success;
+            }
 
-            //if (tags == null || tags.All(tag => tag.All(symbol => char.IsLetterOrDigit(symbol) || allowedSymbols.Contains(symbol))))
-            //{
-            //    return ValidationResult.Success;
-            //}
-
-            //throw new ArgumentException("Tags contains unallowed symbols.");
+            throw new ArgumentException("Tags contains unallowed symbols.");
         }
     }
 }
