@@ -202,6 +202,24 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             nameFilter.SendKeys(nameFilterValue);
         }
 
+        public void With_endpoints_grouped()
+        {
+            _driver.FindElement(By.Id("groupFilterCheckbox")).Click();
+        }
+
+        public void Then_endpoints_are_grouped_by_group_name()
+        {
+            IList<IWebElement> groupElements = _driver
+                .WaitElementsAreRendered(
+                    By.XPath(_endpointsGroupsSelectorValue),
+                    group => group.Displayed && group.Enabled)
+                .ToList();
+
+            int numberOfGroups = groupElements.Select(g => g.Text).Distinct().Count();
+
+            Assert.Equal(numberOfGroups, groupElements.Count);
+        }
+
         public void Then_only_endpoints_with_groupfilter_parameters_should_be_shown(string groupFilterValue)
         {
             IList<IWebElement> groupElements = _driver

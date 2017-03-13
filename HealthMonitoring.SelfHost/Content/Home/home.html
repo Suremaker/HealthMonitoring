@@ -86,7 +86,9 @@
                 <p class="tagsContainer">
                     <span>
                         <input type="checkbox" name="groupItems" value=false
+                               id="groupFilterCheckbox"
                                ng-model="groupGroups"
+                               ng-change="toggleShoudGroup()"
                                ng-click="resetGroupName()"> Group items
                     </span>
                 </p>
@@ -225,13 +227,16 @@
                             <span ng-bind="(g.LastCheckUtc | dateFilter)"></span>
                         </td>
                         <td>
-                            <p class="tagsContainer">
-                                <span ng-repeat="tagInfo in g.TagInfo | orderBy: 'toString()'" 
-                                      ng-click="addItemToFilter(tagInfo.Tag, tagsFilterName)" 
-                                      ng-style="endpointTagStyles[tagInfo.Id][tagInfo.Tag]" 
-                                      ng-mouseenter="changeTagColour(tagInfo.Id, tagInfo.Tag, true)" 
-                                      ng-mouseleave="changeTagColour(tagInfo.Id, tagInfo.Tag, false)" 
-                                      class="endpointTag">{{tagInfo.Tag}}</span>
+                            <p class="">
+                                <span ng-repeat="tagInfo in g.TagInfo | orderBy: 'toString()'"
+                                      ng-click="addItemToFilter(tagInfo.Tag, tagsFilterName)"
+                                      ng-style="endpointTagStyles[tagInfo.Id][tagInfo.Tag]"
+                                      ng-mouseenter="changeTagColour(tagInfo.Id, tagInfo.Tag, true)"
+                                      ng-mouseleave="changeTagColour(tagInfo.Id, tagInfo.Tag, false)"
+                                      class="endpointTag group">
+                                    {{tagInfo.Tag}}
+                                    <br/>
+                                </span>
                             </p>
                         </td>
                     </tr>

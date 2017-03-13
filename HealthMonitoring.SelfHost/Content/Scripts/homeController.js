@@ -12,6 +12,7 @@
 
         $scope.tagsFilterName = 'filter-tags';
         $scope.statusFilterName = 'filter-status';
+        $scope.shouldGroupName = 'should-group';
 
         $scope.filters = {};
         $scope.filters[$scope.tagsFilterName] = [];
@@ -57,6 +58,7 @@
             if (group.NotRun > 0) {
                 return "notRun";
             }
+            return null;
         };
 
         $scope.hideTooltip = function () {
@@ -149,6 +151,16 @@
             function () {
                 initFiltersFromUrl($scope, $location);
             });
+
+        $scope.toggleShoudGroup = function () {
+            var searchItems = $location.search();
+            if ($scope.groupGroups === true) {
+                searchItems[$scope.shouldGroupName] = true;
+            } else {
+                searchItems[$scope.shouldGroupName] = false;
+            }
+            $location.search(searchItems);
+        };
         
         $scope.parseDuration = parseDuration;
         $scope.formatDuration = formatDuration;
@@ -204,10 +216,6 @@
 
 }());
 
-// todo: hide Name on GRoup select
-// todo: add groupFilter to url
-
-
 function getGroupsInfo(data) {
 
     var groupsInfo = {};
@@ -217,7 +225,9 @@ function getGroupsInfo(data) {
     var groups = [];
 
     for (var key in groupsInfo) {
-        groups.push(groupsInfo[key]);
+        if (groupsInfo.hasOwnProperty(key)) {
+            groups.push(groupsInfo[key]);
+        }
     }
 
     return groups;
@@ -337,16 +347,25 @@ function setFilterTagStyles(scope) {
 function initFiltersFromUrl(scope, location) {
     var tagsFilter = location.search()[scope.tagsFilterName];
     var statusFilter = location.search()[scope.statusFilterName];
+    var shouldGroup = location.search()[scope.shouldGroupName];
 
-    if (tagsFilter !== undefined && tagsFilter !== null)
+    if (tagsFilter !== undefined && tagsFilter !== null) {
         scope.filters[scope.tagsFilterName] = arrayFromParamString(tagsFilter);
-    else
+    } else {
         scope.filters[scope.tagsFilterName] = [];
+    }
 
-    if (statusFilter !== undefined && statusFilter !== null)
+    if (statusFilter !== undefined && statusFilter !== null) {
         scope.filters[scope.statusFilterName] = arrayFromParamString(statusFilter);
-    else
+    } else {
         scope.filters[scope.statusFilterName] = [];
+    }
+
+    if (shouldGroup === true) {
+        scope.groupGroups = true;
+    } else {
+        scope.groupGroups = false;
+    }
 
     setFilterTagStyles(scope);
 }

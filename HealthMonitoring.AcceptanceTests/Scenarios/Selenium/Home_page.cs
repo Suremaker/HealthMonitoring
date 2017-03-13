@@ -101,6 +101,16 @@ I want to open home page")]
         }
 
         [Scenario]
+        public void Endpoints_are_grouped_when_group_items_filter_is_selected()
+        {
+            Runner.RunScenario(
+                _ => Given_home_page(),
+                _ => With_endpoints_grouped(),
+                _ => Then_endpoints_are_grouped_by_group_name()
+                );
+        }
+
+        [Scenario]
         public void Applying_name_filter_to_endpoints()
         {
             const string nameFilter = "o";
