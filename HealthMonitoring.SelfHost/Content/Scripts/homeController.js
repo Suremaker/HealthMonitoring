@@ -73,6 +73,20 @@
             return true;
         };
 
+        $scope.tagGroupedFilter = function (groupInfo) {
+            var tagsAvailable = [];
+            groupInfo.TagInfo.forEach(function (tagInfo) {
+                tagsAvailable.push(tagInfo.Tag);
+            });
+            var tags = $scope.filters[$scope.tagsFilterName];
+            for (var i = 0; i < tags.length; i++) {
+                if (tagsAvailable.indexOf(tags[i]) < 0) {
+                    return false;
+                }
+            }
+            return true;
+        };
+
         $scope.statusFilter = function (endpoint) {
             var statuses = $scope.filters[$scope.statusFilterName];
             if (statuses.length > 0) {
@@ -80,6 +94,21 @@
                     return false;
             }
             return true;
+        };
+
+        $scope.statusGroupFilter = function (groupInfo) {
+            var statuses = $scope.filters[$scope.statusFilterName];
+            if (statuses.length === 0) {
+                return true;
+            }
+            if (statuses.length > 0) {
+                for (var i = 0; i < statuses.length; i++) {
+                    if (groupInfo[uppercaseFirstLetter(statuses[i])] > 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         };
 
         $scope.addItemToFilter = function (item, filterName) {
@@ -110,6 +139,10 @@
 
         $scope.valueComparator = function(a, b) {
              return a === b;
+        };
+
+        $scope.resetGroupName = function() {
+            $scope.nameFilter = "";
         };
         
         $scope.$on('$locationChangeSuccess',
@@ -171,25 +204,41 @@
 
 }());
 
+// todo: hide Name on GRoup select
+// todo: add groupFilter to url
+
+
 function getGroupsInfo(data) {
 
     var groupsInfo = {};
 
     angular.forEach(data, getGroupInfo);
 
-    return groupsInfo;
+    var groups = [];
+
+    for (var key in groupsInfo) {
+        groups.push(groupsInfo[key]);
+    }
+
+    return groups;
 
     function getGroupInfo(item) {
+
         if (groupsInfo.hasOwnProperty(item.Group)) {
             groupsInfo[item.Group] = {
-                Count: groupsInfo[item.Group].Count += 1,
-                NotRun: item.Status === "notRun" ? groupsInfo[item.Group].NotRun += 1 : 0,
-                NotExists: item.Status === "notExists" ? groupsInfo[item.Group].NotExists += 1 : 0,
-                Offline: item.Status === "offline" ? groupsInfo[item.Group].Offline += 1 : 0,
-                Healthy: item.Status === "healthy" ? groupsInfo[item.Group].Healthy += 1 : 0,
-                Faulty: item.Status === "faulty" ? groupsInfo[item.Group].Faulty += 1 : 0,
-                Unhealthy: item.Status === "unhealthy" ? groupsInfo[item.Group].Unhealthy += 1 : 0,
-                TimedOut: item.Status === "timedOut" ? groupsInfo[item.Group].TimedOut += 1 : 0
+                Count: groupsInfo[item.Group].Count + 1,
+                NotRun: item.Status === "notRun" ? groupsInfo[item.Group].NotRun + 1 : groupsInfo[item.Group].NotRun,
+                NotExists: item.Status === "notExists" ? groupsInfo[item.Group].NotExists + 1 : groupsInfo[item.Group].NotExists,
+                Offline: item.Status === "offline" ? groupsInfo[item.Group].Offline + 1 : groupsInfo[item.Group].Offline,
+                Healthy: item.Status === "healthy" ? groupsInfo[item.Group].Healthy + 1 : groupsInfo[item.Group].Healthy,
+                Faulty: item.Status === "faulty" ? groupsInfo[item.Group].Faulty + 1 : groupsInfo[item.Group].Faulty,
+                Unhealthy: item.Status === "unhealthy" ? groupsInfo[item.Group].Unhealthy + 1 : groupsInfo[item.Group].Unhealthy,
+                TimedOut: item.Status === "timedOut" ? groupsInfo[item.Group].TimedOut + 1 : groupsInfo[item.Group].TimedOut,
+                Name: item.Group,
+                TagInfo: groupsInfo[item.Group].TagInfo,
+                LongestResponseTime: getLongestResponseTime(),
+                ShortestResponseTime: getShortestResponseTime(),
+                LastCheckUtc: item.LastCheckUtc
             }
         } else {
             groupsInfo[item.Group] = {
@@ -200,55 +249,71 @@ function getGroupsInfo(data) {
                 Healthy: item.Status === "healthy" ? 1 : 0,
                 Faulty: item.Status === "faulty" ? 1 : 0,
                 Unhealthy: item.Status === "unhealthy" ? 1 : 0,
-                TimedOut: item.Status === "timedOut" ? 1 : 0
+                TimedOut: item.Status === "timedOut" ? 1 : 0,
+                Name: item.Group,
+                TagInfo: [],
+                LongestResponseTime: item.LastResponseTime,
+                ShortestResponseTime: item.LastResponseTime,
+                LastCheckUtc: item.LastCheckUtc
             }
         }
 
-        if (groupsInfo[item.Group].LongestResponseTime) {
-            if (item.LastResponseTime > groupsInfo[item.Group].LongestResponseTime) {
-                groupsInfo[item.Group].LongestResponseTime = item.LastResponseTime;
-            }
-        } else {
-            groupsInfo[item.Group].LongestResponseTime = item.LastResponseTime;
-        }
-
-        if (groupsInfo[item.Group].shortestResponseTime) {
-            if (item.LastResponseTime < groupsInfo[item.Group].shortestResponseTime) {
-                groupsInfo[item.Group].shortestResponseTime = item.LastResponseTime;
-            }
-        } else {
-            groupsInfo[item.Group].shortestResponseTime = item.LastResponseTime;
-        }
+        angular.forEach(getNewTags(), addTagToGroupInfoIfDoesntExist);
         
-        groupsInfo[item.Group].LastCheckUtc = item.LastCheckUtc;
+        function getNewTags() {
+            var newTags = [];
 
-        if (!groupsInfo[item.Group].TagInfo) {
-            groupsInfo[item.Group].TagInfo = [];
+            angular.forEach(item.Tags, collateNewTags);
+
+            return newTags;
+
+            function collateNewTags(newTag) {
+                newTags.push(newTag);
+            }
         }
 
-        angular.forEach(item.Tags, addTagToGroupInfoIfDoesntExist);
-        
-        function addTagToGroupInfoIfDoesntExist(tag) {
-            var tags = [];
+        function addTagToGroupInfoIfDoesntExist(newTag) {
+            if (isUndefinedOrNullOrEmptyOrHasWhiteSpaces(newTag)) {
+                return;
+            }
 
+            var currentTags = [];
+            
             groupsInfo[item.Group].TagInfo.forEach(collateCurrentTags);
-
-            if (tags.indexOf(tag) === -1) {
+            
+            if (currentTags.indexOf(newTag) === -1) {
                 groupsInfo[item.Group].TagInfo.push({
-                    Tag: tag,
+                    Tag: newTag,
                     Id: item.Id
                 });
             }
 
             function collateCurrentTags(tagInfo) {
-                tags.push(tagInfo.Tag);
+                currentTags.push(tagInfo.Tag);
             }
         }
+
+        function getLongestResponseTime() {
+            return groupsInfo[item.Group].LongestResponseTime > item.LastResponseTime
+                ? groupsInfo[item.Group].LongestResponseTime
+                : item.LastResponseTime;
+        }
+
+        function getShortestResponseTime() {
+            return groupsInfo[item.Group].ShortestResponseTime < item.LastResponseTime
+                ? groupsInfo[item.Group].ShortestResponseTime
+                : item.LastResponseTime;
+        }
+        
     }
 }
 
 function lowercaseFirstLetter(string) {
     return string.charAt(0).toLowerCase() + string.slice(1);
+}
+
+function uppercaseFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 function getEndpointUpdatingFrequency(location) {
@@ -296,4 +361,8 @@ function arrayToParamString(items) {
 
 function arrayFromParamString(str) {
     return str.split(";").filter(Boolean);
+}
+
+function isUndefinedOrNullOrEmptyOrHasWhiteSpaces(str) {
+    return str === 'undefined' || str === null || str.match(/^ *$/) !== null;
 }

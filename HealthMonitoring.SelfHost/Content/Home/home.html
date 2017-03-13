@@ -74,17 +74,20 @@
                         <label for="groupFilter">Within Group:</label>
                         <input id="groupFilter" type="text"
                                ng-model="groupFilter" />
-                        &nbsp;&nbsp;&nbsp;
-                        <label for="nameFilter">With Name:</label>
-                        <input id="nameFilter" type="text"
-                               ng-model="nameFilter" />
+                        <span ng-show="!groupGroups">
+                            &nbsp;&nbsp;&nbsp;
+                            <label for="nameFilter">With Name:</label>
+                            <input id="nameFilter" type="text"
+                                   ng-model="nameFilter" />
+                        </span>
                     </span>
                 </p>
                 <br />
                 <p class="tagsContainer">
                     <span>
                         <input type="checkbox" name="groupItems" value=false
-                               ng-model="groupGroups"> Group items
+                               ng-model="groupGroups"
+                               ng-click="resetGroupName()"> Group items
                     </span>
                 </p>
             </div>
@@ -115,7 +118,10 @@
                             <a href="/dashboard/details?id={{e.Id}}" target="_blank"><div class="overlaytext">{{e.Name}}</div></a>
                         </td>
                         <td>
-                            <div class="endpoint-status status-{{e.Status}}" ng-click="onStatusSelected(e.Status)" ng-mousemove="displayHint($event)" ng-mouseleave="hideTooltip()">{{e.Status}}</div>
+                            <div class="endpoint-status status-{{e.Status}}" 
+                                 ng-click="onStatusSelected(e.Status)" 
+                                 ng-mousemove="displayHint($event)" 
+                                 ng-mouseleave="hideTooltip()">{{e.Status}}</div>
                         </td>
                         <td>
                             {{formatDuration(e.LastResponseTime)}}
@@ -124,7 +130,14 @@
                             {{e.LastCheckUtc | dateFilter }}
                         </td>
                         <td>
-                            <p class="tagsContainer"><span ng-repeat="tag in e.Tags | orderBy: 'toString()'" ng-click="addItemToFilter(tag, tagsFilterName)" ng-style="endpointTagStyles[e.Id][tag]" ng-mouseenter="changeTagColour(e.Id, tag, true)" ng-mouseleave="changeTagColour(e.Id, tag, false)" class="endpointTag">{{tag}}</span></p>
+                            <p class="tagsContainer">
+                                <span ng-repeat="tag in e.Tags | orderBy: 'toString()'"
+                                      ng-click="addItemToFilter(tag, tagsFilterName)"
+                                      ng-style="endpointTagStyles[e.Id][tag]"
+                                      ng-mouseenter="changeTagColour(e.Id, tag, true)"
+                                      ng-mouseleave="changeTagColour(e.Id, tag, false)"
+                                      class="endpointTag">{{tag}}</span>
+                            </p>
                         </td>
                     </tr>
                 </table>
@@ -133,100 +146,87 @@
                         <th>Group</th>
                         <th>Overall</th>
                         <th>Status(es)</th>
-                        <th>Response Time</th>
+                        <th>Response Times</th>
                         <th>Last check at</th>
                         <th>Tags
                         <th>
                     </tr>
-                    <tr ng-repeat="e in endpoints | filter:{Status:statusFilter} | filter:{Group:groupFilter} | filter:{Name:nameFilter} | orderBy: ['Group','Name'] | filter:tagFilter">
+                    <tr ng-repeat="g in groupsInfo | filter:statusGroupFilter | filter:{Name:groupFilter} | orderBy: ['Name'] | filter:tagGroupedFilter">
                         <td>
-                            <div class="overlaytext" ng-bind="e.Group"></div>
+                            <div class="overlaytext" ng-bind="g.Name"></div>
                         </td>
-                        
-                        <!--<td ng-show="groupsInfo[e.Group].NotRun > 0"
-                            class="td-status-notRun">
-                            <div ng-bind="e.Group" class="overlaytext"></div>
-                        </td>
-
-                        <td ng-show="groupsInfo[e.Group].TimedOut > 0"
-                            class="td-status-timedOut">
-                            <div ng-bind="e.Group" class="overlaytext"></div>
-                        </td>-->
-
-                        <td class="td-status-{{getGroupColour(groupsInfo[e.Group])}}">
-                            <span ng-bind="groupsInfo[e.Group].Count"></span>
+                        <td class="td-status-{{getGroupColour(g)}}">
+                            <span ng-bind="g.Count"></span>
                         </td>
                         <td>
-                            <p ng-show="groupsInfo[e.Group].NotRun > 0">
-                                <span ng-bind="groupsInfo[e.Group].NotRun"></span>
+                            <p ng-show="g.NotRun > 0">
+                                <span ng-bind="g.NotRun"></span>
                                 <span class="endpoint-status status-notRun endpointTag"
-                                      ng-click="addItemToFilter('notRun', 'filter-status')"
+                                      ng-click="onStatusSelected('notRun')"
                                       ng-mousemove="displayHint($event)"
                                       ng-mouseleave="hideTooltip()">notRun</span>
                             </p>
-                            <p ng-show="groupsInfo[e.Group].NotExists > 0">
-                                <span ng-bind="groupsInfo[e.Group].NotExists"></span>
+                            <p ng-show="g.NotExists > 0">
+                                <span ng-bind="g.NotExists"></span>
                                 <span class="endpoint-status status-notExists endpointTag"
-                                      ng-click="addItemToFilter('notExists', 'filter-status')"
+                                      ng-click="onStatusSelected('notExists')"
                                       ng-mousemove="displayHint($event)"
                                       ng-mouseleave="hideTooltip()">notExists</span>
                             </p>
-                            <p ng-show="groupsInfo[e.Group].Offline > 0">
-                                <span ng-bind="groupsInfo[e.Group].Offline"></span>
+                            <p ng-show="g.Offline > 0">
+                                <span ng-bind="g.Offline"></span>
                                 <span class="endpoint-status status-offline endpointTag"
-                                      ng-click="addItemToFilter('offline', 'filter-status')"
+                                      ng-click="onStatusSelected('offline')"
                                       ng-mousemove="displayHint($event)"
                                       ng-mouseleave="hideTooltip()">offline</span>
                             </p>
-                            <p ng-show="groupsInfo[e.Group].Healthy > 0">
-                                <span ng-bind="groupsInfo[e.Group].Healthy"></span>
+                            <p ng-show="g.Healthy > 0">
+                                <span ng-bind="g.Healthy"></span>
                                 <span class="endpoint-status status-healthy endpointTag"
-                                      ng-click="addItemToFilter('healthy', 'filter-status')"
+                                      ng-click="onStatusSelected('healthy')"
                                       ng-mousemove="displayHint($event)"
                                       ng-mouseleave="hideTooltip()">healthy</span>
                             </p>
-                            <p ng-show="groupsInfo[e.Group].Faulty > 0">
-                                <span ng-bind="groupsInfo[e.Group].Faulty"></span>
+                            <p ng-show="g.Faulty > 0">
+                                <span ng-bind="g.Faulty"></span>
                                 <span class="endpoint-status status-faulty endpointTag"
-                                      ng-click="addItemToFilter('faulty', 'filter-status')"
+                                      ng-click="onStatusSelected('faulty')"
                                       ng-mousemove="displayHint($event)"
                                       ng-mouseleave="hideTooltip()">faulty</span>
                             </p>
-                            <p ng-show="groupsInfo[e.Group].Unhealthy > 0">
-                                <span ng-bind="groupsInfo[e.Group].Unhealthy"></span>
+                            <p ng-show="g.Unhealthy > 0">
+                                <span ng-bind="g.Unhealthy"></span>
                                 <span class="endpoint-status status-unhealthy endpointTag"
-                                      ng-click="addItemToFilter('unhealthy', 'filter-status')"
+                                      ng-click="onStatusSelected('unhealthy')"
                                       ng-mousemove="displayHint($event)"
                                       ng-mouseleave="hideTooltip()">unhealthy</span>
                             </p>
-                            <p ng-show="groupsInfo[e.Group].TimedOut > 0">
-                                <span ng-bind="groupsInfo[e.Group].TimedOut"></span>
+                            <p ng-show="g.TimedOut > 0">
+                                <span ng-bind="g.TimedOut"></span>
                                 <span class="endpoint-status status-timedOut endpointTag"
-                                      ng-click="addItemToFilter('timedOut', 'filter-status')"
+                                      ng-click="onStatusSelected('timedOut')"
                                       ng-mousemove="displayHint($event)"
                                       ng-mouseleave="hideTooltip()">timedOut</span>
                             </p>
                         </td>
                         <td class="responseTime">
                             <p>
-                                Shortest:&nbsp;
-                                <span ng-bind="formatDuration(groupsInfo[e.Group].shortestResponseTime)">
-                                    TBC
-                                </span>
+                                Shortest:
+                                <br/>
+                                <span ng-bind="formatDuration(g.ShortestResponseTime)"></span>
                             </p>
                             <p>
-                                Longest:&nbsp;
-                                <span ng-bind="formatDuration(groupsInfo[e.Group].LongestResponseTime)">
-                                    TBC
-                                </span>
+                                Longest:
+                                <br/>
+                                <span ng-bind="formatDuration(g.LongestResponseTime)"></span>
                             </p>
                         </td>
                         <td>
-                            <span ng-bind="(groupsInfo[e.Group].LastCheckUtc | dateFilter)"></span>
+                            <span ng-bind="(g.LastCheckUtc | dateFilter)"></span>
                         </td>
                         <td>
                             <p class="tagsContainer">
-                                <span ng-repeat="tagInfo in groupsInfo[e.Group].TagInfo | orderBy: 'toString()'" 
+                                <span ng-repeat="tagInfo in g.TagInfo | orderBy: 'toString()'" 
                                       ng-click="addItemToFilter(tagInfo.Tag, tagsFilterName)" 
                                       ng-style="endpointTagStyles[tagInfo.Id][tagInfo.Tag]" 
                                       ng-mouseenter="changeTagColour(tagInfo.Id, tagInfo.Tag, true)" 
