@@ -22,6 +22,16 @@
         $scope.endpointTagStyles = {};
         $scope.statLegend = null;
 
+        var statusesInOrderOfImportance = [
+            "timedOut",
+            "unhealthy",
+            "faulty",
+            "healthy",
+            "offline",
+            "notExists",
+            "notRun"
+        ];
+
         var endpointFrequency = getEndpointUpdatingFrequency($location);
         var configFrequency = getConfigUpdatingFrequency($location);
 
@@ -37,27 +47,13 @@
         };
 
         $scope.getGroupColour = function (group) {
-            if (group.TimedOut > 0) {
-                return "timedOut";
+            
+            for (var i = 0; i < statusesInOrderOfImportance.length; i++) {
+                if (group[uppercaseFirstLetter(statusesInOrderOfImportance[i])] > 0) {
+                    return statusesInOrderOfImportance[i];
+                }
             }
-            if (group.Unhealthy > 0) {
-                return "unhealthy";
-            }
-            if (group.Faulty > 0) {
-                return "faulty";
-            }
-            if (group.Healthy > 0) {
-                return "healthy";
-            }
-            if (group.Offline > 0) {
-                return "offline";
-            }
-            if (group.NotExists > 0) {
-                return "notExists";
-            }
-            if (group.NotRun > 0) {
-                return "notRun";
-            }
+
             return null;
         };
 
