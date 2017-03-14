@@ -16,9 +16,9 @@
 }
 
 .endpoint-status {
-    padding: 0.2em 0.4em 0.2em 0.4em;
+    padding: 0.2em 0.4em;
     border-radius: 0.25em;
-    margin: 0 0.1em 0 0.1em;
+    margin: 0 0.1em;
     text-align: center !important;
 }
 
