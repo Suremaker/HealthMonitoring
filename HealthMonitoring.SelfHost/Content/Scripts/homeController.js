@@ -312,10 +312,6 @@ function getGroupsInfo(data) {
     }
 }
 
-function lowercaseFirstLetter(string) {
-    return string.charAt(0).toLowerCase() + string.slice(1);
-}
-
 function uppercaseFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
