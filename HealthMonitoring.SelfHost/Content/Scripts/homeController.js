@@ -47,13 +47,11 @@
         };
 
         $scope.getGroupColour = function (group) {
-            
             for (var i = 0; i < statusesInOrderOfImportance.length; i++) {
                 if (group[uppercaseFirstLetter(statusesInOrderOfImportance[i])] > 0) {
                     return statusesInOrderOfImportance[i];
                 }
             }
-
             return null;
         };
 
