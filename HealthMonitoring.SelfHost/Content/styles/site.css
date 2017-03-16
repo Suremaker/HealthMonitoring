@@ -62,50 +62,7 @@
     text-transform: capitalize;
 }
 
-.td-status-healthy {
-    background-color: darkgreen;
-    color: #eeeeee;
-    text-align: center !important;
-    font-weight: 900;
-}
-
-.td-status-faulty {
-    background-color: darkred;
-    color: #eeeeee;
-    text-align: center !important;
-    font-weight: 900;
-}
-
-.td-status-unhealthy {
-    background-color: gold;
-    text-align: center !important;
-    font-weight: 900;
-}
-
-.td-status-timedOut {
-    background-color: orangered;
-    color: #eeeeee;
-    text-align: center !important;
-    font-weight: 900;
-}
-
-.td-status-offline {
-    background-color: blue;
-    color: #eeeeee;
-    text-align: center !important;
-    font-weight: 900;
-}
-
-.td-status-notRun {
-    background-color: #111111;
-    color: #eeeeee;
-    text-align: center !important;
-    font-weight: 900;
-}
-
-.td-status-notExists {
-    background-color: #444444;
-    color: #eeeeee;
+.group-status {
     text-align: center !important;
     font-weight: 900;
 }
