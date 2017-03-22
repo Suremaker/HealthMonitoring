@@ -318,7 +318,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         private void With_driver_wait_time(TimeSpan timeout)
         {
-            _driver.Manage().Timeouts().ImplicitlyWait(timeout);
+            _driver.Manage().Timeouts().ImplicitWait = timeout;
         }
     }
 }
