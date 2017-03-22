@@ -7,6 +7,7 @@
     });
 
     var homeController = function ($scope, $location, healthmonitorEndpointService) {
+        
         $scope.config = null;
         $scope.alerts = [];
 
@@ -22,15 +23,9 @@
         $scope.endpointTagStyles = {};
         $scope.statLegend = null;
 
-        var statusesInOrderOfImportance = [
-            "timedOut",
-            "unhealthy",
-            "faulty",
-            "healthy",
-            "offline",
-            "notExists",
-            "notRun"
-        ];
+        $scope.tagInfos = {};
+        
+        var groupClassNames = {};
 
         var endpointFrequency = getEndpointUpdatingFrequency($location);
         var configFrequency = getConfigUpdatingFrequency($location);
@@ -45,16 +40,79 @@
                 };
             }
         };
+        
+        $scope.shortestResponseTime = function (endpointGroup) {
+            if (endpointGroup.length <= 0) {
+                return null;
+            }
 
-        $scope.getGroupColour = function (group) {
-            for (var i = 0; i < statusesInOrderOfImportance.length; i++) {
-                if (group[uppercaseFirstLetter(statusesInOrderOfImportance[i])] > 0) {
-                    return statusesInOrderOfImportance[i];
+            var shortestResponseTime = endpointGroup[0].LastResponseTime;
+
+            for (var i = 0; i < endpointGroup.length; i++) {
+                if (shortestResponseTime > endpointGroup[i].LastResponseTime) {
+                    shortestResponseTime = endpointGroup[i].LastResponseTime;
                 }
             }
-            return null;
+
+            return shortestResponseTime;
         };
 
+        $scope.longestResponseTime = function (endpointGroup) {
+            if (endpointGroup.length <= 0) {
+                return null;
+            }
+
+            var longestResponseTime = endpointGroup[0].LastResponseTime;
+
+            for (var i = 0; i < endpointGroup.length; i++) {
+                if (longestResponseTime < endpointGroup[i].LastResponseTime) {
+                    longestResponseTime = endpointGroup[i].LastResponseTime;
+                }
+            }
+
+            return longestResponseTime;
+        };
+
+        $scope.LastCheckUtc = function (endpointGroup) {
+            if (endpointGroup.length <= 0) {
+                return null;
+            }
+
+            var lastCheckUtc = endpointGroup[0].LastCheckUtc;
+
+            for (var i = 0; i < endpointGroup.length; i++) {
+                if (lastCheckUtc < endpointGroup[i].LastCheckUtc) {
+                    lastCheckUtc = endpointGroup[i].LastCheckUtc;
+                }
+            }
+
+            return lastCheckUtc;
+        };
+        
+        $scope.getEndpointClassName = function (endpointGroup) {
+            if (!groupClassNames[endpointGroup]) {
+                groupClassNames[endpointGroup] = 'group' + (Object.keys(groupClassNames).length % 3 + 1);
+            }
+            return groupClassNames[endpointGroup];
+        };
+        
+        $scope.findHighestStatus = function (endpoints) {
+            var severities = { 'notRun': 0, 'healthy': 1, 'offline': 2, 'notExists': 3, 'unhealthy': 4, 'timedOut': 5, 'faulty': 6 };
+            var severity = 0;
+            for (var i = endpoints.length - 1; i >= 0; --i) {
+                var current = severities[endpoints[i].Status];
+                if (current > severity) {
+                    severity = current;
+                }
+            }
+            for (var prop in severities) {
+                if (severities.hasOwnProperty(prop) && severities[prop] === severity) {
+                    return prop;
+                }
+            }
+            return 'notRun';
+        }
+        
         $scope.hideTooltip = function () {
             $scope.statLegend = null;
         };
@@ -69,20 +127,6 @@
             return true;
         };
 
-        $scope.tagGroupedFilter = function (groupInfo) {
-            var tagsAvailable = [];
-            groupInfo.TagInfo.forEach(function (tagInfo) {
-                tagsAvailable.push(tagInfo.Tag);
-            });
-            var tags = $scope.filters[$scope.tagsFilterName];
-            for (var i = 0; i < tags.length; i++) {
-                if (tagsAvailable.indexOf(tags[i]) < 0) {
-                    return false;
-                }
-            }
-            return true;
-        };
-
         $scope.statusFilter = function (endpoint) {
             var statuses = $scope.filters[$scope.statusFilterName];
             if (statuses.length > 0) {
@@ -90,21 +134,6 @@
                     return false;
             }
             return true;
-        };
-
-        $scope.statusGroupFilter = function (groupInfo) {
-            var statuses = $scope.filters[$scope.statusFilterName];
-            if (statuses.length === 0) {
-                return true;
-            }
-            if (statuses.length > 0) {
-                for (var i = 0; i < statuses.length; i++) {
-                    if (groupInfo[uppercaseFirstLetter(statuses[i])] > 0) {
-                        return true;
-                    }
-                }
-            }
-            return false;
         };
 
         $scope.addItemToFilter = function (item, filterName) {
@@ -172,10 +201,70 @@
             };
 
             $scope.endpoints = data;
-            $scope.groupsInfo = getGroupsInfo(data);
+            updateAllTagInfos();
             setEndpointTagStyles();
-        };
 
+            function updateAllTagInfos() {
+
+                angular.forEach(groupBy(data, 'Group'), updateTagInfos);
+
+                function updateTagInfos(endpointGroup) {
+
+                    var tagInfoSummary = {};
+
+                    angular.forEach(endpointGroup, getTagInfoSummary);
+
+                    angular.forEach(Object.keys(tagInfoSummary), setTagInfo);
+
+                    function setTagInfo(key) {
+                        if (tagInfoSummary.hasOwnProperty(key)) {
+                            $scope.tagInfos[key] = tagInfoSummary[key];
+                        }
+                    }
+
+                    function getTagInfoSummary(endpoint) {
+
+                        var newTags = [];
+
+                        angular.forEach(endpoint.Tags, collateNewTags);
+
+                        angular.forEach(newTags, addTagToTagInfoSummaryIfDoesntExist);
+
+                        function collateNewTags(newTag) {
+                            newTags.push(newTag);
+                        }
+
+                        function addTagToTagInfoSummaryIfDoesntExist(newTag) {
+                            if (isUndefinedOrNullOrEmptyOrHasWhiteSpaces(newTag)) {
+                                return;
+                            }
+
+                            var currentTags = [];
+
+                            if (tagInfoSummary.hasOwnProperty(endpoint.Group)) {
+                                tagInfoSummary[endpoint.Group].forEach(collateCurrentTags);
+                            } else {
+                                tagInfoSummary[endpoint.Group] = [];
+                            }
+
+                            if (currentTags.indexOf(newTag) === -1) {
+                                tagInfoSummary[endpoint.Group].push({
+                                    Tag: newTag,
+                                    Id: endpoint.Id
+                                });
+                            }
+
+                            function collateCurrentTags(tagInfo) {
+                                currentTags.push(tagInfo.Tag);
+                            }
+                        }
+                    }
+
+                };
+            }
+            
+        };
+        
         var onEndpointsFailed = function (error) {
             $scope.endpoints = null;
         };
@@ -210,107 +299,13 @@
 
 }());
 
-function getGroupsInfo(data) {
 
-    var groupsInfo = {};
-
-    angular.forEach(data, getGroupInfo);
-
-    var groups = [];
-
-    for (var key in groupsInfo) {
-        if (groupsInfo.hasOwnProperty(key)) {
-            groups.push(groupsInfo[key]);
-        }
-    }
-
-    return groups;
-
-    function getGroupInfo(item) {
-
-        if (groupsInfo.hasOwnProperty(item.Group)) {
-            groupsInfo[item.Group] = {
-                Count: groupsInfo[item.Group].Count + 1,
-                NotRun: item.Status === "notRun" ? groupsInfo[item.Group].NotRun + 1 : groupsInfo[item.Group].NotRun,
-                NotExists: item.Status === "notExists" ? groupsInfo[item.Group].NotExists + 1 : groupsInfo[item.Group].NotExists,
-                Offline: item.Status === "offline" ? groupsInfo[item.Group].Offline + 1 : groupsInfo[item.Group].Offline,
-                Healthy: item.Status === "healthy" ? groupsInfo[item.Group].Healthy + 1 : groupsInfo[item.Group].Healthy,
-                Faulty: item.Status === "faulty" ? groupsInfo[item.Group].Faulty + 1 : groupsInfo[item.Group].Faulty,
-                Unhealthy: item.Status === "unhealthy" ? groupsInfo[item.Group].Unhealthy + 1 : groupsInfo[item.Group].Unhealthy,
-                TimedOut: item.Status === "timedOut" ? groupsInfo[item.Group].TimedOut + 1 : groupsInfo[item.Group].TimedOut,
-                Name: item.Group,
-                TagInfo: groupsInfo[item.Group].TagInfo,
-                LongestResponseTime: getLongestResponseTime(),
-                ShortestResponseTime: getShortestResponseTime(),
-                LastCheckUtc: item.LastCheckUtc
-            }
-        } else {
-            groupsInfo[item.Group] = {
-                Count: 1,
-                NotRun: item.Status === "notRun" ? 1 : 0,
-                NotExists: item.Status === "notExists" ? 1 : 0,
-                Offline: item.Status === "offline" ? 1 : 0,
-                Healthy: item.Status === "healthy" ? 1 : 0,
-                Faulty: item.Status === "faulty" ? 1 : 0,
-                Unhealthy: item.Status === "unhealthy" ? 1 : 0,
-                TimedOut: item.Status === "timedOut" ? 1 : 0,
-                Name: item.Group,
-                TagInfo: [],
-                LongestResponseTime: item.LastResponseTime,
-                ShortestResponseTime: item.LastResponseTime,
-                LastCheckUtc: item.LastCheckUtc
-            }
-        }
-
-        angular.forEach(getNewTags(), addTagToGroupInfoIfDoesntExist);
-        
-        function getNewTags() {
-            var newTags = [];
-
-            angular.forEach(item.Tags, collateNewTags);
-
-            return newTags;
-
-            function collateNewTags(newTag) {
-                newTags.push(newTag);
-            }
-        }
-
-        function addTagToGroupInfoIfDoesntExist(newTag) {
-            if (isUndefinedOrNullOrEmptyOrHasWhiteSpaces(newTag)) {
-                return;
-            }
-
-            var currentTags = [];
-            
-            groupsInfo[item.Group].TagInfo.forEach(collateCurrentTags);
-            
-            if (currentTags.indexOf(newTag) === -1) {
-                groupsInfo[item.Group].TagInfo.push({
-                    Tag: newTag,
-                    Id: item.Id
-                });
-            }
-
-            function collateCurrentTags(tagInfo) {
-                currentTags.push(tagInfo.Tag);
-            }
-        }
-
-        function getLongestResponseTime() {
-            return groupsInfo[item.Group].LongestResponseTime > item.LastResponseTime
-                ? groupsInfo[item.Group].LongestResponseTime
-                : item.LastResponseTime;
-        }
-
-        function getShortestResponseTime() {
-            return groupsInfo[item.Group].ShortestResponseTime < item.LastResponseTime
-                ? groupsInfo[item.Group].ShortestResponseTime
-                : item.LastResponseTime;
-        }
-        
-    }
-}
+function groupBy(list, key) {
+    return list.reduce(function (listGroup, item) {
+        (listGroup[item[key]] = listGroup[item[key]] || []).push(item);
+        return listGroup;
+    }, {});
+};
 
 function uppercaseFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
