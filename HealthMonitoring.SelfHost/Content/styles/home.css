@@ -119,13 +119,7 @@ table.endpoints {
         table.endpoints tr td:nth-child(4), table.endpoints td:nth-child(5) {
             text-align: right;
         }
-
-
-.selected-filters-container {
-    padding-left: 1em;
-    padding-top: 1em;
-}
-
+        
 .filter-label {
     padding: 0.2em 0.4em 0.2em 0.4em;
     margin: 0 0.1em 0 0.1em;

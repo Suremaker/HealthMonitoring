@@ -49,7 +49,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Selenium
 
         public static void RetryTimeout(this IWebDriver driver, TimeSpan period)
         {
-            driver.Manage().Timeouts().ImplicitlyWait(period);
+            driver.Manage().Timeouts().ImplicitWait = period;
         }
 
         private static IWebElement FindElement(IWebDriver driver, By selector)
