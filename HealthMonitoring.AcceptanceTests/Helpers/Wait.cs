@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 
 namespace HealthMonitoring.AcceptanceTests.Helpers
@@ -8,17 +10,36 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
     {
         public static T Until<T>(TimeSpan timeout, Func<T> selector, Func<T, bool> predicate, string errorMessage)
         {
-            var sw = new Stopwatch();
-            sw.Start();
-            var value = default(T);
-            while (sw.Elapsed < timeout)
+            var valuesCollated = new List<T>();
+            
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            while (stopwatch.Elapsed < timeout)
             {
-                value = selector();
+                var value = selector();
+
                 if (predicate(value))
                     return value;
+
+                if (!valuesCollated.Contains(value))
+                    valuesCollated.Add(value);
+
                 Thread.Sleep(100);
             }
-            throw new TimeoutException($"{errorMessage}, Last value: {value}");
+
+            string suffixtMessage = GetSuffixMessage(valuesCollated);
+
+            throw new TimeoutException($"{errorMessage}" + suffixtMessage);
+        }
+
+        private static string GetSuffixMessage<T>(List<T> valuesCollated)
+        {
+            string suffixtMessage = valuesCollated.Aggregate("Values collated: [", (current, t) => current + $", {t}");
+
+            suffixtMessage = $"{suffixtMessage.Replace(" [,", " [")}]";
+
+            return suffixtMessage;
         }
     }
 }
