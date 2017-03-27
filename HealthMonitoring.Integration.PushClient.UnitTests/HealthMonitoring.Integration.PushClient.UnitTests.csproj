@@ -68,6 +68,7 @@
     <Compile Include="EndpointDefinitionBuilderTests.cs" />
     <Compile Include="EndpointNotifierTests.cs" />
     <Compile Include="HealthMonitorPushClientTests.cs" />
+    <Compile Include="BackOffStrategyTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\TestablePushClient.cs" />
   </ItemGroup>

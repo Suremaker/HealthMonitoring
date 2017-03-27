@@ -1,14 +1,13 @@
-﻿body
-{
+﻿body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     border: 0;
     font-size: .9em;
 }
 
 .tooltip {
-    display:block;
-    position:fixed;
-    overflow:hidden;
+    display: block;
+    position: fixed;
+    overflow: hidden;
     background-color: #bbbbbb;
     border: 1px solid black;
     padding: 1em;
@@ -16,14 +15,56 @@
     top: 20px;
 }
 
-.endpoint-status{padding: 0.2em 0.4em 0.2em 0.4em; border-radius: 0.25em; margin: 0 0.1em 0 0.1em; text-align: center !important;}
+.endpoint-status {
+    padding: 0.2em 0.4em;
+    border-radius: 0.25em;
+    margin: 0 0.1em;
+    text-align: center !important;
+}
 
-.status-healthy { background-color: darkgreen;color: #eeeeee;}
-.status-faulty { background-color: darkred;color: #eeeeee;}
-.status-unhealthy { background-color: gold;}
-.status-timedOut { background-color: orangered;color: #eeeeee;}
-.status-offline { background-color: blue;color: #eeeeee;}
-.status-notRun { background-color: #111111;color: #eeeeee;}
-.status-notExists { background-color: #444444;color: #eeeeee;}
+.status-healthy {
+    background-color: darkgreen;
+    color: #eeeeee;
+}
 
-.stats-key{ display: inline-block;margin-right: 0.2em;text-transform: capitalize;}
+.status-faulty {
+    background-color: darkred;
+    color: #eeeeee;
+}
+
+.status-unhealthy {
+    background-color: gold;
+}
+
+.status-timedOut {
+    background-color: orangered;
+    color: #eeeeee;
+}
+
+.status-offline {
+    background-color: blue;
+    color: #eeeeee;
+}
+
+.status-notRun {
+    background-color: #111111;
+    color: #eeeeee;
+}
+
+.status-notExists {
+    background-color: #444444;
+    color: #eeeeee;
+}
+
+.stats-key {
+    display: inline-block;
+    margin-right: 0.2em;
+    text-transform: capitalize;
+}
+
+.group-status {
+    text-align: center !important;
+    font-weight: 900;
+}
+
+

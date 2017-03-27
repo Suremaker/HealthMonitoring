@@ -56,10 +56,13 @@
     <Compile Include="Client\EndpointNotFoundException.cs" />
     <Compile Include="EndpointHealth.cs" />
     <Compile Include="HealthStatus.cs" />
+    <Compile Include="Helpers\BackOffPlan.cs" />
     <Compile Include="Helpers\CachedValue.cs" />
     <Compile Include="Client\Models\HealthUpdate.cs" />
     <Compile Include="Client\IHealthMonitorClient.cs" />
+    <Compile Include="Helpers\RecommendedBackOffStrategy.cs" />
     <Compile Include="Helpers\DefaultTimeCoordinator.cs" />
+    <Compile Include="Helpers\IBackOffStategy.cs" />
     <Compile Include="Helpers\ITimeCoordinator.cs" />
     <Compile Include="IHealthChecker.cs" />
     <Compile Include="Properties\ManualVersion.cs" />
@@ -78,7 +81,12 @@
     <None Include="HealthMonitoring.Integration.PushClient.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\HealthMonitoring\HealthMonitoring.csproj">
+      <Project>{B04E2F95-8F59-4B5C-AC93-4688EA6848D8}</Project>
+      <Name>HealthMonitoring</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
