@@ -16,7 +16,9 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
     {
         private const string _title = "Health Monitoring";
         private const string _filteredStatusElements = "//table[contains(@class,'endpoints')]//tr//td[3]";
-        private const string _endpointsGroupsSelector = "//*[@id='main']/article[2]/div/table/tbody/tr/th[1]";
+        private const string _endpointsGroupsSelector = "//*[@id='main']/article[3]/div/table/tbody/tr/th[1]";
+        private const string _endpointsGroupsSelectorValue = "//*[@id='main']/article[3]/div/table/tbody/tr/td[1]";
+        private const string _endpointsNamesSelectorValue = "//*[@id='main']/article[3]/div/table/tbody/tr/td[2]";
 
         private readonly IWebDriver _driver;
         private readonly RestClient _client;
@@ -186,6 +188,66 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
             Assert.True(selectedTags.Any(m => string.Equals(m.Text, tag)));
         }
 
+        public void With_group_filter_input(string groupFilterValue)
+        {
+            var groupFilter = _driver.FindElement(By.Id("groupFilter"));
+
+            groupFilter.SendKeys(groupFilterValue);
+        }
+
+        public void With_name_filter_input(string nameFilterValue)
+        {
+            var nameFilter = _driver.FindElement(By.Id("nameFilter"));
+
+            nameFilter.SendKeys(nameFilterValue);
+        }
+
+        public void With_endpoints_grouped()
+        {
+            _driver.FindElement(By.Id("groupFilterCheckbox")).Click();
+        }
+
+        public void Then_endpoints_are_grouped_by_group_name()
+        {
+            IList<IWebElement> groupElements = _driver
+                .WaitElementsAreRendered(
+                    By.XPath(_endpointsGroupsSelectorValue),
+                    group => group.Displayed && group.Enabled)
+                .ToList();
+
+            int numberOfGroups = groupElements.Select(g => g.Text).Distinct().Count();
+
+            Assert.Equal(numberOfGroups, groupElements.Count);
+        }
+
+        public void Then_only_endpoints_with_groupfilter_parameters_should_be_shown(string groupFilterValue)
+        {
+            IList<IWebElement> groupElements = _driver
+                .WaitElementsAreRendered(
+                    By.XPath(_endpointsGroupsSelectorValue), 
+                    group => group.Displayed && group.Enabled)
+                .ToList();
+
+            bool areStatusesCorrect = groupElements.All(m => m.Text.IndexOf(groupFilterValue, StringComparison.OrdinalIgnoreCase) >= 0);
+
+            Assert.True(areStatusesCorrect);
+            Assert.True(groupElements.Count(m => m.Text.IndexOf(groupFilterValue, StringComparison.OrdinalIgnoreCase) >= 0) == groupElements.Count);
+        }
+
+        public void Then_only_endpoints_with_namefilter_parameters_should_be_shown(string nameFilterValue)
+        {
+            IList<IWebElement> nameElements = _driver
+                .WaitElementsAreRendered(
+                    By.XPath(_endpointsNamesSelectorValue),
+                    group => group.Displayed && group.Enabled)
+                .ToList();
+
+            bool areStatusesCorrect = nameElements.All(m => m.Text.IndexOf(nameFilterValue, StringComparison.OrdinalIgnoreCase) >= 0);
+
+            Assert.True(areStatusesCorrect);
+            Assert.True(nameElements.Count(m => m.Text.IndexOf(nameFilterValue, StringComparison.OrdinalIgnoreCase) >= 0) == nameElements.Count);
+        }
+
         public void Then_endpoints_should_be_filtered_with_TAGFILTERS_tag_and_STATUSFILTERS_status_filters(int tagFilters, int statusFilters)
         {
             var selectedTags = GetSelectedTags().Select(x => x.Text).ToList();
@@ -256,7 +318,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         private void With_driver_wait_time(TimeSpan timeout)
         {
-            _driver.Manage().Timeouts().ImplicitlyWait(timeout);
+            _driver.Manage().Timeouts().ImplicitWait = timeout;
         }
     }
 }
