@@ -30,7 +30,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
 
             string suffixtMessage = GetSuffixMessage(valuesCollated);
 
-            throw new TimeoutException($"{errorMessage}" + suffixtMessage);
+            throw new TimeoutException($"{errorMessage} " + suffixtMessage);
         }
 
         private static string GetSuffixMessage<T>(List<T> valuesCollated)
