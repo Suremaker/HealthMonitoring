@@ -8,6 +8,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
         public static readonly string Nsb3 = "nsb3";
         public static readonly string Nsb5Msmq = "nsb5.msmq";
         public static readonly string Nsb5Rabbitmq = "nsb5.rabbitmq";
+        public static readonly string Nsb6RabbitMq = "nsb6.rabbitmq";
 
     }
 }

@@ -21,6 +21,7 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
     {
         private static Tuple<Thread, AppDomain> _api;
         private static Tuple<Thread, AppDomain> _monitor;
+        private static Tuple<Thread, AppDomain> _nsb6Monitor;
 
         public static void Initialize(string assemblyPath)
         {
@@ -28,6 +29,7 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
             DeleteDatabase();
 
             _monitor = AppDomainExecutor.StartAssembly("monitor\\HealthMonitoring.Monitors.SelfHost.exe");
+            _nsb6Monitor = AppDomainExecutor.StartAssembly("monitornsb6\\HealthMonitoring.Monitors.SelfHost.exe");
             _api = AppDomainExecutor.StartAssembly("api\\HealthMonitoring.SelfHost.exe");
             EnsureProcessesAlive();
         }
@@ -37,10 +39,15 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
             Wait.Until(
                 Timeouts.Default,
                 () => ClientHelper.Build().Get(new RestRequest("/api/monitors")),
-                resp => resp.StatusCode == HttpStatusCode.OK && JsonConvert.DeserializeObject<string[]>(resp.Content).Any(type => !type.Equals("push", StringComparison.OrdinalIgnoreCase)),
+                resp =>
+                {
+                    if (resp.StatusCode != HttpStatusCode.OK) return false;
+                    var monitorTypes = JsonConvert.DeserializeObject<string[]>(resp.Content);
+                    return monitorTypes.Contains("nsb6.rabbitmq") && monitorTypes.Contains("nsb5.rabbitmq");
+                },
                 "Services did not initialized properly");
 
-            if (_api.Item1.IsAlive && _monitor.Item1.IsAlive)
+            if (_api.Item1.IsAlive && _monitor.Item1.IsAlive && _nsb6Monitor.Item1.IsAlive)
                 return;
 
             Terminate();
@@ -65,6 +72,7 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
         {
             AppDomainExecutor.KillAppDomain(_api);
             AppDomainExecutor.KillAppDomain(_monitor);
+            AppDomainExecutor.KillAppDomain(_nsb6Monitor);
         }
     }
 

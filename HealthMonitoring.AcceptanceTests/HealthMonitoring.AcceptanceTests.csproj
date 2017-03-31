@@ -157,6 +157,10 @@
     <Compile Include="Scenarios\Nsb5_Msmq_endpoint_monitoring.Steps.cs">
       <DependentUpon>Nsb5_Msmq_endpoint_monitoring.cs</DependentUpon>
     </Compile>
+    <Compile Include="Scenarios\Nsb6_RabbitMq_endpoint_monitoring.cs" />
+    <Compile Include="Scenarios\Nsb6_RabbitMq_endpoint_monitoring.Steps.cs">
+      <DependentUpon>Nsb6_RabbitMq_endpoint_monitoring.cs</DependentUpon>
+    </Compile>
     <Compile Include="Scenarios\Nsb5_Rabbitmq_endpoint_monitoring.cs" />
     <Compile Include="Scenarios\Nsb5_Rabbitmq_endpoint_monitoring.Steps.cs">
       <DependentUpon>Nsb5_Rabbitmq_endpoint_monitoring.cs</DependentUpon>
@@ -238,26 +242,32 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>RD /S /Q $(TargetDir)monitor 2&gt; nul
+RD /S /Q $(TargetDir)monitornsb6 2&gt; nul
 RD /S /Q $(TargetDir)monitor2 2&gt; nul
 RD /S /Q $(TargetDir)api 2&gt; nul
 RD /S /Q $(TargetDir)samples 2&gt; nul
 
 xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SelfHost\$(OutDir). $(TargetDir)api
+xcopy  /Y /I $(ProjectDir)HealthMonitoring.SelfHost.exe.config $(TargetDir)api\
+xcopy  /Y /I $(ProjectDir)log4net.config $(TargetDir)api\
 
 xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.SelfHost\$(OutDir). $(TargetDir)monitor
 xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.Http\$(OutDir). $(TargetDir)monitor\monitors\HealthMonitoring.Monitors.Http
 xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.Nsb3\$(OutDir). $(TargetDir)monitor\monitors\HealthMonitoring.Monitors.Nsb3
 xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.Nsb5.Msmq\$(OutDir). $(TargetDir)monitor\monitors\HealthMonitoring.Monitors.Nsb5.Msmq
 xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.Nsb5.Rabbitmq\$(OutDir). $(TargetDir)monitor\monitors\HealthMonitoring.Monitors.Nsb5.Rabbitmq
+xcopy  /Y /I $(ProjectDir)HealthMonitoring.Monitors.SelfHost.exe.config $(TargetDir)monitor\
+xcopy  /Y /I $(ProjectDir)log4net.config $(TargetDir)monitor\
+
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.SelfHost\$(OutDir). $(TargetDir)monitornsb6
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.Monitors.Nsb6.RabbitMq\$(OutDir). $(TargetDir)monitornsb6\monitors\HealthMonitoring.Monitors.Nsb6.RabbitMq
+xcopy  /Y /I $(ProjectDir)HealthMonitoring.Monitors.SelfHost.exe.config $(TargetDir)monitornsb6\
+xcopy  /Y /I $(ProjectDir)log4net.config $(TargetDir)monitornsb6\
 
 xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SampleNsb3Host\$(OutDir). $(TargetDir)samples\nsb3
 xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SampleNsb5Host.Msmq\$(OutDir). $(TargetDir)samples\nsb5msmq
 xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SampleNsb5Host.Rabbitmq\$(OutDir). $(TargetDir)samples\nsb5rabbitmq
-
-xcopy  /Y /I $(ProjectDir)HealthMonitoring.SelfHost.exe.config $(TargetDir)api\
-xcopy  /Y /I $(ProjectDir)HealthMonitoring.Monitors.SelfHost.exe.config $(TargetDir)monitor\
-xcopy  /Y /I $(ProjectDir)log4net.config $(TargetDir)api\
-xcopy  /Y /I $(ProjectDir)log4net.config $(TargetDir)monitor\
+xcopy  /E /Y /I $(SolutionDir)HealthMonitoring.SampleNsb6Host.RabbitMq\$(OutDir). $(TargetDir)samples\nsb6rabbitmq
 
 xcopy  /Y /I /S $(TargetDir)monitor $(TargetDir)monitor2\
 xcopy  /Y /I $(ProjectDir)HealthMonitoring.Monitors.SelfHost.exe2.config $(TargetDir)monitor2\HealthMonitoring.Monitors.SelfHost.exe.config</PreBuildEvent>
