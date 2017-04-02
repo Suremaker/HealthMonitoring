@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using HealthMonitoring.Monitors.Nsb5.Messages;
 using NServiceBus;
 
-namespace HealthMonitoring.Monitors.Nsb5.Rabbitmq
+namespace HealthMonitoring.Monitors.Nsb5.RabbitMq
 {
     public class Nsb5Monitor : IHealthMonitor, IDisposable
     {
@@ -24,7 +24,7 @@ namespace HealthMonitoring.Monitors.Nsb5.Rabbitmq
 
         private TimeSpan GetMessageTimeout()
         {
-            var timeout = ConfigurationManager.AppSettings["Monitor.Nsb5.Rabbitmq.MessageTimeout"];
+            var timeout = ConfigurationManager.AppSettings["Monitor.Nsb5.RabbitMq.MessageTimeout"];
             TimeSpan result;
             if (timeout != null && TimeSpan.TryParse(timeout, out result))
                 return result;

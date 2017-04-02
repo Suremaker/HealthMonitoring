@@ -1,11 +1,11 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("HealthMonitoring.SampleNsb5Host.Rabbitmq")]
+[assembly: AssemblyTitle("HealthMonitoring.SampleNsb5Host.RabbitMq")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Wonga")]
-[assembly: AssemblyProduct("HealthMonitoring.SampleNsb5Host.Rabbitmq")]
+[assembly: AssemblyProduct("HealthMonitoring.SampleNsb5Host.RabbitMq")]
 [assembly: AssemblyCopyright("Copyright © Wonga")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

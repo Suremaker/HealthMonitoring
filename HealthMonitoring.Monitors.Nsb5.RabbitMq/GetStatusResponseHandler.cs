@@ -2,7 +2,7 @@
 using HealthMonitoring.Monitors.Nsb5.Messages;
 using NServiceBus;
 
-namespace HealthMonitoring.Monitors.Nsb5.Rabbitmq
+namespace HealthMonitoring.Monitors.Nsb5.RabbitMq
 {
     public class GetStatusResponseHandler : IHandleMessages<GetStatusResponse>
     {

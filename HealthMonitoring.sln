@@ -14,7 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		HealthMonitoring.Monitors.Http-deploy.nuspec = HealthMonitoring.Monitors.Http-deploy.nuspec
 		HealthMonitoring.Monitors.Nsb3-deploy.nuspec = HealthMonitoring.Monitors.Nsb3-deploy.nuspec
 		HealthMonitoring.Monitors.Nsb5.Msmq-deploy.nuspec = HealthMonitoring.Monitors.Nsb5.Msmq-deploy.nuspec
-		HealthMonitoring.Monitors.Nsb5.Rabbitmq-deploy.nuspec = HealthMonitoring.Monitors.Nsb5.Rabbitmq-deploy.nuspec
+		HealthMonitoring.Monitors.Nsb5.RabbitMq-deploy.nuspec = HealthMonitoring.Monitors.Nsb5.RabbitMq-deploy.nuspec
+		HealthMonitoring.Monitors.Nsb6.RabbitMq-deploy.nuspec = HealthMonitoring.Monitors.Nsb6.RabbitMq-deploy.nuspec
 		HealthMonitoring.Service-deploy.nuspec = HealthMonitoring.Service-deploy.nuspec
 		LICENSE = LICENSE
 		README.md = README.md
@@ -63,9 +64,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.N
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.SampleNsb5Host.Msmq", "HealthMonitoring.SampleNsb5Host.Msmq\HealthMonitoring.SampleNsb5Host.Msmq.csproj", "{318A5BE2-CC1A-4768-9E80-0245F4374B7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.SampleNsb5Host.Rabbitmq", "HealthMonitoring.SampleNsb5Host.Rabbitmq\HealthMonitoring.SampleNsb5Host.Rabbitmq.csproj", "{F1D68DFC-6147-4831-8D03-05712A222F29}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.SampleNsb5Host.RabbitMq", "HealthMonitoring.SampleNsb5Host.RabbitMq\HealthMonitoring.SampleNsb5Host.RabbitMq.csproj", "{F1D68DFC-6147-4831-8D03-05712A222F29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.Nsb5.Rabbitmq", "HealthMonitoring.Monitors.Nsb5.Rabbitmq\HealthMonitoring.Monitors.Nsb5.Rabbitmq.csproj", "{77CFC2D9-8306-439A-94B5-2F6C2A0B388C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.Nsb5.RabbitMq", "HealthMonitoring.Monitors.Nsb5.RabbitMq\HealthMonitoring.Monitors.Nsb5.RabbitMq.csproj", "{77CFC2D9-8306-439A-94B5-2F6C2A0B388C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.SelfHost", "HealthMonitoring.Monitors.SelfHost\HealthMonitoring.Monitors.SelfHost.csproj", "{35E7D788-521C-4944-93F0-7C064B28F9A3}"
 EndProject
