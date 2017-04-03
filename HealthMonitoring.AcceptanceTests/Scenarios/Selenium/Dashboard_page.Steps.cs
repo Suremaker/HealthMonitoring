@@ -56,7 +56,6 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_home_page_should_open()
         {
             string actualUrl = _driver.ImplicitWaitUntilPageIsChanged(SeleniumConfiguration.BaseUrl); 
-
             CustomAssertions.EqualNotStrict(actualUrl, SeleniumConfiguration.BaseUrl);
         }
 

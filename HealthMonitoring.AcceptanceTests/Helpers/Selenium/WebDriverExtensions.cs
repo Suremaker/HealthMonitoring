@@ -80,12 +80,11 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Selenium
         public static IEnumerable<IWebElement> ExplicitWaitElementsAreRendered(this IWebDriver driver, 
             Func<IWebDriver, IEnumerable<IWebElement>> selector)
         {
-            return driver.ExplicitWait(
-                Timeouts.Default,
-                selector,
-                $"Elements with selector:{selector} could not be rendered");
+             return driver.ExplicitWait(
+                 Timeouts.Default,
+                 selector,
+                 $"Elements with selector:{selector} could not be rendered");
         }
-
 
         public static T ImplicitWait<T, TWebDriver>(this TWebDriver webDriver,
             TimeSpan implicitWait,
