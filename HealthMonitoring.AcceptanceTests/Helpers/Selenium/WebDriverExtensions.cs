@@ -102,7 +102,7 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Selenium
                 if (predicate(valueFound))
                     return valueFound;
 
-                throw new NoSuchElementException($"{nameof(T)} not found");
+                throw new NoSuchElementException($"{nameof(valueFound)} not found");
             }
             catch (NoSuchElementException e)
             {
