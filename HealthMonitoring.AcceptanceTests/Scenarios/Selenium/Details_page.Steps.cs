@@ -51,9 +51,9 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         public void When_user_clicks_on_endpoint_name()
         {
-            var detailsLink = _driver.WaitElementsAreRendered(By.XPath(_endpointLinksOfTagRowsOnHomePage)).First();
+            var detailsLink = _driver.ImplicitWaitElementsAreRendered(By.XPath(_endpointLinksOfTagRowsOnHomePage)).First();
             _endpointName = detailsLink.Text;
-            _endpointGroup = _driver.WaitElementsAreRendered(By.XPath(_endpointGroupsOfTagRowsOnHomePage)).First().Text;
+            _endpointGroup = _driver.ImplicitWaitElementsAreRendered(By.XPath(_endpointGroupsOfTagRowsOnHomePage)).First().Text;
             _edpointTags = GetTagsOfFirstEndpointOnHomePage();
 
             _detailsPageUrl = detailsLink.GetAttribute("href");
@@ -62,7 +62,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         public void Then_name_should_be_the_same_as_on_home_page()
         {
-            _driver.WaitUntilPageIsChanged(_detailsPageUrl);
+            _driver.ImplicitWaitUntilPageIsChanged(_detailsPageUrl);
 
             string nameOnPage = GetEndpointNameOnDetailsPage();
             CustomAssertions.EqualNotStrict(_endpointName, nameOnPage);
@@ -82,17 +82,17 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         private string GetEndpointNameOnDetailsPage()
         {
-            return _driver.WaitTextIsRendered(By.XPath(_endpointNameOnDetailsPage));
+            return _driver.ImplicitWaitTextIsRendered(By.XPath(_endpointNameOnDetailsPage));
         }
 
         private string GetEndpointGroupOnDetailsPage()
         {
-            return _driver.WaitTextIsRendered(By.XPath(_endpointGroupOnDetailsPage));
+            return _driver.ImplicitWaitTextIsRendered(By.XPath(_endpointGroupOnDetailsPage));
         }
 
         private List<string> GetTagsOfFirstEndpointOnHomePage()
         {
-            return _driver.WaitElementsAreRendered(By.XPath(_endpointTagsOnHomePage))
+            return _driver.ImplicitWaitElementsAreRendered(By.XPath(_endpointTagsOnHomePage))
                 .Select(m => m.Text)
                 .ToList();
         }

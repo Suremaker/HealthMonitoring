@@ -12,7 +12,6 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public WebDriverContext()
         {
             Driver = SeleniumConfiguration.GetWebDriver();
-            Driver.RetryTimeout(Timeouts.Default);
             Driver.Manage().Window.Maximize();
         }
 

@@ -43,33 +43,33 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         public void Given_endpoints_are_visible()
         {
-            _driver.WaitElementsAreRendered(By.XPath(_endpointTilesSelector), 
+            _driver.ImplicitWaitElementsAreRendered(By.XPath(_endpointTilesSelector), 
                                             el => el.Enabled && el.Displayed);
         }
 
         public void When_user_clicks_on_home_link()
         {
-            var homeLink = _driver.WaitElementIsRendered(By.XPath("//header//table//*//h1/a"));
+            var homeLink = _driver.ImplicitWaitElementIsRendered(By.XPath("//header//table//*//h1/a"));
             homeLink.Click();
         }
 
         public void Then_home_page_should_open()
         {
-            string actualUrl = _driver.WaitUntilPageIsChanged(SeleniumConfiguration.BaseUrl); 
+            string actualUrl = _driver.ImplicitWaitUntilPageIsChanged(SeleniumConfiguration.BaseUrl); 
 
             CustomAssertions.EqualNotStrict(actualUrl, SeleniumConfiguration.BaseUrl);
         }
 
         public void When_user_clicks_on_status_multiselect_element()
         {
-            var statusMultiselect = _driver.WaitElementIsRendered(By.XPath("//header//*//div[@class='wg-selectBox']"));
+            var statusMultiselect = _driver.ImplicitWaitElementIsRendered(By.XPath("//header//*//div[@class='wg-selectBox']"));
             statusMultiselect.Click();
         }
 
         public void When_user_selects_healthy_and_faulty_statuses()
         {
-            var healthyCheckbox = _driver.WaitElementIsRendered(By.XPath("//*[@id='wg-selected-healthy']"));
-            var faultyCheckbox = _driver.WaitElementIsRendered(By.XPath("//*[@id='wg-selected-faulty']"));
+            var healthyCheckbox = _driver.ImplicitWaitElementIsRendered(By.XPath("//*[@id='wg-selected-healthy']"));
+            var faultyCheckbox = _driver.ImplicitWaitElementIsRendered(By.XPath("//*[@id='wg-selected-faulty']"));
 
             healthyCheckbox.Click();
             faultyCheckbox.Click();
@@ -83,7 +83,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_filter_should_be_displayed_in_page_url()
         {
             var expectedUrl = $"{_dashboardUrl}&filter-status=healthy;faulty";
-            var actualUrl = _driver.WaitUntilPageIsChanged(expectedUrl);
+            var actualUrl = _driver.ImplicitWaitUntilPageIsChanged(expectedUrl);
 
             CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
@@ -100,7 +100,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         public void When_user_clicks_on_group_view_checkbox()
         {
-            var groupViewCheckBox = _driver.WaitElementIsRendered(By.Id("endpointGrouping"));
+            var groupViewCheckBox = _driver.ImplicitWaitElementIsRendered(By.Id("endpointGrouping"));
 
             groupViewCheckBox.Click();
         }
@@ -148,7 +148,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_group_filter_should_be_appended_to_url()
         {
             var expectedUrl = $"{_dashboardUrl}&filter-group={_groupFilter}";
-            var actualUrl = _driver.WaitUntilPageIsChanged(expectedUrl);
+            var actualUrl = _driver.ImplicitWaitUntilPageIsChanged(expectedUrl);
 
             CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
@@ -165,25 +165,25 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         private List<string> GetFilteredStatuses()
         {
-            return _driver.WaitElementsAreRendered(By.XPath(_endpointTilesSelector))
+            return _driver.ImplicitWaitElementsAreRendered(By.XPath(_endpointTilesSelector))
                 .Select(m => m.GetAttribute("data-status"))
                 .ToList();
         }
 
         private IWebElement GetFirstGroupElement()
         {
-            return _driver.WaitElementIsRendered(By.XPath(_firstGroupLink));
+            return _driver.ImplicitWaitElementIsRendered(By.XPath(_firstGroupLink));
         }
 
         private List<string> GetAllGroupNames()
         {
-            return _driver.WaitElementsAreRendered(By.XPath(_endpointGroupNamesSelector))
+            return _driver.ImplicitWaitElementsAreRendered(By.XPath(_endpointGroupNamesSelector))
                 .Select(m => m.Text).ToList();
         }
 
         private IWebElement GetGroupInput()
         {
-            return _driver.WaitElementIsRendered(By.XPath(_groupInputSelector));
+            return _driver.ImplicitWaitElementIsRendered(By.XPath(_groupInputSelector));
         }
     }
 }

@@ -41,5 +41,6 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
 
             return suffixtMessage;
         }
+
     }
 }
