@@ -34,7 +34,7 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             var minimumChecks = 3;
             var expectedEventTimeline = new List<string>();
             for (var i = 0; i < minimumChecks; ++i)
-                expectedEventTimeline.AddRange(new[] { "updateHealth_start", "delay_start", "update_finish", "update_finish" });
+                expectedEventTimeline.AddRange(new[] { "update_start", "update_finish" });
 
             var countdown = new AsyncCountdown("notifications", minimumChecks);
             var endpointId = Guid.NewGuid();
@@ -55,12 +55,19 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
             using (CreateNotifier())
                 await countdown.WaitAsync(TestMaxTime);
 
-            var actualEventTimeline = _awaitableFactory.GetOrderedTimelineEvents()
-                .Select(eventName => (eventName == "updateHealth_finish" || eventName == "delay_finish") ? "update_finish" : eventName)
-                .Take(minimumChecks * 4)
-                .ToArray();
+            var actualEventTimeline = GetAggregateFirstAndLastEvents(minimumChecks);
 
             Assert.True(expectedEventTimeline.SequenceEqual(actualEventTimeline), $"Expected:\n{string.Join(",", expectedEventTimeline)}\nGot:\n{string.Join(",", actualEventTimeline)}");
+        }
+
+        private string[] GetAggregateFirstAndLastEvents(int minimumChecks)
+        {
+            return _awaitableFactory.GetOrderedTimelineEvents()
+                .Select(eventName => eventName == "updateHealth_start" || eventName == "delay_start" ? "update_start" : eventName)
+                .Select(eventName => eventName == "updateHealth_finish" || eventName == "delay_finish" ? "update_finish" : eventName)
+                .Take(minimumChecks * 4)
+                .Where((e, i) => i % 4 == 0 || i % 4 == 3)
+                .ToArray();
         }
 
         [Fact]
