@@ -86,6 +86,14 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Selenium
                  $"Elements with selector:{selector} could not be rendered");
         }
 
+        public static bool ExplicitWaitUntilPageIsChanged(this IWebDriver driver, Func<IWebDriver, bool> selector, string expectedUrl)
+        {
+            return driver.ExplicitWait(
+                Timeouts.Default,
+                selector,
+                $"Page with url {expectedUrl} did not loaded!");
+        }
+
         public static T ImplicitWait<T, TWebDriver>(this TWebDriver webDriver,
             TimeSpan implicitWait,
             Func<TWebDriver, T> selector,
@@ -93,21 +101,23 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Selenium
             string errorMessage)
             where TWebDriver : IWebDriver
         {
+            T valueFound = default(T);
+
             try
             {
                 webDriver.Manage().Timeouts().ImplicitWait = implicitWait;
 
-                T valueFound = selector(webDriver);
+                valueFound = selector(webDriver);
 
                 if (predicate(valueFound))
                     return valueFound;
 
-                throw new NoSuchElementException($"{nameof(valueFound)} not found");
+                throw new NoSuchElementException($"{valueFound} not found");
             }
             catch (NoSuchElementException e)
             {
                 throw new TimeoutException($"Error message : {errorMessage} ; " +
-                                           $"Value sought : [{nameof(T)}] ; " +
+                                           $"Value sought : [{valueFound}] ; " +
                                            $"NoSuchElementException Message : [{e.Message}]");
             }
         }
@@ -118,14 +128,18 @@ namespace HealthMonitoring.AcceptanceTests.Helpers.Selenium
             string errorMessage)
             where TWebDriver : IWebDriver
         {
+            T valueFound = default(T);
+
             try
             {
-                return new WebDriverWait(webDriver, explicitWait).Until(selector);
+                valueFound = new WebDriverWait(webDriver, explicitWait).Until(selector);
+
+                return valueFound;
             }
             catch (NoSuchElementException e)
             {
                 throw new TimeoutException($"Error message : {errorMessage} ; " +
-                                           $"Value sought : [{nameof(T)}] ; " +
+                                           $"Value sought : [{valueFound}] ; " +
                                            $"NoSuchElementException Message : [{e.Message}]");
             }
         }
