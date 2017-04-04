@@ -127,7 +127,7 @@ I want to open home page")]
         {
             Runner.RunScenario(
                 _ => Given_home_page(),
-                //_ => With_driver_wait_time(TimeSpan.FromSeconds(1)),
+                _ => With_driver_wait_time(TimeSpan.FromSeconds(1)),
                 _ => Given_endpoints_are_visible(),
                 _ => When_user_clicks_on_first_tag(),
                 _ => When_user_clicks_on_status_button(),
