@@ -63,7 +63,6 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void When_user_clicks_on_status_multiselect_element()
         {
             var statusMultiselect = _driver.ImplicitWaitElementIsRendered(By.XPath("//header//*//div[@class='wg-selectBox']"));
-            //var statusMultiselect = _driver.ExplicitWaitElementIsRendered(ExpectedConditions.ElementIsVisible(By.XPath("//header//*//div[@class='wg-selectBox']")));
             statusMultiselect.Click();
         }
 
@@ -71,10 +70,6 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         {
             var healthyCheckbox = _driver.ImplicitWaitElementIsRendered(By.XPath("//*[@id='wg-selected-healthy']"));
             var faultyCheckbox = _driver.ImplicitWaitElementIsRendered(By.XPath("//*[@id='wg-selected-faulty']"));
-
-            //var healthyCheckbox = _driver.ExplicitWaitElementIsRendered(ExpectedConditions.ElementIsVisible(By.XPath("//*[@id='wg-selected-healthy']")));
-            //var faultyCheckbox = _driver.ExplicitWaitElementIsRendered(ExpectedConditions.ElementIsVisible(By.XPath("//*[@id='wg-selected-faulty']")));
-
             healthyCheckbox.Click();
             faultyCheckbox.Click();
         }
@@ -90,9 +85,6 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
             var actualUrl = _driver.ImplicitWaitUntilPageIsChanged(expectedUrl);
             CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
-
-            //var result = _driver.ExplicitWaitUntilPageIsChanged(ExpectedConditions.UrlToBe(expectedUrl), expectedUrl);
-            //Assert.True(result);
         }
 
         public void Given_healthy_and_faulty_statuses_in_url_filter()
