@@ -15,13 +15,12 @@
     border-radius: 0.25em;
 }
 
-.endpointTag.group {
-    display: block !important;
-    margin: 1em 0.1em 1em 0.1em;
-}
-
 .endpointTag:hover {
     cursor: pointer;
+}
+
+.endpointTag.listed:hover {
+    cursor: default !important;
 }
 
 .responseTime {
