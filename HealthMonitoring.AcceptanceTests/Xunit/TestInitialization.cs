@@ -35,7 +35,7 @@ namespace HealthMonitoring.AcceptanceTests.Xunit
         private static void EnsureProcessesAlive()
         {
             Wait.Until(
-                TimeSpan.FromSeconds(30),
+                Timeouts.Default,
                 () => ClientHelper.Build().Get(new RestRequest("/api/monitors")),
                 resp => resp.StatusCode == HttpStatusCode.OK && JsonConvert.DeserializeObject<string[]>(resp.Content).Any(type => !type.Equals("push", StringComparison.OrdinalIgnoreCase)),
                 "Services did not initialized properly");

@@ -71,12 +71,12 @@
             <div g-show="endpoints.length">
                 <p class="tagsContainer">
                     <span class="filter-label">
-                        <label for="groupFilter">Within Group:</label>
+                        <label for="groupFilter">Group Name:</label>
                         <input id="groupFilter" type="text"
                                ng-model="groupFilter" />
                         <span ng-show="!groupGroups">
                             &nbsp;&nbsp;&nbsp;
-                            <label for="nameFilter">With Name:</label>
+                            <label for="nameFilter">Endpoint Name:</label>
                             <input id="nameFilter" type="text"
                                    ng-model="nameFilter" />
                         </span>
@@ -89,7 +89,7 @@
                                id="groupFilterCheckbox"
                                ng-model="groupGroups"
                                ng-change="toggleShoudGroup()"
-                               ng-click="resetGroupName()"> Group items
+                               ng-click="resetGroupName()"> Aggregate by Group Name
                     </span>
                 </p>
             </div>
@@ -146,13 +146,13 @@
                 <table ng-if="!!groupGroups && endpoints.length > 0" class="endpoints">
                     <tr>
                         <th>Group</th>
-                        <th>Overall</th>
-                        <th>Status(es)</th>
-                        <th>Response Times</th>
-                        <th>Last check at</th>
+                        <th>Status Overall</th>
+                        <th>Status Detail</th>
+                        <th>Longest Response Time</th>
+                        <th>Date Last checked</th>
                         <th>Tags</th>
                     </tr>
-                    <tr ng-repeat="group in endpoints | wildcardFilter:filter:['Group','Status'] | groupBy: 'Group' | toArray:true | orderBy: '$key'"
+                    <tr ng-repeat="group in endpoints | filter:tagFilter | filter:statusFilter | filter:{Group:groupFilter} | groupBy: 'Group' | toArray:true | orderBy: '$key'"
                         ng-class="::getEndpointClassName(group.$key)"
                         data-status="{{findHighestStatus(group)}}"
                         data-changed="{{didAnyChanged(group)}}"
@@ -168,7 +168,7 @@
                         <td>
                             <p ng-repeat="(key, value) in group | groupBy: 'Status'">
                                 <span ng-bind="value.length"></span>
-                                <span class="endpoint-status status-{{key}} endpointTag"
+                                <span class="endpoint-status status-{{key}} endpointTag listed"
                                       ng-click="onStatusSelected(key)"
                                       ng-mousemove="displayHint($event)"
                                       ng-mouseleave="hideTooltip()"
@@ -177,16 +177,8 @@
                         </td>
                         <td class="responseTime">
                             <p>
-                                Shortest:
-                                &nbsp;
-                                <span ng-bind="formatDuration(shortestResponseTime(group))"></span>
-                            </p>
-                            <p>
-                                Longest:
-                                &nbsp;
                                 <span ng-bind="formatDuration(longestResponseTime(group))"></span>
                             </p>
-
                         </td>
                         <td>
                             <span ng-bind="(LastCheckUtc(group) | dateFilter)"></span>

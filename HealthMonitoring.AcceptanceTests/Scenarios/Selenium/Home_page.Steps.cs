@@ -40,59 +40,55 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         public void Given_endpoints_are_visible()
         {
-            _driver.WaitElementsAreRendered(By.XPath(_endpointsGroupsSelector),
+            _driver.ImplicitWaitElementsAreRendered(By.XPath(_endpointsGroupsSelector),
                 group => group.Displayed && group.Enabled);
         }
 
         public void Then_page_should_contain_title()
         {
-            string actualTitle = Wait.Until(
-                Timeouts.Default,
-                () => _driver.Title,
-                t => !string.IsNullOrEmpty(t),
-                "Page does not contain title!");
+            string actualTitle = _driver.ImplicitWaitPageTitle();
 
             CustomAssertions.EqualNotStrict(actualTitle, _title);
         }
 
         public void When_user_clicks_on_dashboad_page_link()
         {
-            var dashboardLink = _driver.WaitElementIsRendered(By.LinkText("Dashboard"));
+            var dashboardLink = _driver.ImplicitWaitElementIsRendered(By.LinkText("Dashboard"));
             dashboardLink.Click();
         }
 
         public void Then_dashboard_page_should_be_opened()
         {
             string expectedUrl = $"{SeleniumConfiguration.BaseUrl}dashboard";
-            string actualUrl = _driver.WaitUntilPageIsChanged(expectedUrl);
+            string actualUrl = _driver.ImplicitWaitUntilPageIsChanged(expectedUrl);
 
             CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
 
         public void When_user_clicks_on_swagger_page_link()
         {
-            var swaggerLink = _driver.WaitElementIsRendered(By.LinkText("API swagger docs"));
+            var swaggerLink = _driver.ImplicitWaitElementIsRendered(By.LinkText("API swagger docs"));
             swaggerLink.Click();
         }
 
         public void Then_swagger_page_should_be_opened()
         {
             string expectedUrl = $"{SeleniumConfiguration.BaseUrl}swagger/ui/index";
-            string actualUrl = _driver.WaitUntilPageIsChanged(expectedUrl);
+            string actualUrl = _driver.ImplicitWaitUntilPageIsChanged(expectedUrl);
 
             CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
 
         public void When_user_clicks_on_project_page_link()
         {
-            var projectLink = _driver.WaitElementIsRendered(By.LinkText("Project site"));
+            var projectLink = _driver.ImplicitWaitElementIsRendered(By.LinkText("Project site"));
             projectLink.Click();
         }
 
         public void Then_project_page_should_be_opened()
         {
             string expectedUrl = SeleniumConfiguration.ProjectUrl;
-            string actualUrl = _driver.WaitUntilPageIsChanged(expectedUrl);
+            string actualUrl = _driver.ImplicitWaitUntilPageIsChanged(expectedUrl);
 
             CustomAssertions.EqualNotStrict(expectedUrl, actualUrl);
         }
@@ -123,7 +119,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         {
             var selectedStatus = GetSelectedStatuses().First();
             var expectedUrl = $"{_homeUrl}&filter-status={selectedStatus.Text};";
-            var actualUrl = _driver.WaitUntilPageIsChanged(expectedUrl);
+            var actualUrl = _driver.ImplicitWaitUntilPageIsChanged(expectedUrl);
 
             CustomAssertions.EqualNotStrict(actualUrl, expectedUrl);
         }
@@ -160,7 +156,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_tag_filter_should_be_appended_to_url()
         {
             string exptectedUrl = $"{_homeUrl}&filter-tags={string.Join(";", _selectedTags)};";
-            string actualUrl = _driver.WaitUntilPageIsChanged(exptectedUrl);
+            string actualUrl = _driver.ImplicitWaitUntilPageIsChanged(exptectedUrl);
 
             CustomAssertions.EqualNotStrict(exptectedUrl, actualUrl);
         }
@@ -210,7 +206,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_endpoints_are_grouped_by_group_name()
         {
             IList<IWebElement> groupElements = _driver
-                .WaitElementsAreRendered(
+                .ImplicitWaitElementsAreRendered(
                     By.XPath(_endpointsGroupsSelectorValue),
                     group => group.Displayed && group.Enabled)
                 .ToList();
@@ -223,7 +219,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_only_endpoints_with_groupfilter_parameters_should_be_shown(string groupFilterValue)
         {
             IList<IWebElement> groupElements = _driver
-                .WaitElementsAreRendered(
+                .ImplicitWaitElementsAreRendered(
                     By.XPath(_endpointsGroupsSelectorValue), 
                     group => group.Displayed && group.Enabled)
                 .ToList();
@@ -237,7 +233,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         public void Then_only_endpoints_with_namefilter_parameters_should_be_shown(string nameFilterValue)
         {
             IList<IWebElement> nameElements = _driver
-                .WaitElementsAreRendered(
+                .ImplicitWaitElementsAreRendered(
                     By.XPath(_endpointsNamesSelectorValue),
                     group => group.Displayed && group.Enabled)
                 .ToList();
@@ -278,7 +274,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         private List<IWebElement> GetAllTags()
         {
             var selector = By.XPath("//table[contains(@class,'endpoints')]//*//span[contains(@class,'endpointTag')]");
-            return _driver.WaitElementsAreRendered(selector, elem => !string.IsNullOrEmpty(elem.Text)).ToList();
+            return _driver.ImplicitWaitElementsAreRendered(selector, elem => !string.IsNullOrEmpty(elem.Text)).ToList();
         }
 
         private List<IWebElement> GetSelectedStatuses()
@@ -298,7 +294,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         private List<IWebElement> GetAllStatusElements()
         {
-            return _driver.WaitElementsAreRendered(By.XPath("//*[contains(@class, 'endpoint-status')]")).ToList();
+            return _driver.ImplicitWaitElementsAreRendered(By.XPath("//*[contains(@class, 'endpoint-status')]")).ToList();
         }
 
         private List<IWebElement> GetFilteredStatuses()
