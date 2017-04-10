@@ -1,4 +1,4 @@
-3.7.2.0
+3.7.3.0
 -------
 Filters updated on the UI to filter endpoints by:
 - Group Name
@@ -8,6 +8,10 @@ Updated Selenium Tests for reliability:
 - Added Explicit Wait, via recommended library
 - Ensured no mixture of Explicit and Implicit Tests; this would result in instability
 General Updates on UI based on additonal Endpoint Grouping capabilities
+
+3.7.2.0
+-------
+Upgrade all projects to .NET 4.6.2, except message projects for backwards compatibility
 
 3.7.1.0
 -------
