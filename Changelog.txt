@@ -1,3 +1,14 @@
+3.7.2.0
+-------
+Filters updated on the UI to filter endpoints by:
+- Group Name
+- EndPoint name
+Updated Selenium Tests for reliability:
+- Removed manual Implicit Wait, to recommended way of Implicit Wait
+- Added Explicit Wait, via recommended library
+- Ensured no mixture of Explicit and Implicit Tests; this would result in instability
+General Updates on UI based on additonal Endpoint Grouping capabilities
+
 3.7.1.0
 -------
 Changed http and http.json monitor to report endpoints returning HTTP 3XX codes failing (disabled following redirections)
