@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HealthMonitoring.Monitors.Nsb5.Messages;
 
-namespace HealthMonitoring.Monitors.Nsb5.Rabbitmq
+namespace HealthMonitoring.Monitors.Nsb5.RabbitMq
 {
     internal class ResponseWaiter : IDisposable
     {

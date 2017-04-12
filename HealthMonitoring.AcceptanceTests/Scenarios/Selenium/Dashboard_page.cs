@@ -46,7 +46,7 @@ I want to open dashboard page")]
 
         [Scenario]
         public void Enabling_group_view_mode()
-        {
+        { 
             Runner.RunScenario(
                 _ => Given_dashboard_page(),
                 _ => Given_endpoints_are_visible(),

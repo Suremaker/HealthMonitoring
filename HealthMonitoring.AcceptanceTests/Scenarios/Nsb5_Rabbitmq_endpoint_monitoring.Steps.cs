@@ -13,7 +13,7 @@ using Xunit.Abstractions;
 
 namespace HealthMonitoring.AcceptanceTests.Scenarios
 {
-    public partial class Nsb5_Rabbitmq_endpoint_monitoring : FeatureFixture, IDisposable
+    public partial class Nsb5_RabbitMq_endpoint_monitoring : FeatureFixture, IDisposable
     {
         private Guid _identifier;
         private RestClient _client;
@@ -21,14 +21,14 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
         private string _endpointName;
         private Process _process;
 
-        public Nsb5_Rabbitmq_endpoint_monitoring(ITestOutputHelper output) : base(output)
+        public Nsb5_RabbitMq_endpoint_monitoring(ITestOutputHelper output) : base(output)
         {
         }
 
         private void Given_a_healthy_nsb_endpoint()
         {
-            _process = Process.Start(new ProcessStartInfo("samples\\nsb5rabbitmq\\HealthMonitoring.SampleNsb5Host.Rabbitmq.exe") { WindowStyle = ProcessWindowStyle.Hidden });
-            _endpointName = "HealthMonitoring.SampleNsb5Host.Rabbitmq@localhost";
+            _process = Process.Start(new ProcessStartInfo("samples\\nsb5rabbitmq\\HealthMonitoring.SampleNsb5Host.RabbitMq.exe") { WindowStyle = ProcessWindowStyle.Hidden });
+            _endpointName = "HealthMonitoring.SampleNsb5Host.RabbitMq@localhost";
         }
 
         private void Given_an_endpoint_that_has_not_been_deployed_yet()
@@ -61,7 +61,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
 
         private void When_client_registers_the_endpoint()
         {
-            _identifier = _client.RegisterEndpoint(MonitorTypes.Nsb5Rabbitmq, _endpointName, "group", "name");
+            _identifier = _client.RegisterEndpoint(MonitorTypes.Nsb5RabbitMq, _endpointName, "group", "name");
         }
 
         private void Then_monitor_should_start_monitoring_the_endpoint()

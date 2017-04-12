@@ -6,7 +6,7 @@ using NServiceBus.Config;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.Logging;
 
-namespace HealthMonitoring.SampleNsb5Host.Rabbitmq
+namespace HealthMonitoring.SampleNsb5Host.RabbitMq
 {
     class Program
     {
@@ -14,7 +14,7 @@ namespace HealthMonitoring.SampleNsb5Host.Rabbitmq
         {
             var busConfiguration = new BusConfiguration();
             busConfiguration.AssembliesToScan(typeof(GetStatusRequest).Assembly, typeof(Handler).Assembly, typeof(RabbitMQTransport).Assembly);
-            busConfiguration.EndpointName("HealthMonitoring.SampleNsb5Host.Rabbitmq");
+            busConfiguration.EndpointName("HealthMonitoring.SampleNsb5Host.RabbitMq");
             busConfiguration.UseSerialization<JsonSerializer>();
             busConfiguration.EnableInstallers();
             busConfiguration.UseTransport<RabbitMQTransport>().ConnectionStringName("RabbitMqConnectionString");
@@ -53,7 +53,7 @@ namespace HealthMonitoring.SampleNsb5Host.Rabbitmq
             {
                 return new MessageForwardingInCaseOfFaultConfig
                 {
-                    ErrorQueue = "HealthMonitoring.SampleNsb5Host.Rabbitmq.error"
+                    ErrorQueue = "HealthMonitoring.SampleNsb5Host.RabbitMq.error"
                 };
             }
         }

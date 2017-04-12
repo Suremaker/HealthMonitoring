@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>HealthMonitoring.Integration.PushClient.UnitTests</RootNamespace>
     <AssemblyName>HealthMonitoring.Integration.PushClient.UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -69,6 +69,7 @@
     <Compile Include="EndpointDefinitionBuilderTests.cs" />
     <Compile Include="EndpointNotifierTests.cs" />
     <Compile Include="HealthMonitorPushClientTests.cs" />
+    <Compile Include="BackOffStrategyTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\TestablePushClient.cs" />
   </ItemGroup>

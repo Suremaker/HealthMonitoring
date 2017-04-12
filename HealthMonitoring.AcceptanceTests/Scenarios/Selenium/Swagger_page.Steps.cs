@@ -6,6 +6,7 @@ using HealthMonitoring.AcceptanceTests.Helpers.Selenium;
 using LightBDD.XUnit2;
 using Newtonsoft.Json;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
 using RestSharp;
 using Xunit;
 using Xunit.Abstractions;
@@ -50,19 +51,21 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
 
         private void When_user_expand_DELETE_endpoint_section()
         {
-            var endpointsSection = _driver.WaitElementIsRendered(By.XPath(_endpointsSectionSelector));
+            var endpointsSection = _driver.ExplicitWaitElementIsRendered(ExpectedConditions.ElementToBeClickable(By.XPath(_endpointsSectionSelector)));
             endpointsSection.Click();
 
             var selector = GetHeadingUrlSelector(_delEndpointUrl, _method);
-            var link = _driver.WaitElementIsRendered(By.XPath(selector));
+            var link = _driver.ExplicitWaitElementIsRendered(ExpectedConditions.ElementToBeClickable(By.XPath(selector)));
             link.Click();
         }
+
 
         private void When_user_fills_auth_form(Credentials credentials)
         {
             var formSelector = GetAuthFormSelector(_delEndpointUrl, _method);
-            var inputs = _driver.WaitElementsAreRendered(By.XPath(formSelector)).ToList();
-
+            var inputs = _driver
+                .ExplicitWaitElementsAreRendered(ExpectedConditions.VisibilityOfAllElementsLocatedBy(By.XPath(formSelector)))
+                .ToList();
             inputs.ElementAt(0).SendKeys(credentials.Id.ToString());
             inputs.ElementAt(1).SendKeys(credentials.Password);
         }
@@ -70,21 +73,21 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios.Selenium
         private void When_user_enters_endpoint_id_parameter()
         {
             var selector = GetIdParameterSelector(_delEndpointUrl, _method);
-            var parameter = _driver.WaitElementIsRendered(By.XPath(selector));
+            var parameter = _driver.ExplicitWaitElementIsRendered(ExpectedConditions.ElementIsVisible(By.XPath(selector)));
             parameter.SendKeys(_credentials.PersonalCredentials.Id.ToString());
         }
 
         private void When_user_sends_request()
         {
             var submitSelector = GetSectionSubmitSelector(_delEndpointUrl, _method);
-            var submit = _driver.WaitElementIsRendered(By.XPath(submitSelector));
+            var submit = _driver.ExplicitWaitElementIsRendered(ExpectedConditions.ElementToBeClickable(By.XPath(submitSelector)));
             submit.Click();
         }
 
         private void Then_response_status_should_be(HttpStatusCode code)
         {
             var selector = GetResponseStatusSelector(_delEndpointUrl, _method);
-            var status = _driver.WaitElementIsRendered(By.XPath(selector));
+            var status = _driver.ExplicitWaitElementIsRendered(ExpectedConditions.ElementIsVisible(By.XPath(selector)));
             var responseCode = ((int) code).ToString();
 
             Assert.True(string.Equals(status.Text, responseCode), $"Expected status: {responseCode}, actual status: {status.Text}");

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>HealthMonitoring.Monitors.Nsb5.Rabbitmq-deploy</id>
+        <id>HealthMonitoring.Monitors.Nsb5.RabbitMq-deploy</id>
         <version>$version$</version>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <summary>Nsb5.RabbitMq Monitor for HealthMonitoring Service (deployment package)</summary>
@@ -10,7 +10,7 @@
         <description>Nsb5.RabbitMq Monitor for HealthMonitoring Service (deployment package)</description>
     </metadata>
 	<files>
-	<file src="HealthMonitoring.Monitors.Nsb5.Rabbitmq\bin\Release\**\*" target="." exclude="**\*.pdb;**\*.xml"/>
+	<file src="HealthMonitoring.Monitors.Nsb5.RabbitMq\bin\Release\**\*" target="." exclude="**\*.pdb;**\*.xml"/>
   </files>
 </package>
 

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{212FDE21-E4C5-41F5-B898-0435636D1EE7}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,7 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		HealthMonitoring.Monitors.Http-deploy.nuspec = HealthMonitoring.Monitors.Http-deploy.nuspec
 		HealthMonitoring.Monitors.Nsb3-deploy.nuspec = HealthMonitoring.Monitors.Nsb3-deploy.nuspec
 		HealthMonitoring.Monitors.Nsb5.Msmq-deploy.nuspec = HealthMonitoring.Monitors.Nsb5.Msmq-deploy.nuspec
-		HealthMonitoring.Monitors.Nsb5.Rabbitmq-deploy.nuspec = HealthMonitoring.Monitors.Nsb5.Rabbitmq-deploy.nuspec
+		HealthMonitoring.Monitors.Nsb5.RabbitMq-deploy.nuspec = HealthMonitoring.Monitors.Nsb5.RabbitMq-deploy.nuspec
+		HealthMonitoring.Monitors.Nsb6.RabbitMq-deploy.nuspec = HealthMonitoring.Monitors.Nsb6.RabbitMq-deploy.nuspec
 		HealthMonitoring.Service-deploy.nuspec = HealthMonitoring.Service-deploy.nuspec
 		LICENSE = LICENSE
 		README.md = README.md
@@ -30,12 +31,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Acceptance
 	ProjectSection(ProjectDependencies) = postProject
 		{CD713C15-4FCD-4AC2-B0B0-8173F580A0AF} = {CD713C15-4FCD-4AC2-B0B0-8173F580A0AF}
 		{C7EB3E43-9DC4-4D10-9799-3371133BAEF9} = {C7EB3E43-9DC4-4D10-9799-3371133BAEF9}
+		{CC8E6267-4F07-4286-BDCC-C812572CD79D} = {CC8E6267-4F07-4286-BDCC-C812572CD79D}
 		{59F2C984-F0A4-402E-ADF3-FB5E1ED46B73} = {59F2C984-F0A4-402E-ADF3-FB5E1ED46B73}
 		{DEDA7C86-EC81-4C92-95CF-9BFBF7362B05} = {DEDA7C86-EC81-4C92-95CF-9BFBF7362B05}
 		{35E7D788-521C-4944-93F0-7C064B28F9A3} = {35E7D788-521C-4944-93F0-7C064B28F9A3}
 		{D2B2C794-D3FB-4CC1-8FC0-DA4B627156C9} = {D2B2C794-D3FB-4CC1-8FC0-DA4B627156C9}
 		{77CFC2D9-8306-439A-94B5-2F6C2A0B388C} = {77CFC2D9-8306-439A-94B5-2F6C2A0B388C}
 		{318A5BE2-CC1A-4768-9E80-0245F4374B7A} = {318A5BE2-CC1A-4768-9E80-0245F4374B7A}
+		{E41F26FB-56CE-4980-A031-C64A4FA81FAD} = {E41F26FB-56CE-4980-A031-C64A4FA81FAD}
 		{F1D68DFC-6147-4831-8D03-05712A222F29} = {F1D68DFC-6147-4831-8D03-05712A222F29}
 	EndProjectSection
 EndProject
@@ -61,9 +64,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.N
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.SampleNsb5Host.Msmq", "HealthMonitoring.SampleNsb5Host.Msmq\HealthMonitoring.SampleNsb5Host.Msmq.csproj", "{318A5BE2-CC1A-4768-9E80-0245F4374B7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.SampleNsb5Host.Rabbitmq", "HealthMonitoring.SampleNsb5Host.Rabbitmq\HealthMonitoring.SampleNsb5Host.Rabbitmq.csproj", "{F1D68DFC-6147-4831-8D03-05712A222F29}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.SampleNsb5Host.RabbitMq", "HealthMonitoring.SampleNsb5Host.RabbitMq\HealthMonitoring.SampleNsb5Host.RabbitMq.csproj", "{F1D68DFC-6147-4831-8D03-05712A222F29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.Nsb5.Rabbitmq", "HealthMonitoring.Monitors.Nsb5.Rabbitmq\HealthMonitoring.Monitors.Nsb5.Rabbitmq.csproj", "{77CFC2D9-8306-439A-94B5-2F6C2A0B388C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.Nsb5.RabbitMq", "HealthMonitoring.Monitors.Nsb5.RabbitMq\HealthMonitoring.Monitors.Nsb5.RabbitMq.csproj", "{77CFC2D9-8306-439A-94B5-2F6C2A0B388C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.SelfHost", "HealthMonitoring.Monitors.SelfHost\HealthMonitoring.Monitors.SelfHost.csproj", "{35E7D788-521C-4944-93F0-7C064B28F9A3}"
 EndProject
@@ -104,6 +107,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{DC4C0EF7-F2B6-4B1A-B5D4-7E6C2976619B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Examples.ServiceWithPushIntegration", "HealthMonitoring.Examples.ServiceWithPushIntegration\HealthMonitoring.Examples.ServiceWithPushIntegration.csproj", "{477A2FC6-8A0F-457A-B60B-5DAA2DCBA1A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.Nsb6.RabbitMq", "HealthMonitoring.Monitors.Nsb6.RabbitMq\HealthMonitoring.Monitors.Nsb6.RabbitMq.csproj", "{E41F26FB-56CE-4980-A031-C64A4FA81FAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.Monitors.Nsb6.Messages", "HealthMonitoring.Monitors.Nsb6.Messages\HealthMonitoring.Monitors.Nsb6.Messages.csproj", "{F9E2EE2F-AEC4-4AEC-B116-5F03B396E379}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoring.SampleNsb6Host.RabbitMq", "HealthMonitoring.SampleNsb6Host.RabbitMq\HealthMonitoring.SampleNsb6Host.RabbitMq.csproj", "{CC8E6267-4F07-4286-BDCC-C812572CD79D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -227,6 +236,18 @@ Global
 		{477A2FC6-8A0F-457A-B60B-5DAA2DCBA1A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{477A2FC6-8A0F-457A-B60B-5DAA2DCBA1A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{477A2FC6-8A0F-457A-B60B-5DAA2DCBA1A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E41F26FB-56CE-4980-A031-C64A4FA81FAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E41F26FB-56CE-4980-A031-C64A4FA81FAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E41F26FB-56CE-4980-A031-C64A4FA81FAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E41F26FB-56CE-4980-A031-C64A4FA81FAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9E2EE2F-AEC4-4AEC-B116-5F03B396E379}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9E2EE2F-AEC4-4AEC-B116-5F03B396E379}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9E2EE2F-AEC4-4AEC-B116-5F03B396E379}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9E2EE2F-AEC4-4AEC-B116-5F03B396E379}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC8E6267-4F07-4286-BDCC-C812572CD79D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC8E6267-4F07-4286-BDCC-C812572CD79D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC8E6267-4F07-4286-BDCC-C812572CD79D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC8E6267-4F07-4286-BDCC-C812572CD79D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -263,5 +284,8 @@ Global
 		{83B5CDAC-0057-4BFE-923C-C3F6ED6D1E7F} = {DA590DAB-17A4-4DDB-B43F-9EFB2C53C532}
 		{BF7A5A31-CBA0-44D1-A9A2-F68D6662748F} = {11868196-C99E-4959-BE4D-7BEB75B76986}
 		{477A2FC6-8A0F-457A-B60B-5DAA2DCBA1A8} = {DC4C0EF7-F2B6-4B1A-B5D4-7E6C2976619B}
+		{E41F26FB-56CE-4980-A031-C64A4FA81FAD} = {91A91C2C-1198-43E5-BFDA-D8F7D3521257}
+		{F9E2EE2F-AEC4-4AEC-B116-5F03B396E379} = {91A91C2C-1198-43E5-BFDA-D8F7D3521257}
+		{CC8E6267-4F07-4286-BDCC-C812572CD79D} = {F0A0E7E8-5BFB-483F-84DA-957D5930539B}
 	EndGlobalSection
 EndGlobal

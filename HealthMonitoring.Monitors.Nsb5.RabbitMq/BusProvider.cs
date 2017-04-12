@@ -5,11 +5,11 @@ using NServiceBus.Config;
 using NServiceBus.Config.ConfigurationSource;
 using NServiceBus.Logging;
 
-namespace HealthMonitoring.Monitors.Nsb5.Rabbitmq
+namespace HealthMonitoring.Monitors.Nsb5.RabbitMq
 {
     internal static class BusProvider
     {
-        public const string QueueName = "HealthMonitoring.Monitors.Nsb5.Rabbitmq";
+        public const string QueueName = "HealthMonitoring.Monitors.Nsb5.RabbitMq";
         public const string ErrorQueueName = QueueName + ".Errors";
 
         public static IBus Create(TimeSpan timeout)

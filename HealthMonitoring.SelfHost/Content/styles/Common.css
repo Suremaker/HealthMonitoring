@@ -18,3 +18,11 @@
 .endpointTag:hover {
     cursor: pointer;
 }
+
+.endpointTag.listed:hover {
+    cursor: default !important;
+}
+
+.responseTime {
+    text-align: left !important;
+}

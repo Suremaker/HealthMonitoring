@@ -9,7 +9,7 @@ namespace HealthMonitoring.AcceptanceTests.Scenarios
 @"In order to monitor system effectively
 As ops
 I want to monitor registered nsb5 rabbitmq endpoints")]
-    public partial class Nsb5_Rabbitmq_endpoint_monitoring
+    public partial class Nsb5_RabbitMq_endpoint_monitoring
     {
         [Scenario]
         public void Monitoring_inexistent_or_faulty_nsb_endpoint()
