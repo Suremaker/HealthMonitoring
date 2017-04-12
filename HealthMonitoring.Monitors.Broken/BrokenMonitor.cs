@@ -17,6 +17,5 @@ namespace HealthMonitoring.Monitors.Broken
         {
             throw new Exception("something is broken");
         }
-
     }
 }

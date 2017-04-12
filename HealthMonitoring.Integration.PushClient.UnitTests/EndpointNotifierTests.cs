@@ -32,9 +32,6 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
         public async Task Notifier_should_send_notifications_within_specified_time_span()
         {
             var minimumChecks = 3;
-            var expectedEventTimeline = new List<string>();
-            for (var i = 0; i < minimumChecks; ++i)
-                expectedEventTimeline.AddRange(new[] { "updateHealth_start", "delay_start", "update_finish", "update_finish" });
 
             var countdown = new AsyncCountdown("notifications", minimumChecks);
             var endpointId = Guid.NewGuid();
@@ -56,11 +53,19 @@ namespace HealthMonitoring.Integration.PushClient.UnitTests
                 await countdown.WaitAsync(TestMaxTime);
 
             var actualEventTimeline = _awaitableFactory.GetOrderedTimelineEvents()
-                .Select(eventName => (eventName == "updateHealth_finish" || eventName == "delay_finish") ? "update_finish" : eventName)
+                .Select(eventName => eventName == "updateHealth_start" || eventName == "delay_start" ? "update_start" : eventName)
+                .Select(eventName => eventName == "updateHealth_finish" || eventName == "delay_finish" ? "update_finish" : eventName)
                 .Take(minimumChecks * 4)
                 .ToArray();
 
-            Assert.True(expectedEventTimeline.SequenceEqual(actualEventTimeline), $"Expected:\n{string.Join(",", expectedEventTimeline)}\nGot:\n{string.Join(",", actualEventTimeline)}");
+            for (int i = 0; i < minimumChecks; i++)
+            {
+                var actualSequence = actualEventTimeline.Skip(i * 4).Take(4).ToList();
+                Assert.Equal("update_start", actualSequence.First());
+                Assert.Equal("update_finish", actualSequence.Last());
+                Assert.Equal(2, actualSequence.Count(s => s == "update_start"));
+                Assert.Equal(2, actualSequence.Count(s => s == "update_finish"));
+            }
         }
 
         [Fact]
