@@ -5,7 +5,6 @@ using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Selenium;
 using LightBDD.XUnit2;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Support.UI;
 using RestSharp;
 using Xunit;
 using Xunit.Abstractions;
