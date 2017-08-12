@@ -1,5 +1,6 @@
 ﻿using HealthMonitoring.AcceptanceTests.Helpers;
-using LightBDD;
+using LightBDD.Framework.Formatting;
+using LightBDD.XUnit2;
 using Newtonsoft.Json;
 using RestSharp;
 using Xunit;

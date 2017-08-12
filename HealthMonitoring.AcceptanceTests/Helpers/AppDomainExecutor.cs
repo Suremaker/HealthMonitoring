@@ -6,14 +6,9 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
 {
     public class AppDomainExecutor
     {
-        private static string _assemblyPath;
-
         public static Tuple<Thread, AppDomain> StartAssembly(string exeRelativePath)
         {
-            if (_assemblyPath == null)
-                throw new InvalidOperationException("AppDomainExecutor not initialized");
-
-            var exePath = Path.GetDirectoryName(_assemblyPath) + "\\" + exeRelativePath;
+            var exePath = AppContext.BaseDirectory + "\\" + exeRelativePath;
 
             var setup = new AppDomainSetup
             {
@@ -39,11 +34,6 @@ namespace HealthMonitoring.AcceptanceTests.Helpers
                 process.Item1.Join();
             }
             catch { }
-        }
-
-        public static void Initialize(string assemblyPath)
-        {
-            _assemblyPath = assemblyPath;
         }
     }
 }

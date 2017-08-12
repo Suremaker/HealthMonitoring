@@ -1,5 +1,4 @@
 ﻿using System;
-using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Selenium;
 using OpenQA.Selenium;
 

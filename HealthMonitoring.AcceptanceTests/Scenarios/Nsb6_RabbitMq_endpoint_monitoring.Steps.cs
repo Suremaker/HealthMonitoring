@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Entities;
-using LightBDD;
-using Newtonsoft.Json;
+using LightBDD.XUnit2;
 using RabbitMQ.Client;
 using RestSharp;
 using Xunit;

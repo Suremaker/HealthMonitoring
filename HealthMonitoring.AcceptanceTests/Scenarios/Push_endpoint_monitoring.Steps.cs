@@ -8,7 +8,7 @@ using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Entities;
 using HealthMonitoring.Integration.PushClient;
 using HealthMonitoring.Integration.PushClient.Monitoring;
-using LightBDD;
+using LightBDD.XUnit2;
 using RestSharp;
 using Xunit;
 using Xunit.Abstractions;

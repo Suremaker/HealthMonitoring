@@ -2,7 +2,7 @@
 using System.Linq;
 using HealthMonitoring.AcceptanceTests.Helpers;
 using HealthMonitoring.AcceptanceTests.Helpers.Selenium;
-using LightBDD;
+using LightBDD.XUnit2;
 using OpenQA.Selenium;
 using RestSharp;
 using Xunit;

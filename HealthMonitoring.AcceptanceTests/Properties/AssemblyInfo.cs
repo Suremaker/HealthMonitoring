@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("HealthMonitoring.AcceptanceTests")]
@@ -14,6 +13,3 @@ using System.Runtime.InteropServices;
 [assembly: Guid("8d2cfa8a-f44f-4de2-98bc-b19eb496f003")]
 [assembly: AssemblyVersion("3.9.0.0")]
 [assembly: AssemblyFileVersion("3.9.0.0")]
-
-// Allows to display scenario names properly in Release mode
-[assembly: Debuggable(true, true)]
